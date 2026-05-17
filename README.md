@@ -60,6 +60,23 @@ The repo is organised by **Gewerk** (trade). Each trade ships as its own app sha
 
 The Tischler app currently ships one workpiece (Schwalbenschwanz / dovetail). Future workpieces extend the route table without changing core packages.
 
+> ⚠️ **localStorage scope across trades.** Keys are origin-scoped by the browser. If you deploy every trade on its own domain (`tischler.example.app`, `maurer.example.app`) keys cannot collide. If you deploy multiple trades behind the *same* origin (e.g. `example.app/tischler`, `example.app/maurer`), include the trade in the key prefix — bump to `craft-codex:tischler:dovetail:session` to avoid mode-state leaking between trades.
+
+### Dev port map
+
+Each trade app runs its own dev server. Use a different port per trade so parallel development doesn't collide.
+
+| Trade | Port |
+|---|---|
+| `apps/tischler/` | 3100 |
+| `apps/maurer/` (planned) | 3101 |
+| `apps/zimmerer/` (planned) | 3102 |
+| `apps/elektro/` (planned) | 3103 |
+| `apps/schlosser/` (planned) | 3104 |
+| `apps/kfz/` (planned) | 3105 |
+
+Override per environment: `PORT=3200 pnpm --filter @craft-codex/tischler dev`.
+
 ## Phase status
 
 | Phase | Scope | Status |

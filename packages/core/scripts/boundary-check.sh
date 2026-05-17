@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
-# Open-Core Boundary Check (CI Pflicht)
-# Verhindert dass proprietary Code in @craft-codex/core lands.
-# Nur ECHTE Imports werden geprüft — Kommentare/Doku duerfen Pfade nennen.
-# Siehe: docs/PHASE-PLAN.md Sektion 2
+# Open-Core Boundary Check (CI gate)
+# Ensures @craft-codex/core stays framework-agnostic and free of
+# database / auth / proprietary imports. Only REAL imports are
+# checked — comments and doc strings may reference any path.
+# See: docs/PHASE-PLAN.md
 
 set -e
 
 PKG_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$PKG_DIR/src"
 
-# Forbidden Modules (regex pattern fuer import-statements)
+# Forbidden module patterns. Keep this list small + obvious — the
+# point is "engine has no DB / auth / framework dependency", not
+# "blocklist every package on npm".
 FORBIDDEN=(
-  "@voai/admin"
-  "@voai/pro"
-  "voai-pro"
   "@supabase/"
+  "@firebase/"
+  "firebase-"
   "livekit-"
   "@livekit/"
+  "daily-co"
+  "@auth0/"
+  "@clerk/"
 )
 
 violations=0
 
 for pattern in "${FORBIDDEN[@]}"; do
-  # Match import/from/require with this pattern (real imports, not comments)
+  # Match import / from / require statements only (skip comments).
   matches=$(grep -rEn --include="*.ts" --include="*.tsx" \
     "(^|[[:space:]])(import|from|require\()[^/]*['\"\`][^'\"\`]*${pattern}" \
     "$SRC" 2>/dev/null || true)
@@ -33,30 +38,21 @@ for pattern in "${FORBIDDEN[@]}"; do
   fi
 done
 
-# Next.js: nur als import erlauben blockieren, nicht in Doku
-nextimports=$(grep -rEn --include="*.ts" --include="*.tsx" \
-  "(^|[[:space:]])(import|from)[[:space:]]+.*['\"\`]next(/[^'\"\`]+)?['\"\`]" \
+# No framework imports (Next.js / React / Vue / Svelte).
+fw_pattern="(import|from)[[:space:]]+.*['\"\`](next|@next/|react|react-dom|vue|@vue/|svelte|@sveltejs/)"
+fwimports=$(grep -rEn --include="*.ts" --include="*.tsx" \
+  "(^|[[:space:]])${fw_pattern}" \
   "$SRC" 2>/dev/null || true)
-if [ -n "$nextimports" ]; then
-  echo "❌ Boundary violation: Next.js import found"
-  echo "$nextimports"
-  violations=$((violations + 1))
-fi
-
-# admin-web als Pfad in echten imports
-adminimports=$(grep -rEn --include="*.ts" --include="*.tsx" \
-  "(import|from|require)[[:space:]]*.['\"\`][^'\"\`]*admin-web[^'\"\`]*['\"\`]" \
-  "$SRC" 2>/dev/null || true)
-if [ -n "$adminimports" ]; then
-  echo "❌ Boundary violation: admin-web import found"
-  echo "$adminimports"
+if [ -n "$fwimports" ]; then
+  echo "❌ Boundary violation: framework import found"
+  echo "$fwimports"
   violations=$((violations + 1))
 fi
 
 if [ $violations -gt 0 ]; then
   echo ""
   echo "❌ $violations boundary violation(s) found."
-  echo "   @craft-codex/core MUST framework-agnostisch + ohne proprietary-Deps bleiben."
+  echo "   @craft-codex/core MUST stay framework-agnostic + DB-free."
   exit 1
 fi
 

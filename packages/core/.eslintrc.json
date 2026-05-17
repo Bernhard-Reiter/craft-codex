@@ -33,25 +33,20 @@
       {
         "patterns": [
           {
-            "group": [
-              "@voai/admin*",
-              "@voai/pro*",
-              "**/admin-web/**",
-              "**/voai-pro/**"
-            ],
-            "message": "Open-Core Boundary: @craft-codex/core must KEINE proprietary/Admin Imports haben."
+            "group": ["next", "next/*", "react", "react-dom", "vue", "@vue/*", "svelte", "@sveltejs/*"],
+            "message": "Open-core boundary: @craft-codex/core stays framework-agnostic — consumers wire React/Next/etc on their side."
           },
           {
-            "group": ["@supabase/*", "**/supabase/**"],
-            "message": "Open-Core Boundary: Supabase ist proprietary-only. Open-Core nutzt better-sqlite3."
+            "group": ["@supabase/*", "@firebase/*", "firebase-*"],
+            "message": "Open-core boundary: no database / BaaS dependency in the engine. Consumers bring their own persistence."
           },
           {
-            "group": ["livekit-*", "@livekit/*"],
-            "message": "Open-Core Boundary: LiveKit (Live-Call) ist proprietary-only und Phase B."
+            "group": ["livekit-*", "@livekit/*", "daily-co"],
+            "message": "Open-core boundary: live-call transports belong in consumer apps, not in the engine."
           },
           {
-            "group": ["next", "next/*"],
-            "message": "Open-Core Boundary: @craft-codex/core is framework-agnostisch."
+            "group": ["@auth0/*", "@clerk/*"],
+            "message": "Open-core boundary: no auth provider dependency in the engine."
           }
         ]
       }

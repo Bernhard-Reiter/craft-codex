@@ -83,6 +83,13 @@ export class CachedTTSProvider implements ITTSProvider {
   private async *fetchCached(
     entry: TTSCacheManifestEntry,
   ): AsyncIterable<TTSChunk> {
+    // Path-validation: cache files MUST be under /tts-cache/ and contain
+    // no protocol scheme. Guards against a malicious manifest that could
+    // redirect to an external URL (SSRF-style). CORS already restricts
+    // cross-origin fetches, but the principle of least surprise applies.
+    if (!entry.file.startsWith("/tts-cache/") || entry.file.includes("://")) {
+      throw new Error(`Invalid cache entry path: ${entry.file}`);
+    }
     const f = this.fetchImpl ?? globalThis.fetch;
     const response = await f(`${this.baseUrl}${entry.file}`);
     if (!response.ok || !response.body) {

@@ -28,6 +28,20 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Guard against client-side API key env vars
+        run: |
+          # WebXR provider env vars must NEVER be prefixed NEXT_PUBLIC_ —
+          # that would inline the value into the browser bundle and leak
+          # the key to every visitor. Real provider calls happen only
+          # server-side (Phase E API routes).
+          if grep -rE "NEXT_PUBLIC_(ANTHROPIC|OPENAI|ELEVENLABS|GROQ)[A-Z_]*(_API_KEY|_TOKEN|_SECRET)" \
+              apps/ packages/ 2>/dev/null; then
+            echo "::error::Found NEXT_PUBLIC_* API-key env var — these are inlined into the browser bundle"
+            echo "Move provider calls to Next.js API routes (server-side) and use plain ANTHROPIC_API_KEY etc."
+            exit 1
+          fi
+          echo "✓ No public API key env vars found"
+
       - name: Typecheck (@craft-codex/core)
         run: pnpm --filter @craft-codex/core typecheck
 

@@ -120,13 +120,59 @@ describe("CachedTTSProvider", () => {
     );
   });
 
+  it("rejects manifest entry with protocol scheme (SSRF guard)", async () => {
+    const text = "X";
+    const hash = await hashText(text);
+    const manifest: TTSCacheManifest = {
+      version: 1,
+      entries: {
+        [hash]: {
+          text,
+          file: "https://attacker.example.com/exfil.pcm",
+          sampleRate: 24000,
+        },
+      },
+    };
+    const fetchImpl = vi.fn();
+    const p = new CachedTTSProvider({
+      upstream: new StubUpstream(),
+      manifest,
+      fetchImpl,
+    });
+    await expect(collect(p.synthesizeStream(text))).rejects.toThrow(
+      /Invalid cache entry path/,
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("rejects manifest entry outside /tts-cache/ (path-traversal guard)", async () => {
+    const text = "Y";
+    const hash = await hashText(text);
+    const manifest: TTSCacheManifest = {
+      version: 1,
+      entries: {
+        [hash]: { text, file: "/etc/passwd", sampleRate: 24000 },
+      },
+    };
+    const fetchImpl = vi.fn();
+    const p = new CachedTTSProvider({
+      upstream: new StubUpstream(),
+      manifest,
+      fetchImpl,
+    });
+    await expect(collect(p.synthesizeStream(text))).rejects.toThrow(
+      /Invalid cache entry path/,
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("cache fetch fail → wirft (kein silent fallback)", async () => {
     const text = "X";
     const hash = await hashText(text);
     const manifest: TTSCacheManifest = {
       version: 1,
       entries: {
-        [hash]: { text, file: "/missing.pcm", sampleRate: 24000 },
+        [hash]: { text, file: "/tts-cache/missing.pcm", sampleRate: 24000 },
       },
     };
     const fetchImpl = vi
