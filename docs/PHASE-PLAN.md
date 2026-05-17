@@ -6,7 +6,7 @@ A staged build-up from procedural geometry to a complete voice-driven AR teachin
 
 Procedural dovetail math, 3D scene, learning step switcher, parameter sliders. Stubs for the master surface modes and the voice pipeline.
 
-**Engine work** (`packages/lehrlings-core/`):
+**Engine work** (`packages/core/`):
 
 - `computePins(params)` — parametric pin geometry (3 distribution modes)
 - `generateMarkings(step, params)` — marking lines per learning step
@@ -14,7 +14,7 @@ Procedural dovetail math, 3D scene, learning step switcher, parameter sliders. S
 - `markingsToLineSegments` — polylines → THREE.LineSegments with vertex colors
 - Interface stubs for `SurfaceMode`, `ITrackingProvider`, `IRAGProvider`, voice providers
 
-**App work** (`apps/lehrling-edu/`):
+**App work** (`apps/dovetail/`):
 
 - Next.js 15 + React 19 + Three.js / R3F v9 / drei v10 / @react-three/xr v6
 - `/` landing, `/dovetail` 3D scene, sliders, mode bar
@@ -94,7 +94,7 @@ Plus optional commercial features outside the MIT engine:
 - Pure-logic unit tests dominate (vitest `environment: "node"`)
 - Custom `fetchImpl` parameter on all real providers → tests use mocked fetch, no live API calls
 - `MemoryStorage` polyfill in storage tests (avoids jsdom complexity)
-- Boundary check script enforces no framework / DB imports in `lehrlings-core`
+- Boundary check script enforces no framework / DB imports in `@craft-codex/core`
 
 ## Build performance
 

@@ -1,6 +1,6 @@
 # Workshop Pattern — Hands-On Module With This Tool
 
-Reference structure for a 1.5-day apprentice workshop using `lehrling-edu`. Used in the initial demo cohort (June 2026). Adaptable to any vocational program.
+Reference structure for a 1.5-day apprentice workshop using `@craft-codex/dovetail`. Used in the initial demo cohort (June 2026). Adaptable to any vocational program.
 
 ## Goals
 

@@ -1,0 +1,81 @@
+{
+  "name": "@craft-codex/core",
+  "version": "0.1.0",
+  "description": "Open-core knowledge base for the trades: procedural geometry, surface-mode plugin system, voice + tracking + RAG interfaces. Framework-agnostic, MIT.",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./geometry": {
+      "types": "./dist/geometry/index.d.ts",
+      "import": "./dist/geometry/index.js"
+    },
+    "./surface": {
+      "types": "./dist/surface/index.d.ts",
+      "import": "./dist/surface/index.js"
+    },
+    "./voice": {
+      "types": "./dist/voice/index.d.ts",
+      "import": "./dist/voice/index.js"
+    },
+    "./tracking": {
+      "types": "./dist/tracking/index.d.ts",
+      "import": "./dist/tracking/index.js"
+    },
+    "./rag": {
+      "types": "./dist/rag/index.d.ts",
+      "import": "./dist/rag/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "boundary-check": "bash scripts/boundary-check.sh"
+  },
+  "keywords": [
+    "lehrling",
+    "apprentice",
+    "education",
+    "mixed-reality",
+    "webxr",
+    "woodworking",
+    "schwalbenschwanz",
+    "dovetail",
+    "open-core"
+  ],
+  "author": "VOAI / Bernhard Reiter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bernhard-Reiter/craft-codex.git",
+    "directory": "packages/core"
+  },
+  "peerDependencies": {
+    "three": "^0.170.0",
+    "three-bvh-csg": "^0.0.17"
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "three": "^0.170.0",
+    "three-bvh-csg": "^0.0.17",
+    "typescript": "^5.3.3",
+    "vitest": "^2.1.0",
+    "eslint": "^9.0.0"
+  }
+}

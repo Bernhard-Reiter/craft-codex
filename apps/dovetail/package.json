@@ -1,0 +1,38 @@
+{
+  "name": "@craft-codex/dovetail",
+  "version": "0.1.0",
+  "private": false,
+  "license": "MIT",
+  "description": "Dovetail-joint MR tutor for woodworking apprentices. Next.js + Three.js + WebXR, MIT, browser-only storage in MVP.",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "tts:cache": "node scripts/build-tts-cache.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.0",
+    "@react-three/fiber": "^9.6.0",
+    "@react-three/xr": "^6.6.0",
+    "@craft-codex/core": "workspace:*",
+    "hls.js": "^1.5.0",
+    "next": "^15.5.15",
+    "perfect-freehand": "^1.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "three": "^0.170.0",
+    "three-bvh-csg": "^0.0.17",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.170.0",
+    "typescript": "^5.3.3",
+    "vitest": "^2.1.0"
+  }
+}

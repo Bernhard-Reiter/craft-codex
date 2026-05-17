@@ -1,14 +1,16 @@
-# Lehrling-Edu MVP
+# Craft Codex
 
-> Mixed-Reality teaching tool for woodworking apprentices. Open-source, **MIT**.
+> Mixed-Reality knowledge base for the trades. Open-source, **MIT**.
 
-A three-layer learning augmentation for the trade of cabinetmaking — starting with the dovetail joint (Schwalbenschwanz):
+A three-layer learning augmentation for hands-on craft education — starting with the dovetail joint (Schwalbenschwanz) for woodworking apprentices.
 
-- 🎙️ **Voice layer** — master speaks from off-stage (Phase D dormant pipeline: Whisper + Claude + ElevenLabs)
+- 🎙️ **Voice layer** — master speaks from off-stage (dormant Whisper + Claude + ElevenLabs pipeline)
 - ✨ **Hologram layer** — marking lines + tool paths projected onto the real workpiece (WebXR)
-- 📋 **Master surface** — floating board with plugin system (drawing, CAD, video)
+- 📋 **Master surface** — floating board with a plugin system (drawing, CAD, video)
 
 **No avatar render.** The apprentice focuses on the workpiece, not on the rendering.
+
+The architecture is trade-agnostic: a new trade ships as a new app (e.g. `apps/metallbearbeitung`) reusing the same `packages/core` engine.
 
 ## Quick start
 
@@ -25,13 +27,13 @@ Open `/dovetail` for the 2D demo, `/dovetail/xr` for immersive WebXR (Quest 3 / 
 ```
 .
 ├── apps/
-│   └── lehrling-edu/          Next.js 15 standalone app (MIT)
+│   └── dovetail/              First tutor app — dovetail joint for cabinetmakers
 │       ├── app/               /, /dovetail, /dovetail/xr, /voice
 │       ├── components/        R3F scene + UI building blocks
 │       ├── lib/               Provider implementations
 │       └── scripts/           TTS-cache builder for offline demos
 └── packages/
-    └── lehrlings-core/        Framework-agnostic engine (MIT)
+    └── core/                  Framework-agnostic engine (the codex)
         ├── geometry/          Procedural dovetail math + CSG helpers
         ├── tracking/          ITrackingProvider (3 strategies)
         ├── surface/           SurfaceMode plugin system + ModeManager
@@ -66,23 +68,21 @@ Open `/dovetail` for the 2D demo, `/dovetail/xr` for immersive WebXR (Quest 3 / 
 
 ## Knowledge base
 
-The Voice pipeline answers from a **41-document RAG corpus** covering all five learning steps (anreissen, saegen, stemmen, passen, pruefen) plus tool knowledge, wood knowledge, and safety. Sources include:
+The voice pipeline answers from a **41-document RAG corpus** covering all five learning steps of the dovetail joint (anreissen, saegen, stemmen, passen, pruefen) plus tool knowledge, wood knowledge, and safety. Sources include:
 
 - Wikipedia DE (CC-BY-SA 4.0, full-text chunks)
 - Lehrplan-AT vocational ordinance (official document)
 - Paraphrased domain knowledge from standard works (Spannagel, Klausz, Pollak) — original works are copyrighted
 
-See `apps/lehrling-edu/lib/rag/corpus/dovetail-corpus.ts` for full attribution + topic coverage.
+See `apps/dovetail/lib/rag/corpus/dovetail-corpus.ts` for full attribution + topic coverage.
 
 ## Voice modes
 
 ```typescript
-import {
-  createVoiceProviders,
-  LocalRAGProvider,
-  StubTopicGuard,
-  getDovetailCorpus,
-} from "@voai/lehrling-edu/lib/voice";
+import { createVoiceProviders } from "@craft-codex/dovetail/lib/voice/factory";
+import { LocalRAGProvider } from "@craft-codex/dovetail/lib/rag/local-rag";
+import { StubTopicGuard } from "@craft-codex/dovetail/lib/rag/topic-guard";
+import { getDovetailCorpus } from "@craft-codex/dovetail/lib/rag/corpus/dovetail-corpus";
 
 const rag = new LocalRAGProvider(getDovetailCorpus());
 const guard = new StubTopicGuard({ rag, blacklist: ["bitcoin"] });
@@ -100,26 +100,26 @@ const providers = createVoiceProviders({
 
 ## Open-Core
 
-This repo is the **MIT engine + reference app**. Optional commercial features (multi-tenant auth, advanced RAG, live-call mode, compliance/audit) are not part of this package.
+This repo is the **MIT engine + reference tutor**. Optional commercial extensions (multi-tenant auth, advanced RAG, live-call mode, compliance/audit) live in separate packages outside this MIT engine.
 
-The `boundary-check.sh` script in `packages/lehrlings-core/` enforces that the core stays free of framework / database / auth imports — anyone can fork and host without any commercial dependency.
+The `boundary-check.sh` script in `packages/core/` enforces that the engine stays free of framework / database / auth imports — anyone can fork and host without any commercial dependency.
 
 ## Demo deployment
 
 ```bash
-cd apps/lehrling-edu
+cd apps/dovetail
 vercel link
 vercel --prod
 ```
 
-WebXR requires HTTPS — Vercel provides this out of the box. See `apps/lehrling-edu/DEPLOY.md` for full setup including Permissions-Policy headers and the optional pre-cached TTS audio for offline fallback.
+WebXR requires HTTPS — Vercel provides this out of the box. See `apps/dovetail/DEPLOY.md` for full setup including Permissions-Policy headers and the optional pre-cached TTS audio for offline fallback.
 
 ## Testing
 
 ```bash
 pnpm test            # all packages
 pnpm typecheck       # tsc --noEmit across workspace
-pnpm boundary-check  # enforces open-core boundary in lehrlings-core
+pnpm boundary-check  # enforces open-core boundary
 pnpm build           # production build
 ```
 
@@ -130,14 +130,15 @@ Currently ~220 unit tests across the workspace (geometry, CSG, providers, RAG, v
 - **Q2 2026** Phase E — server-side voice proxy + auth integration
 - **Q3 2026** Tafel mode: real-time AI-generated SVG diagrams; image-tracking on real boards
 - **Q4 2026** Live-call mode (LiveKit / WebRTC); ArUco / OpenCV.js fallback tracking
+- **2027+** Additional trades — `apps/metallbearbeitung`, `apps/elektro`, `apps/kfz` — reusing the same core engine
 
 ## Contributing
 
 Pull requests welcome. The repo follows a few conventions:
 
 - All real provider calls go through `fetchImpl` for testability
-- Browser-only modules guard against SSR (typeof window check)
-- Boundary check must pass — no framework / DB imports in `lehrlings-core`
+- Browser-only modules guard against SSR (`typeof window` check)
+- Boundary check must pass — no framework / DB imports in `packages/core`
 - TS strict mode, no `any` outside explicit boundaries
 
 ## License

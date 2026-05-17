@@ -28,26 +28,26 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck (lehrlings-core)
-        run: pnpm --filter @voai/lehrlings-core typecheck
+      - name: Typecheck (@craft-codex/core)
+        run: pnpm --filter @craft-codex/core typecheck
 
-      - name: Test (lehrlings-core)
-        run: pnpm --filter @voai/lehrlings-core test
+      - name: Test (@craft-codex/core)
+        run: pnpm --filter @craft-codex/core test
 
       - name: Boundary check
-        run: pnpm --filter @voai/lehrlings-core boundary-check
+        run: pnpm --filter @craft-codex/core boundary-check
 
-      - name: Build (lehrlings-core)
-        run: pnpm --filter @voai/lehrlings-core build
+      - name: Build (@craft-codex/core)
+        run: pnpm --filter @craft-codex/core build
 
-      - name: Typecheck (lehrling-edu)
-        run: pnpm --filter @voai/lehrling-edu typecheck
+      - name: Typecheck (@craft-codex/dovetail)
+        run: pnpm --filter @craft-codex/dovetail typecheck
 
-      - name: Test (lehrling-edu)
-        run: pnpm --filter @voai/lehrling-edu test
+      - name: Test (@craft-codex/dovetail)
+        run: pnpm --filter @craft-codex/dovetail test
 
-      - name: Lint (lehrling-edu)
-        run: pnpm --filter @voai/lehrling-edu lint
+      - name: Lint (@craft-codex/dovetail)
+        run: pnpm --filter @craft-codex/dovetail lint
 
-      - name: Build (lehrling-edu)
-        run: pnpm --filter @voai/lehrling-edu build
+      - name: Build (@craft-codex/dovetail)
+        run: pnpm --filter @craft-codex/dovetail build

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm --filter @craft-codex/dovetail build",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "outputDirectory": ".next",
+  "regions": ["fra1"],
+  "headers": [
+    {
+      "source": "/worklets/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/dovetail/xr",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "xr-spatial-tracking=(self), camera=(self), microphone=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/voice",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "microphone=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/dovetail",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "microphone=(self), xr-spatial-tracking=(self)"
+        }
+      ]
+    }
+  ]
+}
