@@ -2,7 +2,7 @@
  * Procedural Schwalbenschwanz-Geometry.
  *
  * Berechnet Pin-Positionen + Anrisslinien mathematisch — kein Rhino-Import nötig.
- * Three.js-Mesh-Konstruktion erfolgt im Consumer (apps/dovetail) damit
+ * Three.js-Mesh-Konstruktion erfolgt im Consumer (apps/tischler) damit
  * @craft-codex/core framework-agnostisch bleibt.
  *
  * Geometrie-Konvention:

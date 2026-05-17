@@ -1,9 +1,9 @@
 {
-  "name": "@craft-codex/dovetail",
+  "name": "@craft-codex/tischler",
   "version": "0.1.0",
   "private": false,
   "license": "MIT",
-  "description": "Dovetail-joint MR tutor for woodworking apprentices. Next.js + Three.js + WebXR, MIT, browser-only storage in MVP.",
+  "description": "Cabinetmaker (Tischler) tutor app — first workpiece: dovetail joint (Schwalbenschwanz). Next.js + Three.js + WebXR. MIT, browser-only storage in MVP.",
   "scripts": {
     "dev": "next dev -p 3100",
     "build": "next build",

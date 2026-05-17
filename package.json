@@ -10,11 +10,11 @@
   },
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "dev": "pnpm --filter @craft-codex/dovetail dev",
+    "dev": "pnpm --filter @craft-codex/tischler dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm --filter @craft-codex/dovetail lint",
+    "lint": "pnpm --filter @craft-codex/tischler lint",
     "boundary-check": "pnpm --filter @craft-codex/core boundary-check"
   },
   "devDependencies": {

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lehrling-Edu — MR-Lehrtool für Holzhandwerk",
+  title: "Tischler · Craft Codex",
   description:
-    "Standalone WebXR Lehrlings-Lehrtool für Holzhandwerk (Schwalbenschwanz, Tafel, CAD).",
+    "Cabinetmaker (Tischler) tutor app — first workpiece: dovetail joint (Schwalbenschwanz). Voice + hologram + master-surface, MIT.",
 };
 
 export default function RootLayout({

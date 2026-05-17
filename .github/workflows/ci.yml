@@ -40,14 +40,14 @@ jobs:
       - name: Build (@craft-codex/core)
         run: pnpm --filter @craft-codex/core build
 
-      - name: Typecheck (@craft-codex/dovetail)
-        run: pnpm --filter @craft-codex/dovetail typecheck
+      - name: Typecheck (@craft-codex/tischler)
+        run: pnpm --filter @craft-codex/tischler typecheck
 
-      - name: Test (@craft-codex/dovetail)
-        run: pnpm --filter @craft-codex/dovetail test
+      - name: Test (@craft-codex/tischler)
+        run: pnpm --filter @craft-codex/tischler test
 
-      - name: Lint (@craft-codex/dovetail)
-        run: pnpm --filter @craft-codex/dovetail lint
+      - name: Lint (@craft-codex/tischler)
+        run: pnpm --filter @craft-codex/tischler lint
 
-      - name: Build (@craft-codex/dovetail)
-        run: pnpm --filter @craft-codex/dovetail build
+      - name: Build (@craft-codex/tischler)
+        run: pnpm --filter @craft-codex/tischler build

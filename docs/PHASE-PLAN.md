@@ -14,7 +14,7 @@ Procedural dovetail math, 3D scene, learning step switcher, parameter sliders. S
 - `markingsToLineSegments` — polylines → THREE.LineSegments with vertex colors
 - Interface stubs for `SurfaceMode`, `ITrackingProvider`, `IRAGProvider`, voice providers
 
-**App work** (`apps/dovetail/`):
+**App work** (`apps/tischler/`):
 
 - Next.js 15 + React 19 + Three.js / R3F v9 / drei v10 / @react-three/xr v6
 - `/` landing, `/dovetail` 3D scene, sliders, mode bar

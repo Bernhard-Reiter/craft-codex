@@ -3,7 +3,7 @@
  *
  * Open-Core: implementations live in consumer apps. The Open-Source
  * MVP uses an in-memory bag-of-words index (LocalRAGProvider in
- * apps/dovetail). Enterprise variants can plug in their own
+ * apps/tischler). Enterprise variants can plug in their own
  * Embedding-Backend (e.g. Qdrant, pgvector) by implementing this
  * interface — the package itself stays framework-agnostic.
  */

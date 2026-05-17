@@ -1,4 +1,4 @@
-# Deployment — @craft-codex/dovetail
+# Deployment — @craft-codex/tischler
 
 ## Production-Deployment via Vercel
 
@@ -9,12 +9,12 @@
 pnpm dlx vercel --version
 
 # 2. In den dovetail-app Ordner wechseln (Monorepo-Root project)
-cd apps/dovetail
+cd apps/tischler
 
 # 3. Mit Vercel verlinken — neues Projekt erstellen ODER bestehendes "voai-lehrling" waehlen
 vercel link
 
-# Bei "voai-lehrling": Build-Settings werden aus apps/dovetail/vercel.json gelesen
+# Bei "voai-lehrling": Build-Settings werden aus apps/tischler/vercel.json gelesen
 # Wichtig: Monorepo-Root muss als Project Root in Vercel Dashboard eingestellt sein
 ```
 
@@ -56,8 +56,8 @@ vercel --prod
 
 ```bash
 cd $(workspace root)
-pnpm --filter @craft-codex/dovetail build
-pnpm --filter @craft-codex/dovetail start
+pnpm --filter @craft-codex/tischler build
+pnpm --filter @craft-codex/tischler start
 # → http://localhost:3100
 ```
 
@@ -94,7 +94,7 @@ Damit WebXR auf Quest 3 / Galaxy XR funktioniert:
 ## Vercel-Project-Settings (Manual Setup im Dashboard)
 
 - **Framework Preset:** Next.js
-- **Root Directory:** `apps/dovetail`
+- **Root Directory:** `apps/tischler`
 - **Build Command:** wird aus `vercel.json` gelesen
 - **Install Command:** wird aus `vercel.json` gelesen
 - **Output Directory:** `.next`

@@ -1,4 +1,4 @@
-# @craft-codex/dovetail
+# @craft-codex/tischler
 
 Standalone WebXR Lehrlings-Lehrtool fuer Holzhandwerk. **MIT-lizenziert, Open-Source.**
 
@@ -31,21 +31,21 @@ Voraussetzungen: Node ≥ 20, pnpm 9.
 
 ```bash
 pnpm install
-pnpm --filter @craft-codex/dovetail dev
+pnpm --filter @craft-codex/tischler dev
 # → http://localhost:3100
 ```
 
 Build:
 
 ```bash
-pnpm --filter @craft-codex/dovetail build
-pnpm --filter @craft-codex/dovetail start
+pnpm --filter @craft-codex/tischler build
+pnpm --filter @craft-codex/tischler start
 ```
 
 Tests:
 
 ```bash
-pnpm --filter @craft-codex/dovetail test
+pnpm --filter @craft-codex/tischler test
 ```
 
 ---
@@ -53,7 +53,7 @@ pnpm --filter @craft-codex/dovetail test
 ## Architektur
 
 ```
-apps/dovetail/
+apps/tischler/
 ├─ app/
 │  ├─ layout.tsx            DE locale, dark mode CSS variables
 │  ├─ page.tsx              Landing — 3 Cards (Schwalbenschwanz / XR / Settings)

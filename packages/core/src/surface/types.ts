@@ -4,7 +4,7 @@
  * Eine "Mode" ist eine austauschbare Render-Schicht auf der schwebenden Tafel:
  * Tafel (Drawing), CAD (3D-Viewer), Video, LiveCall (Phase B).
  *
- * Implementierungen leben in apps/dovetail/lib/surface-modes/.
+ * Implementierungen leben in apps/tischler/lib/surface-modes/.
  */
 
 export type ModeId =

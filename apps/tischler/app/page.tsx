@@ -29,11 +29,22 @@ const cards: Array<{
 export default function Page() {
   return (
     <main>
-      <h1 style={{ marginTop: 0, fontWeight: 600, fontSize: "2rem" }}>
-        Lehrling-Edu
+      <p
+        style={{
+          color: "var(--color-muted)",
+          fontSize: "0.85rem",
+          textTransform: "uppercase",
+          letterSpacing: 0.8,
+          margin: 0,
+        }}
+      >
+        Craft Codex · Gewerk
+      </p>
+      <h1 style={{ marginTop: "0.25rem", fontWeight: 600, fontSize: "2rem" }}>
+        Tischler
       </h1>
       <p style={{ color: "var(--color-muted)", marginBottom: "2.5rem" }}>
-        MR-Lehrtool fuer Holzhandwerk — Test-Ballon Phase B (MIT, Open-Core).
+        MR-Lerntool fuers Holzhandwerk. Werkstuecke unten waehlen.
       </p>
       <div
         style={{

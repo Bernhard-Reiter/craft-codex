@@ -10,7 +10,7 @@ import { createDefaultModeManager } from "../lib/surface-modes/index.js";
 /**
  * Tests fuer SurfaceModeBar + SurfacePanel.
  *
- * vitest-config in @craft-codex/dovetail: environment="node" (kein jsdom). Statt
+ * vitest-config in @craft-codex/tischler: environment="node" (kein jsdom). Statt
  * DOM-Rendering-Tests testen wir die *logische Schnittstelle* der Components:
  * - manager.list() Filter
  * - activeId-Lookup-Logik (was SurfacePanel intern macht)

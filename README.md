@@ -24,22 +24,41 @@ Open `/dovetail` for the 2D demo, `/dovetail/xr` for immersive WebXR (Quest 3 / 
 
 ## Project layout
 
+The repo is organised by **Gewerk** (trade). Each trade ships as its own app sharing the same core engine. Workpieces live as routes inside the trade app.
+
 ```
 .
-├── apps/
-│   └── dovetail/              First tutor app — dovetail joint for cabinetmakers
-│       ├── app/               /, /dovetail, /dovetail/xr, /voice
-│       ├── components/        R3F scene + UI building blocks
-│       ├── lib/               Provider implementations
-│       └── scripts/           TTS-cache builder for offline demos
+├── apps/                       Trades (Gewerke) — one Next.js app per trade
+│   ├── tischler/               🪵 Cabinetmaker (current)
+│   │   ├── app/
+│   │   │   ├── /                Landing — workpiece selector
+│   │   │   ├── /dovetail        Schwalbenschwanz workpiece (5 learning steps)
+│   │   │   ├── /dovetail/xr     Immersive WebXR session
+│   │   │   └── /voice           Voice pipeline test
+│   │   ├── components/          R3F scene + UI building blocks
+│   │   ├── lib/                 Provider implementations
+│   │   └── scripts/             TTS-cache builder for offline demos
+│   ├── maurer/                 🧱 Mason — planned
+│   ├── zimmerer/               🪚 Framer / Carpenter — planned
+│   ├── elektro/                ⚡ Electrician — planned
+│   ├── schlosser/              🔧 Locksmith / Metal — planned
+│   └── kfz/                    🚗 Automotive — planned
 └── packages/
-    └── core/                  Framework-agnostic engine (the codex)
-        ├── geometry/          Procedural dovetail math + CSG helpers
-        ├── tracking/          ITrackingProvider (3 strategies)
-        ├── surface/           SurfaceMode plugin system + ModeManager
-        ├── voice/             ISTTProvider / ITTSProvider / pipeline state
-        └── rag/               RAG + topic-guard interfaces
+    └── core/                   Framework-agnostic engine (the codex)
+        ├── geometry/            Procedural workpiece math + CSG helpers
+        ├── tracking/            ITrackingProvider (manual / image / aruco)
+        ├── surface/             SurfaceMode plugin system + ModeManager
+        ├── voice/               ISTTProvider / ITTSProvider / pipeline state
+        └── rag/                 RAG + topic-guard interfaces
 ```
+
+### Naming convention
+
+- **npm packages:** `@craft-codex/<gewerk>` for trade apps, `@craft-codex/core` for the shared engine
+- **URLs inside a trade app:** `/<workpiece>` (e.g. `/dovetail`, future `/fingerzinken`, `/zapfen`)
+- **localStorage keys:** `craft-codex:<scope>:<key>` (e.g. `craft-codex:dovetail:session`)
+
+The Tischler app currently ships one workpiece (Schwalbenschwanz / dovetail). Future workpieces extend the route table without changing core packages.
 
 ## Phase status
 
@@ -74,15 +93,15 @@ The voice pipeline answers from a **41-document RAG corpus** covering all five l
 - Lehrplan-AT vocational ordinance (official document)
 - Paraphrased domain knowledge from standard works (Spannagel, Klausz, Pollak) — original works are copyrighted
 
-See `apps/dovetail/lib/rag/corpus/dovetail-corpus.ts` for full attribution + topic coverage.
+See `apps/tischler/lib/rag/corpus/dovetail-corpus.ts` for full attribution + topic coverage.
 
 ## Voice modes
 
 ```typescript
-import { createVoiceProviders } from "@craft-codex/dovetail/lib/voice/factory";
-import { LocalRAGProvider } from "@craft-codex/dovetail/lib/rag/local-rag";
-import { StubTopicGuard } from "@craft-codex/dovetail/lib/rag/topic-guard";
-import { getDovetailCorpus } from "@craft-codex/dovetail/lib/rag/corpus/dovetail-corpus";
+import { createVoiceProviders } from "@craft-codex/tischler/lib/voice/factory";
+import { LocalRAGProvider } from "@craft-codex/tischler/lib/rag/local-rag";
+import { StubTopicGuard } from "@craft-codex/tischler/lib/rag/topic-guard";
+import { getDovetailCorpus } from "@craft-codex/tischler/lib/rag/corpus/dovetail-corpus";
 
 const rag = new LocalRAGProvider(getDovetailCorpus());
 const guard = new StubTopicGuard({ rag, blacklist: ["bitcoin"] });
@@ -107,12 +126,12 @@ The `boundary-check.sh` script in `packages/core/` enforces that the engine stay
 ## Demo deployment
 
 ```bash
-cd apps/dovetail
+cd apps/tischler
 vercel link
 vercel --prod
 ```
 
-WebXR requires HTTPS — Vercel provides this out of the box. See `apps/dovetail/DEPLOY.md` for full setup including Permissions-Policy headers and the optional pre-cached TTS audio for offline fallback.
+WebXR requires HTTPS — Vercel provides this out of the box. See `apps/tischler/DEPLOY.md` for full setup including Permissions-Policy headers and the optional pre-cached TTS audio for offline fallback.
 
 ## Testing
 

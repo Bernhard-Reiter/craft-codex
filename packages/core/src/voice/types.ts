@@ -1,7 +1,7 @@
 /**
  * Voice-Provider-Interfaces.
  *
- * Implementierungen leben in apps/dovetail (Whisper API, ElevenLabs Standard-Voice DE).
+ * Implementierungen leben in apps/tischler (Whisper API, ElevenLabs Standard-Voice DE).
  * Open-Core hat KEINE konkreten API-Calls.
  */
 

@@ -74,7 +74,7 @@ Optional commercial extensions (multi-tenant, advanced RAG, live-call mode, audi
 
 ## Status
 
-🚧 **0.1.0** — Initial release. Ships with the standalone app `@craft-codex/dovetail` (Phase B + C + D voice stack ready, dormant without API keys).
+🚧 **0.1.0** — Initial release. Ships with the standalone app `@craft-codex/tischler` (Phase B + C + D voice stack ready, dormant without API keys).
 
 ## License
 
