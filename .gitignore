@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build artifacts
+.next/
+.turbo/
+dist/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+.vercel/
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Test
+coverage/
+test-results/
+
+# Generated audio cache (committed manifest only)
+public/tts-cache/*.pcm
+public/tts-cache/*.mp3
+public/tts-cache/*.wav

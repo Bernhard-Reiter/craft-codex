@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: typecheck / test / lint / build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (lehrlings-core)
+        run: pnpm --filter @voai/lehrlings-core typecheck
+
+      - name: Test (lehrlings-core)
+        run: pnpm --filter @voai/lehrlings-core test
+
+      - name: Boundary check
+        run: pnpm --filter @voai/lehrlings-core boundary-check
+
+      - name: Build (lehrlings-core)
+        run: pnpm --filter @voai/lehrlings-core build
+
+      - name: Typecheck (lehrling-edu)
+        run: pnpm --filter @voai/lehrling-edu typecheck
+
+      - name: Test (lehrling-edu)
+        run: pnpm --filter @voai/lehrling-edu test
+
+      - name: Lint (lehrling-edu)
+        run: pnpm --filter @voai/lehrling-edu lint
+
+      - name: Build (lehrling-edu)
+        run: pnpm --filter @voai/lehrling-edu build
