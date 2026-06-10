@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoResetButton } from "../components/DemoResetButton";
 
 const cards: Array<{
   href: string;
@@ -21,7 +22,7 @@ const cards: Array<{
   {
     href: "/voice",
     title: "Voice-Pipeline",
-    body: "Mic-Button → MockSTT → 41-Doc RAG-Korpus + 3-Layer TopicGuard → Template-Antwort → MockTTS. Phase D ersetzt durch Whisper / Claude / ElevenLabs.",
+    body: "Demo-Fragen, Texteingabe oder Mic → 41-Doc RAG-Korpus + TopicGuard → Antwort mit Stimme (Offline-Cache → Server-ElevenLabs → still). Keys bleiben am Server.",
     status: "ready",
   },
 ];
@@ -106,6 +107,9 @@ export default function Page() {
             </p>
           </Link>
         ))}
+      </div>
+      <div style={{ marginTop: "2.5rem" }}>
+        <DemoResetButton />
       </div>
     </main>
   );
