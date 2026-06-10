@@ -89,14 +89,21 @@ export class ServerSTTProvider implements ISTTProvider {
   }
 }
 
-/** Answer over /api/voice/answer (RAG runs server-side; works without any key). */
-export function createServerAnswerFn(fetchImpl?: FetchLike): AnswerFn {
+/**
+ * Answer over /api/voice/answer (RAG runs server-side; works without any key).
+ * Pass the recent dialog turns so follow-up questions keep their context —
+ * the route forwards them to the Gemini dialog brain.
+ */
+export function createServerAnswerFn(
+  fetchImpl?: FetchLike,
+  history?: ReadonlyArray<{ question: string; answer: string }>,
+): AnswerFn {
   return async (query: string): Promise<string> => {
     const f = fetchImpl ?? globalThis.fetch;
     const res = await f("/api/voice/answer", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ question: query }),
+      body: JSON.stringify({ question: query, history: history ?? [] }),
     });
     if (!res.ok) throw new Error(`answer_http_${res.status}`);
     const data = (await res.json()) as { text?: string };

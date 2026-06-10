@@ -15,6 +15,7 @@ import { StubTopicGuard } from "../../../../lib/rag/topic-guard";
 import { getDovetailCorpus } from "../../../../lib/rag/corpus/dovetail-corpus";
 import { createDovetailAnswerFn } from "../../../../lib/voice/dovetail-answer";
 import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
+import { createGeminiAnswerFn, type DialogTurn } from "../../../../lib/voice/gemini-answer";
 import type { AnswerFn } from "../../../../lib/voice/pipeline";
 
 export type TTSProviderName = "gemini" | "elevenlabs" | null;
@@ -27,7 +28,7 @@ export interface ServerVoiceCapabilities {
   /** Which one the tts route will use (TTS_PROVIDER override, else auto). */
   ttsProvider: TTSProviderName;
   /** Which answer brain runs server-side. Template works without any key. */
-  answer: "claude" | "template";
+  answer: AnswerProviderName;
 }
 
 /**
@@ -50,7 +51,7 @@ export function capabilities(): ServerVoiceCapabilities {
     stt: !!process.env.OPENAI_API_KEY,
     tts: tts !== null,
     ttsProvider: tts,
-    answer: process.env.ANTHROPIC_API_KEY ? "claude" : "template",
+    answer: answerProvider(),
   };
 }
 
@@ -71,16 +72,48 @@ export function serverRag() {
   return ragSingleton;
 }
 
-export function serverAnswerFn(): { fn: AnswerFn; mode: "claude" | "template" } {
+export type AnswerProviderName = "gemini" | "claude" | "template";
+
+/**
+ * Dialog brain pick: ANSWER_PROVIDER env wins; else gemini (existing key,
+ * conversation memory) > claude > template. Template ALWAYS works offline —
+ * it just has no memory (follow-ups degrade to standalone questions).
+ */
+export function answerProvider(): AnswerProviderName {
+  const forced = process.env.ANSWER_PROVIDER;
+  if (forced === "gemini") return process.env.GEMINI_API_KEY ? "gemini" : "template";
+  if (forced === "claude") return process.env.ANTHROPIC_API_KEY ? "claude" : "template";
+  if (forced === "template") return "template";
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.ANTHROPIC_API_KEY) return "claude";
+  return "template";
+}
+
+export function serverAnswerFn(history: ReadonlyArray<DialogTurn> = []): {
+  fn: AnswerFn;
+  mode: AnswerProviderName;
+} {
   const { rag, guard } = serverRag();
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    return {
-      fn: createClaudeAnswerFn({ apiKey: anthropicKey, rag, guard }),
-      mode: "claude",
-    };
+  switch (answerProvider()) {
+    case "gemini":
+      return {
+        fn: createGeminiAnswerFn({
+          apiKey: process.env.GEMINI_API_KEY ?? "",
+          rag,
+          guard,
+          history,
+          ...(process.env.GEMINI_ANSWER_MODEL ? { model: process.env.GEMINI_ANSWER_MODEL } : {}),
+        }),
+        mode: "gemini",
+      };
+    case "claude":
+      return {
+        fn: createClaudeAnswerFn({ apiKey: process.env.ANTHROPIC_API_KEY ?? "", rag, guard }),
+        mode: "claude",
+      };
+    default:
+      return { fn: createDovetailAnswerFn({ rag, guard }), mode: "template" };
   }
-  return { fn: createDovetailAnswerFn({ rag, guard }), mode: "template" };
 }
 
 /** AnswerFn may stream — collect to a single string for the JSON response. */

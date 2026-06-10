@@ -10,7 +10,7 @@ import {
   createServerVoiceProviders,
   type VoiceProviderBundle,
 } from "../../lib/voice/factory";
-import { probeServerVoice } from "../../lib/voice/server-providers";
+import { probeServerVoice, createServerAnswerFn } from "../../lib/voice/server-providers";
 import { EMPTY_MANIFEST, type TTSCacheManifest } from "../../lib/voice/tts-cache";
 
 const SAMPLE_QUERIES = [
@@ -83,6 +83,7 @@ export default function VoiceTestPage() {
             guard={guard}
             tts={bundle.tts}
             answer={bundle.answer}
+            makeAnswer={(history) => createServerAnswerFn(undefined, history)}
             sampleQueries={SAMPLE_QUERIES}
             mode={bundle.mode}
           />

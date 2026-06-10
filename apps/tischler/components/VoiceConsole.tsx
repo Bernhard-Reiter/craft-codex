@@ -15,6 +15,9 @@ import { MockTTSProvider } from "../lib/voice/mock-tts";
 import { createDovetailAnswerFn } from "../lib/voice/dovetail-answer";
 import { playPcmChunks } from "../lib/voice/pcm-player";
 import type { VoiceMode } from "../lib/voice/factory";
+import type { DialogTurn } from "../lib/voice/gemini-answer";
+
+const MAX_DIALOG_TURNS = 6;
 
 interface VoiceConsoleProps {
   rag: IRAGProvider;
@@ -29,6 +32,12 @@ interface VoiceConsoleProps {
    * zurueck — die Demo verliert NIE die Antwort.
    */
   answer?: AnswerFn;
+  /**
+   * Dialog-Variante (Phase E.2): bekommt die bisherigen Gespraechsrunden und
+   * liefert die AnswerFn fuer DIESE Frage — so funktionieren Rueckfragen
+   * ("und bei Eiche?"). Hat Vorrang vor `answer`.
+   */
+  makeAnswer?: (history: ReadonlyArray<DialogTurn>) => AnswerFn;
   /** Demo-Fragen: erscheinen als Buttons UND rotieren am Mic-Button. */
   sampleQueries?: ReadonlyArray<string>;
   /** Mode-Badge. Auto-detect wenn nicht gesetzt. */
@@ -49,17 +58,19 @@ export function VoiceConsole({
   stt,
   tts,
   answer,
+  makeAnswer,
   sampleQueries = DEFAULT_SAMPLE_QUERIES,
   mode,
 }: VoiceConsoleProps) {
   const effectiveMode: VoiceMode =
-    mode ?? (answer ? "server" : stt && tts ? "real" : "mock");
+    mode ?? (makeAnswer || answer ? "server" : stt && tts ? "real" : "mock");
   const queryIdxRef = useRef(0);
   const [state, setState] = useState<VoicePipelineState>({ status: "idle" });
   const [error, setError] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const [audioPlayed, setAudioPlayed] = useState<boolean | null>(null);
   const [usedFallback, setUsedFallback] = useState(false);
+  const [dialog, setDialog] = useState<DialogTurn[]>([]);
 
   const localAnswer = useMemo(
     () => createDovetailAnswerFn({ rag, guard }),
@@ -78,7 +89,9 @@ export function VoiceConsole({
 
     const ttsProvider = tts ?? new MockTTSProvider({ secondsPerChar: 0.04 });
 
-    const runOnce = async (answerFn: AnswerFn): Promise<TTSChunk[]> => {
+    const runOnce = async (
+      answerFn: AnswerFn,
+    ): Promise<{ chunks: TTSChunk[]; responseText: string }> => {
       const pipeline = new VoicePipeline({
         stt: mockSttFromText(q),
         tts: ttsProvider,
@@ -96,23 +109,30 @@ export function VoiceConsole({
         for await (const chunk of pipeline.handle(audioStream)) {
           chunks.push(chunk);
         }
-        return chunks;
+        return { chunks, responseText: pipeline.getState().currentResponse ?? "" };
       } finally {
         unsub();
       }
     };
 
+    const primary = makeAnswer ? makeAnswer(dialog) : answer;
+
     try {
-      let chunks: TTSChunk[];
+      let result: { chunks: TTSChunk[]; responseText: string };
       try {
-        chunks = await runOnce(answer ?? localAnswer);
+        result = await runOnce(primary ?? localAnswer);
       } catch (primaryErr) {
-        if (!answer) throw primaryErr;
-        // Server nicht erreichbar (offline?) → lokales RAG-Template.
+        if (!primary) throw primaryErr;
+        // Server nicht erreichbar (offline?) → lokales RAG-Template (ohne Gedaechtnis).
         setUsedFallback(true);
-        chunks = await runOnce(localAnswer);
+        result = await runOnce(localAnswer);
       }
-      const played = await playPcmChunks(chunks);
+      if (result.responseText) {
+        setDialog((d) =>
+          [...d, { question: q, answer: result.responseText }].slice(-MAX_DIALOG_TURNS),
+        );
+      }
+      const played = await playPcmChunks(result.chunks);
       setAudioPlayed(played);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Pipeline-Fehler");
@@ -313,6 +333,29 @@ export function VoiceConsole({
           <span style={{ fontSize: "0.7rem", color: "var(--color-accent-warm)" }}>
             offline-Fallback: lokales Wissen
           </span>
+        )}
+        {dialog.length > 0 && (
+          <>
+            <span style={{ fontSize: "0.7rem", color: "var(--color-muted)" }}>
+              💬 Gespraech: {dialog.length} Frage{dialog.length === 1 ? "" : "n"}
+            </span>
+            <button
+              type="button"
+              onClick={() => setDialog([])}
+              disabled={busy}
+              style={{
+                fontSize: "0.7rem",
+                padding: "0.15rem 0.5rem",
+                background: "transparent",
+                color: "var(--color-muted)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 999,
+                cursor: busy ? "not-allowed" : "pointer",
+              }}
+            >
+              neues Gespraech
+            </button>
+          </>
         )}
       </div>
 

@@ -9,15 +9,28 @@
  */
 
 import { collectAnswer, jsonError, serverAnswerFn } from "../_lib/server-voice";
+import type { DialogTurn } from "../../../../lib/voice/gemini-answer";
 
 export const dynamic = "force-dynamic";
 
 const MAX_QUESTION_CHARS = 500;
+const MAX_HISTORY_TURNS = 6;
+
+function sanitizeHistory(raw: unknown): DialogTurn[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (t): t is { question: string; answer: string } =>
+        !!t && typeof t.question === "string" && typeof t.answer === "string",
+    )
+    .slice(-MAX_HISTORY_TURNS)
+    .map((t) => ({ question: t.question.slice(0, 500), answer: t.answer.slice(0, 1000) }));
+}
 
 export async function POST(req: Request): Promise<Response> {
-  let body: { question?: unknown };
+  let body: { question?: unknown; history?: unknown };
   try {
-    body = (await req.json()) as { question?: unknown };
+    body = (await req.json()) as { question?: unknown; history?: unknown };
   } catch {
     return jsonError(400, "invalid_json");
   }
@@ -25,7 +38,7 @@ export async function POST(req: Request): Promise<Response> {
   if (!question) return jsonError(400, "question_required");
   if (question.length > MAX_QUESTION_CHARS) return jsonError(400, "question_too_long");
 
-  const { fn, mode } = serverAnswerFn();
+  const { fn, mode } = serverAnswerFn(sanitizeHistory(body.history));
   try {
     const text = await collectAnswer(fn, question);
     return Response.json({ text, mode });
