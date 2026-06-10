@@ -106,3 +106,40 @@ describe("StubTopicGuard", () => {
     if (v.decision === "redirect") expect(v.bridge).toMatch(/Aufgabe/i);
   });
 });
+
+// ── E.2 Upgrades (2026-06-11): Synonyme, IDF, Längen-Dämpfung ──────────────
+
+import { getDemoCorpus } from "./corpus";
+
+describe("LocalRAG E.2 — Tischler-Synonyme + IDF (Skala bleibt 0..1)", () => {
+  it("'Zinken' findet Schwalbenschwanz-Wissen (Synonym-Normalisierung)", async () => {
+    const rag = new LocalRAGProvider(getDemoCorpus());
+    const hits = await rag.query("Wie mache ich saubere Zinken", { topK: 3, minScore: 0.05 });
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits.some((h) => /schwalben/i.test(h.text) || /schwalben/i.test(String(h.metadata.title ?? "")))).toBe(true);
+  });
+
+  it("'LAP' findet die Lehrabschlussprüfung in der Ausbildungsordnung", async () => {
+    const rag = new LocalRAGProvider(getDemoCorpus());
+    const hits = await rag.query("Was kommt bei der LAP", { topK: 4, minScore: 0.05 });
+    expect(hits.some((h) => /lehrabschlusspr/i.test(h.text))).toBe(true);
+  });
+
+  it("alle Scores bleiben in 0..1 (Guard-Schwellen-Kompatibilität)", async () => {
+    const rag = new LocalRAGProvider(getDemoCorpus());
+    const hits = await rag.query("Schwalbenwinkel Hartholz Stemmeisen Anriss", { topK: 10, minScore: 0 });
+    for (const h of hits) {
+      expect(h.score).toBeGreaterThanOrEqual(0);
+      expect(h.score).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("seltene Fachwörter wiegen mehr als Allerweltswörter (IDF)", async () => {
+    const rag = new LocalRAGProvider([
+      { id: "common", text: "holz holz brett werkstatt arbeit", metadata: {} },
+      { id: "rare", text: "schmiege einstellen winkel uebertragen holz", metadata: {} },
+    ] as never);
+    const hits = await rag.query("schmiege holz", { topK: 2, minScore: 0 });
+    expect(hits[0]?.id).toBe("rare"); // trifft das seltene UND das häufige Wort
+  });
+});

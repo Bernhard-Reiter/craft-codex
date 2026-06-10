@@ -61,7 +61,7 @@ describe("createDovetailAnswerFn", () => {
   it("returns no-corpus-hit message when minScore filters everything", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
     const guard = new StubTopicGuard({ rag, onTopicMin: 0, offTopicMax: -1 });
-    const answer = createDovetailAnswerFn({ rag, guard, minScore: 0.99 });
+    const answer = createDovetailAnswerFn({ rag, guard, minScore: 1.01 });
     const r = await answer("Schwalbenschwanz Anriss");
     expect(r.toLowerCase()).toMatch(/finde.*nichts|konkretere/);
   });
