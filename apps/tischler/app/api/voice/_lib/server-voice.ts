@@ -12,7 +12,7 @@
 
 import { LocalRAGProvider } from "../../../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../../../lib/rag/topic-guard";
-import { getDovetailCorpus } from "../../../../lib/rag/corpus/dovetail-corpus";
+import { getDemoCorpus } from "../../../../lib/rag/corpus";
 import { createDovetailAnswerFn } from "../../../../lib/voice/dovetail-answer";
 import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
 import { createGeminiAnswerFn, type DialogTurn } from "../../../../lib/voice/gemini-answer";
@@ -60,7 +60,7 @@ let ragSingleton: { rag: LocalRAGProvider; guard: StubTopicGuard } | null = null
 
 export function serverRag() {
   if (!ragSingleton) {
-    const rag = new LocalRAGProvider(getDovetailCorpus());
+    const rag = new LocalRAGProvider(getDemoCorpus());
     const guard = new StubTopicGuard({
       rag,
       onTopicMin: 0.25,

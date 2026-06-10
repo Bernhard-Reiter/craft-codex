@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
-import { getDovetailCorpus } from "../../lib/rag/corpus/dovetail-corpus";
+import { getDemoCorpus } from "../../lib/rag/corpus";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import {
   createServerVoiceProviders,
@@ -23,7 +23,7 @@ const SAMPLE_QUERIES = [
 
 export default function VoiceTestPage() {
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDovetailCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus());
     const g = new StubTopicGuard({
       rag: r,
       onTopicMin: 0.25,

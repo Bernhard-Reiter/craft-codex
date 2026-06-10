@@ -20,7 +20,7 @@ import { createPersistedPlacementProvider } from "../../lib/tracking/persisted-p
 import { registerDefaultModels } from "../../lib/surface-modes/cad-defaults";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
-import { getDovetailCorpus } from "../../lib/rag/corpus/dovetail-corpus";
+import { getDemoCorpus } from "../../lib/rag/corpus";
 import {
   loadModes,
   loadSession,
@@ -61,7 +61,7 @@ export default function DovetailPage() {
   // Voice-Pipeline: RAG + TopicGuard fuer Schwalbenschwanz-Korpus.
   // Phase D ersetzt MockSTT/MockTTS durch Whisper + ElevenLabs.
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDovetailCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus());
     const g = new StubTopicGuard({
       rag: r,
       onTopicMin: 0.25,
