@@ -16,18 +16,24 @@ import {
   EMPTY_MANIFEST,
   type TTSCacheManifest,
 } from "./tts-cache";
+import {
+  ServerSTTProvider,
+  ServerTTSProvider,
+  createServerAnswerFn,
+  type ServerVoiceHealth,
+} from "./server-providers";
 
 /**
  * Mode-Discriminator fuer Voice-Provider-Bundle.
  *
  * - "mock": MockSTT (rotiert Sample-Queries) + MockTTS (Stille) +
  *   Template-Synthesizer aus dovetail-answer.
- * - "real": Whisper STT + ElevenLabs TTS (optional cached) + Claude SSE.
- *
- * Caller bekommt das ganze Bundle aus einer Factory — kein internes
- * runtime-API-Key-Wissen in der VoiceConsole.
+ * - "real": Whisper STT + ElevenLabs TTS (optional cached) + Claude SSE —
+ *   NUR server-side verwenden (Keys!), client nutzt "server".
+ * - "server" (Phase E): Browser spricht mit den eigenen /api/voice/*-Routen;
+ *   Keys bleiben am Server. TTS ist cache-first (offline-Kette).
  */
-export type VoiceMode = "mock" | "real";
+export type VoiceMode = "mock" | "real" | "server";
 
 export interface VoiceProviderBundle {
   mode: VoiceMode;
@@ -147,6 +153,46 @@ export interface AutoBundleConfig {
   elevenLabsApiKey?: string | undefined;
   ttsCacheManifest?: TTSCacheManifest;
   sampleQueries?: ReadonlyArray<string>;
+}
+
+export interface ServerBundleConfig {
+  rag: IRAGProvider;
+  guard: ITopicGuard;
+  /** Ergebnis von probeServerVoice() — welche Routen konfiguriert sind. */
+  health: ServerVoiceHealth;
+  /** Pre-cached TTS manifest → cache-first vor dem Server-Roundtrip. */
+  ttsCacheManifest?: TTSCacheManifest;
+}
+
+/**
+ * Phase-E-Bundle: alles laeuft ueber die eigenen API-Routen.
+ * Fallback-Kette pro Ebene:
+ *  - STT:    Server-Whisper, sonst Mock (UI bietet zusaetzlich Texteingabe)
+ *  - TTS:    Cache-Hit → Offline-PCM; sonst Server-ElevenLabs; sonst Mock
+ *  - Answer: Server (Claude oder Template — laeuft IMMER, RAG ist server-side);
+ *            wirft die Route, faellt die Console auf lokales Template zurueck.
+ */
+export function createServerVoiceProviders(
+  config: ServerBundleConfig,
+): VoiceProviderBundle {
+  const serverTts = new ServerTTSProvider();
+  const tts: ITTSProvider = config.health.tts
+    ? config.ttsCacheManifest
+      ? new CachedTTSProvider({ upstream: serverTts, manifest: config.ttsCacheManifest })
+      : serverTts
+    : config.ttsCacheManifest
+      ? new CachedTTSProvider({
+          upstream: new MockTTSProvider({ secondsPerChar: 0.04 }),
+          manifest: config.ttsCacheManifest,
+        })
+      : new MockTTSProvider({ secondsPerChar: 0.04 });
+
+  return {
+    mode: "server",
+    stt: config.health.stt ? new ServerSTTProvider() : mockSttFromText("Frage stellen"),
+    tts,
+    answer: createServerAnswerFn(),
+  };
 }
 
 export function createVoiceProviders(

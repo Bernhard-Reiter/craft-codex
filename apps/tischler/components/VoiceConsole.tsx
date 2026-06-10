@@ -6,33 +6,33 @@ import type {
   ITopicGuard,
   ITTSProvider,
   ISTTProvider,
+  TTSChunk,
   VoicePipelineState,
 } from "@craft-codex/core";
-import { VoicePipeline } from "../lib/voice/pipeline";
+import { VoicePipeline, type AnswerFn } from "../lib/voice/pipeline";
 import { MockSTTProvider, mockSttFromText } from "../lib/voice/mock-stt";
 import { MockTTSProvider } from "../lib/voice/mock-tts";
 import { createDovetailAnswerFn } from "../lib/voice/dovetail-answer";
+import { playPcmChunks } from "../lib/voice/pcm-player";
+import type { VoiceMode } from "../lib/voice/factory";
 
 interface VoiceConsoleProps {
   rag: IRAGProvider;
   guard: ITopicGuard;
-  /**
-   * Override fuer echten STT-Provider (Phase D: Whisper). Default: MockSTT
-   * mit fixed transcripts (rotation pro click).
-   */
+  /** Override fuer echten STT-Provider. Default: MockSTT (Fragen-Rotation). */
   stt?: ISTTProvider;
-  /**
-   * Override fuer echten TTS-Provider (Phase D: ElevenLabs). Default:
-   * MockTTS (silent PCM frames).
-   */
+  /** Override fuer echten TTS-Provider. Default: MockTTS (silent PCM). */
   tts?: ITTSProvider;
-  /** Sample-Queries fuer den Mock-STT (rotieren bei jedem Mic-Click). */
-  sampleQueries?: ReadonlyArray<string>;
   /**
-   * Mode-Badge UI. "mock" zeigt orange-warning, "real" zeigt green-active.
-   * Wenn nicht gesetzt: auto-detect via stt+tts (beide gesetzt = real).
+   * Override fuer die Antwort-Quelle (Phase E: Server-Route). Wirft sie
+   * (offline), faellt die Console automatisch auf das lokale RAG-Template
+   * zurueck — die Demo verliert NIE die Antwort.
    */
-  mode?: "mock" | "real";
+  answer?: AnswerFn;
+  /** Demo-Fragen: erscheinen als Buttons UND rotieren am Mic-Button. */
+  sampleQueries?: ReadonlyArray<string>;
+  /** Mode-Badge. Auto-detect wenn nicht gesetzt. */
+  mode?: VoiceMode;
 }
 
 const DEFAULT_SAMPLE_QUERIES: ReadonlyArray<string> = [
@@ -48,61 +48,94 @@ export function VoiceConsole({
   guard,
   stt,
   tts,
+  answer,
   sampleQueries = DEFAULT_SAMPLE_QUERIES,
   mode,
 }: VoiceConsoleProps) {
-  const effectiveMode: "mock" | "real" = mode ?? (stt && tts ? "real" : "mock");
+  const effectiveMode: VoiceMode =
+    mode ?? (answer ? "server" : stt && tts ? "real" : "mock");
   const queryIdxRef = useRef(0);
   const [state, setState] = useState<VoicePipelineState>({ status: "idle" });
   const [error, setError] = useState<string | null>(null);
+  const [typed, setTyped] = useState("");
+  const [audioPlayed, setAudioPlayed] = useState<boolean | null>(null);
+  const [usedFallback, setUsedFallback] = useState(false);
 
-  const pipeline = useMemo(() => {
-    const sttProvider = stt ?? mockSttFromText(sampleQueries[0] ?? "Frage");
-    const ttsProvider = tts ?? new MockTTSProvider({ secondsPerChar: 0.04 });
-    return new VoicePipeline({
-      stt: sttProvider,
-      tts: ttsProvider,
-      answer: createDovetailAnswerFn({ rag, guard }),
-    });
-  }, [rag, guard, stt, tts, sampleQueries]);
+  const localAnswer = useMemo(
+    () => createDovetailAnswerFn({ rag, guard }),
+    [rag, guard],
+  );
 
-  useEffect(() => {
-    return pipeline.onStateChange((s) => setState(s));
-  }, [pipeline]);
-
-  const handleMicClick = async () => {
-    if (state.status !== "idle") return;
+  // Eine Frage end-to-end: Text → answer → TTS → Lautsprecher.
+  // STT wird mit dem Fragetext kurzgeschlossen (mockSttFromText) — derselbe
+  // Pfad traegt Buttons, Texteingabe und Mic-Rotation.
+  const ask = async (question: string) => {
+    const q = question.trim();
+    if (!q || state.status !== "idle") return;
     setError(null);
-    try {
-      // Rotate the mock STT through sample queries.
-      const idx = queryIdxRef.current % sampleQueries.length;
-      const transcript = sampleQueries[idx] ?? "Frage";
-      queryIdxRef.current += 1;
-      const liveStt = stt ?? mockSttFromText(transcript);
-      const livePipeline = new VoicePipeline({
-        stt: liveStt,
-        tts: tts ?? new MockTTSProvider({ secondsPerChar: 0.04 }),
-        answer: createDovetailAnswerFn({ rag, guard }),
+    setAudioPlayed(null);
+    setUsedFallback(false);
+
+    const ttsProvider = tts ?? new MockTTSProvider({ secondsPerChar: 0.04 });
+
+    const runOnce = async (answerFn: AnswerFn): Promise<TTSChunk[]> => {
+      const pipeline = new VoicePipeline({
+        stt: mockSttFromText(q),
+        tts: ttsProvider,
+        answer: answerFn,
       });
-      const unsub = livePipeline.onStateChange((s) => setState(s));
-      const audioStream = new ReadableStream<Uint8Array>({
-        start(controller) {
-          controller.enqueue(new Uint8Array([0]));
-          controller.close();
-        },
-      });
-      let audioChunks = 0;
-      for await (const _chunk of livePipeline.handle(audioStream)) {
-        void _chunk;
-        audioChunks += 1;
+      const unsub = pipeline.onStateChange((s) => setState(s));
+      try {
+        const audioStream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([0]));
+            controller.close();
+          },
+        });
+        const chunks: TTSChunk[] = [];
+        for await (const chunk of pipeline.handle(audioStream)) {
+          chunks.push(chunk);
+        }
+        return chunks;
+      } finally {
+        unsub();
       }
-      void audioChunks;
-      unsub();
+    };
+
+    try {
+      let chunks: TTSChunk[];
+      try {
+        chunks = await runOnce(answer ?? localAnswer);
+      } catch (primaryErr) {
+        if (!answer) throw primaryErr;
+        // Server nicht erreichbar (offline?) → lokales RAG-Template.
+        setUsedFallback(true);
+        chunks = await runOnce(localAnswer);
+      }
+      const played = await playPcmChunks(chunks);
+      setAudioPlayed(played);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Pipeline-Fehler");
     }
   };
 
+  const handleMicClick = () => {
+    const idx = queryIdxRef.current % sampleQueries.length;
+    queryIdxRef.current += 1;
+    void ask(sampleQueries[idx] ?? "Frage");
+  };
+
+  const handleTypedSubmit = () => {
+    const q = typed;
+    setTyped("");
+    void ask(q);
+  };
+
+  useEffect(() => {
+    // initial render only — keep ESLint quiet about the ref-based rotation.
+  }, []);
+
+  const busy = state.status !== "idle";
   const statusColor =
     state.status === "idle"
       ? "var(--color-muted)"
@@ -110,13 +143,15 @@ export function VoiceConsole({
         ? "var(--color-accent)"
         : "var(--color-accent-warm)";
 
+  const badge = badgeFor(effectiveMode);
+
   return (
     <div
       data-testid="voice-console"
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "0.5rem",
+        gap: "0.6rem",
         padding: "0.75rem",
         background: "var(--color-card)",
         border: "1px solid var(--color-border)",
@@ -127,25 +162,19 @@ export function VoiceConsole({
         <button
           type="button"
           onClick={handleMicClick}
-          disabled={state.status !== "idle"}
+          disabled={busy}
           style={{
             padding: "0.55rem 1rem",
-            background:
-              state.status === "idle" ? "var(--color-accent)" : "transparent",
-            color: state.status === "idle" ? "#0b0d10" : "var(--color-muted)",
-            border: `1px solid ${
-              state.status === "idle"
-                ? "var(--color-accent)"
-                : "var(--color-border)"
-            }`,
+            background: !busy ? "var(--color-accent)" : "transparent",
+            color: !busy ? "#0b0d10" : "var(--color-muted)",
+            border: `1px solid ${!busy ? "var(--color-accent)" : "var(--color-border)"}`,
             borderRadius: 6,
             fontSize: "0.9rem",
             fontWeight: 600,
-            cursor: state.status === "idle" ? "pointer" : "not-allowed",
+            cursor: !busy ? "pointer" : "not-allowed",
           }}
         >
-          🎤{" "}
-          {state.status === "idle" ? "Frage stellen" : labelFor(state.status)}
+          🎤 {!busy ? "Frage stellen" : labelFor(state.status)}
         </button>
         <span
           style={{
@@ -153,23 +182,15 @@ export function VoiceConsole({
             fontWeight: 700,
             padding: "0.15rem 0.4rem",
             borderRadius: 4,
-            background:
-              effectiveMode === "real"
-                ? "rgba(34, 197, 94, 0.15)"
-                : "rgba(255, 184, 74, 0.15)",
-            color:
-              effectiveMode === "real" ? "#22C55E" : "var(--color-accent-warm)",
-            border: `1px solid ${
-              effectiveMode === "real"
-                ? "rgba(34, 197, 94, 0.5)"
-                : "rgba(255, 184, 74, 0.5)"
-            }`,
+            background: badge.bg,
+            color: badge.fg,
+            border: `1px solid ${badge.border}`,
             textTransform: "uppercase",
             letterSpacing: 0.5,
           }}
           aria-label={`Voice mode: ${effectiveMode}`}
         >
-          {effectiveMode === "real" ? "Live" : "Mock"}
+          {badge.label}
         </span>
         <span
           style={{
@@ -181,6 +202,68 @@ export function VoiceConsole({
         >
           {state.status}
         </span>
+      </div>
+
+      {/* Demo-Fragen — der kontrollierte Pfad fuer die Vorfuehrung. */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+        {sampleQueries.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => void ask(q)}
+            disabled={busy}
+            style={{
+              fontSize: "0.72rem",
+              padding: "0.3rem 0.55rem",
+              background: "transparent",
+              color: busy ? "var(--color-muted)" : "var(--color-fg)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 999,
+              cursor: busy ? "not-allowed" : "pointer",
+            }}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      {/* Texteingabe — das Offline-Mikrofon: Tippen geht immer. */}
+      <div style={{ display: "flex", gap: "0.4rem" }}>
+        <input
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleTypedSubmit();
+          }}
+          placeholder="… oder Frage tippen (geht auch offline)"
+          disabled={busy}
+          aria-label="Frage eingeben"
+          style={{
+            flex: 1,
+            padding: "0.45rem 0.6rem",
+            background: "var(--color-bg)",
+            color: "var(--color-fg)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 6,
+            fontSize: "0.85rem",
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleTypedSubmit}
+          disabled={busy || typed.trim().length === 0}
+          style={{
+            padding: "0.45rem 0.8rem",
+            background: "transparent",
+            color: "var(--color-fg)",
+            border: "1px solid var(--color-border)",
+            borderRadius: 6,
+            fontSize: "0.85rem",
+            cursor: busy || typed.trim().length === 0 ? "not-allowed" : "pointer",
+          }}
+        >
+          Fragen
+        </button>
       </div>
 
       {state.currentQuery && (
@@ -197,57 +280,47 @@ export function VoiceConsole({
       )}
 
       {state.currentResponse && (
-        <div
-          style={{
-            fontSize: "0.85rem",
-            color: "var(--color-fg)",
-            lineHeight: 1.5,
-          }}
-        >
+        <div style={{ fontSize: "0.85rem", color: "var(--color-fg)", lineHeight: 1.5 }}>
           <strong>A:</strong> {state.currentResponse}
         </div>
       )}
 
-      {state.latencyMs &&
-        (state.latencyMs.stt !== undefined ||
-          state.latencyMs.llm !== undefined ||
-          state.latencyMs.tts !== undefined) && (
-          <div
-            style={{
-              fontSize: "0.7rem",
-              color: "var(--color-muted)",
-              fontFamily: "ui-monospace, monospace",
-            }}
-          >
-            stt:{state.latencyMs.stt ?? "—"}ms · llm:
-            {state.latencyMs.llm ?? "—"}ms · tts:
-            {state.latencyMs.tts ?? "—"}ms
-          </div>
+      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+        {state.latencyMs &&
+          (state.latencyMs.stt !== undefined ||
+            state.latencyMs.llm !== undefined ||
+            state.latencyMs.tts !== undefined) && (
+            <span
+              style={{
+                fontSize: "0.7rem",
+                color: "var(--color-muted)",
+                fontFamily: "ui-monospace, monospace",
+              }}
+            >
+              stt:{state.latencyMs.stt ?? "—"}ms · llm:{state.latencyMs.llm ?? "—"}ms ·
+              tts:{state.latencyMs.tts ?? "—"}ms
+            </span>
+          )}
+        {audioPlayed === true && (
+          <span style={{ fontSize: "0.7rem", color: "#22C55E" }}>🔊 Audio abgespielt</span>
         )}
+        {audioPlayed === false && state.currentResponse && (
+          <span style={{ fontSize: "0.7rem", color: "var(--color-muted)" }}>
+            🔇 kein Audio (Cache/Server leer — Text-Antwort)
+          </span>
+        )}
+        {usedFallback && (
+          <span style={{ fontSize: "0.7rem", color: "var(--color-accent-warm)" }}>
+            offline-Fallback: lokales Wissen
+          </span>
+        )}
+      </div>
 
       {error && (
-        <div
-          role="alert"
-          style={{
-            fontSize: "0.8rem",
-            color: "#ff6b6b",
-          }}
-        >
+        <div role="alert" style={{ fontSize: "0.8rem", color: "#ff6b6b" }}>
           {error}
         </div>
       )}
-
-      <div
-        style={{
-          fontSize: "0.7rem",
-          color: "var(--color-muted)",
-          opacity: 0.7,
-        }}
-      >
-        Phase C Stub: MockSTT rotiert {sampleQueries.length} Sample-Queries,
-        MockTTS spielt Stille. Phase D ersetzt durch Whisper + Claude SSE +
-        ElevenLabs.
-      </div>
     </div>
   );
 }
@@ -262,6 +335,32 @@ function labelFor(status: VoicePipelineState["status"]): string {
       return "Spricht …";
     default:
       return "";
+  }
+}
+
+function badgeFor(mode: VoiceMode): { label: string; bg: string; fg: string; border: string } {
+  switch (mode) {
+    case "server":
+      return {
+        label: "Server",
+        bg: "rgba(96, 165, 250, 0.15)",
+        fg: "#60A5FA",
+        border: "rgba(96, 165, 250, 0.5)",
+      };
+    case "real":
+      return {
+        label: "Live",
+        bg: "rgba(34, 197, 94, 0.15)",
+        fg: "#22C55E",
+        border: "rgba(34, 197, 94, 0.5)",
+      };
+    default:
+      return {
+        label: "Mock",
+        bg: "rgba(255, 184, 74, 0.15)",
+        fg: "var(--color-accent-warm)",
+        border: "rgba(255, 184, 74, 0.5)",
+      };
   }
 }
 
