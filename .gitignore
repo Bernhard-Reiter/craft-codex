@@ -29,3 +29,6 @@ test-results/
 public/tts-cache/*.pcm
 public/tts-cache/*.mp3
 public/tts-cache/*.wav
+
+# Generated TTS cache (key-generated audio — bundle ships it, git doesn't)
+apps/tischler/public/tts-cache/

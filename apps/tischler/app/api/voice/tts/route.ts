@@ -5,16 +5,38 @@
  * 503:  { error: "tts_unavailable" } → client falls back to cached PCM / mock
  */
 
+import type { ITTSProvider } from "@craft-codex/core";
 import { ElevenLabsTTSProvider } from "../../../../lib/voice/elevenlabs-tts";
-import { jsonError } from "../_lib/server-voice";
+import { GeminiTTSProvider } from "../../../../lib/voice/gemini-tts";
+import { jsonError, ttsProvider } from "../_lib/server-voice";
 
 export const dynamic = "force-dynamic";
 
 const MAX_TEXT_CHARS = 800;
 
+function buildProvider(): ITTSProvider | null {
+  switch (ttsProvider()) {
+    case "gemini":
+      return new GeminiTTSProvider({
+        apiKey: process.env.GEMINI_API_KEY ?? "",
+        ...(process.env.GEMINI_TTS_VOICE ? { defaultVoice: process.env.GEMINI_TTS_VOICE } : {}),
+        ...(process.env.GEMINI_TTS_MODEL ? { model: process.env.GEMINI_TTS_MODEL } : {}),
+      });
+    case "elevenlabs":
+      return new ElevenLabsTTSProvider({
+        apiKey: process.env.ELEVENLABS_API_KEY ?? "",
+        ...(process.env.ELEVENLABS_VOICE_ID
+          ? { defaultVoiceId: process.env.ELEVENLABS_VOICE_ID }
+          : {}),
+      });
+    default:
+      return null;
+  }
+}
+
 export async function POST(req: Request): Promise<Response> {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) return jsonError(503, "tts_unavailable");
+  const tts = buildProvider();
+  if (!tts) return jsonError(503, "tts_unavailable");
 
   let body: { text?: unknown };
   try {
@@ -25,13 +47,6 @@ export async function POST(req: Request): Promise<Response> {
   const text = typeof body.text === "string" ? body.text.trim() : "";
   if (!text) return jsonError(400, "text_required");
   if (text.length > MAX_TEXT_CHARS) return jsonError(400, "text_too_long");
-
-  const tts = new ElevenLabsTTSProvider({
-    apiKey,
-    ...(process.env.ELEVENLABS_VOICE_ID
-      ? { defaultVoiceId: process.env.ELEVENLABS_VOICE_ID }
-      : {}),
-  });
 
   try {
     const chunks: Uint8Array[] = [];

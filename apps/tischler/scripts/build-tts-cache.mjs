@@ -64,7 +64,7 @@ function sha256(text) {
   return createHash("sha256").update(text).digest("hex");
 }
 
-async function fetchTTS(text, apiKey) {
+async function fetchElevenLabs(text, apiKey) {
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${DEFAULT_VOICE_ID}/stream?output_format=${OUTPUT_FORMAT}`;
   const r = await fetch(url, {
     method: "POST",
@@ -87,31 +87,84 @@ async function fetchTTS(text, apiKey) {
     const err = await r.text().catch(() => "");
     throw new Error(`ElevenLabs ${r.status}: ${err.slice(0, 200)}`);
   }
-  return new Uint8Array(await r.arrayBuffer());
+  return { pcm: new Uint8Array(await r.arrayBuffer()), sampleRate: SAMPLE_RATE };
+}
+
+// Gemini TTS (Bake-off-Sieger 2026-06-10, laeuft auf dem vorhandenen Key).
+// Preview-Modelle drosseln gern → Retry mit Backoff bei 429/5xx.
+const GEMINI_MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts-preview";
+const GEMINI_VOICE = process.env.GEMINI_TTS_VOICE || "Kore";
+
+async function fetchGemini(text, apiKey, attempt = 0) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text }] }],
+      generationConfig: {
+        responseModalities: ["AUDIO"],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: GEMINI_VOICE } } },
+      },
+    }),
+  });
+  if (r.status === 429 || r.status >= 500) {
+    if (attempt >= 4) throw new Error(`Gemini ${r.status} after ${attempt + 1} attempts`);
+    const wait = 5000 * (attempt + 1);
+    console.log(`    … Gemini ${r.status}, retry in ${wait / 1000}s`);
+    await new Promise((res) => setTimeout(res, wait));
+    return fetchGemini(text, apiKey, attempt + 1);
+  }
+  if (!r.ok) {
+    const err = await r.text().catch(() => "");
+    throw new Error(`Gemini ${r.status}: ${err.slice(0, 200)}`);
+  }
+  const data = await r.json();
+  const part = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
+  if (!part) throw new Error("Gemini: no audio in response");
+  const sampleRate = Number(/rate=(\d+)/.exec(part.inlineData.mimeType)?.[1] ?? SAMPLE_RATE);
+  return { pcm: Buffer.from(part.inlineData.data, "base64"), sampleRate };
+}
+
+// Provider-Pick: TTS_PROVIDER erzwingt; sonst Gemini (vorhandener Key) vor ElevenLabs.
+function pickProvider() {
+  const forced = process.env.TTS_PROVIDER;
+  if (forced === "gemini" && process.env.GEMINI_API_KEY)
+    return { name: "gemini", fn: (t) => fetchGemini(t, process.env.GEMINI_API_KEY) };
+  if (forced === "elevenlabs" && process.env.ELEVENLABS_API_KEY)
+    return { name: "elevenlabs", fn: (t) => fetchElevenLabs(t, process.env.ELEVENLABS_API_KEY) };
+  if (forced) return null;
+  if (process.env.GEMINI_API_KEY)
+    return { name: "gemini", fn: (t) => fetchGemini(t, process.env.GEMINI_API_KEY) };
+  if (process.env.ELEVENLABS_API_KEY)
+    return { name: "elevenlabs", fn: (t) => fetchElevenLabs(t, process.env.ELEVENLABS_API_KEY) };
+  return null;
 }
 
 async function main() {
   await mkdir(PUBLIC_DIR, { recursive: true });
 
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) {
+  const provider = pickProvider();
+  if (!provider) {
     console.log(
-      "[build-tts-cache] ELEVENLABS_API_KEY not set — writing empty manifest stub.",
+      "[build-tts-cache] No TTS key (GEMINI_API_KEY or ELEVENLABS_API_KEY) — writing empty manifest stub.",
     );
     console.log(
-      "[build-tts-cache] Run with `ELEVENLABS_API_KEY=... pnpm tts:cache` to populate.",
+      "[build-tts-cache] Run with `GEMINI_API_KEY=... pnpm tts:cache` (or ELEVENLABS_API_KEY) to populate.",
     );
     const stub = {
       version: 1,
       entries: {},
       generated: new Date().toISOString(),
-      note: "Empty stub — ELEVENLABS_API_KEY missing at build time.",
+      note: "Empty stub — no TTS API key at build time.",
     };
     await writeFile(MANIFEST_PATH, JSON.stringify(stub, null, 2));
     process.exit(0);
   }
 
-  console.log(`[build-tts-cache] Generating ${TOP_20_ANSWERS.length} PCM files…`);
+  console.log(
+    `[build-tts-cache] Generating ${TOP_20_ANSWERS.length} PCM files via ${provider.name}…`,
+  );
   const entries = {};
   let generated = 0;
   let failed = 0;
@@ -123,9 +176,9 @@ async function main() {
     const fsPath = join(PUBLIC_DIR, `${hash}.pcm`);
 
     try {
-      const pcm = await fetchTTS(text, apiKey);
+      const { pcm, sampleRate } = await provider.fn(text);
       await writeFile(fsPath, pcm);
-      entries[hash] = { text, file, sampleRate: SAMPLE_RATE };
+      entries[hash] = { text, file, sampleRate };
       generated++;
       console.log(`  [${i + 1}/${TOP_20_ANSWERS.length}] ${hash.slice(0, 8)} ${text.slice(0, 60)}…`);
     } catch (e) {
@@ -138,6 +191,7 @@ async function main() {
     version: 1,
     entries,
     generated: new Date().toISOString(),
+    provider: provider.name,
     stats: { generated, failed, total: TOP_20_ANSWERS.length },
   };
   await writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2));

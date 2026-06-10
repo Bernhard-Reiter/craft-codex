@@ -17,19 +17,39 @@ import { createDovetailAnswerFn } from "../../../../lib/voice/dovetail-answer";
 import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
 import type { AnswerFn } from "../../../../lib/voice/pipeline";
 
+export type TTSProviderName = "gemini" | "elevenlabs" | null;
+
 export interface ServerVoiceCapabilities {
   /** Whisper STT available (OPENAI_API_KEY set). */
   stt: boolean;
-  /** ElevenLabs TTS available (ELEVENLABS_API_KEY set). */
+  /** Any TTS provider available. */
   tts: boolean;
+  /** Which one the tts route will use (TTS_PROVIDER override, else auto). */
+  ttsProvider: TTSProviderName;
   /** Which answer brain runs server-side. Template works without any key. */
   answer: "claude" | "template";
 }
 
+/**
+ * Provider pick: explicit TTS_PROVIDER env wins; otherwise gemini when the
+ * (already existing) GEMINI_API_KEY is set, else elevenlabs. Bake-off
+ * 2026-06-10: Bernhard chose Gemini for the Lienz demo voice.
+ */
+export function ttsProvider(): TTSProviderName {
+  const forced = process.env.TTS_PROVIDER;
+  if (forced === "gemini") return process.env.GEMINI_API_KEY ? "gemini" : null;
+  if (forced === "elevenlabs") return process.env.ELEVENLABS_API_KEY ? "elevenlabs" : null;
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.ELEVENLABS_API_KEY) return "elevenlabs";
+  return null;
+}
+
 export function capabilities(): ServerVoiceCapabilities {
+  const tts = ttsProvider();
   return {
     stt: !!process.env.OPENAI_API_KEY,
-    tts: !!process.env.ELEVENLABS_API_KEY,
+    tts: tts !== null,
+    ttsProvider: tts,
     answer: process.env.ANTHROPIC_API_KEY ? "claude" : "template",
   };
 }

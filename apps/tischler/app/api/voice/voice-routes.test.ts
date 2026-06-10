@@ -13,6 +13,8 @@ import { POST as stt } from "./stt/route";
 beforeEach(() => {
   delete process.env.OPENAI_API_KEY;
   delete process.env.ELEVENLABS_API_KEY;
+  delete process.env.GEMINI_API_KEY;
+  delete process.env.TTS_PROVIDER;
   delete process.env.ANTHROPIC_API_KEY;
 });
 
@@ -20,7 +22,23 @@ describe("GET /api/voice/health", () => {
   it("reports template-answer and no stt/tts without keys", async () => {
     const res = await health();
     const body = await res.json();
-    expect(body).toEqual({ ok: true, stt: false, tts: false, answer: "template" });
+    expect(body).toEqual({ ok: true, stt: false, tts: false, ttsProvider: null, answer: "template" });
+  });
+
+  it("prefers gemini when its key is present (bake-off default)", async () => {
+    process.env.GEMINI_API_KEY = "g";
+    process.env.ELEVENLABS_API_KEY = "e";
+    const body = await (await health()).json();
+    expect(body.ttsProvider).toBe("gemini");
+    expect(body.tts).toBe(true);
+  });
+
+  it("TTS_PROVIDER=elevenlabs overrides the auto pick", async () => {
+    process.env.GEMINI_API_KEY = "g";
+    process.env.ELEVENLABS_API_KEY = "e";
+    process.env.TTS_PROVIDER = "elevenlabs";
+    const body = await (await health()).json();
+    expect(body.ttsProvider).toBe("elevenlabs");
   });
 });
 
