@@ -51,15 +51,40 @@ export async function playPcmChunks(chunks: ReadonlyArray<TTSChunk>): Promise<bo
   const samples = int16ToFloat32(joined);
   if (samples.length === 0) return false;
 
-  const ctx = new Ctor({ sampleRate });
+  // Aelteres Safari (webkitAudioContext) kennt den Options-Konstruktor
+  // nicht — dann Default-Rate nehmen; der AudioBuffer traegt seine eigene
+  // sampleRate und der Browser resampled beim Abspielen.
+  let ctx: AudioContext;
   try {
+    ctx = new Ctor({ sampleRate });
+  } catch {
+    ctx = new Ctor();
+  }
+
+  try {
+    // Autoplay-Policy: wird der Context erst NACH dem Klick-Handler erzeugt
+    // (unsere Pipeline braucht Sekunden), startet er auf Safari/iOS und teils
+    // Chrome "suspended" — source.start() bleibt dann lautlos und onended
+    // feuert NIE (haengende Konsole). Erst resumen, sonst ehrlich false.
+    if (ctx.state !== "running") {
+      await ctx.resume().catch(() => {});
+    }
+    if (ctx.state !== "running") return false;
+
     const buffer = ctx.createBuffer(1, samples.length, sampleRate);
     buffer.getChannelData(0).set(samples);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
     source.connect(ctx.destination);
+    const durationMs = (samples.length / sampleRate) * 1000;
     await new Promise<void>((resolve) => {
-      source.onended = () => resolve();
+      // Haenge-Schutz: onended ist nicht auf jedem Geraet zuverlaessig —
+      // nach Audiodauer + Marge loesen wir immer auf.
+      const guard = setTimeout(resolve, durationMs + 2000);
+      source.onended = () => {
+        clearTimeout(guard);
+        resolve();
+      };
       source.start();
     });
     return true;

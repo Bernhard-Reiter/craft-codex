@@ -21,6 +21,8 @@ import { registerDefaultModels } from "../../lib/surface-modes/cad-defaults";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
+import { useServerVoice } from "../../lib/voice/use-server-voice";
+import { createServerAnswerFn } from "../../lib/voice/server-providers";
 import {
   loadModes,
   loadSession,
@@ -69,6 +71,10 @@ export default function DovetailPage() {
     });
     return { rag: r, guard: g };
   }, []);
+
+  // Gleiche Stimm-Kette wie /voice: Server-Routen + Offline-Cache. Ohne
+  // Server (offline/statisch) bleibt voiceBundle null → Mock wie bisher.
+  const { bundle: voiceBundle } = useServerVoice(rag, guard);
 
   useEffect(() => {
     void placementProvider.start();
@@ -175,7 +181,18 @@ export default function DovetailPage() {
           <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
             Meister fragen
           </p>
-          <VoiceConsole rag={rag} guard={guard} />
+          {voiceBundle ? (
+            <VoiceConsole
+              rag={rag}
+              guard={guard}
+              tts={voiceBundle.tts}
+              answer={voiceBundle.answer}
+              makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+              mode={voiceBundle.mode}
+            />
+          ) : (
+            <VoiceConsole rag={rag} guard={guard} />
+          )}
         </section>
       </aside>
 

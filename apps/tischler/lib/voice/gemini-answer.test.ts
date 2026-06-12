@@ -113,3 +113,34 @@ describe("createGeminiAnswerFn", () => {
     expect(body.contents).toHaveLength(4 * 2 + 1);
   });
 });
+
+describe("thinking budget (Gemini 2.5 = Thinking-Modell)", () => {
+  it("disables thinking for gemini-2.5 models so answers don't truncate", async () => {
+    let body: Record<string, unknown> = {};
+    const fetchImpl = (async (_u: unknown, init?: RequestInit) => {
+      body = JSON.parse(String(init?.body));
+      return geminiText("Antwort.");
+    }) as FetchLike;
+    const fn = createGeminiAnswerFn({ apiKey: "k", fetchImpl });
+    await collect(fn("Wie saege ich die Schwalben?"));
+    expect(body.generationConfig).toEqual({
+      maxOutputTokens: 512,
+      thinkingConfig: { thinkingBudget: 0 },
+    });
+  });
+
+  it("omits thinkingConfig for non-2.5 model overrides", async () => {
+    let body: Record<string, unknown> = {};
+    const fetchImpl = (async (_u: unknown, init?: RequestInit) => {
+      body = JSON.parse(String(init?.body));
+      return geminiText("Antwort.");
+    }) as FetchLike;
+    const fn = createGeminiAnswerFn({
+      apiKey: "k",
+      model: "gemini-3-flash-preview",
+      fetchImpl,
+    });
+    await collect(fn("Wie saege ich die Schwalben?"));
+    expect(body.generationConfig).toEqual({ maxOutputTokens: 512 });
+  });
+});

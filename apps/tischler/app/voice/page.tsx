@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import { SiteFooter } from "../../components/SiteFooter";
-import {
-  createServerVoiceProviders,
-  type VoiceProviderBundle,
-} from "../../lib/voice/factory";
-import { probeServerVoice, createServerAnswerFn } from "../../lib/voice/server-providers";
-import { EMPTY_MANIFEST, type TTSCacheManifest } from "../../lib/voice/tts-cache";
+import { createServerAnswerFn } from "../../lib/voice/server-providers";
+import { useServerVoice } from "../../lib/voice/use-server-voice";
 
 // ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
 // vorvertonte Offline-Stimme nicht mehr.
@@ -35,34 +31,10 @@ export default function VoiceTestPage() {
     return { rag: r, guard: g };
   }, []);
 
-  // Phase E: Server-Routen + TTS-Cache proben. Beides darf fehlen —
-  // die Console faellt dann auf Mock/Template zurueck (Demo bricht nie).
-  const [bundle, setBundle] = useState<VoiceProviderBundle | null>(null);
-  const [cacheCount, setCacheCount] = useState(0);
-
-  useEffect(() => {
-    let on = true;
-    (async () => {
-      const [health, manifest] = await Promise.all([
-        probeServerVoice(),
-        fetch("/tts-cache/manifest.json", { cache: "no-store" })
-          .then((r) => (r.ok ? (r.json() as Promise<TTSCacheManifest>) : EMPTY_MANIFEST))
-          .catch(() => EMPTY_MANIFEST),
-      ]);
-      if (!on) return;
-      setCacheCount(Object.keys(manifest.entries ?? {}).length);
-      if (health?.ok) {
-        setBundle(
-          createServerVoiceProviders({ rag, guard, health, ttsCacheManifest: manifest }),
-        );
-      } else {
-        setBundle(null); // statisches Hosting / komplett offline → Mock-Console
-      }
-    })();
-    return () => {
-      on = false;
-    };
-  }, [rag, guard]);
+  // Phase E: Server-Routen + TTS-Cache proben (shared Hook, gleiche Kette
+  // wie die Werkstatt). Beides darf fehlen — die Console faellt dann auf
+  // Mock/Template zurueck (Demo bricht nie).
+  const { bundle, cacheCount } = useServerVoice(rag, guard);
 
   return (
     <>
