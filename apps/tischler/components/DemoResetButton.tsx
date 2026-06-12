@@ -27,33 +27,13 @@ export function DemoResetButton() {
     <button
       type="button"
       onClick={reset}
-      style={{
-        fontSize: "0.75rem",
-        padding: "0.35rem 0.7rem",
-        background: "rgba(255, 107, 107, 0.15)",
-        color: "#ff6b6b",
-        border: "1px solid rgba(255, 107, 107, 0.5)",
-        borderRadius: 6,
-        cursor: "pointer",
-      }}
+      className="cc-btn cc-btn--sm cc-btn--danger"
     >
-      Wirklich zuruecksetzen? (loescht Fortschritt + Platzierungen)
+      Wirklich zurücksetzen? (löscht Fortschritt + Platzierungen)
     </button>
   ) : (
-    <button
-      type="button"
-      onClick={() => setArmed(true)}
-      style={{
-        fontSize: "0.75rem",
-        padding: "0.35rem 0.7rem",
-        background: "transparent",
-        color: "var(--color-muted)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 6,
-        cursor: "pointer",
-      }}
-    >
-      ↺ Demo zuruecksetzen
+    <button type="button" onClick={() => setArmed(true)} className="cc-btn cc-btn--sm">
+      ↺ Demo zurücksetzen
     </button>
   );
 }

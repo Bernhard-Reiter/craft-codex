@@ -3,11 +3,11 @@
 import type { DovetailStep } from "@craft-codex/core";
 
 const STEPS: Array<{ id: DovetailStep; label: string }> = [
-  { id: "anreissen", label: "Anreissen" },
-  { id: "saegen", label: "Saegen" },
+  { id: "anreissen", label: "Anreißen" },
+  { id: "saegen", label: "Sägen" },
   { id: "stemmen", label: "Stemmen" },
   { id: "passen", label: "Passen" },
-  { id: "pruefen", label: "Pruefen" },
+  { id: "pruefen", label: "Prüfen" },
 ];
 
 interface ModeBarProps {
@@ -17,19 +17,8 @@ interface ModeBarProps {
 
 export function ModeBar({ active, onChange }: ModeBarProps) {
   return (
-    <div
-      role="tablist"
-      style={{
-        display: "flex",
-        gap: "0.5rem",
-        padding: "0.75rem",
-        background: "var(--color-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 8,
-        flexWrap: "wrap",
-      }}
-    >
-      {STEPS.map((s) => {
+    <div role="tablist" className="cc-tabbar" aria-label="Lernschritte">
+      {STEPS.map((s, i) => {
         const isActive = s.id === active;
         return (
           <button
@@ -37,18 +26,11 @@ export function ModeBar({ active, onChange }: ModeBarProps) {
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(s.id)}
-            style={{
-              padding: "0.5rem 1rem",
-              border: `1px solid ${
-                isActive ? "var(--color-accent)" : "var(--color-border)"
-              }`,
-              borderRadius: 6,
-              background: isActive ? "var(--color-accent)" : "transparent",
-              color: isActive ? "#0b0d10" : "var(--color-fg)",
-              fontSize: "0.9rem",
-              fontWeight: isActive ? 600 : 400,
-            }}
+            className="cc-tab"
           >
+            <span className="cc-tab-step" aria-hidden="true">
+              {i + 1}
+            </span>
             {s.label}
           </button>
         );

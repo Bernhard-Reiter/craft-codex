@@ -31,14 +31,11 @@ export function SurfacePanel({ manager, activeId }: SurfacePanelProps) {
   return (
     <div
       data-testid="surface-panel"
+      className="cc-card cc-card--flat"
       style={{
         display: "flex",
         flexDirection: "column",
         gap: "0.5rem",
-        padding: "1rem",
-        background: "var(--color-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 8,
         minHeight: 120,
       }}
     >
@@ -47,8 +44,10 @@ export function SurfacePanel({ manager, activeId }: SurfacePanelProps) {
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
-          fontSize: "0.95rem",
-          fontWeight: 600,
+          fontSize: "0.9rem",
+          fontWeight: 800,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
         }}
       >
         {meta ? (
@@ -57,7 +56,7 @@ export function SurfacePanel({ manager, activeId }: SurfacePanelProps) {
             <span>{meta.label}</span>
           </>
         ) : (
-          <span style={{ color: "var(--color-muted)", fontWeight: 400 }}>
+          <span className="cc-muted" style={{ fontWeight: 400, textTransform: "none" }}>
             Kein Mode aktiv
           </span>
         )}
@@ -78,30 +77,15 @@ function ActiveModeBody({
 }) {
   if (!meta) {
     return (
-      <div
-        style={{
-          color: "var(--color-muted)",
-          fontSize: "0.85rem",
-          lineHeight: 1.5,
-        }}
-      >
-        Waehle einen Mode oben (Tafel / CAD / Video) um zu starten.
+      <div className="cc-muted" style={{ fontSize: "0.85rem", lineHeight: 1.5 }}>
+        Wähle einen Mode oben (Tafel / CAD / Video) um zu starten.
       </div>
     );
   }
 
   if (activeId === "tafel" && active instanceof TafelMode) {
     return (
-      <div
-        data-mode-active={meta.id}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "0.5rem",
-          background: "var(--color-bg)",
-          borderRadius: 6,
-        }}
-      >
+      <div data-mode-active={meta.id} className="cc-stage" style={{ display: "flex", justifyContent: "center", padding: "0.5rem" }}>
         <TafelCanvas mode={active} width={640} height={360} />
       </div>
     );
@@ -109,16 +93,7 @@ function ActiveModeBody({
 
   if (activeId === "cad" && active instanceof CADMode) {
     return (
-      <div
-        data-mode-active={meta.id}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "0.5rem",
-          background: "var(--color-bg)",
-          borderRadius: 6,
-        }}
-      >
+      <div data-mode-active={meta.id} className="cc-stage" style={{ display: "flex", justifyContent: "center", padding: "0.5rem" }}>
         <CADViewer mode={active} width={640} height={360} />
       </div>
     );
@@ -126,29 +101,14 @@ function ActiveModeBody({
 
   if (activeId === "video" && active instanceof VideoMode) {
     return (
-      <div
-        data-mode-active={meta.id}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "0.5rem",
-          background: "var(--color-bg)",
-          borderRadius: 6,
-        }}
-      >
+      <div data-mode-active={meta.id} className="cc-stage" style={{ display: "flex", justifyContent: "center", padding: "0.5rem" }}>
         <VideoPlayer mode={active} width={640} height={360} />
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        color: "var(--color-muted)",
-        fontSize: "0.85rem",
-        lineHeight: 1.5,
-      }}
-    >
+    <div className="cc-muted" style={{ fontSize: "0.85rem", lineHeight: 1.5 }}>
       <span data-mode-stub={meta.id}>
         [{meta.label}-Mode active — UI-Wiring folgt.]
       </span>

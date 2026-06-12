@@ -77,8 +77,8 @@ function StepButton({
 }) {
   const [hovered, setHovered] = useState(false);
 
-  const baseColor = isActive ? "#4fa3df" : hovered ? "#3a3f47" : "#1f2429";
-  const labelColor = isActive ? "#0b0d10" : "#e9eef3";
+  const baseColor = isActive ? "#ffed00" : hovered ? "#32373c" : "#181715";
+  const labelColor = isActive ? "#0a0a0a" : "#f0f0f0";
 
   return (
     <group position={position}>

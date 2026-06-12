@@ -1,116 +1,136 @@
 import Link from "next/link";
 import { DemoResetButton } from "../components/DemoResetButton";
+import { SiteFooter } from "../components/SiteFooter";
+import { SystemStatus } from "../components/SystemStatus";
 
-const cards: Array<{
+const pieces: Array<{
   href: string;
+  num: string;
   title: string;
   body: string;
-  status: "ready" | "stub";
+  cta: string;
 }> = [
   {
     href: "/dovetail",
+    num: "01",
     title: "Schwalbenschwanz",
-    body: "3D-Demo: Brett A + B mit Anrisslinien fuer alle 5 Schritte (Anreissen → Pruefen). Plus Mode-Switcher (Tafel / CAD / Video) + Drag-Placement.",
-    status: "ready",
-  },
-  {
-    href: "/dovetail/xr",
-    title: "WebXR Demo",
-    body: "Schwalbenschwanz immersiv via WebXR — Enter AR / VR (Quest 3 / Galaxy XR / Chrome WebXR Emulator).",
-    status: "ready",
+    body: "Die Königsdisziplin der Eckverbindung — parametrisch in 3D. Pins, Winkel und Brettmaße live ziehen, alle fünf Lernschritte vom Anreißen bis zum Prüfen.",
+    cta: "Werkstatt öffnen",
   },
   {
     href: "/voice",
-    title: "Voice-Pipeline",
-    body: "Demo-Fragen, Texteingabe oder Mic → 41-Doc RAG-Korpus + TopicGuard → Antwort mit Stimme (Offline-Cache → Server-ElevenLabs → still). Keys bleiben am Server.",
-    status: "ready",
+    num: "02",
+    title: "Stimme des Meisters",
+    body: "Fragen stellen wie am Hobel nebenan: Antworten aus dem Fachkorpus mit Quellen aus offiziellen Regelwerken — gesprochen, auch komplett ohne Netz.",
+    cta: "Stimme testen",
+  },
+  {
+    href: "/dovetail/xr",
+    num: "03",
+    title: "Hologramm (WebXR)",
+    body: "Dasselbe Werkstück immersiv: Quest 3 oder Galaxy XR aufsetzen, das Brett schwebt auf Tischhöhe im Raum — Lernschritte per Handgriff wechseln.",
+    cta: "XR starten",
   },
 ];
 
 export default function Page() {
   return (
-    <main>
-      <p
-        style={{
-          color: "var(--color-muted)",
-          fontSize: "0.85rem",
-          textTransform: "uppercase",
-          letterSpacing: 0.8,
-          margin: 0,
-        }}
-      >
-        Craft Codex · Gewerk
-      </p>
-      <h1 style={{ marginTop: "0.25rem", fontWeight: 600, fontSize: "2rem" }}>
-        Tischler
-      </h1>
-      <p style={{ color: "var(--color-muted)", marginBottom: "2.5rem" }}>
-        MR-Lerntool fuers Holzhandwerk. Werkstuecke unten waehlen.
-      </p>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "1rem",
-        }}
-      >
-        {cards.map((c) => (
-          <Link
-            key={c.href}
-            href={c.href}
+    <>
+      <main>
+        {/* Hero — CyberCraft-Statement: groß, schwarz auf weiß, gelber Marker. */}
+        <section className="cc-page" style={{ paddingTop: "3.5rem" }}>
+          <p className="cc-kicker">Offener Wissenspool fürs Handwerk</p>
+          <h1
             style={{
-              display: "block",
-              padding: "1.25rem",
-              background: "var(--color-card)",
-              border: "1px solid var(--color-border)",
-              borderRadius: 8,
-              color: "var(--color-fg)",
-              textDecoration: "none",
+              fontSize: "clamp(2.4rem, 7vw, 4.5rem)",
+              textTransform: "uppercase",
+              margin: "1rem 0 1.25rem",
+              maxWidth: "14ch",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "1.15rem",
-                  fontWeight: 600,
-                }}
-              >
-                {c.title}
-              </h2>
-              <span
-                style={{
-                  fontSize: "0.75rem",
-                  color:
-                    c.status === "ready"
-                      ? "var(--color-accent)"
-                      : "var(--color-muted)",
-                }}
-              >
-                {c.status}
-              </span>
-            </div>
-            <p
-              style={{
-                margin: "0.5rem 0 0",
-                color: "var(--color-muted)",
-                lineHeight: 1.5,
-              }}
-            >
-              {c.body}
-            </p>
-          </Link>
-        ))}
-      </div>
-      <div style={{ marginTop: "2.5rem" }}>
-        <DemoResetButton />
-      </div>
-    </main>
+            Handwerk. <span className="cc-mark">Hologramm.</span> Meisterwissen.
+          </h1>
+          <p
+            className="cc-muted"
+            style={{
+              fontSize: "1.05rem",
+              lineHeight: 1.6,
+              maxWidth: "58ch",
+              margin: 0,
+            }}
+          >
+            Craft Codex bringt das Wissen der Meister dorthin, wo gearbeitet
+            wird: als parametrisches 3D-Werkstück, als Stimme, die Fachfragen
+            beantwortet, und als Hologramm im Raum. Offline-fest gebaut — für
+            Werkstätten, nicht für Schönwetter-WLAN.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.75rem",
+              flexWrap: "wrap",
+              margin: "1.75rem 0 2.5rem",
+            }}
+          >
+            <Link href="/dovetail" className="cc-btn cc-btn--primary">
+              Werkstatt öffnen
+            </Link>
+            <Link href="/voice" className="cc-btn">
+              Stimme testen
+            </Link>
+            <Link href="/dovetail/xr" className="cc-btn cc-btn--dark">
+              XR-Demo
+            </Link>
+          </div>
+
+          {/* Live verlötet: probt Health-Route, TTS-Cache, WebXR, Korpus. */}
+          <SystemStatus />
+        </section>
+
+        {/* Werkstücke */}
+        <section className="cc-page" style={{ marginTop: "3.5rem" }}>
+          <h2 className="cc-section-title">Werkstücke</h2>
+          <div className="cc-grid-cards">
+            {pieces.map((p) => (
+              <Link key={p.href} href={p.href} className="cc-card">
+                <span className="cc-card-num">{p.num}</span>
+                <h3
+                  style={{
+                    fontSize: "1.25rem",
+                    textTransform: "uppercase",
+                    margin: "0.75rem 0 0.5rem",
+                  }}
+                >
+                  {p.title}
+                </h3>
+                <p
+                  className="cc-muted"
+                  style={{ margin: 0, lineHeight: 1.55, fontSize: "0.9rem" }}
+                >
+                  {p.body}
+                </p>
+                <span
+                  style={{
+                    display: "inline-block",
+                    marginTop: "1rem",
+                    fontWeight: 800,
+                    fontSize: "0.8rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    borderBottom: "3px solid var(--cc-yellow)",
+                  }}
+                >
+                  {p.cta} →
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div style={{ marginTop: "2.5rem" }}>
+            <DemoResetButton />
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

@@ -59,7 +59,6 @@ export default function DovetailPage() {
   const [showPlacement, setShowPlacement] = useState(false);
 
   // Voice-Pipeline: RAG + TopicGuard fuer Schwalbenschwanz-Korpus.
-  // Phase D ersetzt MockSTT/MockTTS durch Whisper + ElevenLabs.
   const { rag, guard } = useMemo(() => {
     const r = new LocalRAGProvider(getDemoCorpus());
     const g = new StubTopicGuard({
@@ -137,63 +136,50 @@ export default function DovetailPage() {
   }
 
   return (
-    <main
-      style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(280px, 320px) 1fr",
-        gridTemplateRows: "1fr auto",
-        gap: "1rem",
-        height: "100vh",
-        maxWidth: "none",
-        padding: "1rem",
-      }}
-    >
-      <aside
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          overflowY: "auto",
-          gridRow: "1 / span 2",
-        }}
-      >
+    <main className="cc-workbench">
+      <aside className="cc-workbench-rail">
         <header>
-          <h1 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 600 }}>
+          <p className="cc-kicker">Werkstück 01</p>
+          <h1
+            style={{
+              margin: "0.4rem 0 0",
+              fontSize: "1.6rem",
+              textTransform: "uppercase",
+            }}
+          >
             Schwalbenschwanz
           </h1>
           <p
-            style={{
-              margin: "0.25rem 0 0",
-              color: "var(--color-muted)",
-              fontSize: "0.85rem",
-            }}
+            className="cc-muted"
+            style={{ margin: "0.25rem 0 0", fontSize: "0.85rem" }}
           >
-            Lernschritt + Brettmaße — live im 3D-Modell.
+            Lernschritt und Brettmaße — live im 3D-Modell.
           </p>
         </header>
-        <ModeBar active={step} onChange={setStep} />
-        <ParamSliders params={params} onChange={setParams} />
-        <VoiceConsole rag={rag} guard={guard} />
-        <div
-          style={{
-            fontSize: "0.75rem",
-            color: "var(--color-muted)",
-            lineHeight: 1.5,
-          }}
-        >
-          State + Voice persists in localStorage (browser-only). Phase D: echte
-          Whisper / Claude / ElevenLabs.
-        </div>
+
+        <section className="cc-card cc-card--flat">
+          <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
+            Lernschritt
+          </p>
+          <ModeBar active={step} onChange={setStep} />
+        </section>
+
+        <section className="cc-card cc-card--flat">
+          <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
+            Brettmaße
+          </p>
+          <ParamSliders params={params} onChange={setParams} />
+        </section>
+
+        <section>
+          <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
+            Meister fragen
+          </p>
+          <VoiceConsole rag={rag} guard={guard} />
+        </section>
       </aside>
-      <section
-        style={{
-          position: "relative",
-          border: "1px solid var(--color-border)",
-          borderRadius: 8,
-          overflow: "hidden",
-          minHeight: 0,
-        }}
-      >
+
+      <section className="cc-stage" aria-label="3D-Werkstück">
         <DovetailScene
           params={params}
           step={step}
@@ -213,34 +199,17 @@ export default function DovetailPage() {
         <button
           type="button"
           onClick={() => setShowPlacement((v) => !v)}
-          style={{
-            position: "absolute",
-            top: "0.5rem",
-            right: "0.5rem",
-            padding: "0.4rem 0.75rem",
-            background: showPlacement
-              ? "var(--color-accent)"
-              : "var(--color-card)",
-            color: showPlacement ? "#0b0d10" : "var(--color-fg)",
-            border: `1px solid ${
-              showPlacement ? "var(--color-accent)" : "var(--color-border)"
-            }`,
-            borderRadius: 6,
-            fontSize: "0.8rem",
-            fontWeight: 600,
-          }}
+          className={`cc-btn cc-btn--sm${showPlacement ? " cc-btn--primary" : ""}`}
+          style={{ position: "absolute", top: "0.6rem", right: "0.6rem" }}
           aria-pressed={showPlacement}
         >
           {showPlacement ? "Drag aktiv" : "Brett positionieren"}
         </button>
       </section>
+
       <section
         aria-label="Master-Surface"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-        }}
+        style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
       >
         <SurfaceModeBar
           manager={manager}
