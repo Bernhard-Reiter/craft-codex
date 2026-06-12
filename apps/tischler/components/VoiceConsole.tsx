@@ -138,6 +138,9 @@ export function VoiceConsole({
       setAudioPlayed(played);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Pipeline-Fehler");
+      // Pipeline-Crash lässt den Status sonst auf listening/speaking hängen
+      // → Konsole wäre bis zum Reload busy-locked. Antwort/Frage bleiben.
+      setState((s) => (s.status === "idle" ? s : { ...s, status: "idle" }));
     }
   };
 

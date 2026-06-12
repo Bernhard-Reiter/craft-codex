@@ -3,6 +3,7 @@ import {
   CachedTTSProvider,
   EMPTY_MANIFEST,
   hashText,
+  sha256HexFallback,
   type TTSCacheManifest,
 } from "./tts-cache";
 import type { ITTSProvider, TTSChunk } from "@craft-codex/core";
@@ -205,5 +206,48 @@ describe("CachedTTSProvider", () => {
     });
     await collect(p.synthesizeStream("  Hallo  "));
     expect(fetchImpl).toHaveBeenCalled();
+  });
+});
+
+describe("sha256HexFallback — Insecure-Context-Pfad (LAN-HTTP)", () => {
+  it("matches FIPS 180-4 test vectors", () => {
+    const enc = new TextEncoder();
+    expect(sha256HexFallback(enc.encode("abc"))).toBe(
+      "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    );
+    expect(sha256HexFallback(enc.encode(""))).toBe(
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    );
+  });
+
+  it("matches node:crypto for demo answers incl. umlauts + multi-block", async () => {
+    const { createHash } = await import("node:crypto");
+    const samples = [
+      "Der Anriss ist die Grundlage jeder Schwalbenschwanzverbindung. Mit dem Streichmass uebertraegst du die Brettstaerke umlaufend.",
+      "Schwalbenwinkel für Hartholz: 1:6 ≈ 9,5° — bei Weichholz eher 1:8.",
+      "x".repeat(200),
+      "a".repeat(55),
+      "a".repeat(56),
+      "a".repeat(64),
+    ];
+    const enc = new TextEncoder();
+    for (const s of samples) {
+      const expected = createHash("sha256").update(s, "utf8").digest("hex");
+      expect(sha256HexFallback(enc.encode(s))).toBe(expected);
+    }
+  });
+
+  it("hashText falls back when crypto.subtle is missing (http://<lan-ip>)", async () => {
+    const text = "Wie reisse ich mit dem Streichmass an";
+    const withSubtle = await hashText(text);
+
+    const realCrypto = globalThis.crypto;
+    vi.stubGlobal("crypto", { ...realCrypto, subtle: undefined });
+    try {
+      const withoutSubtle = await hashText(text);
+      expect(withoutSubtle).toBe(withSubtle);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
