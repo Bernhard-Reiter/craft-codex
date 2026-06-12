@@ -133,7 +133,7 @@ export function DovetailScene({
     <Canvas
       shadows
       camera={{ position: [0.3, 0.25, 0.4], fov: 45 }}
-      style={{ width: "100%", height: "100%", background: "#0b0d10" }}
+      style={{ width: "100%", height: "100%", background: "#0a0a0a" }}
     >
       {contentWrapper ? contentWrapper(content) : content}
     </Canvas>

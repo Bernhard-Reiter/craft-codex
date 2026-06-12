@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { VoiceConsole } from "../../components/VoiceConsole";
+import { SiteFooter } from "../../components/SiteFooter";
 import {
   createServerVoiceProviders,
   type VoiceProviderBundle,
@@ -13,6 +13,8 @@ import {
 import { probeServerVoice, createServerAnswerFn } from "../../lib/voice/server-providers";
 import { EMPTY_MANIFEST, type TTSCacheManifest } from "../../lib/voice/tts-cache";
 
+// ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
+// vorvertonte Offline-Stimme nicht mehr.
 const SAMPLE_QUERIES = [
   "Wie reisse ich mit dem Streichmass an",
   "Welcher Schwalbenwinkel passt fuer Hartholz",
@@ -63,52 +65,57 @@ export default function VoiceTestPage() {
   }, [rag, guard]);
 
   return (
-    <main style={{ padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
-      <Link href="/" style={{ fontSize: "0.85rem", color: "var(--color-muted)" }}>
-        ← zurueck
-      </Link>
-      <h1 style={{ marginTop: "1rem", fontSize: "1.6rem", fontWeight: 600 }}>
-        Voice-Konsole
-      </h1>
-      <p style={{ color: "var(--color-muted)", lineHeight: 1.6 }}>
-        Frage per Demo-Button, Texteingabe oder Mic-Rotation stellen. Antworten
-        kommen aus dem 41-Doc-RAG-Korpus (Server-Route mit Claude, sonst
-        Template). Stimme: Offline-Cache zuerst, dann Server-ElevenLabs.
-      </p>
+    <>
+      <main className="cc-page" style={{ maxWidth: 780 }}>
+        <p className="cc-kicker">Werkstück 02</p>
+        <h1
+          style={{
+            margin: "0.5rem 0 0.75rem",
+            fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+            textTransform: "uppercase",
+          }}
+        >
+          Stimme des <span className="cc-mark">Meisters</span>
+        </h1>
+        <p className="cc-muted" style={{ lineHeight: 1.6, margin: 0 }}>
+          Frage per Demo-Button, Texteingabe oder Mikrofon stellen. Antworten
+          kommen aus dem Fachkorpus ({getDemoCorpus().length} Dokumente, inkl.
+          offizieller Regelwerke) — gesprochen über die Offline-Kette:
+          vorvertonter Cache zuerst, dann Server-Stimme, notfalls Text.
+        </p>
 
-      <section style={{ marginTop: "1.5rem" }}>
-        {bundle ? (
-          <VoiceConsole
-            rag={rag}
-            guard={guard}
-            tts={bundle.tts}
-            answer={bundle.answer}
-            makeAnswer={(history) => createServerAnswerFn(undefined, history)}
-            sampleQueries={SAMPLE_QUERIES}
-            mode={bundle.mode}
-          />
-        ) : (
-          <VoiceConsole rag={rag} guard={guard} sampleQueries={SAMPLE_QUERIES} />
-        )}
-      </section>
+        <section style={{ marginTop: "1.75rem" }}>
+          {bundle ? (
+            <VoiceConsole
+              rag={rag}
+              guard={guard}
+              tts={bundle.tts}
+              answer={bundle.answer}
+              makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+              sampleQueries={SAMPLE_QUERIES}
+              mode={bundle.mode}
+            />
+          ) : (
+            <VoiceConsole rag={rag} guard={guard} sampleQueries={SAMPLE_QUERIES} />
+          )}
+        </section>
 
-      <section
-        style={{
-          marginTop: "1rem",
-          padding: "1rem",
-          background: "var(--color-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: 6,
-          fontSize: "0.8rem",
-          lineHeight: 1.5,
-          color: "var(--color-muted)",
-        }}
-      >
-        Offline-Kette: vorberechnete Stimme ({cacheCount} Antworten im Cache) →
-        Server-TTS → Stille mit Text-Antwort. Antworten funktionieren immer —
-        notfalls aus dem lokalen Wissenskorpus. Cache befuellen:{" "}
-        <code>ELEVENLABS_API_KEY=… pnpm tts:cache</code>
-      </section>
-    </main>
+        <section
+          className="cc-card cc-card--gray cc-card--flat"
+          style={{ marginTop: "1.25rem", fontSize: "0.8rem", lineHeight: 1.6 }}
+        >
+          <span className="cc-kicker" style={{ marginBottom: "0.5rem" }}>
+            Offline-Kette
+          </span>
+          <p className="cc-muted" style={{ margin: "0.5rem 0 0" }}>
+            Vorberechnete Stimme ({cacheCount} Antworten im Cache) →
+            Server-TTS → Stille mit Text-Antwort. Antworten funktionieren
+            immer — notfalls aus dem lokalen Wissenskorpus. Cache befüllen:{" "}
+            <code className="cc-mono">ELEVENLABS_API_KEY=… pnpm tts:cache</code>
+          </p>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

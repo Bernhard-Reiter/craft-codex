@@ -11,6 +11,7 @@ import {
 } from "@craft-codex/core";
 import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRStepBar } from "../../../components/XRStepBar";
+import { SiteFooter } from "../../../components/SiteFooter";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
 
@@ -71,135 +72,128 @@ export default function DovetailXRPage() {
   };
 
   return (
-    <main style={{ padding: "2rem", maxWidth: 960, margin: "0 auto" }}>
-      <Link
-        href="/"
-        style={{ fontSize: "0.85rem", color: "var(--color-muted)" }}
-      >
-        ← zurueck
-      </Link>
-      <h1 style={{ marginTop: "1rem", fontSize: "1.6rem", fontWeight: 600 }}>
-        Schwalbenschwanz im WebXR
-      </h1>
-      <p style={{ color: "var(--color-muted)", lineHeight: 1.6 }}>
-        Dieselbe 3D-Scene wie /dovetail, jetzt mit echter WebXR-Session. Klick
-        "Enter AR" auf einer Quest 3 oder Galaxy XR (oder Chrome mit WebXR
-        Emulator) — das Brett erscheint dann in deinem Raum.
-      </p>
-
-      {support === null && (
-        <p style={{ color: "var(--color-muted)" }}>Pruefe XR-Support…</p>
-      )}
-
-      {support && (
-        <section
+    <>
+      <main className="cc-page" style={{ maxWidth: 960 }}>
+        <p className="cc-kicker">Werkstück 03</p>
+        <h1
           style={{
-            marginTop: "1.5rem",
-            padding: "1.25rem",
-            background: "var(--color-card)",
-            border: "1px solid var(--color-border)",
-            borderRadius: 8,
+            margin: "0.5rem 0 0.75rem",
+            fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+            textTransform: "uppercase",
           }}
         >
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <Capability label="Immersive AR" supported={support.ar} />
-            <Capability label="Immersive VR" supported={support.vr} />
-          </div>
-          {support.reason && (
-            <p
+          Schwalbenschwanz als <span className="cc-mark">Hologramm</span>
+        </h1>
+        <p className="cc-muted" style={{ lineHeight: 1.6, margin: 0 }}>
+          Dieselbe 3D-Szene wie in der Werkstatt, jetzt als echte WebXR-Session.
+          „Enter AR“ auf einer Quest 3 oder Galaxy XR (oder Chrome mit
+          WebXR-Emulator) — das Brett erscheint auf Tischhöhe in deinem Raum.
+        </p>
+
+        {support === null && (
+          <p className="cc-muted" style={{ marginTop: "1.5rem" }}>
+            Prüfe XR-Support …
+          </p>
+        )}
+
+        {support && (
+          <section className="cc-card" style={{ marginTop: "1.5rem" }}>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <Capability label="Immersive AR" supported={support.ar} />
+              <Capability label="Immersive VR" supported={support.vr} />
+            </div>
+            {support.reason && (
+              <p
+                className="cc-muted"
+                style={{ marginTop: "1rem", fontSize: "0.85rem" }}
+              >
+                <strong>Grund:</strong> {support.reason}
+              </p>
+            )}
+
+            <div
               style={{
-                marginTop: "1rem",
-                color: "var(--color-muted)",
-                fontSize: "0.85rem",
+                marginTop: "1.25rem",
+                display: "flex",
+                gap: "0.75rem",
+                flexWrap: "wrap",
               }}
             >
-              <strong>Grund:</strong> {support.reason}
-            </p>
-          )}
+              <button
+                type="button"
+                disabled={!support.ar}
+                onClick={enterAR}
+                className="cc-btn cc-btn--primary"
+              >
+                Enter AR
+              </button>
+              <button
+                type="button"
+                disabled={!support.vr}
+                onClick={enterVR}
+                className="cc-btn cc-btn--primary"
+              >
+                Enter VR
+              </button>
+            </div>
 
-          <div
-            style={{
-              marginTop: "1.25rem",
-              display: "flex",
-              gap: "0.75rem",
-              flexWrap: "wrap",
+            {!support.ar && !support.vr && (
+              <FallbackMessage reason={support.reason} />
+            )}
+          </section>
+        )}
+
+        <section
+          className="cc-stage"
+          style={{ marginTop: "1.5rem", height: "60vh", minHeight: 400 }}
+        >
+          <Canvas
+            shadows
+            // 2D-Vorschau: Kamera auf die Bretter richten (liegen auf 1.2m
+            // fuer den XR-Modus). In der echten XR-Session uebernimmt das
+            // Headset die Kamera — Position hier betrifft NUR die Vorschau.
+            camera={{ position: [0.9, 1.9, 1.0], fov: 45 }}
+            onCreated={({ camera }) => {
+              camera.lookAt(0, 1.4, -0.6);
             }}
+            style={{ background: "#0a0a0a" }}
           >
-            <button
-              type="button"
-              disabled={!support.ar}
-              onClick={enterAR}
-              style={buttonStyle(support.ar)}
-            >
-              Enter AR
-            </button>
-            <button
-              type="button"
-              disabled={!support.vr}
-              onClick={enterVR}
-              style={buttonStyle(support.vr)}
-            >
-              Enter VR
-            </button>
-          </div>
-
-          {!support.ar && !support.vr && (
-            <FallbackMessage reason={support.reason} />
-          )}
+            <XR store={store}>
+              {/* In AR/VR steht der User am Welt-Origin (Boden). Boards 1.2m
+                  hoch + 0.6m nach vorn platzieren, damit sie auf Tischhoehe
+                  vor dem Lehrling schweben statt unter den Fuessen liegen. */}
+              <group position={[0, 1.2, -0.6]} scale={[3, 3, 3]}>
+                <DovetailSceneContents
+                  params={params}
+                  step={step}
+                  withOrbitControls={false}
+                />
+                <XRStepBar
+                  active={step}
+                  onChange={(s) => {
+                    setStep(s);
+                    saveSession({ params, step: s, updatedAt: Date.now() });
+                  }}
+                />
+              </group>
+            </XR>
+          </Canvas>
         </section>
-      )}
-
-      <section
-        style={{
-          marginTop: "1.5rem",
-          height: "60vh",
-          minHeight: 400,
-          border: "1px solid var(--color-border)",
-          borderRadius: 8,
-          overflow: "hidden",
-        }}
-      >
-        <Canvas
-          shadows
-          camera={{ position: [0.3, 0.25, 0.4], fov: 45 }}
-          style={{ background: "#0b0d10" }}
-        >
-          <XR store={store}>
-            {/* In AR/VR steht der User am Welt-Origin (Boden). Boards 1.2m
-                hoch + 0.6m nach vorn platzieren, damit sie auf Tischhoehe
-                vor dem Lehrling schweben statt unter den Fuessen liegen. */}
-            <group position={[0, 1.2, -0.6]} scale={[3, 3, 3]}>
-              <DovetailSceneContents
-                params={params}
-                step={step}
-                withOrbitControls={false}
-              />
-              <XRStepBar
-                active={step}
-                onChange={(s) => {
-                  setStep(s);
-                  saveSession({ params, step: s, updatedAt: Date.now() });
-                }}
-              />
-            </group>
-          </XR>
-        </Canvas>
         <div
-          style={{
-            padding: "0.5rem 0.75rem",
-            fontSize: "0.75rem",
-            color: "var(--color-muted)",
-            borderTop: "1px solid var(--color-border)",
-            background: "var(--color-card)",
-          }}
+          className="cc-card cc-card--gray cc-card--flat cc-muted"
+          style={{ marginTop: "0.75rem", padding: "0.6rem 0.9rem", fontSize: "0.78rem" }}
         >
-          Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett
+          Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett{" "}
           {params.width_mm}×{params.length_mm}mm, {params.pinCount} Pins, 1:
-          {params.ratio}. Aenderbar in /dovetail (state shared via
-          localStorage).
+          {params.ratio}. Änderbar in der{" "}
+          <Link href="/dovetail" style={{ borderBottom: "2px solid var(--cc-yellow)" }}>
+            Werkstatt
+          </Link>{" "}
+          (State geteilt via localStorage).
         </div>
-      </section>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
 
@@ -212,23 +206,10 @@ function Capability({
 }) {
   return (
     <div
-      style={{
-        flex: "1 1 200px",
-        padding: "0.75rem",
-        background: "var(--color-bg)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 6,
-      }}
+      className={supported ? "cc-badge cc-badge--yellow" : "cc-badge"}
+      style={{ fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}
     >
-      <div style={{ fontWeight: 600 }}>{label}</div>
-      <div
-        style={{
-          fontSize: "0.85rem",
-          color: supported ? "var(--color-accent)" : "var(--color-muted)",
-        }}
-      >
-        {supported ? "supported" : "not available"}
-      </div>
+      {label}: {supported ? "bereit" : "nicht verfügbar"}
     </div>
   );
 }
@@ -236,51 +217,26 @@ function Capability({
 function FallbackMessage({ reason }: { reason?: string }) {
   return (
     <div
-      style={{
-        marginTop: "1rem",
-        padding: "1rem",
-        background: "rgba(255, 184, 74, 0.08)",
-        border: "1px solid rgba(255, 184, 74, 0.3)",
-        borderRadius: 6,
-        fontSize: "0.9rem",
-        lineHeight: 1.5,
-      }}
+      className="cc-card cc-card--gray cc-card--flat"
+      style={{ marginTop: "1rem", fontSize: "0.9rem", lineHeight: 1.5 }}
     >
-      <strong>Kein XR-Device verfuegbar.</strong>
-      <p style={{ margin: "0.5rem 0 0", color: "var(--color-muted)" }}>
-        Du kannst die Demo trotzdem als 2D-Simulation nutzen unter{" "}
-        <Link href="/dovetail" style={{ color: "var(--color-accent-warm)" }}>
-          /dovetail
+      <strong>Kein XR-Gerät verfügbar.</strong>
+      <p className="cc-muted" style={{ margin: "0.5rem 0 0" }}>
+        Du kannst die Demo trotzdem in 3D nutzen — in der{" "}
+        <Link
+          href="/dovetail"
+          style={{ borderBottom: "2px solid var(--cc-yellow)", fontWeight: 600 }}
+        >
+          Werkstatt
         </Link>
-        . Fuer XR brauchst du Galaxy XR, Quest 3, oder Chrome mit WebXR Emulator
+        . Für XR brauchst du Galaxy XR, Quest 3 oder Chrome mit WebXR-Emulator
         (chrome://flags/#webxr-incubations).
       </p>
       {reason && (
-        <p
-          style={{
-            margin: "0.5rem 0 0",
-            color: "var(--color-muted)",
-            fontSize: "0.8rem",
-          }}
-        >
+        <p className="cc-muted" style={{ margin: "0.5rem 0 0", fontSize: "0.8rem" }}>
           Detail: {reason}
         </p>
       )}
     </div>
   );
-}
-
-function buttonStyle(enabled: boolean): React.CSSProperties {
-  return {
-    padding: "0.6rem 1.25rem",
-    background: enabled ? "var(--color-accent)" : "transparent",
-    color: enabled ? "#0b0d10" : "var(--color-muted)",
-    border: `1px solid ${
-      enabled ? "var(--color-accent)" : "var(--color-border)"
-    }`,
-    borderRadius: 6,
-    fontSize: "0.95rem",
-    fontWeight: 600,
-    cursor: enabled ? "pointer" : "not-allowed",
-  };
 }

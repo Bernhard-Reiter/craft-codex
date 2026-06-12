@@ -21,7 +21,7 @@ const SLIDERS: SliderConfig[] = [
   { key: "ratio", label: "Schwalbenwinkel 1:N", min: 4, max: 10, step: 0.5 },
   {
     key: "thickness_mm",
-    label: "Brettstaerke",
+    label: "Brettstärke",
     min: 8,
     max: 40,
     step: 1,
@@ -39,44 +39,33 @@ const SLIDERS: SliderConfig[] = [
 
 export function ParamSliders({ params, onChange }: ParamSlidersProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.75rem",
-        padding: "1rem",
-        background: "var(--color-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 8,
-      }}
-    >
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
       {SLIDERS.map((cfg) => {
         const value = params[cfg.key] as number;
         return (
           <label
             key={cfg.key}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.25rem",
-            }}
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
           >
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                fontSize: "0.85rem",
-                color: "var(--color-muted)",
+                alignItems: "baseline",
+                fontSize: "0.8rem",
               }}
             >
-              <span>{cfg.label}</span>
-              <span style={{ color: "var(--color-fg)" }}>
+              <span className="cc-muted" style={{ fontWeight: 600 }}>
+                {cfg.label}
+              </span>
+              <span className="cc-mono" style={{ fontWeight: 700 }}>
                 {value}
                 {cfg.unit ? ` ${cfg.unit}` : ""}
               </span>
             </div>
             <input
               type="range"
+              className="cc-range"
               min={cfg.min}
               max={cfg.max}
               step={cfg.step}
@@ -84,7 +73,6 @@ export function ParamSliders({ params, onChange }: ParamSlidersProps) {
               onChange={(e) =>
                 onChange({ ...params, [cfg.key]: Number(e.target.value) })
               }
-              style={{ width: "100%" }}
             />
           </label>
         );

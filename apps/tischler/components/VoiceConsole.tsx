@@ -44,6 +44,8 @@ interface VoiceConsoleProps {
   mode?: VoiceMode;
 }
 
+// ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
+// vorvertonte Offline-Stimme nicht mehr.
 const DEFAULT_SAMPLE_QUERIES: ReadonlyArray<string> = [
   "Wie reisse ich mit dem Streichmass an",
   "Schwalbenwinkel fuer Hartholz",
@@ -156,72 +158,48 @@ export function VoiceConsole({
   }, []);
 
   const busy = state.status !== "idle";
-  const statusColor =
-    state.status === "idle"
-      ? "var(--color-muted)"
-      : state.status === "speaking"
-        ? "var(--color-accent)"
-        : "var(--color-accent-warm)";
-
   const badge = badgeFor(effectiveMode);
 
   return (
     <div
       data-testid="voice-console"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.6rem",
-        padding: "0.75rem",
-        background: "var(--color-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 8,
-      }}
+      className="cc-card cc-card--flat"
+      style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          flexWrap: "wrap",
+        }}
+      >
         <button
           type="button"
           onClick={handleMicClick}
           disabled={busy}
-          style={{
-            padding: "0.55rem 1rem",
-            background: !busy ? "var(--color-accent)" : "transparent",
-            color: !busy ? "#0b0d10" : "var(--color-muted)",
-            border: `1px solid ${!busy ? "var(--color-accent)" : "var(--color-border)"}`,
-            borderRadius: 6,
-            fontSize: "0.9rem",
-            fontWeight: 600,
-            cursor: !busy ? "pointer" : "not-allowed",
-          }}
+          className="cc-btn cc-btn--primary cc-btn--sm"
         >
           🎤 {!busy ? "Frage stellen" : labelFor(state.status)}
         </button>
         <span
-          style={{
-            fontSize: "0.65rem",
-            fontWeight: 700,
-            padding: "0.15rem 0.4rem",
-            borderRadius: 4,
-            background: badge.bg,
-            color: badge.fg,
-            border: `1px solid ${badge.border}`,
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-          }}
+          className={`cc-badge ${badge.className}`}
           aria-label={`Voice mode: ${effectiveMode}`}
         >
           {badge.label}
         </span>
-        <span
-          style={{
-            fontSize: "0.8rem",
-            color: statusColor,
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-          }}
-        >
-          {state.status}
-        </span>
+        {busy && (
+          <span
+            className="cc-muted"
+            style={{
+              fontSize: "0.72rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {state.status}
+          </span>
+        )}
       </div>
 
       {/* Demo-Fragen — der kontrollierte Pfad fuer die Vorfuehrung. */}
@@ -232,15 +210,7 @@ export function VoiceConsole({
             type="button"
             onClick={() => void ask(q)}
             disabled={busy}
-            style={{
-              fontSize: "0.72rem",
-              padding: "0.3rem 0.55rem",
-              background: "transparent",
-              color: busy ? "var(--color-muted)" : "var(--color-fg)",
-              border: "1px solid var(--color-border)",
-              borderRadius: 999,
-              cursor: busy ? "not-allowed" : "pointer",
-            }}
+            className="cc-chip"
           >
             {q}
           </button>
@@ -258,29 +228,13 @@ export function VoiceConsole({
           placeholder="… oder Frage tippen (geht auch offline)"
           disabled={busy}
           aria-label="Frage eingeben"
-          style={{
-            flex: 1,
-            padding: "0.45rem 0.6rem",
-            background: "var(--color-bg)",
-            color: "var(--color-fg)",
-            border: "1px solid var(--color-border)",
-            borderRadius: 6,
-            fontSize: "0.85rem",
-          }}
+          className="cc-input"
         />
         <button
           type="button"
           onClick={handleTypedSubmit}
           disabled={busy || typed.trim().length === 0}
-          style={{
-            padding: "0.45rem 0.8rem",
-            background: "transparent",
-            color: "var(--color-fg)",
-            border: "1px solid var(--color-border)",
-            borderRadius: 6,
-            fontSize: "0.85rem",
-            cursor: busy || typed.trim().length === 0 ? "not-allowed" : "pointer",
-          }}
+          className="cc-btn cc-btn--sm"
         >
           Fragen
         </button>
@@ -288,79 +242,85 @@ export function VoiceConsole({
 
       {state.currentQuery && (
         <div
+          className="cc-muted"
           style={{
             fontSize: "0.8rem",
-            color: "var(--color-muted)",
-            paddingTop: "0.25rem",
-            borderTop: "1px solid var(--color-border)",
+            paddingTop: "0.5rem",
+            borderTop: "1.5px solid var(--cc-line-soft)",
           }}
         >
-          <strong>Q:</strong> {state.currentQuery}
+          <strong>Frage:</strong> {state.currentQuery}
         </div>
       )}
 
       {state.currentResponse && (
-        <div style={{ fontSize: "0.85rem", color: "var(--color-fg)", lineHeight: 1.5 }}>
-          <strong>A:</strong> {state.currentResponse}
+        <div
+          style={{
+            fontSize: "0.9rem",
+            lineHeight: 1.55,
+            padding: "0.6rem 0.75rem",
+            background: "var(--cc-gray)",
+            borderLeft: "4px solid var(--cc-yellow)",
+          }}
+        >
+          {state.currentResponse}
         </div>
       )}
 
-      <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0.6rem",
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         {state.latencyMs &&
           (state.latencyMs.stt !== undefined ||
             state.latencyMs.llm !== undefined ||
             state.latencyMs.tts !== undefined) && (
-            <span
-              style={{
-                fontSize: "0.7rem",
-                color: "var(--color-muted)",
-                fontFamily: "ui-monospace, monospace",
-              }}
-            >
+            <span className="cc-mono cc-muted">
               stt:{state.latencyMs.stt ?? "—"}ms · llm:{state.latencyMs.llm ?? "—"}ms ·
               tts:{state.latencyMs.tts ?? "—"}ms
             </span>
           )}
         {audioPlayed === true && (
-          <span style={{ fontSize: "0.7rem", color: "#22C55E" }}>🔊 Audio abgespielt</span>
+          <span style={{ fontSize: "0.72rem", color: "var(--cc-good)", fontWeight: 700 }}>
+            🔊 Audio abgespielt
+          </span>
         )}
         {audioPlayed === false && state.currentResponse && (
-          <span style={{ fontSize: "0.7rem", color: "var(--color-muted)" }}>
+          <span className="cc-muted" style={{ fontSize: "0.72rem" }}>
             🔇 kein Audio (Cache/Server leer — Text-Antwort)
           </span>
         )}
         {usedFallback && (
-          <span style={{ fontSize: "0.7rem", color: "var(--color-accent-warm)" }}>
-            offline-Fallback: lokales Wissen
+          <span
+            className="cc-badge cc-badge--yellow"
+            style={{ fontSize: "0.58rem" }}
+          >
+            Offline-Fallback: lokales Wissen
           </span>
         )}
         {dialog.length > 0 && (
           <>
-            <span style={{ fontSize: "0.7rem", color: "var(--color-muted)" }}>
-              💬 Gespraech: {dialog.length} Frage{dialog.length === 1 ? "" : "n"}
+            <span className="cc-muted" style={{ fontSize: "0.72rem" }}>
+              💬 Gespräch: {dialog.length} Frage{dialog.length === 1 ? "" : "n"}
             </span>
             <button
               type="button"
               onClick={() => setDialog([])}
               disabled={busy}
-              style={{
-                fontSize: "0.7rem",
-                padding: "0.15rem 0.5rem",
-                background: "transparent",
-                color: "var(--color-muted)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 999,
-                cursor: busy ? "not-allowed" : "pointer",
-              }}
+              className="cc-chip"
             >
-              neues Gespraech
+              neues Gespräch
             </button>
           </>
         )}
       </div>
 
       {error && (
-        <div role="alert" style={{ fontSize: "0.8rem", color: "#ff6b6b" }}>
+        <div role="alert" style={{ fontSize: "0.8rem", color: "var(--cc-bad)" }}>
           {error}
         </div>
       )}
@@ -371,7 +331,7 @@ export function VoiceConsole({
 function labelFor(status: VoicePipelineState["status"]): string {
   switch (status) {
     case "listening":
-      return "Hoere zu …";
+      return "Höre zu …";
     case "thinking":
       return "Denke nach …";
     case "speaking":
@@ -381,29 +341,14 @@ function labelFor(status: VoicePipelineState["status"]): string {
   }
 }
 
-function badgeFor(mode: VoiceMode): { label: string; bg: string; fg: string; border: string } {
+function badgeFor(mode: VoiceMode): { label: string; className: string } {
   switch (mode) {
     case "server":
-      return {
-        label: "Server",
-        bg: "rgba(96, 165, 250, 0.15)",
-        fg: "#60A5FA",
-        border: "rgba(96, 165, 250, 0.5)",
-      };
+      return { label: "Server", className: "cc-badge--dark" };
     case "real":
-      return {
-        label: "Live",
-        bg: "rgba(34, 197, 94, 0.15)",
-        fg: "#22C55E",
-        border: "rgba(34, 197, 94, 0.5)",
-      };
+      return { label: "Live", className: "cc-badge--good" };
     default:
-      return {
-        label: "Mock",
-        bg: "rgba(255, 184, 74, 0.15)",
-        fg: "var(--color-accent-warm)",
-        border: "rgba(255, 184, 74, 0.5)",
-      };
+      return { label: "Mock", className: "" };
   }
 }
 

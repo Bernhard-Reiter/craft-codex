@@ -1,13 +1,36 @@
+/*
+ * Craft Codex Designsystem — „CyberCraft"
+ *
+ * Style-Transfer von cybercraft.institute: Schwarz / Weiß / Signalgelb
+ * (#ffed00), Outfit, harte Kanten, harte Schatten. Handwerk × Digital.
+ *
+ * Offline-Doktrin: keine externen Fonts/CDNs zur Laufzeit — Outfit liegt
+ * vendored unter app/fonts/ und wird via next/font/local gebundelt.
+ */
+
 :root {
-  --color-bg: #0b0d10;
-  --color-fg: #e9eef3;
-  --color-muted: #8c98a4;
-  --color-border: #1f2429;
-  --color-accent: #4fa3df;
-  --color-accent-warm: #ffb84a;
-  --color-card: #11151a;
-  --font-stack:
-    "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --cc-yellow: #ffed00;
+  --cc-yellow-press: #e6d500;
+  --cc-black: #0a0a0a;
+  --cc-ink: #181715;
+  --cc-muted: #5c5a54;
+  --cc-paper: #ffffff;
+  --cc-gray: #f0f0f0;
+  --cc-line: #0a0a0a;
+  --cc-line-soft: #d9d7d2;
+  --cc-good: #1a7f37;
+  --cc-bad: #c62828;
+  --cc-header-h: 60px;
+
+  /* Legacy-Aliase — Komponenten/Seiten, die noch var(--color-*) nutzen,
+     fallen sauber auf die neue Palette statt ins Leere. */
+  --color-bg: var(--cc-paper);
+  --color-fg: var(--cc-ink);
+  --color-muted: var(--cc-muted);
+  --color-border: var(--cc-line-soft);
+  --color-accent: var(--cc-yellow);
+  --color-accent-warm: #b58900;
+  --color-card: var(--cc-paper);
 }
 
 * {
@@ -18,23 +41,26 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--color-bg);
-  color: var(--color-fg);
-  font-family: var(--font-stack);
+  background: var(--cc-paper);
+  color: var(--cc-ink);
+  font-family:
+    var(--font-outfit), "Outfit", system-ui, -apple-system, "Segoe UI",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+::selection {
+  background: var(--cc-yellow);
+  color: var(--cc-black);
 }
 
 a {
-  color: var(--color-accent);
+  color: inherit;
   text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 button {
@@ -42,9 +68,524 @@ button {
   cursor: pointer;
 }
 
-main {
-  min-height: 100vh;
-  padding: 2rem;
-  max-width: 1200px;
+:focus-visible {
+  outline: 3px solid var(--cc-yellow);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--cc-black);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* ---------- Header / Footer ---------- */
+
+.cc-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--cc-header-h);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0 1.25rem;
+  background: var(--cc-paper);
+  border-bottom: 2px solid var(--cc-black);
+}
+
+.cc-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cc-logo svg {
+  display: block;
+}
+
+.cc-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.cc-nav a {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.45rem 0.7rem;
+  border: 2px solid transparent;
+}
+
+.cc-nav a:hover {
+  border-color: var(--cc-black);
+}
+
+.cc-nav a[aria-current="page"] {
+  background: var(--cc-yellow);
+  border-color: var(--cc-black);
+}
+
+.cc-footer {
+  margin-top: 4rem;
+  background: var(--cc-black);
+  color: var(--cc-paper);
+  padding: 2.5rem 1.5rem;
+}
+
+.cc-footer-claim {
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cc-footer-claim em {
+  font-style: normal;
+  color: var(--cc-yellow);
+}
+
+.cc-footer-meta {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #b8b6b0;
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.cc-footer-meta a {
+  color: var(--cc-yellow);
+}
+
+.cc-footer-meta a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Typo-Bausteine ---------- */
+
+.cc-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--cc-ink);
+}
+
+.cc-kicker::before {
+  content: "";
+  width: 0.7em;
+  height: 0.7em;
+  background: var(--cc-yellow);
+  border: 2px solid var(--cc-black);
+  flex: none;
+}
+
+.cc-mark {
+  background: var(--cc-yellow);
+  color: var(--cc-black);
+  padding: 0 0.18em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.cc-muted {
+  color: var(--cc-muted);
+}
+
+.cc-mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+}
+
+/* ---------- Karten ---------- */
+
+.cc-card {
+  background: var(--cc-paper);
+  border: 2px solid var(--cc-black);
+  box-shadow: 4px 4px 0 var(--cc-black);
+  padding: 1.25rem;
+}
+
+.cc-card--flat {
+  box-shadow: none;
+}
+
+.cc-card--gray {
+  background: var(--cc-gray);
+}
+
+.cc-card--dark {
+  background: var(--cc-black);
+  color: var(--cc-paper);
+  box-shadow: 4px 4px 0 var(--cc-yellow);
+}
+
+a.cc-card {
+  display: block;
+  color: inherit;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+a.cc-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--cc-black);
+}
+
+a.cc-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--cc-black);
+}
+
+.cc-card-num {
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: var(--cc-black);
+  color: var(--cc-yellow);
+  padding: 0.15rem 0.45rem;
+  display: inline-block;
+}
+
+/* ---------- Buttons ---------- */
+
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cc-black);
+  background: var(--cc-paper);
+  border: 2px solid var(--cc-black);
+  box-shadow: 3px 3px 0 var(--cc-black);
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+
+.cc-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--cc-black);
+}
+
+.cc-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--cc-black);
+}
+
+.cc-btn:disabled {
+  cursor: not-allowed;
+  color: var(--cc-muted);
+  border-color: var(--cc-line-soft);
+  box-shadow: none;
+  background: var(--cc-gray);
+}
+
+.cc-btn--primary {
+  background: var(--cc-yellow);
+}
+
+.cc-btn--primary:active:not(:disabled) {
+  background: var(--cc-yellow-press);
+}
+
+.cc-btn--dark {
+  background: var(--cc-black);
+  color: var(--cc-paper);
+}
+
+.cc-btn--dark:disabled {
+  background: var(--cc-gray);
+  color: var(--cc-muted);
+}
+
+.cc-btn--sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  box-shadow: 2px 2px 0 var(--cc-black);
+}
+
+.cc-btn--danger {
+  color: var(--cc-bad);
+  border-color: var(--cc-bad);
+  box-shadow: 2px 2px 0 var(--cc-bad);
+}
+
+/* ---------- Tabs (Lernschritte, Surface-Modes) ---------- */
+
+.cc-tabbar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--cc-paper);
+  color: var(--cc-ink);
+  border: 2px solid var(--cc-black);
+}
+
+.cc-tab:hover {
+  background: var(--cc-gray);
+}
+
+.cc-tab[aria-selected="true"] {
+  background: var(--cc-yellow);
+  font-weight: 800;
+  box-shadow: 2px 2px 0 var(--cc-black);
+}
+
+.cc-tab-step {
+  font-size: 0.65rem;
+  font-weight: 800;
+  opacity: 0.55;
+}
+
+/* ---------- Chips / Badges ---------- */
+
+.cc-chip {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  background: var(--cc-paper);
+  color: var(--cc-ink);
+  border: 1.5px solid var(--cc-black);
+  border-radius: 999px;
+}
+
+.cc-chip:hover:not(:disabled) {
+  background: var(--cc-yellow);
+}
+
+.cc-chip:disabled {
+  cursor: not-allowed;
+  color: var(--cc-muted);
+  border-color: var(--cc-line-soft);
+}
+
+.cc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border: 1.5px solid var(--cc-black);
+  background: var(--cc-gray);
+  color: var(--cc-ink);
+}
+
+.cc-badge--yellow {
+  background: var(--cc-yellow);
+}
+
+.cc-badge--dark {
+  background: var(--cc-black);
+  color: var(--cc-yellow);
+}
+
+.cc-badge--good {
+  background: var(--cc-good);
+  color: var(--cc-paper);
+  border-color: var(--cc-good);
+}
+
+/* ---------- Formulare ---------- */
+
+.cc-input {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--cc-ink);
+  background: var(--cc-paper);
+  border: 2px solid var(--cc-black);
+}
+
+.cc-input::placeholder {
+  color: var(--cc-muted);
+}
+
+.cc-input:disabled {
+  background: var(--cc-gray);
+  border-color: var(--cc-line-soft);
+}
+
+/* Range-Slider: schwarze Schiene, gelber Vierkant-Daumen */
+
+.cc-range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+}
+
+.cc-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--cc-black);
+}
+
+.cc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  background: var(--cc-yellow);
+  border: 2px solid var(--cc-black);
+  cursor: grab;
+}
+
+.cc-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  background: var(--cc-yellow-press);
+}
+
+.cc-range::-moz-range-track {
+  height: 4px;
+  background: var(--cc-black);
+}
+
+.cc-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--cc-yellow);
+  border: 2px solid var(--cc-black);
+  cursor: grab;
+}
+
+/* ---------- Status (Systemcheck) ---------- */
+
+.cc-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.cc-status-dot {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--cc-black);
+  background: var(--cc-line-soft);
+  flex: none;
+}
+
+.cc-status-dot--on {
+  background: var(--cc-yellow);
+}
+
+.cc-status-dot--good {
+  background: var(--cc-good);
+}
+
+/* ---------- 3D-Bühne ---------- */
+
+.cc-stage {
+  position: relative;
+  background: var(--cc-black);
+  border: 2px solid var(--cc-black);
+  box-shadow: 4px 4px 0 var(--cc-yellow);
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ---------- Werkstatt-Layout ---------- */
+
+.cc-workbench {
+  display: grid;
+  grid-template-columns: minmax(300px, 340px) 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 1rem;
+  height: calc(100dvh - var(--cc-header-h));
+  padding: 1rem;
+  background: var(--cc-gray);
+}
+
+.cc-workbench-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  grid-row: 1 / span 2;
+  padding-right: 0.25rem;
+}
+
+@media (max-width: 900px) {
+  .cc-workbench {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .cc-workbench-rail {
+    overflow-y: visible;
+  }
+
+  .cc-workbench > .cc-stage {
+    min-height: 55vh;
+  }
+}
+
+/* ---------- Layout-Helfer ---------- */
+
+.cc-page {
+  max-width: 1080px;
   margin: 0 auto;
+  padding: 2.5rem 1.5rem 0;
+}
+
+.cc-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.cc-section-title {
+  font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .cc-header {
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+  }
+
+  .cc-page {
+    padding: 1.5rem 1rem 0;
+  }
 }
