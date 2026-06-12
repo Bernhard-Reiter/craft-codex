@@ -67,9 +67,23 @@ export function createGeminiAnswerFn(config: GeminiAnswerConfig) {
     rag,
     guard,
     history = [],
-    maxOutputTokens = 400,
+    maxOutputTokens = 512,
     fetchImpl,
   } = config;
+
+  // Gemini 2.5 ist ein Thinking-Modell: ohne Deckel verbrauchen die
+  // Denk-Tokens das maxOutputTokens-Budget und die sichtbare Antwort bricht
+  // mitten im Satz ab (oder kommt komplett leer → "empty response").
+  // Fuer 3-Satz-Werkstatt-Antworten ist Thinking unnoetig: aus. Bonus:
+  // spuerbar niedrigere Latenz. Nur fuer 2.5-Modelle setzen — andere
+  // Modellfamilien lehnen thinkingBudget als INVALID_ARGUMENT ab.
+  const generationConfig: {
+    maxOutputTokens: number;
+    thinkingConfig?: { thinkingBudget: number };
+  } = { maxOutputTokens };
+  if (model.startsWith("gemini-2.5")) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
 
   return async function* answer(query: string): AsyncIterable<string> {
     if (!apiKey) throw new Error("GEMINI_API_KEY missing — provide via GeminiAnswerConfig.apiKey");
@@ -124,7 +138,7 @@ export function createGeminiAnswerFn(config: GeminiAnswerConfig) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents,
-        generationConfig: { maxOutputTokens },
+        generationConfig,
       }),
     });
     if (!res.ok) {
