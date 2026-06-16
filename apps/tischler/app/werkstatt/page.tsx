@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_DOVETAIL_PARAMS } from "@craft-codex/core";
 import { DovetailScene } from "../../components/DovetailScene";
+import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
+import { ZinkenDiagram } from "../../components/ZinkenDiagram";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import { OfflineTrust } from "../../components/OfflineTrust";
 import { SiteFooter } from "../../components/SiteFooter";
@@ -243,7 +245,15 @@ export default function WerkstattPage() {
           </div>
 
           {beat.surface === "joint3d" && beat.step ? (
-            <DovetailScene params={DEFAULT_DOVETAIL_PARAMS} step={beat.step} />
+            <SceneBoundary
+              fallback={
+                <SceneFallback>
+                  <ZinkenDiagram showLabels={false} />
+                </SceneFallback>
+              }
+            >
+              <DovetailScene params={DEFAULT_DOVETAIL_PARAMS} step={beat.step} />
+            </SceneBoundary>
           ) : beat.surface === "xr" ? (
             <XRHandoff href={beat.href ?? "/dovetail/xr"} />
           ) : (
