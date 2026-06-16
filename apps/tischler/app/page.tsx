@@ -50,9 +50,8 @@ export default function Page() {
           <h1
             style={{
               fontSize: "clamp(2.4rem, 7vw, 4.5rem)",
-              textTransform: "uppercase",
               margin: "1rem 0 1.25rem",
-              maxWidth: "14ch",
+              maxWidth: "16ch",
             }}
           >
             Handwerk. <span className="cc-mark">Hologramm.</span> Meisterwissen.
@@ -104,7 +103,6 @@ export default function Page() {
                 <h3
                   style={{
                     fontSize: "1.25rem",
-                    textTransform: "uppercase",
                     margin: "0.75rem 0 0.5rem",
                   }}
                 >

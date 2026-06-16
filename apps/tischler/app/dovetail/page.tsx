@@ -153,7 +153,6 @@ export default function DovetailPage() {
             style={{
               margin: "0.4rem 0 0",
               fontSize: "1.6rem",
-              textTransform: "uppercase",
             }}
           >
             Schwalbenschwanz

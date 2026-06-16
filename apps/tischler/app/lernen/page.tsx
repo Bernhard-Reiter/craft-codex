@@ -300,10 +300,9 @@ function ArtCard({ art }: { art: Zinkenart }) {
       </div>
       <h3
         style={{
-          fontSize: "1.1rem",
-          textTransform: "uppercase",
+          fontSize: "1.15rem",
           margin: "0.2rem 0 0",
-          lineHeight: 1.15,
+          lineHeight: 1.2,
           overflowWrap: "anywhere",
           hyphens: "auto",
         }}
