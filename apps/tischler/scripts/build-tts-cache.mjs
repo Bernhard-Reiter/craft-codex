@@ -58,6 +58,19 @@ const TOP_20_ANSWERS = [
   "Ryoba-Saege oder Gestellsaege mit 14 bis 16 Zaehnen pro Zoll. Japan-Saege schneidet auf Zug, westliche auf Stoss.",
   "Wenn der Spalt zu gross ist, kannst du nicht nachbessern — das Werkstueck ist verloren. Lieber langsamer arbeiten.",
   "Passung pruefen ohne Hammer. Mit der Hand reindruecken, dann pruefen. Erst zum Schluss mit Holzhammer leicht klopfen.",
+
+  // ── Überblick / "von ganz vorne" (Phase F) ──────────────────────────
+  // Laien-Einstieg + Lernpfad. Voiced sobald ein TTS-Key gesetzt ist.
+  "Ein Zinken ist eine Eckverbindung: zwei Bretter, deren Stirnseiten kammartig ausgeschnitten sind und ineinandergreifen wie zwei Haende.",
+  "Zinken verbinden Bretter zu einem Kasten — Schubladen, Truhen, Schatullen. Der Schwalbenschwanz haelt sogar ohne Leim oder Schraube.",
+  "Es gibt vier Hauptarten: Fingerzinken, den Schwalbenschwanz, die halbverdeckte und die verdeckte Zinkung. Wir fangen einfach an und steigern uns.",
+  "Der Schwalbenschwanz ist keilfoermig hinterschnitten — er verriegelt sich. Das nennt der Tischler Formschluss.",
+  "Fang mit Fingerzinken an, dann der offene Schwalbenschwanz, dann halbverdeckt fuer die Schublade, zuletzt die verdeckte Zinkung.",
+  // Meister-Intros je Zinkenart (Wortlaut = zinkenarten.ts voiceIntro)
+  "Fangen wir einfach an. Fingerzinken sind gerade — wie Finger, die ineinandergreifen. Sie halten mit Leim und sind der beste erste Schritt.",
+  "Jetzt die Königsdisziplin. Der Schwalbenschwanz ist keilförmig — er verhakt sich und hält ohne Leim. Wir bauen ihn Schritt für Schritt: anreißen, sägen, stemmen, passen, prüfen.",
+  "Bei der Schublade soll man die Verbindung vorne nicht sehen. Darum die halbverdeckte Zinkung: die Front bleibt glatt, und trotzdem hält die Seite bombenfest.",
+  "Die hohe Schule. Bei der verdeckten Zinkung auf Gehrung sieht man von außen gar nichts mehr — die Ecke wirkt wie ein glatter Gehrungsstoß, hält aber wie ein Schwalbenschwanz.",
 ];
 
 function sha256(text) {

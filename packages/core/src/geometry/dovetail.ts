@@ -77,6 +77,12 @@ export function generateMarkings(
 
   const markings: MarkingLine[] = [];
 
+  // Schritt 0 "Überblick": bewusst keine Anrisslinien — erst verstehen,
+  // dann anreissen. Der Laie startet nie mit nackten Strichen.
+  if (step === "ueberblick") {
+    return markings;
+  }
+
   if (step === "anreissen") {
     markings.push({
       id: "streichmass_brettstaerke",

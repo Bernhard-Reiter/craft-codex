@@ -18,7 +18,14 @@ export interface DovetailParams {
   distribution: "uniform" | "asymmetric_left" | "asymmetric_right";
 }
 
+/**
+ * Lernschritte. "ueberblick" ist Schritt 0 — die Verbindung wird ERKLAERT
+ * (fertiges Werkstueck, keine Anrisslinien) bevor die Handarbeit beginnt.
+ * Ein Laie soll nie mit nackten Strichen starten. generateMarkings() liefert
+ * fuer "ueberblick" bewusst keine Linien.
+ */
 export type DovetailStep =
+  | "ueberblick"
   | "anreissen"
   | "saegen"
   | "stemmen"

@@ -51,12 +51,16 @@ export function saveSession(state: DovetailSessionState): void {
   safeSet(KEY_SESSION, { ...state, updatedAt: Date.now() });
 }
 
-export function loadProgress(): Record<DovetailStep, ProgressEntry> | null {
-  return safeGet<Record<DovetailStep, ProgressEntry>>(KEY_PROGRESS);
+// Fortschritt gibt es nur für die fünf Handschritte — "ueberblick" (Schritt 0)
+// ist reine Erklärung und wird nicht als erledigt/offen getrackt.
+type CraftStep = Exclude<DovetailStep, "ueberblick">;
+
+export function loadProgress(): Record<CraftStep, ProgressEntry> | null {
+  return safeGet<Record<CraftStep, ProgressEntry>>(KEY_PROGRESS);
 }
 
 export function saveProgress(
-  progress: Record<DovetailStep, ProgressEntry>,
+  progress: Record<CraftStep, ProgressEntry>,
 ): void {
   safeSet(KEY_PROGRESS, progress);
 }

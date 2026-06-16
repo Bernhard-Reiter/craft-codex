@@ -12,10 +12,10 @@ export function DovetailMark({ size = 28 }: { size?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      <rect width="32" height="32" fill="#ffed00" />
+      <rect width="32" height="32" fill="var(--cc-yellow)" />
       <path
         d="M32 0 H19 V3 L11 6 V12 L19 15 V17 L11 20 V26 L19 29 V32 H32 Z"
-        fill="#0a0a0a"
+        fill="var(--cc-black)"
       />
       <rect
         x="1"
@@ -23,7 +23,7 @@ export function DovetailMark({ size = 28 }: { size?: number }) {
         width="30"
         height="30"
         fill="none"
-        stroke="#0a0a0a"
+        stroke="var(--cc-black)"
         strokeWidth="2"
       />
     </svg>

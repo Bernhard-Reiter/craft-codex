@@ -6,6 +6,7 @@ import { DovetailMark } from "./DovetailMark";
 
 const LINKS: Array<{ href: string; label: string }> = [
   { href: "/", label: "Start" },
+  { href: "/lernen", label: "Überblick" },
   { href: "/dovetail", label: "Werkstatt" },
   { href: "/voice", label: "Stimme" },
   { href: "/dovetail/xr", label: "XR" },

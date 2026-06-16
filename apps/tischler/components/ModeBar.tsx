@@ -2,12 +2,14 @@
 
 import type { DovetailStep } from "@craft-codex/core";
 
-const STEPS: Array<{ id: DovetailStep; label: string }> = [
-  { id: "anreissen", label: "Anreißen" },
-  { id: "saegen", label: "Sägen" },
-  { id: "stemmen", label: "Stemmen" },
-  { id: "passen", label: "Passen" },
-  { id: "pruefen", label: "Prüfen" },
+// "Überblick" = Schritt 0 (mit •), die fünf Handschritte tragen 1–5.
+const STEPS: Array<{ id: DovetailStep; label: string; mark: string }> = [
+  { id: "ueberblick", label: "Überblick", mark: "•" },
+  { id: "anreissen", label: "Anreißen", mark: "1" },
+  { id: "saegen", label: "Sägen", mark: "2" },
+  { id: "stemmen", label: "Stemmen", mark: "3" },
+  { id: "passen", label: "Passen", mark: "4" },
+  { id: "pruefen", label: "Prüfen", mark: "5" },
 ];
 
 interface ModeBarProps {
@@ -18,7 +20,7 @@ interface ModeBarProps {
 export function ModeBar({ active, onChange }: ModeBarProps) {
   return (
     <div role="tablist" className="cc-tabbar" aria-label="Lernschritte">
-      {STEPS.map((s, i) => {
+      {STEPS.map((s) => {
         const isActive = s.id === active;
         return (
           <button
@@ -29,7 +31,7 @@ export function ModeBar({ active, onChange }: ModeBarProps) {
             className="cc-tab"
           >
             <span className="cc-tab-step" aria-hidden="true">
-              {i + 1}
+              {s.mark}
             </span>
             {s.label}
           </button>
