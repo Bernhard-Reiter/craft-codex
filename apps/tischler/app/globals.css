@@ -1,11 +1,12 @@
 /*
- * Craft Codex Designsystem — „CyberCraft"
+ * Craft Codex Designsystem — VOAI-Paper-Form × CyberCraft-Farbe
  *
- * Style-Transfer von cybercraft.institute: Schwarz / Weiß / Signalgelb
- * (#ffed00), Outfit, harte Kanten, harte Schatten. Handwerk × Digital.
+ * Ruhig wie VOAI Paper: Plus Jakarta Sans, max Semibold (600), Papier statt
+ * Schatten (Emboss/Prägung), max 8px Radius, EIN Akzent. Akzent = CyberCraft-
+ * Signalgelb (#FFD400) statt VOAI-Navy. Tinte #14140F auf Papier #FCFCFA.
  *
- * Offline-Doktrin: keine externen Fonts/CDNs zur Laufzeit — Outfit liegt
- * vendored unter app/fonts/ und wird via next/font/local gebundelt.
+ * Offline-Doktrin: keine externen Fonts/CDNs zur Laufzeit — Plus Jakarta Sans
+ * liegt vendored (OFL) unter app/fonts/ und wird via next/font/local gebundelt.
  */
 
 :root {
@@ -65,8 +66,8 @@ body {
   background: var(--cc-paper);
   color: var(--cc-ink);
   font-family:
-    var(--font-outfit), "Outfit", system-ui, -apple-system, "Segoe UI",
-    sans-serif;
+    var(--font-sans), "Plus Jakarta Sans", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -144,7 +145,7 @@ h3 {
 
 .cc-nav a {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   padding: 0.4rem 0.7rem;
   border-radius: var(--cc-radius-sm);
@@ -302,7 +303,7 @@ a.cc-card:active {
   gap: 0.45rem;
   padding: 0.6rem 1.15rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0;
   color: var(--cc-ink);
   background: var(--cc-paper-pure);
@@ -378,7 +379,7 @@ a.cc-card:active {
   gap: 0.4rem;
   padding: 0.45rem 0.85rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 500;
   background: var(--cc-paper-pure);
   color: var(--cc-ink-soft);
   border: 1px solid var(--cc-hair);
@@ -409,7 +410,7 @@ a.cc-card:active {
 
 .cc-chip {
   font-size: 0.74rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0.32rem 0.7rem;
   background: var(--cc-paper-pure);
   color: var(--cc-ink-soft);
