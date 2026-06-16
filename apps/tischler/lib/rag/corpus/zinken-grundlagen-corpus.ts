@@ -180,11 +180,14 @@ export const ZINKEN_GRUNDLAGEN_CORPUS: RAGDocument[] = [
       "Spitze hin breiter — die Form erinnert an den gegabelten Schwanz einer " +
       "Schwalbe. Durch diesen Hinterschnitt entsteht Formschluss: die " +
       "Verbindung haelt auf Zug, in einer Richtung kann man sie ohne " +
-      "Zerstoerung nicht mehr trennen. Der Schwalbenwinkel betraegt 1:6 (etwa " +
-      "9,5 Grad) fuer Hartholz wie Eiche oder Buche und 1:8 (etwa 7 Grad) fuer " +
-      "Weichholz wie Kiefer oder Fichte. Steiler als 1:4 bricht bei Belastung, " +
-      "flacher als 1:8 haelt schlecht. Der Schwalbenschwanz ist die " +
-      "anspruchsvollste und zugfesteste Zinkenart — die Koenigsdisziplin.",
+      "Zerstoerung nicht mehr trennen. Der Schwalbenwinkel wird ueblicherweise " +
+      "im Verhaeltnis 1:6 (steiler, etwa 9,5 Grad) oder 1:8 (feiner, etwa 7 " +
+      "Grad) angerissen — welches Verhaeltnis zu welchem Holz passt, legt die " +
+      "Werkstatt-Tradition fest (Faustregel vieler Quellen: weiches Holz " +
+      "steiler, hartes Holz feiner). Wird der Winkel zu steil (Richtung 1:4), " +
+      "brechen die schlanken Zinkenspitzen aus, weil dort kurzes Hirnholz " +
+      "entsteht. Der Schwalbenschwanz ist die anspruchsvollste und " +
+      "zugfesteste Zinkenart — die Koenigsdisziplin.",
     metadata: {
       source: "own-paraphrase",
       title: "Zinkenart: Schwalbenschwanzzinken",

@@ -14,8 +14,7 @@ import { useId, useState } from "react";
 const W = 560;
 const H = 220;
 const MID = 110; // Mittellinie, hier treffen sich die Zinken
-const SEG = 80; // Segmentbreite
-const N = 7; // 4 Zinken vom oberen Brett (0,2,4,6), 3 vom unteren (1,3,5)
+const SEG = 80; // Segmentbreite (7 Segmente: 4 oben, 3 unten — s. *_INDICES)
 const W_NARROW = 22; // halbe Breite an der schmalen Seite
 const FLARE = 13; // Schwalbenschwanz-Aufweitung zur Spitze
 const BODY_TOP = 46; // Unterkante oberer Brettkörper (zusammengefügt)

@@ -286,7 +286,7 @@ export default function LernenPage() {
 
 function ArtCard({ art }: { art: Zinkenart }) {
   return (
-    <article className="cc-art-card">
+    <article className="cc-art-card" data-active={art.playable ? "true" : undefined}>
       <div
         style={{
           display: "flex",

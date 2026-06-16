@@ -34,7 +34,10 @@ export default function DovetailXRPage() {
     const saved = loadSession();
     if (saved) {
       setParams(saved.params);
-      setStep(saved.step);
+      // XR kennt keinen "Überblick"-Schritt (Schritt 0 ist 2D-Erklärung) —
+      // ein wiederhergestellter Überblick wird auf den ersten Handschritt
+      // gemappt, sonst bliebe in XR kein Tab aktiv.
+      setStep(saved.step === "ueberblick" ? "anreissen" : saved.step);
     }
     let cancelled = false;
     detectXRSupport().then((r) => {

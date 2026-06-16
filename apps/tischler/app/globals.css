@@ -689,14 +689,6 @@ a.cc-card:active {
   background: rgba(20, 20, 15, 0.04);
 }
 
-/* Fill-Highlight (dezent, für variable Werte) */
-.cc-fill {
-  background: rgba(255, 212, 0, 0.3);
-  border-bottom: 2px dotted var(--cc-yellow-deep);
-  padding: 0 5px;
-  color: var(--cc-ink);
-}
-
 /* Lern-Reihenfolge / Timeline — nummerierte Schrittkette */
 .cc-pathline {
   display: flex;
