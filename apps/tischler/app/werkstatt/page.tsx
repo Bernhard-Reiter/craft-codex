@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_DOVETAIL_PARAMS } from "@craft-codex/core";
 import { DovetailScene } from "../../components/DovetailScene";
 import { VoiceConsole } from "../../components/VoiceConsole";
+import { OfflineTrust } from "../../components/OfflineTrust";
 import { SiteFooter } from "../../components/SiteFooter";
+import { playPcmChunks } from "../../lib/voice/pcm-player";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { StubTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
@@ -37,6 +39,49 @@ export default function WerkstattPage() {
   const atStart = i === 0;
   const atEnd = i === lektion.length - 1;
 
+  // Kiosk-Modus (?kiosk=1): narrensichere Pitch-Demo — Chrome aus,
+  // Auto-Advance. Manuelle Steuerung bleibt zusätzlich möglich.
+  const [kiosk, setKiosk] = useState(false);
+  useEffect(() => {
+    const on = new URLSearchParams(window.location.search).get("kiosk") === "1";
+    setKiosk(on);
+    if (on) document.body.classList.add("cc-kiosk");
+    return () => document.body.classList.remove("cc-kiosk");
+  }, []);
+  useEffect(() => {
+    if (!kiosk) return;
+    const t = setInterval(
+      () => setI((n) => (n < lektion.length - 1 ? n + 1 : n)),
+      35000,
+    );
+    return () => clearInterval(t);
+  }, [kiosk, lektion.length]);
+
+  // Meister liest den Beat vor (Google-TTS via Bundle: Cache → live Gemini).
+  const [speaking, setSpeaking] = useState(false);
+  const speakAbort = useRef(false);
+  async function vorlesen(text: string) {
+    if (!voiceBundle || speaking) return;
+    setSpeaking(true);
+    speakAbort.current = false;
+    try {
+      const chunks = [];
+      for await (const c of voiceBundle.tts.synthesizeStream(text)) {
+        if (speakAbort.current) break;
+        chunks.push(c);
+      }
+      if (!speakAbort.current) await playPcmChunks(chunks);
+    } catch {
+      /* Stimme nicht verfügbar — Text bleibt sichtbar (Untertitel-Fallback) */
+    } finally {
+      setSpeaking(false);
+    }
+  }
+  // Beim Beat-Wechsel laufende Wiedergabe stoppen.
+  useEffect(() => {
+    speakAbort.current = true;
+  }, [i]);
+
   return (
     <>
       <main className="cc-workbench">
@@ -52,6 +97,14 @@ export default function WerkstattPage() {
             >
               Der Meister führt — frag jederzeit dazwischen.
             </p>
+            <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.7rem", flexWrap: "wrap" }}>
+              <OfflineTrust />
+              {kiosk && (
+                <span className="cc-badge cc-badge--yellow" style={{ fontSize: "0.6rem" }}>
+                  Kiosk · Auto
+                </span>
+              )}
+            </div>
           </header>
 
           {/* Beat-Leiste: Fortschritt + Sprung */}
@@ -94,6 +147,17 @@ export default function WerkstattPage() {
             >
               Der Meister: „{beat.meisterSays}“
             </p>
+            {voiceBundle && (
+              <button
+                type="button"
+                className="cc-btn cc-btn--sm"
+                style={{ marginTop: "0.75rem" }}
+                onClick={() => void vorlesen(beat.meisterSays)}
+                disabled={speaking}
+              >
+                {speaking ? "🔊 Spricht …" : "🔊 Vorlesen"}
+              </button>
+            )}
             <div
               style={{
                 display: "flex",

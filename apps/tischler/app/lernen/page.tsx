@@ -10,6 +10,7 @@ import { createServerAnswerFn } from "../../lib/voice/server-providers";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import { ZinkenDiagram } from "../../components/ZinkenDiagram";
 import { SchwalbenwinkelWahl } from "../../components/SchwalbenwinkelWahl";
+import { OfflineTrust } from "../../components/OfflineTrust";
 import { SiteFooter } from "../../components/SiteFooter";
 import {
   getLernpfad,
@@ -70,9 +71,18 @@ export default function LernenPage() {
             Bevor der erste Strich aufs Holz kommt: Was ist ein Zinken, wofür ist
             er gut, und welche Arten gibt es? Erst verstehen — dann anreißen.
           </p>
-          <p className="cc-live" style={{ marginTop: "1.25rem" }}>
-            Jede Antwort aus geprüftem Meisterwissen
-          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.6rem",
+              marginTop: "1.25rem",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <span className="cc-live">Jede Antwort aus geprüftem Meisterwissen</span>
+            <OfflineTrust />
+          </div>
         </section>
 
         {/* ── WAS IST EIN ZINKEN ───────────────────────────────── */}

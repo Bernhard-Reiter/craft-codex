@@ -642,6 +642,39 @@ a.cc-card:active {
    (Anschlagwinkel, Eyebrow, Marker-Highlight, Lead, Note, Timeline)
    ============================================================ */
 
+/* Kiosk-Modus (Pitch-Demo, ?kiosk=1): Chrome aus, volle Bühne. */
+body.cc-kiosk .cc-header,
+body.cc-kiosk .cc-footer {
+  display: none;
+}
+
+body.cc-kiosk .cc-workbench {
+  height: 100dvh;
+}
+
+/* Offline/Privacy-Vertrauen — ruhiges Badge */
+.cc-trust {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cc-ink-soft);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--cc-hair);
+  border-radius: 999px;
+  background: var(--cc-paper-pure);
+}
+
+.cc-trust::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cc-good);
+  flex: none;
+}
+
 /* Anschlagwinkel — das Signatur-Zeichen des Decks */
 .cc-winkel {
   width: 26px;

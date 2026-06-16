@@ -8,6 +8,7 @@ const LINKS: Array<{ href: string; label: string }> = [
   { href: "/", label: "Start" },
   { href: "/lernen", label: "Überblick" },
   { href: "/werkstatt", label: "Lektion" },
+  { href: "/cockpit", label: "Lehrer" },
   { href: "/dovetail", label: "Frei bauen" },
   { href: "/dovetail/xr", label: "XR" },
 ];
