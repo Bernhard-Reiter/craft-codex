@@ -9,6 +9,7 @@ import { useServerVoice } from "../../lib/voice/use-server-voice";
 import { createServerAnswerFn } from "../../lib/voice/server-providers";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import { ZinkenDiagram } from "../../components/ZinkenDiagram";
+import { SchwalbenwinkelWahl } from "../../components/SchwalbenwinkelWahl";
 import { SiteFooter } from "../../components/SiteFooter";
 import {
   getLernpfad,
@@ -165,6 +166,26 @@ export default function LernenPage() {
                 {a}
               </span>
             ))}
+          </div>
+        </section>
+
+        {/* ── SCHWALBENWINKEL ──────────────────────────────────── */}
+        <section>
+          <p className="cc-kicker">Der Schwalbenwinkel</p>
+          <h2
+            style={{
+              fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
+              margin: "0.6rem 0 0.5rem",
+            }}
+          >
+            1:6 oder 1:8 — <span className="cc-hl">welcher Winkel?</span>
+          </h2>
+          <p className="cc-sub" style={{ marginBottom: "1.25rem" }}>
+            Der Schwalbenwinkel bestimmt, wie keilförmig die Zinken sind. Wähl
+            ihn und sieh den Unterschied:
+          </p>
+          <div className="cc-card" style={{ background: "var(--cc-paper-pure)" }}>
+            <SchwalbenwinkelWahl />
           </div>
         </section>
 
