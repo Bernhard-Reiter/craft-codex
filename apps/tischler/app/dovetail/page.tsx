@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
   DEFAULT_DOVETAIL_PARAMS,
@@ -11,6 +12,7 @@ import {
 import { DovetailScene } from "../../components/DovetailScene";
 import { ModeBar } from "../../components/ModeBar";
 import { ParamSliders } from "../../components/ParamSliders";
+import { ZinkenDiagram } from "../../components/ZinkenDiagram";
 import { SurfaceModeBar } from "../../components/SurfaceModeBar";
 import { SurfacePanel } from "../../components/SurfacePanel";
 import { PlacementHandles } from "../../components/PlacementHandles";
@@ -34,7 +36,8 @@ const PLACEMENT_TARGET_ID = "dovetail-pair";
 
 export default function DovetailPage() {
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
-  const [step, setStep] = useState<DovetailStep>("anreissen");
+  // Start auf "Überblick": erst die Verbindung verstehen, dann anreißen.
+  const [step, setStep] = useState<DovetailStep>("ueberblick");
   const [hydrated, setHydrated] = useState(false);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -170,12 +173,41 @@ export default function DovetailPage() {
           <ModeBar active={step} onChange={setStep} />
         </section>
 
-        <section className="cc-card cc-card--flat">
-          <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
-            Brettmaße
-          </p>
-          <ParamSliders params={params} onChange={setParams} />
-        </section>
+        {step === "ueberblick" ? (
+          <section className="cc-card cc-card--flat">
+            <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
+              Was du baust
+            </p>
+            <p
+              className="cc-muted"
+              style={{ margin: "0 0 0.9rem", fontSize: "0.85rem", lineHeight: 1.5 }}
+            >
+              Zwei Bretter, die sich über Eck verzahnen. Die keilförmigen Zinken
+              verriegeln sich — <strong>Formschluss</strong>, hält ohne Leim.
+              Zieh sie auseinander:
+            </p>
+            <ZinkenDiagram showLabels={false} />
+            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.9rem", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="cc-btn cc-btn--primary cc-btn--sm"
+                onClick={() => setStep("anreissen")}
+              >
+                Los geht’s: Anreißen →
+              </button>
+              <Link href="/lernen" className="cc-btn cc-btn--sm">
+                Zum Überblick
+              </Link>
+            </div>
+          </section>
+        ) : (
+          <section className="cc-card cc-card--flat">
+            <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
+              Brettmaße
+            </p>
+            <ParamSliders params={params} onChange={setParams} />
+          </section>
+        )}
 
         <section>
           <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
@@ -197,6 +229,25 @@ export default function DovetailPage() {
       </aside>
 
       <section className="cc-stage" aria-label="3D-Werkstück">
+        {step === "ueberblick" && (
+          <div
+            style={{
+              position: "absolute",
+              top: "0.6rem",
+              left: "0.6rem",
+              zIndex: 2,
+              background: "var(--cc-paper)",
+              border: "2px solid var(--cc-black)",
+              padding: "0.3rem 0.6rem",
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            Fertiges Werkstück · noch keine Anrisse
+          </div>
+        )}
         <DovetailScene
           params={params}
           step={step}

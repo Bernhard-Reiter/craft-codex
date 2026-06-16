@@ -11,6 +11,13 @@ const pieces: Array<{
   cta: string;
 }> = [
   {
+    href: "/lernen",
+    num: "00",
+    title: "Zinken verstehen",
+    body: "Von ganz vorne: Was ist ein Zinken, wofür ist er gut, welche Arten gibt es? Erst verstehen — dann anreißen. Mit Lernpfad und der Stimme des Meisters.",
+    cta: "Überblick starten",
+  },
+  {
     href: "/dovetail",
     num: "01",
     title: "Schwalbenschwanz",
@@ -72,11 +79,11 @@ export default function Page() {
               margin: "1.75rem 0 2.5rem",
             }}
           >
-            <Link href="/dovetail" className="cc-btn cc-btn--primary">
-              Werkstatt öffnen
+            <Link href="/lernen" className="cc-btn cc-btn--primary">
+              Überblick starten
             </Link>
-            <Link href="/voice" className="cc-btn">
-              Stimme testen
+            <Link href="/dovetail" className="cc-btn">
+              Werkstatt öffnen
             </Link>
             <Link href="/dovetail/xr" className="cc-btn cc-btn--dark">
               XR-Demo

@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Text } from "@react-three/drei";
 import type { DovetailStep } from "@craft-codex/core";
 
-const STEPS: ReadonlyArray<DovetailStep> = [
+// XR zeigt die fünf Handschritte — "ueberblick" (Schritt 0) ist 2D-Erklärung.
+type CraftStep = Exclude<DovetailStep, "ueberblick">;
+
+const STEPS: ReadonlyArray<CraftStep> = [
   "anreissen",
   "saegen",
   "stemmen",
@@ -12,7 +15,7 @@ const STEPS: ReadonlyArray<DovetailStep> = [
   "pruefen",
 ];
 
-const LABELS: Record<DovetailStep, string> = {
+const LABELS: Record<CraftStep, string> = {
   anreissen: "Anreissen",
   saegen: "Saegen",
   stemmen: "Stemmen",
@@ -69,7 +72,7 @@ function StepButton({
   position,
   width,
 }: {
-  step: DovetailStep;
+  step: CraftStep;
   isActive: boolean;
   onClick: () => void;
   position: [number, number, number];
