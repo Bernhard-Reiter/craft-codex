@@ -10,6 +10,7 @@ import {
   type SurfaceContext,
 } from "@craft-codex/core";
 import { DovetailScene } from "../../components/DovetailScene";
+import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
 import { ModeBar } from "../../components/ModeBar";
 import { ParamSliders } from "../../components/ParamSliders";
 import { ZinkenDiagram } from "../../components/ZinkenDiagram";
@@ -247,22 +248,30 @@ export default function DovetailPage() {
             Fertiges Werkstück · noch keine Anrisse
           </div>
         )}
-        <DovetailScene
-          params={params}
-          step={step}
-          contentWrapper={
-            showPlacement
-              ? (children) => (
-                  <PlacementHandles
-                    targetId={PLACEMENT_TARGET_ID}
-                    provider={placementProvider}
-                  >
-                    {children}
-                  </PlacementHandles>
-                )
-              : undefined
+        <SceneBoundary
+          fallback={
+            <SceneFallback>
+              <ZinkenDiagram showLabels={false} />
+            </SceneFallback>
           }
-        />
+        >
+          <DovetailScene
+            params={params}
+            step={step}
+            contentWrapper={
+              showPlacement
+                ? (children) => (
+                    <PlacementHandles
+                      targetId={PLACEMENT_TARGET_ID}
+                      provider={placementProvider}
+                    >
+                      {children}
+                    </PlacementHandles>
+                  )
+                : undefined
+            }
+          />
+        </SceneBoundary>
         <button
           type="button"
           onClick={() => setShowPlacement((v) => !v)}
