@@ -118,7 +118,7 @@ export default function Page() {
                   style={{
                     display: "inline-block",
                     marginTop: "1rem",
-                    fontWeight: 800,
+                    fontWeight: 600,
                     fontSize: "0.8rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
@@ -133,6 +133,47 @@ export default function Page() {
           <div style={{ marginTop: "2.5rem" }}>
             <DemoResetButton />
           </div>
+        </section>
+
+        {/* Vision — das Universum (der grosse Bogen) */}
+        <section className="cc-page" style={{ marginTop: "3.5rem", paddingBottom: "1rem" }}>
+          <Link
+            href="/universum"
+            className="cc-card cc-card--dark"
+            style={{ display: "block" }}
+          >
+            <p className="cc-kicker" style={{ color: "var(--cc-yellow)" }}>
+              <span style={{ color: "var(--cc-paper)" }}>Die Vision</span>
+            </p>
+            <h2
+              style={{
+                color: "var(--cc-paper)",
+                fontSize: "clamp(1.4rem, 3vw, 2rem)",
+                margin: "0.6rem 0 0.75rem",
+                maxWidth: "26ch",
+              }}
+            >
+              Kein Produkt. Ein <span className="cc-hl">Universum</span> aus
+              Handwerkswissen.
+            </h2>
+            <p style={{ color: "var(--cc-paper)", opacity: 0.85, margin: 0, maxWidth: "52ch", lineHeight: 1.55 }}>
+              Schüler, Lehrer und Meister bauen es gemeinsam — Cody verwandelt
+              ihre Worte in lebendige Werkzeuge. Generation für Generation.
+            </p>
+            <span
+              style={{
+                display: "inline-block",
+                marginTop: "1rem",
+                fontWeight: 600,
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--cc-yellow)",
+              }}
+            >
+              Das Craft Codex Universum →
+            </span>
+          </Link>
         </section>
       </main>
       <SiteFooter />
