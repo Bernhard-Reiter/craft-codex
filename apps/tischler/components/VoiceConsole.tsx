@@ -19,6 +19,25 @@ import type { DialogTurn } from "../lib/voice/gemini-answer";
 
 const MAX_DIALOG_TURNS = 6;
 
+interface RAGCitation {
+  label: string;
+  license?: string;
+  url?: string;
+}
+
+/** Lizenz → vertrauensbildendes Label für den Citation-Badge. */
+function trustLabel(license?: string): string {
+  switch (license) {
+    case "official-document":
+      return "Amtlich · RIS";
+    case "CC-BY-SA-4.0":
+    case "CC-BY-4.0":
+      return "Wikipedia";
+    default:
+      return "Geprüftes Fachwissen";
+  }
+}
+
 interface VoiceConsoleProps {
   rag: IRAGProvider;
   guard: ITopicGuard;
@@ -73,6 +92,9 @@ export function VoiceConsole({
   const [audioPlayed, setAudioPlayed] = useState<boolean | null>(null);
   const [usedFallback, setUsedFallback] = useState(false);
   const [dialog, setDialog] = useState<DialogTurn[]>([]);
+  // Citation: die geerdete Quelle der letzten Antwort — sichtbarer Beweis,
+  // dass die Stimme NICHTS erfindet (Pitch-Einwand "halluziniert die KI?").
+  const [citation, setCitation] = useState<RAGCitation | null>(null);
 
   const localAnswer = useMemo(
     () => createDovetailAnswerFn({ rag, guard }),
@@ -88,6 +110,7 @@ export function VoiceConsole({
     setError(null);
     setAudioPlayed(null);
     setUsedFallback(false);
+    setCitation(null);
 
     const ttsProvider = tts ?? new MockTTSProvider({ secondsPerChar: 0.04 });
 
@@ -133,6 +156,21 @@ export function VoiceConsole({
         setDialog((d) =>
           [...d, { question: q, answer: result.responseText }].slice(-MAX_DIALOG_TURNS),
         );
+        // Quelle der Antwort anzeigen — selbe RAG-Grundlage, aus der die
+        // Antwort stammt. Best-effort, bricht die Antwort nie.
+        try {
+          const cite = await rag.query(q, { topK: 1, minScore: 0.05 });
+          const m = cite[0]?.metadata;
+          if (m) {
+            setCitation({
+              label: typeof m.title === "string" ? m.title : String(m.source),
+              license: typeof m.license === "string" ? m.license : undefined,
+              url: typeof m.source_url === "string" ? m.source_url : undefined,
+            });
+          }
+        } catch {
+          /* keine Quelle gefunden — Badge bleibt aus */
+        }
       }
       const played = await playPcmChunks(result.chunks);
       setAudioPlayed(played);
@@ -267,6 +305,37 @@ export function VoiceConsole({
           }}
         >
           {state.currentResponse}
+        </div>
+      )}
+
+      {/* Citation-Badge: sichtbarer Beweis, dass die Antwort geerdet ist
+          (kein Halluzinieren) — die Quelle aus dem Fachkorpus. */}
+      {citation && state.currentResponse && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            flexWrap: "wrap",
+            fontSize: "0.72rem",
+          }}
+        >
+          <span className="cc-badge cc-badge--yellow">📚 Quelle</span>
+          <span style={{ fontWeight: 600 }}>{trustLabel(citation.license)}</span>
+          <span className="cc-muted">·</span>
+          {citation.url ? (
+            <a
+              href={citation.url}
+              target="_blank"
+              rel="noreferrer"
+              className="cc-muted"
+              style={{ borderBottom: "1.5px solid var(--cc-yellow)" }}
+            >
+              {citation.label}
+            </a>
+          ) : (
+            <span className="cc-muted">{citation.label}</span>
+          )}
         </div>
       )}
 
