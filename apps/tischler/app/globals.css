@@ -23,10 +23,25 @@
   --cc-gray: #f1f1ec;
   --cc-line: #14140f;
   --cc-line-soft: #d9d7d2;
-  --cc-hair: rgba(20, 20, 15, 0.15);
+  --cc-hair: rgba(20, 20, 15, 0.1);
   --cc-good: #1a7f37;
   --cc-bad: #c62828;
   --cc-header-h: 60px;
+
+  /* VOAI-Paper-Doktrin, CyberCraft-Farben: Tiefe durch Prägung (Emboss),
+     NICHT durch harte Schlagschatten. Ein Akzent (Gelb). Max 8px Radius.
+     Max Semibold (600). Ruhig. */
+  --cc-radius: 8px;
+  --cc-radius-sm: 6px;
+  /* Geprägte Karte: feine obere Lichtkante + weicher, tiefer Schatten */
+  --cc-emboss:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 1px 2px rgba(20, 20, 15, 0.05),
+    0 1px 1px rgba(20, 20, 15, 0.04);
+  --cc-emboss-hover:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 4px 14px rgba(20, 20, 15, 0.09),
+    0 2px 4px rgba(20, 20, 15, 0.05);
 
   /* Legacy-Aliase — Komponenten/Seiten, die noch var(--color-*) nutzen,
      fallen sauber auf die neue Palette statt ins Leere. */
@@ -75,17 +90,16 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--cc-yellow);
+  outline: 2px solid var(--cc-yellow-deep);
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px var(--cc-black);
 }
 
 h1,
 h2,
 h3 {
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.08;
   margin: 0;
   text-wrap: balance;
 }
@@ -102,7 +116,7 @@ h3 {
   gap: 1.5rem;
   padding: 0 1.25rem;
   background: var(--cc-paper);
-  border-bottom: 2px solid var(--cc-black);
+  border-bottom: 1px solid var(--cc-hair);
 }
 
 .cc-logo {
@@ -129,21 +143,25 @@ h3 {
 }
 
 .cc-nav a {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.45rem 0.7rem;
-  border: 2px solid transparent;
+  letter-spacing: 0.02em;
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--cc-radius-sm);
+  color: var(--cc-ink-soft);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .cc-nav a:hover {
-  border-color: var(--cc-black);
+  background: var(--cc-gray);
+  color: var(--cc-ink);
 }
 
 .cc-nav a[aria-current="page"] {
   background: var(--cc-yellow);
-  border-color: var(--cc-black);
+  color: var(--cc-ink);
 }
 
 .cc-footer {
@@ -155,7 +173,7 @@ h3 {
 
 .cc-footer-claim {
   font-size: clamp(1.4rem, 3.5vw, 2.2rem);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 
@@ -187,19 +205,19 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--cc-ink);
+  color: var(--cc-ink-soft);
 }
 
 .cc-kicker::before {
   content: "";
-  width: 0.7em;
-  height: 0.7em;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
   background: var(--cc-yellow);
-  border: 2px solid var(--cc-black);
   flex: none;
 }
 
@@ -223,50 +241,55 @@ h3 {
 /* ---------- Karten ---------- */
 
 .cc-card {
-  background: var(--cc-paper);
-  border: 2px solid var(--cc-black);
-  box-shadow: 4px 4px 0 var(--cc-black);
+  background: var(--cc-paper-pure);
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius);
+  box-shadow: var(--cc-emboss);
   padding: 1.25rem;
 }
 
 .cc-card--flat {
+  background: var(--cc-paper);
   box-shadow: none;
 }
 
 .cc-card--gray {
   background: var(--cc-gray);
+  box-shadow: none;
 }
 
 .cc-card--dark {
-  background: var(--cc-black);
+  background: var(--cc-ink);
   color: var(--cc-paper);
-  box-shadow: 4px 4px 0 var(--cc-yellow);
+  border: none;
+  box-shadow: var(--cc-emboss);
 }
 
 a.cc-card {
   display: block;
   color: inherit;
   transition:
-    transform 120ms ease,
-    box-shadow 120ms ease;
+    transform 140ms ease,
+    box-shadow 140ms ease;
 }
 
 a.cc-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--cc-black);
+  transform: translateY(-2px);
+  box-shadow: var(--cc-emboss-hover);
 }
 
 a.cc-card:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--cc-black);
+  transform: translateY(0);
+  box-shadow: var(--cc-emboss);
 }
 
 .cc-card-num {
-  font-size: 0.8rem;
-  font-weight: 800;
-  background: var(--cc-black);
-  color: var(--cc-yellow);
-  padding: 0.15rem 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--cc-yellow);
+  color: var(--cc-ink);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
   display: inline-block;
 }
 
@@ -276,41 +299,44 @@ a.cc-card:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
+  gap: 0.45rem;
+  padding: 0.6rem 1.15rem;
   font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--cc-black);
-  background: var(--cc-paper);
-  border: 2px solid var(--cc-black);
-  box-shadow: 3px 3px 0 var(--cc-black);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--cc-ink);
+  background: var(--cc-paper-pure);
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius-sm);
+  box-shadow: var(--cc-emboss);
   transition:
-    transform 100ms ease,
-    box-shadow 100ms ease;
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
 }
 
 .cc-btn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--cc-black);
+  transform: translateY(-1px);
+  box-shadow: var(--cc-emboss-hover);
 }
 
 .cc-btn:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 var(--cc-black);
+  transform: translateY(0);
+  box-shadow: var(--cc-emboss);
 }
 
 .cc-btn:disabled {
   cursor: not-allowed;
   color: var(--cc-muted);
-  border-color: var(--cc-line-soft);
+  border-color: var(--cc-hair);
   box-shadow: none;
   background: var(--cc-gray);
 }
 
 .cc-btn--primary {
   background: var(--cc-yellow);
+  border-color: transparent;
+  color: var(--cc-ink);
 }
 
 .cc-btn--primary:active:not(:disabled) {
@@ -318,8 +344,9 @@ a.cc-card:active {
 }
 
 .cc-btn--dark {
-  background: var(--cc-black);
+  background: var(--cc-ink);
   color: var(--cc-paper);
+  border-color: transparent;
 }
 
 .cc-btn--dark:disabled {
@@ -328,15 +355,13 @@ a.cc-card:active {
 }
 
 .cc-btn--sm {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.75rem;
-  box-shadow: 2px 2px 0 var(--cc-black);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
 }
 
 .cc-btn--danger {
   color: var(--cc-bad);
-  border-color: var(--cc-bad);
-  box-shadow: 2px 2px 0 var(--cc-bad);
+  border-color: color-mix(in srgb, var(--cc-bad) 35%, transparent);
 }
 
 /* ---------- Tabs (Lernschritte, Surface-Modes) ---------- */
@@ -354,25 +379,30 @@ a.cc-card:active {
   padding: 0.45rem 0.85rem;
   font-size: 0.85rem;
   font-weight: 600;
-  background: var(--cc-paper);
-  color: var(--cc-ink);
-  border: 2px solid var(--cc-black);
+  background: var(--cc-paper-pure);
+  color: var(--cc-ink-soft);
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius-sm);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .cc-tab:hover {
   background: var(--cc-gray);
+  color: var(--cc-ink);
 }
 
 .cc-tab[aria-selected="true"] {
   background: var(--cc-yellow);
-  font-weight: 800;
-  box-shadow: 2px 2px 0 var(--cc-black);
+  color: var(--cc-ink);
+  border-color: transparent;
 }
 
 .cc-tab-step {
   font-size: 0.65rem;
-  font-weight: 800;
-  opacity: 0.55;
+  font-weight: 700;
+  opacity: 0.5;
 }
 
 /* ---------- Chips / Badges ---------- */
@@ -380,11 +410,14 @@ a.cc-card:active {
 .cc-chip {
   font-size: 0.74rem;
   font-weight: 600;
-  padding: 0.3rem 0.65rem;
-  background: var(--cc-paper);
-  color: var(--cc-ink);
-  border: 1.5px solid var(--cc-black);
+  padding: 0.32rem 0.7rem;
+  background: var(--cc-paper-pure);
+  color: var(--cc-ink-soft);
+  border: 1px solid var(--cc-hair);
   border-radius: 999px;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .cc-chip:hover:not(:disabled) {
@@ -405,10 +438,11 @@ a.cc-card:active {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 0.2rem 0.5rem;
-  border: 1.5px solid var(--cc-black);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--cc-hair);
+  border-radius: 999px;
   background: var(--cc-gray);
-  color: var(--cc-ink);
+  color: var(--cc-ink-soft);
 }
 
 .cc-badge--yellow {
@@ -434,8 +468,15 @@ a.cc-card:active {
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--cc-ink);
-  background: var(--cc-paper);
-  border: 2px solid var(--cc-black);
+  background: var(--cc-paper-pure);
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius-sm);
+}
+
+.cc-input:focus {
+  outline: none;
+  border-color: var(--cc-yellow-deep);
+  box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.25);
 }
 
 .cc-input::placeholder {
@@ -521,9 +562,10 @@ a.cc-card:active {
 
 .cc-stage {
   position: relative;
-  background: var(--cc-black);
-  border: 2px solid var(--cc-black);
-  box-shadow: 4px 4px 0 var(--cc-yellow);
+  background: var(--cc-ink);
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius);
+  box-shadow: var(--cc-emboss);
   overflow: hidden;
   min-height: 0;
 }
@@ -581,7 +623,6 @@ a.cc-card:active {
 
 .cc-section-title {
   font-size: clamp(1.3rem, 2.5vw, 1.7rem);
-  text-transform: uppercase;
   margin-bottom: 1.25rem;
 }
 
@@ -650,11 +691,11 @@ a.cc-card:active {
 
 /* Display-Headline im Deck-Maßstab */
 .cc-display {
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  line-height: 1.02;
-  font-size: clamp(2.2rem, 5.5vw, 4rem);
-  max-width: 18ch;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  font-size: clamp(2.1rem, 5vw, 3.6rem);
+  max-width: 20ch;
   text-wrap: balance;
 }
 
@@ -788,24 +829,27 @@ a.cc-card:active {
   flex-direction: column;
   gap: 0.6rem;
   background: var(--cc-paper-pure);
-  border: 2px solid var(--cc-black);
-  box-shadow: 4px 4px 0 var(--cc-black);
-  padding: 1.1rem;
+  border: 1px solid var(--cc-hair);
+  border-radius: var(--cc-radius);
+  box-shadow: var(--cc-emboss);
+  padding: 1.2rem;
 }
 
 .cc-art-card[data-active="true"] {
-  box-shadow: 4px 4px 0 var(--cc-yellow-deep);
-  outline: 2px solid var(--cc-yellow-deep);
-  outline-offset: 2px;
+  border-color: var(--cc-yellow-deep);
+  box-shadow:
+    0 0 0 1px var(--cc-yellow-deep),
+    var(--cc-emboss-hover);
 }
 
 .cc-art-card .cc-order-num {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: var(--cc-black);
-  color: var(--cc-yellow);
-  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--cc-gray);
+  color: var(--cc-ink-soft);
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
   align-self: flex-start;
   letter-spacing: 0.08em;
 }
