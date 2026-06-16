@@ -273,8 +273,8 @@ export default function LernenPage() {
             >
               Lern den Schwalbenschwanz — Schritt für Schritt am 3D-Werkstück.
             </h2>
-            <Link href="/dovetail" className="cc-btn cc-btn--primary">
-              Werkstatt öffnen →
+            <Link href="/werkstatt" className="cc-btn cc-btn--primary">
+              Geführte Lektion starten →
             </Link>
           </div>
         </section>

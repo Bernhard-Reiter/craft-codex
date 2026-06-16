@@ -69,7 +69,7 @@ export const ZINKENARTEN: readonly Zinkenart[] = [
     wann: "Die klassische Lern- und Meisterübung. Sichtbare Ecken an Kisten, Truhen, Schubladenrückwänden, wo die Verzahnung auch als Zierde wirkt.",
     schwierigkeit: 2,
     playable: true,
-    href: "/dovetail",
+    href: "/werkstatt",
     voiceIntro:
       "Jetzt die Königsdisziplin. Der Schwalbenschwanz ist keilförmig — er verhakt sich und hält ohne Leim. Wir bauen ihn Schritt für Schritt: anreißen, sägen, stemmen, passen, prüfen.",
   },
