@@ -163,7 +163,7 @@ export default function UniversumPage() {
             {NUTZEN.map((n) => (
               <div
                 key={n.wer}
-                className="cc-card cc-card--flat"
+                className="cc-card cc-card--flat cc-stack-sm"
                 style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,3fr)", gap: "1rem", alignItems: "baseline" }}
               >
                 <p style={{ margin: 0, fontWeight: 600 }}>{n.wer}</p>

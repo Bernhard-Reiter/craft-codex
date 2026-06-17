@@ -77,7 +77,7 @@ export default function CockpitPage() {
             {KLASSE.map((l) => (
               <div
                 key={l.name}
-                className="cc-card cc-card--flat"
+                className="cc-card cc-card--flat cc-stack-sm"
                 data-active={l.status === "braucht-meister" ? "true" : undefined}
                 style={{
                   display: "grid",

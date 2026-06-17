@@ -87,6 +87,7 @@ export default function LernenPage() {
 
         {/* ── WAS IST EIN ZINKEN ───────────────────────────────── */}
         <section
+          className="cc-stack-sm"
           style={{
             display: "grid",
             gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.1fr)",

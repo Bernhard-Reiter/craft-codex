@@ -28,7 +28,7 @@ export function SurfaceModeBar({
     .filter((m) => !hideIds?.includes(m.id));
 
   return (
-    <div role="tablist" aria-label="Master-Surface Modes" className="cc-tabbar">
+    <div role="group" aria-label="Master-Surface Modes" className="cc-tabbar">
       {modes.length === 0 ? (
         <span className="cc-muted" style={{ fontSize: "0.85rem" }}>
           Keine Modes registriert.
@@ -39,9 +39,8 @@ export function SurfaceModeBar({
           return (
             <button
               key={m.id}
-              role="tab"
               type="button"
-              aria-selected={isActive}
+              aria-pressed={isActive}
               data-mode-id={m.id}
               onClick={() => onSwitch(m.id)}
               className="cc-tab"
