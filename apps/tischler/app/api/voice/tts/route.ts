@@ -8,7 +8,7 @@
 import type { ITTSProvider } from "@craft-codex/core";
 import { ElevenLabsTTSProvider } from "../../../../lib/voice/elevenlabs-tts";
 import { GeminiTTSProvider } from "../../../../lib/voice/gemini-tts";
-import { jsonError, ttsProvider } from "../_lib/server-voice";
+import { jsonError, rateLimited, ttsProvider } from "../_lib/server-voice";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +35,9 @@ function buildProvider(): ITTSProvider | null {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  const limited = rateLimited(req);
+  if (limited) return limited;
+
   const tts = buildProvider();
   if (!tts) return jsonError(503, "tts_unavailable");
 
@@ -71,6 +74,7 @@ export async function POST(req: Request): Promise<Response> {
       },
     });
   } catch (err) {
-    return jsonError(502, `tts_failed: ${err instanceof Error ? err.message.slice(0, 200) : "unknown"}`);
+    console.error("[voice/tts] upstream error:", err);
+    return jsonError(502, "tts_failed");
   }
 }

@@ -133,3 +133,39 @@ export function jsonError(status: number, error: string): Response {
     headers: { "content-type": "application/json" },
   });
 }
+
+/**
+ * Schlankes In-Memory Rate-Limit (fixed window, pro IP) — schützt die
+ * bezahlten Gemini/Whisper-Routen vor Kosten-/DoS-Abuse. Pro Server-Instanz
+ * (auf Vercel pro Lambda), also kein globaler Zähler, aber eine echte,
+ * abhängigkeitsfreie Abuse-Bremse. Für harte Garantien später Upstash/Redis.
+ */
+const RL_MAX = 30; // Requests
+const RL_WINDOW_MS = 60_000; // pro Minute pro IP
+const rlBuckets = new Map<string, { count: number; reset: number }>();
+
+function clientIp(req: Request): string {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return req.headers.get("x-real-ip")?.trim() || "local";
+}
+
+/** Gibt eine 429-Response zurück, wenn das Limit überschritten ist, sonst null. */
+export function rateLimited(req: Request): Response | null {
+  // Im Test deaktiviert (Route-Tests feuern viele Requests mit derselben IP).
+  if (process.env.VITEST) return null;
+  const now = Date.now();
+  // Opportunistisches Aufräumen, damit die Map nicht unbegrenzt wächst.
+  if (rlBuckets.size > 5000) {
+    for (const [k, v] of rlBuckets) if (now > v.reset) rlBuckets.delete(k);
+  }
+  const ip = clientIp(req);
+  const b = rlBuckets.get(ip);
+  if (!b || now > b.reset) {
+    rlBuckets.set(ip, { count: 1, reset: now + RL_WINDOW_MS });
+    return null;
+  }
+  if (b.count >= RL_MAX) return jsonError(429, "rate_limited");
+  b.count += 1;
+  return null;
+}

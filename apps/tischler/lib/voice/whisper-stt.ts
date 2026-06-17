@@ -86,6 +86,10 @@ export class WhisperSTTProvider implements ISTTProvider {
   }
 }
 
+// Hartes Byte-Cap WÄHREND des Lesens — der content-length-Check der Route ist
+// bei chunked transfer-encoding umgehbar; hier wird unabhängig davon gestoppt.
+const MAX_PCM_BYTES = 12 * 1024 * 1024;
+
 async function drainStream(
   stream: ReadableStream<Uint8Array>,
 ): Promise<Uint8Array> {
@@ -96,8 +100,12 @@ async function drainStream(
     let result = await reader.read();
     while (!result.done) {
       if (result.value && result.value.length > 0) {
-        chunks.push(result.value);
         total += result.value.length;
+        if (total > MAX_PCM_BYTES) {
+          await reader.cancel().catch(() => {});
+          throw new Error("audio_too_large");
+        }
+        chunks.push(result.value);
       }
       result = await reader.read();
     }
