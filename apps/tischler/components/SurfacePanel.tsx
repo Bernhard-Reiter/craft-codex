@@ -108,10 +108,13 @@ function ActiveModeBody({
   }
 
   return (
-    <div className="cc-muted" style={{ fontSize: "0.85rem", lineHeight: 1.5 }}>
-      <span data-mode-stub={meta.id}>
-        [{meta.label}-Mode active — UI-Wiring folgt.]
-      </span>
+    <div
+      className="cc-muted"
+      style={{ fontSize: "0.85rem", lineHeight: 1.5 }}
+      aria-busy="true"
+      data-mode-loading={meta.id}
+    >
+      {meta.label} wird geladen …
     </div>
   );
 }

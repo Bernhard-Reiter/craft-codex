@@ -95,7 +95,9 @@ export default function DovetailPage() {
     }
     const savedModes = loadModes();
     if (savedModes) {
-      setActiveMode(savedModes.activeMode);
+      // activeMode NICHT auto-restaurieren: ohne manager.switch() wäre der Tab
+      // aktiv, der Manager aber leer → Platzhalter-Panel. Der Nutzer öffnet die
+      // Fläche per Klick (→ handleModeSwitch aktiviert sauber). Mode-State bleibt.
       setModeStates(savedModes.modeStates ?? {});
     }
     setHydrated(true);
@@ -290,6 +292,7 @@ export default function DovetailPage() {
         <SurfaceModeBar
           manager={manager}
           activeId={activeMode}
+          hideIds={["video"]}
           onSwitch={(id) => {
             void handleModeSwitch(id);
           }}

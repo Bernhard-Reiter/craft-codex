@@ -20,27 +20,28 @@ vercel link
 
 ### Environment Variables (in Vercel Dashboard setzen)
 
-**Phase C — Mock-Only (default):**
+**Ohne Keys:** läuft offline im Template-/Mock-Modus (kein Crash, keine env Vars nötig).
 
-Keine env Vars noetig. Voice-Pipeline laeuft mit Mocks (Demo-Modus).
-
-**Phase D — Real Voice Providers (optional):**
+**Mit Stimme (empfohlen):** Default-Provider ist Google Gemini (ein Key für Answer UND TTS):
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-ELEVENLABS_API_KEY=...
+GEMINI_API_KEY=...
+# optional: TTS_PROVIDER / ANSWER_PROVIDER, sonst Auto (Gemini wenn GEMINI_API_KEY)
+# optionale Alternativen: ANTHROPIC_API_KEY (Claude-Answer), OPENAI_API_KEY (Whisper-STT), ELEVENLABS_API_KEY (TTS)
 ```
 
-**WICHTIG:** Diese sind serverseitig — Client-Code kann sie NICHT lesen. Phase D Real-Provider muss ueber Next.js API-Routes proxen:
+Vollständige Liste + Kommentare: siehe `.env.example`.
+
+**Sicherheit:** Alle Keys bleiben **server-seitig** — die Voice-Provider laufen über Next.js-API-Routes als Proxy (bereits live, kein Client-Side-fetch mehr):
 
 ```
-app/api/voice/stt/route.ts   → Whisper-Proxy (Server-Side fetch)
-app/api/voice/tts/route.ts   → ElevenLabs-Proxy
-app/api/voice/answer/route.ts → Claude SSE-Proxy
+app/api/voice/answer/route.ts → Gemini/Claude (server-side)
+app/api/voice/tts/route.ts    → Gemini/ElevenLabs (server-side)
+app/api/voice/stt/route.ts    → Whisper (server-side)
+app/api/voice/health/route.ts → Provider-Status
 ```
 
-Code dafuer wartet auf Phase E PR — derzeit nutzen alle Provider direkten Client-Side fetch, was fuer Browser-API-Key-Exposure NICHT geeignet ist. Daher Phase C Mock-Mode bleibt Default bis Phase E.
+Der CI-Guard bricht ab, falls je ein `NEXT_PUBLIC_*`-Key eingecheckt wird (würde ins Browser-Bundle inlined).
 
 ### Deploy
 
@@ -124,9 +125,10 @@ Alle sollten 200. Falls 500 → Vercel Logs checken (`vercel logs <url>`).
 vercel rollback
 ```
 
-## Phase E TODO
+## Ausblick (nach Förderzusage)
 
-- [ ] API-Routes fuer Voice-Provider (Server-Side-Proxy, keine Client-Side-Keys)
-- [ ] Multi-Tenant Auth (Supabase) fuer kommerzielle Berufsschulen
+- [x] API-Routes für Voice-Provider (Server-Side-Proxy, keine Client-Side-Keys) — **erledigt**
+- [ ] Rate-Limiting auf den /api/voice-Routen (Kosten-/Abuse-Schutz)
+- [ ] Multi-Tenant Auth + RLS (Supabase) für kommerzielle Berufsschulen
 - [ ] Monitoring (Sentry-DSN + Vercel Analytics)
 - [ ] CI: auto-deploy bei main-Push, preview-deploy bei PR

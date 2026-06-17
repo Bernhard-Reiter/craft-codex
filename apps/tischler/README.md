@@ -1,27 +1,26 @@
 # @craft-codex/tischler
 
-Standalone WebXR Lehrlings-Lehrtool fuer Holzhandwerk. **MIT-lizenziert, Open-Source.**
+KI-first Lehrtool fürs Holzhandwerk — der erste Baustein des **Craft Codex Universums**. **MIT-lizenziert, Open-Source, offline-fest.**
 
-> **Status:** Phase B Test-Ballon — Schwalbenschwanz-Demo lokal lauffaehig.
-> Voice-Pipeline + RAG + WebXR-Tracking sind Phase C.
+> **Status:** lauffähige Demo auf Enterprise-Niveau. Geführte interaktive Lektion (Zinken/Schwalbenschwanz), Meister-Stimme (RAG-geerdet), 3D + WebXR, Lehrer-Cockpit — alles offline-fähig.
 
 ---
 
-## Was es kann (Phase B)
+## Was es kann
 
-- 🪵 **Schwalbenschwanz-3D-Modell** mit live einstellbaren Parametern (Pin-Anzahl, Schwalbenwinkel 1:N, Brettstaerke, Brettbreite).
-- 📐 **Anrisslinien fuer alle 5 Lernschritte** (Anreissen → Saegen → Stemmen → Passen → Pruefen).
-- 🎬 **Manual-Placement-Tracking** (Phase B): Brett im 3D-Raum positionieren via Drag-Handles.
-- 🌌 **WebXR-Skelett** mit Fallback-UI (Phase B Stub).
-- 💾 **localStorage-Persistence** fuer Session-State (Phase C: server-side DB).
+- 🪵 **Schwalbenschwanz in 3D**, parametrisch (Pin-Anzahl, Schwalbenwinkel 1:6/1:8, Brettmaße) — mit Error-Boundary + 2D-Fallback, falls kein WebGL.
+- 🎓 **Geführte interaktive Lektion** (`/werkstatt`): eine Regie-Bühne, die pro Lern-Beat die passende Fläche zeigt; der Meister erzählt jeden Schritt; XR-Übergabe „jetzt du am Holz". Kiosk-Modus (`?kiosk=1`) für die narrensichere Demo.
+- 🗣️ **Stimme des Meisters** (RAG + Google Gemini TTS, server-seitig): geerdete Antworten aus dem Fachkorpus mit **Citation-Badge** (zeigt die Quelle) — die KI erfindet nichts. Offline-Cache + Live-Fallback.
+- 📚 **Überblick & Lernpfad** (`/lernen`): was sind Zinken, Zinkenarten, Schwalbenwinkel-Auswahl 1:6/1:8 — mit RIS-Anker (amtliche Ausbildungsordnung).
+- 🧑‍🏫 **Lehrer-Cockpit** (`/cockpit`): Klassenfortschritt + „braucht Meister"-Flag.
+- ⭐ **Vision** (`/universum`): das Craft-Codex-Universum-Manifest.
+- 🌌 **WebXR** (`/dovetail/xr`): das Werkstück immersiv auf Quest 3 / Galaxy XR.
+- 🎨 **Tafel + CAD** als Master-Surface-Modi (`/dovetail`); Video folgt (Phase D).
+- 🔒 **Offline-fest & lokal:** kein Byte verlässt das Gerät; läuft ohne Netz im Template-/Cache-Modus.
 
-## Was es noch nicht kann (Phase C)
+## Routen
 
-- Voice-Pipeline (Whisper → Claude → ElevenLabs)
-- RAG-Korpus + Topic-Guard
-- Tafel-Mode mit perfect-freehand
-- ImageTracking via WebXR API
-- ArUco/OpenCV.js Fallback-Tracking
+`/` Start · `/universum` Vision · `/lernen` Überblick · `/werkstatt` geführte Lektion · `/cockpit` Lehrer · `/dovetail` freies 3D-Werkstück · `/dovetail/xr` WebXR · `/voice` Stimm-Test · `/api/voice/{answer,tts,stt,health}` Server-Routen.
 
 ---
 
@@ -31,22 +30,20 @@ Voraussetzungen: Node ≥ 20, pnpm 9.
 
 ```bash
 pnpm install
-pnpm --filter @craft-codex/tischler dev
-# → http://localhost:3100
+pnpm --filter @craft-codex/tischler dev   # → http://localhost:3100
 ```
 
-Build:
-
-```bash
-pnpm --filter @craft-codex/tischler build
-pnpm --filter @craft-codex/tischler start
-```
-
-Tests:
+Tests / Typecheck / Build:
 
 ```bash
 pnpm --filter @craft-codex/tischler test
+pnpm --filter @craft-codex/tischler typecheck
+pnpm --filter @craft-codex/tischler build
 ```
+
+### Stimme konfigurieren (optional)
+
+Keys werden **nur server-seitig** (`app/api/voice/*`) genutzt. Ohne Keys läuft alles offline im Template-/Mock-Modus (kein Crash). Siehe **[`.env.example`](./.env.example)** — kopiere nach `.env.local`. Default-Provider ist Google Gemini (`GEMINI_API_KEY`). Vorvertonten Offline-Cache bauen: `pnpm tts:cache`.
 
 ---
 
@@ -55,45 +52,34 @@ pnpm --filter @craft-codex/tischler test
 ```
 apps/tischler/
 ├─ app/
-│  ├─ layout.tsx            DE locale, dark mode CSS variables
-│  ├─ page.tsx              Landing — 3 Cards (Schwalbenschwanz / XR / Settings)
-│  ├─ dovetail/page.tsx     Demo-Page — DovetailScene + Sliders + ModeBar
-│  ├─ dovetail/xr/page.tsx  WebXR-Variante (Phase B Stub mit Fallback)
-│  └─ globals.css           CSS-Variables (kein Tailwind)
-├─ components/
-│  ├─ DovetailScene.tsx     Three.js Scene (R3F + drei OrbitControls)
-│  ├─ ModeBar.tsx           Lernschritt-Switcher
-│  ├─ ParamSliders.tsx      Param-Sliders fuer Geometrie
-│  └─ PlacementHandles.tsx  Drag-Handles fuer Manual-Placement
+│  ├─ layout.tsx            DE locale, Plus Jakarta Sans (vendored), globals.css
+│  ├─ page.tsx              Start
+│  ├─ universum/            Vision-Manifest
+│  ├─ lernen/               Überblick + Lernpfad + Schwalbenwinkel
+│  ├─ werkstatt/            geführte interaktive Lektion (Regie-Bühne, Kiosk)
+│  ├─ cockpit/              Lehrer-Ansicht
+│  ├─ dovetail/             freies 3D-Werkstück (+ /xr WebXR)
+│  ├─ global-error.tsx      letztes Netz gegen weißen Screen
+│  └─ api/voice/            Server-Routen: answer · tts · stt · health
+├─ components/              DovetailScene, SceneBoundary, VoiceConsole,
+│                           ZinkenDiagram, SchwalbenwinkelWahl, OfflineTrust …
 ├─ lib/
-│  ├─ storage/              localStorage (MVP) — Phase C: server-side DB
-│  ├─ tracking/             ITrackingProvider Implementations
-│  └─ surface-modes/        SurfaceMode Plugins (Tafel/CAD/Video Stubs)
-└─ public/                  Static Assets
+│  ├─ voice/                Pipeline, Gemini/Claude/ElevenLabs/Whisper, TTS-Cache
+│  ├─ rag/                  LocalRAGProvider + TopicGuard + Fachkorpus
+│  ├─ zinken/               Lernpfad- + Lektions-Datenmodell
+│  ├─ surface-modes/        Tafel / CAD / Video Master-Surfaces
+│  └─ storage/, tracking/   localStorage, Manual-Placement
+└─ public/                  Statische Assets (+ tts-cache, gitignored)
 ```
 
-**Open-Core Boundary:** Diese App importiert NUR aus `@craft-codex/core` (MIT). KEINE proprietary / Supabase / LiveKit Imports — die App muss standalone lauffaehig bleiben.
+**Design:** „VOAI Paper"-Form (Plus Jakarta Sans, Emboss statt Schatten, max 8 px Radius, max Semibold) mit CyberCraft-Signalgelb als einzigem Akzent. Hell, ruhig, kein Dark-Mode.
+
+**Open-Core-Grenze:** importiert NUR aus `@craft-codex/core` (MIT) — keine proprietären/Supabase-Imports; die App bleibt standalone lauffähig.
 
 ## Stack
 
-| Layer      | Tool               | Version |
-| ---------- | ------------------ | ------- |
-| Framework  | Next.js            | 15.5.x  |
-| React      | React              | 19.2.x  |
-| 3D         | Three.js           | 0.170.x |
-| 3D-React   | @react-three/fiber | 9.6.x   |
-| 3D-Helpers | @react-three/drei  | 10.7.x  |
-| WebXR      | @react-three/xr    | 6.6.x   |
-| CSG        | three-bvh-csg      | 0.0.17  |
-| Validation | Zod                | 3.25.x  |
-| Storage    | localStorage       | (MVP)   |
-
-## Roadmap
-
-- **Phase B (jetzt):** Skeleton + Schwalbenschwanz-Demo + Manual-Placement
-- **Phase C (Q3 2026):** Voice + RAG + Tafel/CAD/Video Modes
-- **Phase D (Q4 2026):** Live-Call-Mode + ImageTracking + ArUco-Fallback
+Next.js 15 · React 19 · TypeScript · Three.js + @react-three/fiber/drei/xr · Zod · vitest. Voice: Google Gemini (Answer + TTS) als Default; optional Claude / Whisper / ElevenLabs.
 
 ## Lizenz
 
-MIT — siehe [LICENSE](./LICENSE).
+MIT — siehe [LICENSE](./LICENSE). Teil des offenen Handwerks-Wissens-Commons.
