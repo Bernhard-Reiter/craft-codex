@@ -6,6 +6,8 @@ interface SurfaceModeBarProps {
   manager: ModeManager;
   activeId: ModeId | null;
   onSwitch: (id: ModeId) => void;
+  /** Modes, die in der Bar NICHT gezeigt werden (z.B. noch ohne Inhalt). */
+  hideIds?: ReadonlyArray<ModeId>;
 }
 
 /**
@@ -19,8 +21,11 @@ export function SurfaceModeBar({
   manager,
   activeId,
   onSwitch,
+  hideIds,
 }: SurfaceModeBarProps) {
-  const modes = manager.list();
+  const modes = manager
+    .list()
+    .filter((m) => !hideIds?.includes(m.id));
 
   return (
     <div role="tablist" aria-label="Master-Surface Modes" className="cc-tabbar">

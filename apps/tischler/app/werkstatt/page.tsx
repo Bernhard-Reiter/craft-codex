@@ -257,9 +257,15 @@ export default function WerkstattPage() {
           ) : beat.surface === "xr" ? (
             <XRHandoff href={beat.href ?? "/dovetail/xr"} />
           ) : (
-            <div style={{ color: "var(--cc-paper)", padding: "2rem" }}>
-              Fläche „{beat.surface}“ folgt (Slice 2).
-            </div>
+            <SceneBoundary
+              fallback={
+                <SceneFallback>
+                  <ZinkenDiagram showLabels={false} />
+                </SceneFallback>
+              }
+            >
+              <DovetailScene params={DEFAULT_DOVETAIL_PARAMS} step="ueberblick" />
+            </SceneBoundary>
           )}
         </section>
       </main>
