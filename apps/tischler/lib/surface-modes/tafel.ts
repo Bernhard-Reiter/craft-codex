@@ -40,24 +40,20 @@ export class TafelMode implements SurfaceMode {
 
   async activate(_ctx: SurfaceContext): Promise<void> {
     this.active = true;
-    console.log("[TafelMode] activate (perfect-freehand)");
   }
 
   async deactivate(): Promise<void> {
     this.active = false;
-    console.log("[TafelMode] deactivate");
   }
 
   dispose(): void {
     this.strokes = [];
     this.listeners.clear();
     this.active = false;
-    console.log("[TafelMode] dispose");
   }
 
-  async onVoiceCommand(command: string): Promise<void> {
-    console.log("[TafelMode] voice command (stub):", command);
-  }
+  // Reserviert für Sprachsteuerung der Tafel (noch nicht verdrahtet).
+  async onVoiceCommand(_command: string): Promise<void> {}
 
   serializeState(): Record<string, unknown> {
     return {
