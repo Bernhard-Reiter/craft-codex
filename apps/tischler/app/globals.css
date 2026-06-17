@@ -18,7 +18,7 @@
   --cc-black: #14140f; /* Tinte, fast schwarz */
   --cc-ink: #14140f;
   --cc-ink-soft: #46463e;
-  --cc-muted: #71716a; /* Smoke */
+  --cc-muted: #5b5b53; /* Smoke — abgedunkelt auf >=4.5:1 (WCAG AA) auf Papier */
   --cc-paper: #fcfcfa; /* Papier */
   --cc-paper-pure: #ffffff;
   --cc-gray: #f1f1ec;
@@ -394,7 +394,8 @@ a.cc-card:active {
   color: var(--cc-ink);
 }
 
-.cc-tab[aria-selected="true"] {
+.cc-tab[aria-selected="true"],
+.cc-tab[aria-pressed="true"] {
   background: var(--cc-yellow);
   color: var(--cc-ink);
   border-color: transparent;
@@ -642,6 +643,14 @@ a.cc-card:active {
    Pitch-Motive — Signatur aus craft-codex-pitch.html
    (Anschlagwinkel, Eyebrow, Marker-Highlight, Lead, Note, Timeline)
    ============================================================ */
+
+/* Mobile-Stacking: jede Grid mit dieser Klasse fällt auf Tablet/Handy auf
+   eine Spalte (überschreibt inline gridTemplateColumns via !important). */
+@media (max-width: 720px) {
+  .cc-stack-sm {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 /* Kiosk-Modus (Pitch-Demo, ?kiosk=1): Chrome aus, volle Bühne. */
 body.cc-kiosk .cc-header,

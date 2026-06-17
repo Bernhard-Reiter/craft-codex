@@ -51,6 +51,7 @@ export function SchwalbenwinkelWahl() {
 
   return (
     <div
+      className="cc-stack-sm"
       style={{
         display: "grid",
         gridTemplateColumns: "minmax(0, 200px) 1fr",
@@ -61,7 +62,7 @@ export function SchwalbenwinkelWahl() {
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`Schwalbenschwanz im Verhältnis 1 zu ${ratio}`}
+        aria-label={`Schwalbenschwanz im Verhältnis 1 zu ${ratio}, ${info.grad}`}
         style={{ width: "100%", maxWidth: 200 }}
       >
         {/* Hirnholz-Grundlinie */}
@@ -105,13 +106,12 @@ export function SchwalbenwinkelWahl() {
       </svg>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        <div style={{ display: "flex", gap: "0.5rem" }} role="tablist" aria-label="Schwalbenwinkel">
+        <div style={{ display: "flex", gap: "0.5rem" }} role="group" aria-label="Schwalbenwinkel">
           {([6, 8] as Ratio[]).map((r) => (
             <button
               key={r}
               type="button"
-              role="tab"
-              aria-selected={r === ratio}
+              aria-pressed={r === ratio}
               className="cc-tab"
               onClick={() => setRatio(r)}
             >

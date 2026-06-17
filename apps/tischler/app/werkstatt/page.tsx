@@ -110,16 +110,12 @@ export default function WerkstattPage() {
           </header>
 
           {/* Beat-Leiste: Fortschritt + Sprung */}
-          <div
-            role="tablist"
-            aria-label="Lektions-Beats"
-            className="cc-tabbar"
-          >
+          <div role="group" aria-label="Lektions-Beats" className="cc-tabbar">
             {lektion.map((b, idx) => (
               <button
                 key={b.id}
-                role="tab"
-                aria-selected={idx === i}
+                type="button"
+                aria-pressed={idx === i}
                 onClick={() => setI(idx)}
                 className="cc-tab"
                 style={{ fontSize: "0.78rem" }}

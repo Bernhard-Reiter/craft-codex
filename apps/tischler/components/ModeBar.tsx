@@ -19,14 +19,14 @@ interface ModeBarProps {
 
 export function ModeBar({ active, onChange }: ModeBarProps) {
   return (
-    <div role="tablist" className="cc-tabbar" aria-label="Lernschritte">
+    <div role="group" className="cc-tabbar" aria-label="Lernschritte">
       {STEPS.map((s) => {
         const isActive = s.id === active;
         return (
           <button
             key={s.id}
-            role="tab"
-            aria-selected={isActive}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(s.id)}
             className="cc-tab"
           >

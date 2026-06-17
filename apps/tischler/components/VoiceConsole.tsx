@@ -296,6 +296,7 @@ export function VoiceConsole({
 
       {state.currentResponse && (
         <div
+          aria-live="polite"
           style={{
             fontSize: "0.9rem",
             lineHeight: 1.55,
