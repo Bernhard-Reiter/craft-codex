@@ -36,12 +36,10 @@ export class CADMode implements SurfaceMode {
 
   async activate(_ctx: SurfaceContext): Promise<void> {
     this.active = true;
-    console.log("[CADMode] activate (GLTFLoader)");
   }
 
   async deactivate(): Promise<void> {
     this.active = false;
-    console.log("[CADMode] deactivate");
   }
 
   dispose(): void {
@@ -49,7 +47,6 @@ export class CADMode implements SurfaceMode {
     this.activeModelUrl = null;
     this.listeners.clear();
     this.active = false;
-    console.log("[CADMode] dispose");
   }
 
   serializeState(): Record<string, unknown> {

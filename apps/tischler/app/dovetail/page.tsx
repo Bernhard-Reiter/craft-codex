@@ -9,7 +9,7 @@ import {
   type ModeId,
   type SurfaceContext,
 } from "@craft-codex/core";
-import { DovetailScene } from "../../components/DovetailScene";
+import { DovetailScene } from "../../components/DovetailSceneDynamic";
 import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
 import { ModeBar } from "../../components/ModeBar";
 import { ParamSliders } from "../../components/ParamSliders";

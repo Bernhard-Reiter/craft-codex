@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_DOVETAIL_PARAMS } from "@craft-codex/core";
-import { DovetailScene } from "../../components/DovetailScene";
+import { DovetailScene } from "../../components/DovetailSceneDynamic";
 import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
 import { ZinkenDiagram } from "../../components/ZinkenDiagram";
 import { VoiceConsole } from "../../components/VoiceConsole";
