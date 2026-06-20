@@ -11,7 +11,7 @@ import { OfflineTrust } from "../../components/OfflineTrust";
 import { SiteFooter } from "../../components/SiteFooter";
 import { playPcmChunks } from "../../lib/voice/pcm-player";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { StubTopicGuard } from "../../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { useServerVoice } from "../../lib/voice/use-server-voice";
 import { createServerAnswerFn } from "../../lib/voice/server-providers";
@@ -25,7 +25,7 @@ import { getLektion } from "../../lib/zinken/lektion";
 export default function WerkstattPage() {
   const { rag, guard } = useMemo(() => {
     const r = new LocalRAGProvider(getDemoCorpus());
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
       offTopicMax: 0.05,

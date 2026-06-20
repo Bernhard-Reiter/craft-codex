@@ -2,14 +2,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { VoiceConsole } from "./VoiceConsole";
 import { LocalRAGProvider } from "../lib/rag/local-rag";
-import { StubTopicGuard } from "../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../lib/rag/topic-guard";
 import { getDemoCorpus } from "../lib/rag/corpus";
 
 afterEach(cleanup);
 
 function providers() {
   const rag = new LocalRAGProvider(getDemoCorpus());
-  const guard = new StubTopicGuard({
+  const guard = new KeywordTopicGuard({
     rag,
     onTopicMin: 0.25,
     offTopicMax: 0.05,

@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import {
   generateBoardAMesh,
@@ -55,6 +55,7 @@ export function DovetailSceneContents({
           target={[0, 0, 0]}
           enablePan
           enableZoom
+          enableDamping={!prefersReducedMotion()}
           minDistance={0.15}
           maxDistance={1.5}
         />
@@ -63,11 +64,21 @@ export function DovetailSceneContents({
   );
 }
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+  );
+}
+
 function BoardA({ params }: { params: DovetailParams }) {
   const geometry = useMemo(() => {
     const mesh = generateBoardAMesh(params, THREE);
     return mesh.geometry;
   }, [params]);
+  // Alte BufferGeometry freigeben, wenn sich params ändern / beim Unmount —
+  // sonst leckt über eine lange Slider-Session GPU-Speicher.
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
     <mesh
@@ -87,6 +98,7 @@ function BoardB({ params }: { params: DovetailParams }) {
     const mesh = generateBoardBMesh(params, THREE);
     return mesh.geometry;
   }, [params]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
     <mesh
@@ -113,6 +125,15 @@ function MarkingLines({
     const markings = generateMarkings(step, params);
     return markingsToLineSegments(markings, THREE);
   }, [params, step]);
+  useEffect(
+    () => () => {
+      lineSegments.geometry.dispose();
+      const mat = lineSegments.material;
+      if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+      else mat.dispose();
+    },
+    [lineSegments],
+  );
 
   return (
     <primitive

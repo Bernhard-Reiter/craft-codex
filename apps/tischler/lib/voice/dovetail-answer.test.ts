@@ -4,7 +4,7 @@ import {
   synthesizeFromHits,
 } from "./dovetail-answer";
 import { LocalRAGProvider } from "../rag/local-rag";
-import { StubTopicGuard } from "../rag/topic-guard";
+import { KeywordTopicGuard } from "../rag/topic-guard";
 import { getDovetailCorpus } from "../rag/corpus/dovetail-corpus";
 
 function makePipeline(overrides?: {
@@ -13,7 +13,7 @@ function makePipeline(overrides?: {
   offTopicMax?: number;
 }) {
   const rag = new LocalRAGProvider(getDovetailCorpus());
-  const guard = new StubTopicGuard({
+  const guard = new KeywordTopicGuard({
     rag,
     onTopicMin: overrides?.onTopicMin ?? 0.3,
     offTopicMax: overrides?.offTopicMax ?? 0.05,
@@ -60,7 +60,7 @@ describe("createDovetailAnswerFn", () => {
 
   it("returns no-corpus-hit message when minScore filters everything", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
-    const guard = new StubTopicGuard({ rag, onTopicMin: 0, offTopicMax: -1 });
+    const guard = new KeywordTopicGuard({ rag, onTopicMin: 0, offTopicMax: -1 });
     const answer = createDovetailAnswerFn({ rag, guard, minScore: 1.01 });
     const r = await answer("Schwalbenschwanz Anriss");
     expect(r.toLowerCase()).toMatch(/finde.*nichts|konkretere/);

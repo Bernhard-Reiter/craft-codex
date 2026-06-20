@@ -22,7 +22,7 @@ import { createDefaultModeBundle } from "../../lib/surface-modes";
 import { createPersistedPlacementProvider } from "../../lib/tracking/persisted-placement";
 import { registerDefaultModels } from "../../lib/surface-modes/cad-defaults";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { StubTopicGuard } from "../../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { useServerVoice } from "../../lib/voice/use-server-voice";
 import { createServerAnswerFn } from "../../lib/voice/server-providers";
@@ -67,7 +67,7 @@ export default function DovetailPage() {
   // Voice-Pipeline: RAG + TopicGuard fuer Schwalbenschwanz-Korpus.
   const { rag, guard } = useMemo(() => {
     const r = new LocalRAGProvider(getDemoCorpus());
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
       offTopicMax: 0.05,

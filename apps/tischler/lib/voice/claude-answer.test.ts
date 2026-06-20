@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { createClaudeAnswerFn } from "./claude-answer";
 import { LocalRAGProvider } from "../rag/local-rag";
-import { StubTopicGuard } from "../rag/topic-guard";
+import { KeywordTopicGuard } from "../rag/topic-guard";
 import { getDovetailCorpus } from "../rag/corpus/dovetail-corpus";
 
 function makeSSEResponse(events: string[]): Response {
@@ -34,7 +34,7 @@ describe("createClaudeAnswerFn", () => {
 
   it("yields off-topic message when guard returns off", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
-    const guard = new StubTopicGuard({
+    const guard = new KeywordTopicGuard({
       rag,
       blacklist: ["bitcoin"],
     });

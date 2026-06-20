@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { LocalRAGProvider } from "./local-rag";
-import { StubTopicGuard } from "./topic-guard";
+import { KeywordTopicGuard } from "./topic-guard";
 
 const SAMPLE_DOCS = [
   {
@@ -68,18 +68,18 @@ describe("LocalRAGProvider", () => {
   });
 });
 
-describe("StubTopicGuard", () => {
+describe("KeywordTopicGuard", () => {
   const rag = new LocalRAGProvider(SAMPLE_DOCS);
 
   it("on-topic when RAG-score is high", async () => {
-    const g = new StubTopicGuard({ rag, onTopicMin: 0.3 });
+    const g = new KeywordTopicGuard({ rag, onTopicMin: 0.3 });
     const v = await g.evaluate("Anrisslinie Streichmass Schwalbenschwanz");
     expect(v.decision).toBe("on");
     if (v.decision === "on") expect(v.layer).toBe("embedding");
   });
 
   it("off-topic via blacklist", async () => {
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag,
       blacklist: ["bitcoin", "krypto"],
     });
@@ -89,13 +89,13 @@ describe("StubTopicGuard", () => {
   });
 
   it("off-topic when RAG-score low", async () => {
-    const g = new StubTopicGuard({ rag, offTopicMax: 0.5 });
+    const g = new KeywordTopicGuard({ rag, offTopicMax: 0.5 });
     const v = await g.evaluate("Gartenarbeit Tomaten Duenger");
     expect(v.decision).toBe("off");
   });
 
   it("redirect for borderline-cases", async () => {
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag,
       onTopicMin: 0.9,
       offTopicMax: 0.05,
