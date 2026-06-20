@@ -90,6 +90,29 @@ describe("local storage", () => {
     expect(loadSession()).toBeNull();
   });
 
+  it("schreibt fehlertolerant: wirft setItem (Quota/privat), kein Crash", () => {
+    Object.defineProperty(globalThis, "window", {
+      value: {
+        localStorage: {
+          getItem: () => null,
+          setItem: () => {
+            throw new Error("QuotaExceededError");
+          },
+          removeItem: () => {},
+          key: () => null,
+          clear: () => {},
+          length: 0,
+        },
+      },
+      configurable: true,
+      writable: true,
+    });
+    expect(() =>
+      saveSession({ params: DEFAULT_DOVETAIL_PARAMS, step: "anreissen", updatedAt: 0 }),
+    ).not.toThrow();
+    expect(loadSession()).toBeNull();
+  });
+
   describe("placements", () => {
     const samplePose: Pose = {
       position: [1, 2, 3],
