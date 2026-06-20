@@ -78,7 +78,7 @@ export default function DovetailPage() {
 
   // Gleiche Stimm-Kette wie /voice: Server-Routen + Offline-Cache. Ohne
   // Server (offline/statisch) bleibt voiceBundle null → Mock wie bisher.
-  const { bundle: voiceBundle } = useServerVoice(rag, guard);
+  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
 
   useEffect(() => {
     void placementProvider.start();
@@ -215,7 +215,11 @@ export default function DovetailPage() {
           <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
             Meister fragen
           </p>
-          {voiceBundle ? (
+          {voiceStatus === "probing" ? (
+            <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
+              Stimme wird verbunden …
+            </p>
+          ) : voiceBundle ? (
             <VoiceConsole
               rag={rag}
               guard={guard}

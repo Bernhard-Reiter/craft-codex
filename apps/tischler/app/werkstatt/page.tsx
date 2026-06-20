@@ -33,7 +33,7 @@ export default function WerkstattPage() {
     });
     return { rag: r, guard: g };
   }, []);
-  const { bundle: voiceBundle } = useServerVoice(rag, guard);
+  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
 
   const lektion = getLektion();
   const [i, setI] = useState(0);
@@ -60,28 +60,32 @@ export default function WerkstattPage() {
   }, [kiosk, lektion.length]);
 
   // Meister liest den Beat vor (Google-TTS via Bundle: Cache → live Gemini).
+  // AbortController statt bool-Flag: kein „klemmender Abbruch" mehr, und der
+  // Beat-Wechsel stoppt sauber eine laufende Wiedergabe.
   const [speaking, setSpeaking] = useState(false);
-  const speakAbort = useRef(false);
+  const speakCtrl = useRef<AbortController | null>(null);
   async function vorlesen(text: string) {
     if (!voiceBundle || speaking) return;
+    const ctrl = new AbortController();
+    speakCtrl.current = ctrl;
     setSpeaking(true);
-    speakAbort.current = false;
     try {
       const chunks = [];
       for await (const c of voiceBundle.tts.synthesizeStream(text)) {
-        if (speakAbort.current) break;
+        if (ctrl.signal.aborted) break;
         chunks.push(c);
       }
-      if (!speakAbort.current) await playPcmChunks(chunks);
+      if (!ctrl.signal.aborted) await playPcmChunks(chunks);
     } catch {
       /* Stimme nicht verfügbar — Text bleibt sichtbar (Untertitel-Fallback) */
     } finally {
       setSpeaking(false);
+      if (speakCtrl.current === ctrl) speakCtrl.current = null;
     }
   }
   // Beim Beat-Wechsel laufende Wiedergabe stoppen.
   useEffect(() => {
-    speakAbort.current = true;
+    speakCtrl.current?.abort();
   }, [i]);
 
   return (
@@ -202,7 +206,11 @@ export default function WerkstattPage() {
             <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
               Meister fragen
             </p>
-            {voiceBundle ? (
+            {voiceStatus === "probing" ? (
+              <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
+                Stimme wird verbunden …
+              </p>
+            ) : voiceBundle ? (
               <VoiceConsole
                 rag={rag}
                 guard={guard}

@@ -34,7 +34,7 @@ export default function VoiceTestPage() {
   // Phase E: Server-Routen + TTS-Cache proben (shared Hook, gleiche Kette
   // wie die Werkstatt). Beides darf fehlen — die Console faellt dann auf
   // Mock/Template zurueck (Demo bricht nie).
-  const { bundle, cacheCount } = useServerVoice(rag, guard);
+  const { bundle, cacheCount, status: voiceStatus } = useServerVoice(rag, guard);
 
   return (
     <>
@@ -57,7 +57,11 @@ export default function VoiceTestPage() {
         </p>
 
         <section style={{ marginTop: "1.75rem" }}>
-          {bundle ? (
+          {voiceStatus === "probing" ? (
+            <p className="cc-muted" style={{ fontSize: "0.9rem" }}>
+              Stimme wird verbunden …
+            </p>
+          ) : bundle ? (
             <VoiceConsole
               rag={rag}
               guard={guard}

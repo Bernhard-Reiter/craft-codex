@@ -24,6 +24,12 @@ export interface ServerVoiceState {
   bundle: VoiceProviderBundle | null;
   /** Anzahl vorvertonter Antworten im Offline-Cache. */
   cacheCount: number;
+  /**
+   * 'probing' bis die Health-Probe antwortet, danach 'ready' (Server) oder
+   * 'offline' (Mock). Verhindert das Mock→Server-Flackern: die UI kann
+   * während 'probing' einen ruhigen Lade-Zustand zeigen statt umzuspringen.
+   */
+  status: "probing" | "ready" | "offline";
 }
 
 export function useServerVoice(
@@ -32,9 +38,11 @@ export function useServerVoice(
 ): ServerVoiceState {
   const [bundle, setBundle] = useState<VoiceProviderBundle | null>(null);
   const [cacheCount, setCacheCount] = useState(0);
+  const [status, setStatus] = useState<ServerVoiceState["status"]>("probing");
 
   useEffect(() => {
     let on = true;
+    setStatus("probing");
     void (async () => {
       const [health, manifest] = await Promise.all([
         probeServerVoice(),
@@ -55,8 +63,10 @@ export function useServerVoice(
             ttsCacheManifest: manifest,
           }),
         );
+        setStatus("ready");
       } else {
         setBundle(null);
+        setStatus("offline");
       }
     })();
     return () => {
@@ -64,5 +74,5 @@ export function useServerVoice(
     };
   }, [rag, guard]);
 
-  return { bundle, cacheCount };
+  return { bundle, cacheCount, status };
 }

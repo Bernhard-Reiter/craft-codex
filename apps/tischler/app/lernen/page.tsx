@@ -50,7 +50,7 @@ export default function LernenPage() {
     });
     return { rag: r, guard: g };
   }, []);
-  const { bundle: voiceBundle } = useServerVoice(rag, guard);
+  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
 
   const pfad = getLernpfad();
 
@@ -269,7 +269,11 @@ export default function LernenPage() {
             mit Quelle, auch komplett ohne Netz.
           </p>
           <div style={{ maxWidth: 640 }}>
-            {voiceBundle ? (
+            {voiceStatus === "probing" ? (
+              <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
+                Stimme wird verbunden …
+              </p>
+            ) : voiceBundle ? (
               <VoiceConsole
                 rag={rag}
                 guard={guard}
