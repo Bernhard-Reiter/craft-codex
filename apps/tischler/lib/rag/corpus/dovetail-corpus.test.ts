@@ -8,7 +8,7 @@ import {
   type DovetailLicense,
 } from "./dovetail-corpus";
 import { LocalRAGProvider } from "../local-rag";
-import { StubTopicGuard } from "../topic-guard";
+import { KeywordTopicGuard } from "../topic-guard";
 
 const ATTRIBUTION_REQUIRED_LICENSES = new Set<DovetailLicense>([
   "CC-BY-SA-4.0",
@@ -285,10 +285,10 @@ describe("integration with LocalRAGProvider", () => {
   });
 });
 
-describe("integration with StubTopicGuard", () => {
+describe("integration with KeywordTopicGuard", () => {
   it("on-topic query gets ON verdict", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
-    const guard = new StubTopicGuard({ rag, onTopicMin: 0.3 });
+    const guard = new KeywordTopicGuard({ rag, onTopicMin: 0.3 });
     const v = await guard.evaluate(
       "Streichmass Anrisslinie Schwalbenschwanz Hartholz",
     );
@@ -297,7 +297,7 @@ describe("integration with StubTopicGuard", () => {
 
   it("off-topic query gets OFF verdict", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
-    const guard = new StubTopicGuard({
+    const guard = new KeywordTopicGuard({
       rag,
       onTopicMin: 0.5,
       offTopicMax: 0.15,
@@ -308,7 +308,7 @@ describe("integration with StubTopicGuard", () => {
 
   it("blacklist hit overrides RAG-score", async () => {
     const rag = new LocalRAGProvider(getDovetailCorpus());
-    const guard = new StubTopicGuard({
+    const guard = new KeywordTopicGuard({
       rag,
       blacklist: ["bitcoin", "krypto"],
     });

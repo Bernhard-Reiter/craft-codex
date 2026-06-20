@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { StubTopicGuard } from "../../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { VoiceConsole } from "../../components/VoiceConsole";
 import { SiteFooter } from "../../components/SiteFooter";
@@ -22,7 +22,7 @@ const SAMPLE_QUERIES = [
 export default function VoiceTestPage() {
   const { rag, guard } = useMemo(() => {
     const r = new LocalRAGProvider(getDemoCorpus());
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
       offTopicMax: 0.05,

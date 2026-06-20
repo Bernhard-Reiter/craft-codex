@@ -11,7 +11,7 @@
  */
 
 import { LocalRAGProvider } from "../../../../lib/rag/local-rag";
-import { StubTopicGuard } from "../../../../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../../lib/rag/corpus";
 import { createDovetailAnswerFn } from "../../../../lib/voice/dovetail-answer";
 import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
@@ -56,12 +56,12 @@ export function capabilities(): ServerVoiceCapabilities {
 }
 
 // RAG corpus + guard are pure in-memory structures — build once per process.
-let ragSingleton: { rag: LocalRAGProvider; guard: StubTopicGuard } | null = null;
+let ragSingleton: { rag: LocalRAGProvider; guard: KeywordTopicGuard } | null = null;
 
 export function serverRag() {
   if (!ragSingleton) {
     const rag = new LocalRAGProvider(getDemoCorpus());
-    const guard = new StubTopicGuard({
+    const guard = new KeywordTopicGuard({
       rag,
       onTopicMin: 0.25,
       offTopicMax: 0.05,

@@ -5,11 +5,12 @@ import type {
 } from "@craft-codex/core";
 
 /**
- * Stub-Implementierung des 3-Layer Topic-Guards (Plan Sektion 8).
+ * Keyword-/Score-basierter Topic-Guard (Plan Sektion 8).
  *
- * Layer 1: Embedding-Score (hier per RAG-Top-Hit-Score approximiert).
- * Layer 2: Keyword-Blacklist (deterministisch).
- * Layer 3: LLM-Classifier (Phase C — hier nur Stub).
+ * Layer 1: Embedding-Score (per RAG-Top-Hit-Score approximiert).
+ * Layer 2: Keyword-Blacklist — normalisiert (Leerzeichen/Trenner gestrippt),
+ *          fängt also auch "bit coin" / "b-i-t-c-o-i-n".
+ * Layer 3 (LLM-Classifier) ist optional und hier bewusst nicht aktiv.
  *
  * Schwellen anpassbar im Constructor.
  */
@@ -20,7 +21,7 @@ export interface TopicGuardConfig {
   blacklist?: string[];
 }
 
-export class StubTopicGuard implements ITopicGuard {
+export class KeywordTopicGuard implements ITopicGuard {
   private rag: IRAGProvider;
   private onTopicMin: number;
   private offTopicMax: number;
@@ -35,7 +36,11 @@ export class StubTopicGuard implements ITopicGuard {
 
   async evaluate(query: string): Promise<TopicVerdict> {
     const lower = query.toLowerCase();
-    const blackHit = this.blacklist.find((kw) => lower.includes(kw));
+    // Normalisiert (nur a-z0-9) → "bit coin"/"b-i-t-c-o-i-n" greifen ebenfalls.
+    const norm = lower.replace(/[^a-z0-9]+/g, "");
+    const blackHit = this.blacklist.find(
+      (kw) => lower.includes(kw) || norm.includes(kw.replace(/[^a-z0-9]+/g, "")),
+    );
     if (blackHit) {
       return {
         decision: "off",

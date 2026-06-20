@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { StubTopicGuard } from "../../lib/rag/topic-guard";
+import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../lib/rag/corpus";
 import { useServerVoice } from "../../lib/voice/use-server-voice";
 import { createServerAnswerFn } from "../../lib/voice/server-providers";
@@ -42,7 +42,7 @@ function DiffDots({ level }: { level: 1 | 2 | 3 }) {
 export default function LernenPage() {
   const { rag, guard } = useMemo(() => {
     const r = new LocalRAGProvider(getDemoCorpus());
-    const g = new StubTopicGuard({
+    const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
       offTopicMax: 0.05,
