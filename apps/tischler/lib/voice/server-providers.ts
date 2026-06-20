@@ -20,14 +20,24 @@ export interface ServerVoiceHealth {
   ok: boolean;
   stt: boolean;
   tts: boolean;
-  answer: "claude" | "template";
+  answer: "gemini" | "claude" | "template";
 }
+
+// Timeouts: ein HÄNGENDER Server (TCP offen, Antwort verzögert) darf die
+// Pipeline nicht unbegrenzt blockieren — bei Timeout greift der Offline-/
+// Fallback-Pfad. Probe kurz (Bundle soll schnell auflösen), die echten
+// Provider großzügig (Gemini-TTS dauert real ~13s).
+const PROBE_TIMEOUT_MS = 4000;
+const PROVIDER_TIMEOUT_MS = 30000;
 
 /** Probe /api/voice/health. Returns null when the server is unreachable (offline/static hosting). */
 export async function probeServerVoice(fetchImpl?: FetchLike): Promise<ServerVoiceHealth | null> {
   const f = fetchImpl ?? globalThis.fetch;
   try {
-    const res = await f("/api/voice/health", { cache: "no-store" });
+    const res = await f("/api/voice/health", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    });
     if (!res.ok) return null;
     return (await res.json()) as ServerVoiceHealth;
   } catch {
@@ -45,6 +55,7 @@ export class ServerTTSProvider implements ITTSProvider {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text }),
+      signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
     if (!res.ok) {
       throw new Error(res.status === 503 ? "tts_unavailable" : `tts_http_${res.status}`);
@@ -80,6 +91,7 @@ export class ServerSTTProvider implements ISTTProvider {
       method: "POST",
       headers: { "content-type": "application/octet-stream" },
       body: pcm,
+      signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
     if (!res.ok) {
       throw new Error(res.status === 503 ? "stt_unavailable" : `stt_http_${res.status}`);
@@ -104,6 +116,7 @@ export function createServerAnswerFn(
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ question: query, history: history ?? [] }),
+      signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`answer_http_${res.status}`);
     const data = (await res.json()) as { text?: string };
