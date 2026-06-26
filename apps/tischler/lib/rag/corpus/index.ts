@@ -9,15 +9,22 @@
 
 import type { RAGDocument } from "@craft-codex/core";
 import { getZinkenGrundlagenCorpus } from "./zinken-grundlagen-corpus";
+import { getZinkenKonstruktionCorpus } from "./dovetail-konstruktion-corpus";
 import { getDovetailCorpus } from "./dovetail-corpus";
 import { getRisCorpus } from "./ris-corpus";
 
 export function getDemoCorpus(): RAGDocument[] {
   return [
     ...getZinkenGrundlagenCorpus(),
+    ...getZinkenKonstruktionCorpus(),
     ...getDovetailCorpus(),
     ...getRisCorpus(),
   ];
 }
 
-export { getZinkenGrundlagenCorpus, getDovetailCorpus, getRisCorpus };
+export {
+  getZinkenGrundlagenCorpus,
+  getZinkenKonstruktionCorpus,
+  getDovetailCorpus,
+  getRisCorpus,
+};
