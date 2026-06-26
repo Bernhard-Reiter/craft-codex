@@ -200,6 +200,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               step="anreissen"
               markingStyle="line"
               markingFilter={markingFilter}
+              showBoardB={false}
               withOrbitControls={false}
             />
             {zeigeWerkzeug && (

@@ -39,6 +39,7 @@ export function DovetailSceneContents({
   withOrbitControls = true,
   markingStyle = "line",
   markingFilter,
+  showBoardB = true,
 }: {
   params: DovetailParams;
   step: DovetailStep;
@@ -50,6 +51,11 @@ export function DovetailSceneContents({
    * true beantwortet. Ohne Filter sind alle Linien des Schritts sichtbar.
    */
   markingFilter?: (id: string) => boolean;
+  /**
+   * Gegenstueck (Brett B) zeigen. Beim ANREISSEN arbeitet man nur an EINEM
+   * Brett — dann false, damit das Gegenstueck nicht ablenkt. Default true.
+   */
+  showBoardB?: boolean;
 }) {
   return (
     <>
@@ -61,7 +67,7 @@ export function DovetailSceneContents({
         shadow-mapSize={[1024, 1024]}
       />
       <BoardA params={params} />
-      <BoardB params={params} />
+      {showBoardB && <BoardB params={params} />}
       {markingStyle === "tube" ? (
         <MarkingTubes params={params} step={step} markingFilter={markingFilter} />
       ) : (

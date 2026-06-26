@@ -316,6 +316,7 @@ export default function DovetailXRPage() {
                   withOrbitControls={false}
                   markingStyle="tube"
                   markingFilter={anreissModus ? anreissFilter : undefined}
+                  showBoardB={!anreissModus}
                 />
                 {anreissModus && (
                   <WerkzeugAmBrett
