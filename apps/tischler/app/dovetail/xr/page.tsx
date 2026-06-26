@@ -16,6 +16,7 @@ import { XRPlacement } from "../../../components/XRPlacement";
 import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
 import { XRDraggablePanel } from "../../../components/XRDraggablePanel";
+import { XRNavBar } from "../../../components/XRNavBar";
 import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
@@ -344,6 +345,15 @@ export default function DovetailXRPage() {
                   />
                 </XRDraggablePanel>
               )}
+
+              {/* Navigations-Dock (Quest-Standard, apfel TabBar) — immer
+                  sichtbar vor dem User, vom Brett entkoppelt. */}
+              <XRNavBar
+                anreissModus={anreissModus}
+                onModus={setAnreissModus}
+                onZentrieren={zentrieren}
+                position={[0, 0.72, -0.62]}
+              />
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
                 Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}

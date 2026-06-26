@@ -1,6 +1,7 @@
 "use client";
 
-import { Text } from "@react-three/drei";
+import { Root, Container, Text as UIText } from "@react-three/uikit";
+import { Card, Button } from "@react-three/uikit-apfel";
 import type {
   DovetailStep,
   IRAGProvider,
@@ -8,8 +9,6 @@ import type {
   ITTSProvider,
 } from "@craft-codex/core";
 import { useXRVoice } from "../lib/voice/use-xr-voice";
-import { XR_FONT_URL } from "../lib/xr/font";
-import { XRButton } from "./XRButton";
 
 /**
  * Frage-Buttons pro Lernschritt.
@@ -39,12 +38,9 @@ interface XRVoicePanelProps {
 }
 
 /**
- * World-Space Voice-Coach fuer die XR-Session ("Frag den Meister").
- *
- * Kein DOM-Overlay (bricht in AR die Immersion) — alles als 3D-UI in
- * Reichweite. FAQ-Buttons statt Mikrofon: robust gegen Werkstattlaerm + ohne
- * Mic-Permission in der Session. Antwort kommt als Stimme (falls Cache/Server)
- * UND immer als lesbarer 3D-Text.
+ * World-Space Voice-Coach fuer die XR-Session ("Frag den Meister"), im
+ * apfel-Kit-Stil. FAQ-Buttons statt Mikrofon (robust gegen Werkstattlaerm).
+ * Antwort als Stimme (falls Cache/Server) UND immer als lesbarer Text.
  */
 export function XRVoicePanel({
   step,
@@ -72,105 +68,49 @@ export function XRVoicePanel({
 
   return (
     <group position={position}>
-      <Text
-        position={[0, 0.18, 0]}
-        fontSize={0.026}
-        color="#ffed00"
-        anchorX="center"
-        anchorY="middle"
-        font={XR_FONT_URL}
-      >
-        Frag den Meister
-      </Text>
+      <Root pixelSize={0.001} anchorX="center" anchorY="center">
+        <Card flexDirection="column" width={460} gap={8} padding={18} borderRadius={24}>
+          <UIText fontSize={18} color="#ffed00">
+            Frag den Meister
+          </UIText>
 
-      {questions.map((q, i) => (
-        <VoiceButton
-          key={q}
-          label={shorten(q)}
-          y={0.1 - i * 0.075}
-          busy={busy}
-          onAsk={() => ask(q)}
-        />
-      ))}
-
-      {/* Status / Antwort als gewrappter 3D-Text auf dunklem Panel */}
-      {(busy || response) && (
-        <group position={[0, -0.16, 0]}>
-          <mesh>
-            <planeGeometry args={[0.46, 0.2]} />
-            <meshBasicMaterial color="#0e0d0c" transparent opacity={0.82} />
-          </mesh>
-          {statusLabel && (
-            <Text
-              position={[0, 0.07, 0.002]}
-              fontSize={0.018}
-              color="#ffed00"
-              anchorX="center"
-              anchorY="middle"
-              font={XR_FONT_URL}
+          {questions.map((q) => (
+            <Button
+              key={q}
+              variant="rect"
+              disabled={busy}
+              onClick={() => ask(q)}
             >
+              <UIText fontSize={15}>{shorten(q)}</UIText>
+            </Button>
+          ))}
+
+          {statusLabel && (
+            <UIText fontSize={14} color="#ffed00">
               {statusLabel}
-            </Text>
+            </UIText>
           )}
           {response && (
-            <Text
-              position={[0, statusLabel ? -0.005 : 0.02, 0.002]}
-              fontSize={0.014}
-              color="#f0f0f0"
-              anchorX="center"
-              anchorY="middle"
-              maxWidth={0.42}
-              textAlign="center"
-              font={XR_FONT_URL}
-            >
-              {clip(response, 220)}
-            </Text>
+            <Container backgroundColor="#0e0d0c" borderRadius={10} padding={10}>
+              <UIText fontSize={13} color="#f0f0f0">
+                {clip(response, 220)}
+              </UIText>
+            </Container>
           )}
           {audioPlayed === false && !busy && response && (
-            <Text
-              position={[0, -0.085, 0.002]}
-              fontSize={0.011}
-              color="#9a9a9a"
-              anchorX="center"
-              anchorY="middle"
-              font={XR_FONT_URL}
-            >
+            <UIText fontSize={11} color="#9a9a9a">
               kein Audio - Text-Antwort
-            </Text>
+            </UIText>
           )}
-        </group>
-      )}
+        </Card>
+      </Root>
     </group>
-  );
-}
-
-function VoiceButton({
-  label,
-  y,
-  busy,
-  onAsk,
-}: {
-  label: string;
-  y: number;
-  busy: boolean;
-  onAsk: () => void;
-}) {
-  return (
-    <XRButton
-      label={`? ${label}`}
-      position={[0, y, 0]}
-      width={0.44}
-      height={0.062}
-      fontSize={0.016}
-      disabled={busy}
-      onClick={onAsk}
-    />
   );
 }
 
 /** Lange Frage fuer den Button kuerzen (volle Frage geht an die Pipeline). */
 function shorten(q: string): string {
-  return q.length > 28 ? q.slice(0, 26) + "..." : q;
+  return q.length > 30 ? q.slice(0, 28) + "..." : q;
 }
 
 function clip(s: string, max: number): string {

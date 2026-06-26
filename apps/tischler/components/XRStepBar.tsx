@@ -1,7 +1,8 @@
 "use client";
 
+import { Root, Container, Text as UIText } from "@react-three/uikit";
+import { Card, Button } from "@react-three/uikit-apfel";
 import type { DovetailStep } from "@craft-codex/core";
-import { XRButton } from "./XRButton";
 
 // XR zeigt die fünf Handschritte — "ueberblick" (Schritt 0) ist 2D-Erklärung.
 type CraftStep = Exclude<DovetailStep, "ueberblick">;
@@ -27,38 +28,32 @@ interface XRStepBarProps {
   onChange: (step: DovetailStep) => void;
   /** Y-Offset ueber dem Brett-Stack in echten Metern. Default: 0.32 */
   yOffset?: number;
-  /** Breite der gesamten Bar in echten Metern. Default: 0.7 */
-  width?: number;
 }
 
 /**
- * 3D-Lernschritt-Leiste fuer den XR-Modus — jetzt im Meta-Quest-Button-Stil
- * (XRButton). Aktiver Schritt = Meta-Blau, Hover hebt deutlich an.
+ * 3D-Lernschritt-Leiste im apfel-Kit-Stil (Quest/Vision-Glas). Aktiver Schritt
+ * = blauer (selected) Button, Flexbox-Layout statt manueller Koordinaten.
  */
-export function XRStepBar({
-  active,
-  onChange,
-  yOffset = 0.32,
-  width = 0.7,
-}: XRStepBarProps) {
-  const slot = width / STEPS.length;
-  const buttonWidth = slot * 0.92;
-  const startX = -width / 2 + slot / 2;
-
+export function XRStepBar({ active, onChange, yOffset = 0.32 }: XRStepBarProps) {
   return (
     <group position={[0, yOffset, 0]}>
-      {STEPS.map((step, i) => (
-        <XRButton
-          key={step}
-          label={`${i + 1}\n${LABELS[step]}`}
-          active={step === active}
-          onClick={() => onChange(step)}
-          position={[startX + i * slot, 0, 0]}
-          width={buttonWidth}
-          height={0.08}
-          fontSize={0.014}
-        />
-      ))}
+      <Root pixelSize={0.001} anchorX="center" anchorY="center">
+        <Card flexDirection="row" gap={8} padding={12} borderRadius={22}>
+          {STEPS.map((step, i) => (
+            <Button
+              key={step}
+              variant="rect"
+              selected={step === active}
+              onClick={() => onChange(step)}
+            >
+              <Container flexDirection="column" alignItems="center">
+                <UIText fontSize={18}>{String(i + 1)}</UIText>
+                <UIText fontSize={12}>{LABELS[step]}</UIText>
+              </Container>
+            </Button>
+          ))}
+        </Card>
+      </Root>
     </group>
   );
 }
