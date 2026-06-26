@@ -17,24 +17,21 @@ export function XRAnreissFlow({
   flow,
   index,
   onIndex,
+  position = [0, 0, 0],
 }: {
   flow: AnreissFlow;
   index: number;
   onIndex: (i: number) => void;
+  /** Position des Inhalts (default 0/0/0 — fuers verschiebbare Panel). */
+  position?: [number, number, number];
 }) {
   const schritt = flow.schritte[Math.min(index, flow.schritte.length - 1)]!;
   const atStart = index === 0;
   const atEnd = index >= flow.schritte.length - 1;
 
   return (
-    <group position={[-0.52, 0.16, 0]}>
-      {/* Tafel-Hintergrund */}
-      <mesh>
-        <planeGeometry args={[0.5, 0.42]} />
-        <meshStandardMaterial color="#1f2a24" roughness={0.9} />
-      </mesh>
-
-      {/* Kopf: Schritt X/N — Label */}
+    <group position={position}>
+      {/* Kopf: Schritt X/N — Label (Panel-Hintergrund liefert XRDraggablePanel) */}
       <Text
         position={[-0.22, 0.17, 0.002]}
         fontSize={0.018}

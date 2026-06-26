@@ -100,3 +100,42 @@ export function useBoardPlacement() {
 
   return { position, moveTo, commit, nudgeHeight, nudgeDepth, reset };
 }
+
+/**
+ * Generische persistente Welt-Pose (z.B. fuer das verschiebbare Menue-Panel),
+ * entkoppelt vom Brett. Eigener localStorage-Key, eigener Reset.
+ */
+export function usePersistentPose(targetId: string, defaultPosition: Vec3) {
+  const [position, setPosition] = useState<Vec3>(defaultPosition);
+  const ref = useRef<Vec3>(defaultPosition);
+
+  useEffect(() => {
+    const saved = loadPlacements()?.poses?.[targetId];
+    if (saved?.position) {
+      const p = saved.position as Vec3;
+      ref.current = p;
+      setPosition(p);
+    }
+  }, [targetId]);
+
+  const moveTo = useCallback((p: Vec3) => {
+    ref.current = p;
+    setPosition(p);
+  }, []);
+
+  const commit = useCallback(() => {
+    savePlacement(targetId, {
+      position: ref.current,
+      rotation: [0, 0, 0, 1],
+      confidence: 1,
+    });
+  }, [targetId]);
+
+  const reset = useCallback(() => {
+    ref.current = defaultPosition;
+    setPosition(defaultPosition);
+    clearPlacement(targetId);
+  }, [targetId, defaultPosition]);
+
+  return { position, moveTo, commit, reset };
+}
