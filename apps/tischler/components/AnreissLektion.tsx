@@ -8,6 +8,7 @@ import {
   istLinieSichtbar,
 } from "../lib/zinken/anreiss-flow";
 import { DovetailSceneContents } from "./DovetailScene";
+import { WerkzeugAmBrett } from "./WerkzeugAmBrett";
 import { VoiceConsole } from "./VoiceConsole";
 import type { VoiceProviderBundle } from "../lib/voice/factory";
 
@@ -31,6 +32,7 @@ interface AnreissLektionProps {
 export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps) {
   const [maße, setMaße] = useState(START);
   const [i, setI] = useState(0);
+  const [zeigeWerkzeug, setZeigeWerkzeug] = useState(true);
 
   const flow = useMemo(
     () => buildAnreissFlow(maße.width_mm, maße.thickness_mm),
@@ -184,6 +186,9 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               markingFilter={markingFilter}
               withOrbitControls
             />
+            {zeigeWerkzeug && (
+              <WerkzeugAmBrett phase={schritt.id} params={params} layout={layout} />
+            )}
           </Canvas>
         </div>
       </div>
@@ -225,6 +230,14 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               ↺ von vorne
             </button>
           )}
+          <button
+            type="button"
+            className="cc-chip"
+            onClick={() => setZeigeWerkzeug((w) => !w)}
+            style={{ marginLeft: "auto" }}
+          >
+            🔧 Werkzeug {zeigeWerkzeug ? "aus" : "an"}
+          </button>
         </div>
       </div>
 
