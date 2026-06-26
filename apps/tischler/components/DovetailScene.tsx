@@ -11,6 +11,10 @@ import {
   markingsToLineSegments,
 } from "@craft-codex/core";
 import type { DovetailParams, DovetailStep } from "@craft-codex/core";
+import { MarkingTubes } from "./MarkingTubes";
+
+/** Wie Anrisslinien gerendert werden: duenne Lines (2D) oder emissive Roehren (XR). */
+export type MarkingStyle = "line" | "tube";
 
 interface DovetailSceneProps {
   params: DovetailParams;
@@ -33,10 +37,13 @@ export function DovetailSceneContents({
   params,
   step,
   withOrbitControls = true,
+  markingStyle = "line",
 }: {
   params: DovetailParams;
   step: DovetailStep;
   withOrbitControls?: boolean;
+  /** "line" = duenne 2D-Linien, "tube" = emissive Roehren fuer XR-Passthrough. */
+  markingStyle?: MarkingStyle;
 }) {
   return (
     <>
@@ -49,7 +56,11 @@ export function DovetailSceneContents({
       />
       <BoardA params={params} />
       <BoardB params={params} />
-      <MarkingLines params={params} step={step} />
+      {markingStyle === "tube" ? (
+        <MarkingTubes params={params} step={step} />
+      ) : (
+        <MarkingLines params={params} step={step} />
+      )}
       {withOrbitControls && (
         <OrbitControls
           target={[0, 0, 0]}

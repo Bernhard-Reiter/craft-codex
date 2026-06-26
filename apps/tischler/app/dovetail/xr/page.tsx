@@ -11,14 +11,36 @@ import {
 } from "@craft-codex/core";
 import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRStepBar } from "../../../components/XRStepBar";
+import { XRPlacement } from "../../../components/XRPlacement";
+import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { SiteFooter } from "../../../components/SiteFooter";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
+import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
+import { LocalRAGProvider } from "../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../lib/rag/corpus";
+import { useServerVoice } from "../../../lib/voice/use-server-voice";
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
   const [step, setStep] = useState<DovetailStep>("anreissen");
+  const placement = useBoardPlacement();
+
+  // Voice-Coach: gleicher RAG + TopicGuard + Stimm-Kette wie /dovetail.
+  // Ohne Server/Cache bleibt tts undefined → Text-Antwort, Demo laeuft weiter.
+  const { rag, guard } = useMemo(() => {
+    const r = new LocalRAGProvider(getDemoCorpus());
+    const g = new KeywordTopicGuard({
+      rag: r,
+      onTopicMin: 0.25,
+      offTopicMax: 0.05,
+      blacklist: ["bitcoin", "krypto", "trading"],
+    });
+    return { rag: r, guard: g };
+  }, []);
+  const { bundle: voiceBundle } = useServerVoice(rag, guard);
 
   const store = useMemo(
     () =>
@@ -162,23 +184,42 @@ export default function DovetailXRPage() {
             style={{ background: "#0a0a0a" }}
           >
             <XR store={store}>
-              {/* In AR/VR steht der User am Welt-Origin (Boden). Boards 1.2m
-                  hoch + 0.6m nach vorn platzieren, damit sie auf Tischhoehe
-                  vor dem Lehrling schweben statt unter den Fuessen liegen. */}
-              <group position={[0, 1.2, -0.6]} scale={[3, 3, 3]}>
+              {/* In AR/VR steht der User am Welt-Origin (Boden). Der Brett-Stack
+                  startet auf Arbeitshoehe vor dem Lehrling und ist per Ziehgriff
+                  + Buttons frei platzierbar; die Pose ueberlebt einen Reload. */}
+              <XRPlacement
+                position={placement.position}
+                onDragMove={placement.moveTo}
+                onDragEnd={placement.commit}
+                onHeight={placement.nudgeHeight}
+                onDepth={placement.nudgeDepth}
+                onReset={placement.reset}
+                contentScale={3}
+                overlay={
+                  <>
+                    <XRStepBar
+                      active={step}
+                      onChange={(s) => {
+                        setStep(s);
+                        saveSession({ params, step: s, updatedAt: Date.now() });
+                      }}
+                    />
+                    <XRVoicePanel
+                      step={step}
+                      rag={rag}
+                      guard={guard}
+                      tts={voiceBundle?.tts}
+                    />
+                  </>
+                }
+              >
                 <DovetailSceneContents
                   params={params}
                   step={step}
                   withOrbitControls={false}
+                  markingStyle="tube"
                 />
-                <XRStepBar
-                  active={step}
-                  onChange={(s) => {
-                    setStep(s);
-                    saveSession({ params, step: s, updatedAt: Date.now() });
-                  }}
-                />
-              </group>
+              </XRPlacement>
             </XR>
           </Canvas>
         </section>
