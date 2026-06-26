@@ -6,6 +6,7 @@ import { Text } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { Vec3 } from "../lib/xr/use-board-placement";
 import { XR_FONT_URL } from "../lib/xr/font";
+import { XRButton } from "./XRButton";
 
 interface XRPlacementProps {
   position: Vec3;
@@ -190,35 +191,15 @@ function CtrlButton({
   onClick: () => void;
   accent?: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const base = accent ? "#7a2a2a" : "#181715";
-  const color = hovered ? "#32373c" : base;
   return (
-    <group position={[0, y, 0]}>
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-        }}
-        onPointerOut={() => setHovered(false)}
-      >
-        <boxGeometry args={[0.11, 0.05, 0.02]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <Text
-        position={[0, 0, 0.012]}
-        fontSize={0.02}
-        color="#f0f0f0"
-        anchorX="center"
-        anchorY="middle"
-        font={XR_FONT_URL}
-      >
-        {label}
-      </Text>
-    </group>
+    <XRButton
+      label={label}
+      position={[0, y, 0]}
+      width={0.12}
+      height={0.05}
+      fontSize={0.018}
+      primary={accent}
+      onClick={onClick}
+    />
   );
 }

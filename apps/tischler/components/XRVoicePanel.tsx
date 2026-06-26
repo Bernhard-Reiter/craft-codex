@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Text } from "@react-three/drei";
 import type {
   DovetailStep,
@@ -10,6 +9,7 @@ import type {
 } from "@craft-codex/core";
 import { useXRVoice } from "../lib/voice/use-xr-voice";
 import { XR_FONT_URL } from "../lib/xr/font";
+import { XRButton } from "./XRButton";
 
 /**
  * Frage-Buttons pro Lernschritt.
@@ -155,38 +155,16 @@ function VoiceButton({
   busy: boolean;
   onAsk: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const color = busy ? "#23211e" : hovered ? "#3a4658" : "#1d2530";
-
   return (
-    <group position={[0, y, 0]}>
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!busy) onAsk();
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-        }}
-        onPointerOut={() => setHovered(false)}
-      >
-        <boxGeometry args={[0.44, 0.062, 0.02]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
-      </mesh>
-      <Text
-        position={[0, 0, 0.013]}
-        fontSize={0.016}
-        color="#e8e8e8"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={0.4}
-        textAlign="center"
-        font={XR_FONT_URL}
-      >
-        {`? ${label}`}
-      </Text>
-    </group>
+    <XRButton
+      label={`? ${label}`}
+      position={[0, y, 0]}
+      width={0.44}
+      height={0.062}
+      fontSize={0.016}
+      disabled={busy}
+      onClick={onAsk}
+    />
   );
 }
 
