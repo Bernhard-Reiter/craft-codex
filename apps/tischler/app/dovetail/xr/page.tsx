@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { XR, createXRStore } from "@react-three/xr";
 import {
   DEFAULT_DOVETAIL_PARAMS,
@@ -33,6 +34,14 @@ export default function DovetailXRPage() {
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
   const [step, setStep] = useState<DovetailStep>("anreissen");
   const placement = useBoardPlacement();
+  const previewControls = useRef<{ reset: () => void } | null>(null);
+
+  // Brett UND Vorschau-Ansicht zuruecksetzen — fuer den Fall, dass eine alte,
+  // weggeschobene Pose aus localStorage das Brett aus dem Blick raeumt.
+  const zentrieren = () => {
+    placement.reset();
+    previewControls.current?.reset();
+  };
 
   // Gefuehrtes Anreissen im XR: 7 Sub-Schritte mit 3D-Tafel + progressiven
   // Linien + Werkzeugen. Default an; ueber "Hand-Schritte" auf die generische
@@ -223,6 +232,15 @@ export default function DovetailXRPage() {
           >
             Hand-Schritte
           </button>
+          <button
+            type="button"
+            className="cc-btn cc-btn--sm"
+            onClick={zentrieren}
+            style={{ marginLeft: "auto" }}
+            title="Brett und Ansicht zurueck ins Zentrum"
+          >
+            🎯 Brett zentrieren
+          </button>
           {anreissModus && (
             <span className="cc-muted" style={{ fontSize: "0.8rem" }}>
               Schritt {anreissIndex + 1}/{anreissFlow.schritte.length} —{" "}
@@ -237,12 +255,12 @@ export default function DovetailXRPage() {
         >
           <Canvas
             shadows
-            // 2D-Vorschau: Kamera auf die Bretter richten (liegen auf 1.2m
-            // fuer den XR-Modus). In der echten XR-Session uebernimmt das
-            // Headset die Kamera — Position hier betrifft NUR die Vorschau.
-            camera={{ position: [0.9, 1.9, 1.0], fov: 45 }}
+            // 2D-Vorschau: Kamera auf das Brett richten (Default-Pose 1.2m hoch,
+            // 0.6m vor dem User). In der echten XR-Session uebernimmt das Headset
+            // die Kamera — Position hier betrifft NUR die Vorschau.
+            camera={{ position: [0.8, 1.7, 0.9], fov: 45 }}
             onCreated={({ camera }) => {
-              camera.lookAt(0, 1.4, -0.6);
+              camera.lookAt(0, 1.2, -0.6);
             }}
             style={{ background: "#0a0a0a" }}
           >
@@ -309,6 +327,16 @@ export default function DovetailXRPage() {
                 )}
               </XRPlacement>
             </XR>
+            {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
+                Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}
+            <OrbitControls
+              ref={previewControls as never}
+              target={[0, 1.2, -0.6]}
+              enablePan={false}
+              enableZoom
+              minDistance={0.5}
+              maxDistance={5}
+            />
           </Canvas>
         </section>
         <div
