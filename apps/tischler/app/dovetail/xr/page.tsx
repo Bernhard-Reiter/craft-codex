@@ -15,6 +15,7 @@ import { XRStepBar } from "../../../components/XRStepBar";
 import { XRPlacement } from "../../../components/XRPlacement";
 import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
+import { XRDraggablePanel } from "../../../components/XRDraggablePanel";
 import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
@@ -23,23 +24,33 @@ import {
 } from "../../../lib/zinken/anreiss-flow";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
-import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
+import {
+  useBoardPlacement,
+  usePersistentPose,
+} from "../../../lib/xr/use-board-placement";
 import { LocalRAGProvider } from "../../../lib/rag/local-rag";
 import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../lib/rag/corpus";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
+
+// Menue-Panel-Startpose: rechts neben dem Brett, auf Arbeitshoehe vor dem User.
+const MENU_DEFAULT: [number, number, number] = [0.55, 1.15, -0.6];
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
   const [step, setStep] = useState<DovetailStep>("anreissen");
   const placement = useBoardPlacement();
+  // Menue-Panel: eigene, vom Brett ENTKOPPELTE Pose → verschwindet nicht, wenn
+  // das Brett bewegt wird. Default rechts vor dem User, auf Arbeitshoehe.
+  const menuPose = usePersistentPose("xr-menu", MENU_DEFAULT);
   const previewControls = useRef<{ reset: () => void } | null>(null);
 
-  // Brett UND Vorschau-Ansicht zuruecksetzen — fuer den Fall, dass eine alte,
-  // weggeschobene Pose aus localStorage das Brett aus dem Blick raeumt.
+  // Brett, Menue UND Vorschau-Ansicht zuruecksetzen — fuer den Fall, dass eine
+  // alte, weggeschobene Pose aus localStorage etwas aus dem Blick raeumt.
   const zentrieren = () => {
     placement.reset();
+    menuPose.reset();
     previewControls.current?.reset();
   };
 
@@ -277,22 +288,7 @@ export default function DovetailXRPage() {
                 onReset={placement.reset}
                 contentScale={3}
                 overlay={
-                  anreissModus ? (
-                    <>
-                      <XRAnreissFlow
-                        flow={anreissFlow}
-                        index={anreissIndex}
-                        onIndex={setAnreissIndex}
-                      />
-                      <XRVoicePanel
-                        step="anreissen"
-                        rag={rag}
-                        guard={guard}
-                        tts={voiceBundle?.tts}
-                        position={[0.55, 0.12, 0]}
-                      />
-                    </>
-                  ) : (
+                  anreissModus ? null : (
                     <>
                       <XRStepBar
                         active={step}
@@ -326,6 +322,25 @@ export default function DovetailXRPage() {
                   />
                 )}
               </XRPlacement>
+
+              {/* Anreiss-Menue als eigenes, vom Brett ENTKOPPELTES, verschiebbares
+                  Quest-Panel — bleibt sichtbar, auch wenn das Brett bewegt wird. */}
+              {anreissModus && (
+                <XRDraggablePanel
+                  position={menuPose.position}
+                  onDragMove={menuPose.moveTo}
+                  onDragEnd={menuPose.commit}
+                  width={0.56}
+                  height={0.5}
+                  title="Anreissen"
+                >
+                  <XRAnreissFlow
+                    flow={anreissFlow}
+                    index={anreissIndex}
+                    onIndex={setAnreissIndex}
+                  />
+                </XRDraggablePanel>
+              )}
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
                 Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}
