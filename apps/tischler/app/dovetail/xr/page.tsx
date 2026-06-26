@@ -13,7 +13,13 @@ import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRStepBar } from "../../../components/XRStepBar";
 import { XRPlacement } from "../../../components/XRPlacement";
 import { XRVoicePanel } from "../../../components/XRVoicePanel";
+import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
+import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
 import { SiteFooter } from "../../../components/SiteFooter";
+import {
+  buildAnreissFlow,
+  istLinieSichtbar,
+} from "../../../lib/zinken/anreiss-flow";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
 import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
@@ -27,6 +33,32 @@ export default function DovetailXRPage() {
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
   const [step, setStep] = useState<DovetailStep>("anreissen");
   const placement = useBoardPlacement();
+
+  // Gefuehrtes Anreissen im XR: 7 Sub-Schritte mit 3D-Tafel + progressiven
+  // Linien + Werkzeugen. Default an; ueber "Hand-Schritte" auf die generische
+  // 5-Schritt-Leiste umschaltbar.
+  const [anreissModus, setAnreissModus] = useState(true);
+  const [anreissIndex, setAnreissIndex] = useState(0);
+  const anreissFlow = useMemo(
+    () => buildAnreissFlow(params.width_mm, params.thickness_mm),
+    [params.width_mm, params.thickness_mm],
+  );
+  const anreissSchritt =
+    anreissFlow.schritte[
+      Math.min(anreissIndex, anreissFlow.schritte.length - 1)
+    ]!;
+  // Im Anreiss-Modus zeigt das Hologramm die berechnete Lehrbuch-Teilung.
+  const xrParams: DovetailParams = useMemo(
+    () =>
+      anreissModus
+        ? { ...params, pinCount: anreissFlow.layout.AZS, ratio: anreissFlow.layout.slopeRatio }
+        : params,
+    [anreissModus, params, anreissFlow.layout.AZS, anreissFlow.layout.slopeRatio],
+  );
+  const anreissFilter = useMemo(
+    () => (id: string) => istLinieSichtbar(anreissSchritt, id),
+    [anreissSchritt],
+  );
 
   // Voice-Coach: gleicher RAG + TopicGuard + Stimm-Kette wie /dovetail.
   // Ohne Server/Cache bleibt tts undefined → Text-Antwort, Demo laeuft weiter.
@@ -168,9 +200,40 @@ export default function DovetailXRPage() {
           </section>
         )}
 
+        <div
+          style={{
+            marginTop: "1.25rem",
+            display: "flex",
+            gap: "0.6rem",
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
+          <button
+            type="button"
+            className={anreissModus ? "cc-btn cc-btn--primary cc-btn--sm" : "cc-btn cc-btn--sm"}
+            onClick={() => setAnreissModus(true)}
+          >
+            Geführtes Anreißen
+          </button>
+          <button
+            type="button"
+            className={!anreissModus ? "cc-btn cc-btn--primary cc-btn--sm" : "cc-btn cc-btn--sm"}
+            onClick={() => setAnreissModus(false)}
+          >
+            Hand-Schritte
+          </button>
+          {anreissModus && (
+            <span className="cc-muted" style={{ fontSize: "0.8rem" }}>
+              Schritt {anreissIndex + 1}/{anreissFlow.schritte.length} —{" "}
+              {anreissSchritt.label} · {anreissFlow.layout.AZS} Schwalben
+            </span>
+          )}
+        </div>
+
         <section
           className="cc-stage"
-          style={{ marginTop: "1.5rem", height: "60vh", minHeight: 400 }}
+          style={{ marginTop: "0.75rem", height: "60vh", minHeight: 400 }}
         >
           <Canvas
             shadows
@@ -196,29 +259,54 @@ export default function DovetailXRPage() {
                 onReset={placement.reset}
                 contentScale={3}
                 overlay={
-                  <>
-                    <XRStepBar
-                      active={step}
-                      onChange={(s) => {
-                        setStep(s);
-                        saveSession({ params, step: s, updatedAt: Date.now() });
-                      }}
-                    />
-                    <XRVoicePanel
-                      step={step}
-                      rag={rag}
-                      guard={guard}
-                      tts={voiceBundle?.tts}
-                    />
-                  </>
+                  anreissModus ? (
+                    <>
+                      <XRAnreissFlow
+                        flow={anreissFlow}
+                        index={anreissIndex}
+                        onIndex={setAnreissIndex}
+                      />
+                      <XRVoicePanel
+                        step="anreissen"
+                        rag={rag}
+                        guard={guard}
+                        tts={voiceBundle?.tts}
+                        position={[0.55, 0.12, 0]}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <XRStepBar
+                        active={step}
+                        onChange={(s) => {
+                          setStep(s);
+                          saveSession({ params, step: s, updatedAt: Date.now() });
+                        }}
+                      />
+                      <XRVoicePanel
+                        step={step}
+                        rag={rag}
+                        guard={guard}
+                        tts={voiceBundle?.tts}
+                      />
+                    </>
+                  )
                 }
               >
                 <DovetailSceneContents
-                  params={params}
-                  step={step}
+                  params={xrParams}
+                  step={anreissModus ? "anreissen" : step}
                   withOrbitControls={false}
                   markingStyle="tube"
+                  markingFilter={anreissModus ? anreissFilter : undefined}
                 />
+                {anreissModus && (
+                  <WerkzeugAmBrett
+                    phase={anreissSchritt.id}
+                    params={xrParams}
+                    layout={anreissFlow.layout}
+                  />
+                )}
               </XRPlacement>
             </XR>
           </Canvas>
