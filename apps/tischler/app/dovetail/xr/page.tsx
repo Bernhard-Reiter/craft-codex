@@ -266,6 +266,8 @@ export default function DovetailXRPage() {
         >
           <Canvas
             shadows
+            // uikit (apfel-Panels) braucht localClippingEnabled fuers Layout.
+            gl={{ localClippingEnabled: true }}
             // 2D-Vorschau: Kamera auf das Brett richten (Default-Pose 1.2m hoch,
             // 0.6m vor dem User). In der echten XR-Session uebernimmt das Headset
             // die Kamera — Position hier betrifft NUR die Vorschau.
@@ -333,6 +335,7 @@ export default function DovetailXRPage() {
                   width={0.56}
                   height={0.5}
                   title="Anreissen"
+                  bare
                 >
                   <XRAnreissFlow
                     flow={anreissFlow}

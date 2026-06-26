@@ -16,6 +16,9 @@ interface XRDraggablePanelProps {
   width: number;
   height: number;
   title?: string;
+  /** Nur Greifleiste, kein eigener Hintergrund — fuer Inhalte mit eigenem
+   *  Panel (z.B. ein apfel-Card aus uikit). */
+  bare?: boolean;
   children?: ReactNode;
 }
 
@@ -36,6 +39,7 @@ export function XRDraggablePanel({
   width,
   height,
   title,
+  bare = false,
   children,
 }: XRDraggablePanelProps) {
   const grab = useRef<{ id: number; offX: number; offZ: number } | null>(null);
@@ -82,20 +86,24 @@ export function XRDraggablePanel({
 
   return (
     <group position={position}>
-      {/* Panel-Korpus (Quest-Glas) */}
-      <RoundedBox args={[width, height, 0.012]} radius={0.018} smoothness={4}>
-        <meshStandardMaterial
-          color="#11161d"
-          transparent
-          opacity={0.92}
-          roughness={0.35}
-          metalness={0.1}
-        />
-      </RoundedBox>
-      {/* Heller Rahmen-Akzent */}
-      <RoundedBox args={[width + 0.01, height + 0.01, 0.008]} radius={0.02} smoothness={4} position={[0, 0, -0.004]}>
-        <meshStandardMaterial color="#5a6b8a" emissive="#2a3550" emissiveIntensity={0.5} />
-      </RoundedBox>
+      {!bare && (
+        <>
+          {/* Panel-Korpus (Quest-Glas) */}
+          <RoundedBox args={[width, height, 0.012]} radius={0.018} smoothness={4}>
+            <meshStandardMaterial
+              color="#11161d"
+              transparent
+              opacity={0.92}
+              roughness={0.35}
+              metalness={0.1}
+            />
+          </RoundedBox>
+          {/* Heller Rahmen-Akzent */}
+          <RoundedBox args={[width + 0.01, height + 0.01, 0.008]} radius={0.02} smoothness={4} position={[0, 0, -0.004]}>
+            <meshStandardMaterial color="#5a6b8a" emissive="#2a3550" emissiveIntensity={0.5} />
+          </RoundedBox>
+        </>
+      )}
 
       {/* Greifleiste oben */}
       <group position={[0, height / 2 + 0.028, 0.006]}>

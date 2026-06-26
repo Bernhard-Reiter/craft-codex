@@ -1,17 +1,15 @@
 "use client";
 
-import { Text } from "@react-three/drei";
+import { Root, Container, Text } from "@react-three/uikit";
+import { Card, Button } from "@react-three/uikit-apfel";
 import type { AnreissFlow, AnreissSchritt } from "../lib/zinken/anreiss-flow";
-import { XR_FONT_URL } from "../lib/xr/font";
-import { XRButton } from "./XRButton";
 
 /**
- * Geführtes Anreissen im XR-Headset: eine schwebende 3D-Tafel zeigt pro
- * Sub-Schritt die Formel + den Meister-Satz, zwei grosse Buttons schalten
- * vor/zurueck. Der aktive Schritt steuert ueber onSchritt die progressiven
- * Anrisslinien + Werkzeuge am Hologramm.
+ * Gefuehrtes Anreissen im XR — jetzt mit @react-three/uikit + apfel-Kit
+ * (Apple-Vision-/Quest-artiges Glas-Design). Flexbox-Layout statt manueller
+ * 3D-Koordinaten: Tafel + Buttons ordnen sich automatisch an.
  *
- * Unskaliert (echte Meter), als overlay im XRPlacement.
+ * pixelSize 0.001 → 1 px = 1 mm in Weltkoordinaten.
  */
 export function XRAnreissFlow({
   flow,
@@ -22,7 +20,6 @@ export function XRAnreissFlow({
   flow: AnreissFlow;
   index: number;
   onIndex: (i: number) => void;
-  /** Position des Inhalts (default 0/0/0 — fuers verschiebbare Panel). */
   position?: [number, number, number];
 }) {
   const schritt = flow.schritte[Math.min(index, flow.schritte.length - 1)]!;
@@ -31,88 +28,64 @@ export function XRAnreissFlow({
 
   return (
     <group position={position}>
-      {/* Kopf: Schritt X/N — Label (Panel-Hintergrund liefert XRDraggablePanel) */}
-      <Text
-        position={[-0.22, 0.17, 0.002]}
-        fontSize={0.018}
-        color="#9fc7b0"
-        anchorX="left"
-        anchorY="middle"
-        font={XR_FONT_URL}
-      >
-        {`Schritt ${index + 1}/${flow.schritte.length} - ${asciiFold(schritt.label)}`}
-      </Text>
-
-      {/* Tafel-Formeln */}
-      {schritt.tafel.map((zeile, k) => (
-        <Text
-          key={k}
-          position={[-0.22, 0.11 - k * 0.035, 0.002]}
-          fontSize={0.02}
-          color="#f4f1e8"
-          anchorX="left"
-          anchorY="middle"
-          maxWidth={0.46}
-          font={XR_FONT_URL}
+      <Root pixelSize={0.001} anchorX="center" anchorY="center">
+        <Card
+          flexDirection="column"
+          width={520}
+          padding={24}
+          gap={10}
+          borderRadius={28}
         >
-          {asciiFold(zeile)}
-        </Text>
-      ))}
-
-      {/* Meister-Satz (gekuerzt) */}
-      <Text
-        position={[0, -0.07, 0.002]}
-        fontSize={0.014}
-        color="#cfe3d6"
-        anchorX="center"
-        anchorY="top"
-        maxWidth={0.46}
-        textAlign="center"
-        font={XR_FONT_URL}
-      >
-        {asciiFold(clip(schritt.meisterSagt, 160))}
-      </Text>
-
-      {/* Kennzahl-Badge */}
-      {schritt.kennzahl && (
-        <group position={[0, -0.155, 0.003]}>
-          <mesh>
-            <planeGeometry args={[0.26, 0.04]} />
-            <meshBasicMaterial color="#ffed00" />
-          </mesh>
-          <Text
-            position={[0, 0, 0.002]}
-            fontSize={0.018}
-            color="#0a0a0a"
-            anchorX="center"
-            anchorY="middle"
-            font={XR_FONT_URL}
-          >
-            {asciiFold(schritt.kennzahl)}
+          <Text fontSize={15} color="#9fc7b0">
+            {`Schritt ${index + 1}/${flow.schritte.length} - ${asciiFold(schritt.label)}`}
           </Text>
-        </group>
-      )}
 
-      {/* Navigations-Buttons im Meta-Quest-Stil */}
-      <XRButton
-        position={[-0.13, -0.235, 0.004]}
-        label="< Zurueck"
-        width={0.2}
-        height={0.05}
-        fontSize={0.017}
-        disabled={atStart}
-        onClick={() => !atStart && onIndex(index - 1)}
-      />
-      <XRButton
-        position={[0.13, -0.235, 0.004]}
-        label={atEnd ? "Fertig" : "Weiter >"}
-        width={0.2}
-        height={0.05}
-        fontSize={0.017}
-        primary={!atEnd}
-        disabled={atEnd}
-        onClick={() => !atEnd && onIndex(index + 1)}
-      />
+          {schritt.tafel.map((zeile, k) => (
+            <Text key={k} fontSize={20} color="#f4f1e8">
+              {asciiFold(zeile)}
+            </Text>
+          ))}
+
+          <Text fontSize={13} color="#cfe3d6" marginTop={4}>
+            {asciiFold(clip(schritt.meisterSagt, 170))}
+          </Text>
+
+          {schritt.kennzahl && (
+            <Container
+              alignSelf="flex-start"
+              backgroundColor="#ffed00"
+              borderRadius={8}
+              paddingX={12}
+              paddingY={4}
+              marginTop={2}
+            >
+              <Text fontSize={16} color="#0a0a0a">
+                {asciiFold(schritt.kennzahl)}
+              </Text>
+            </Container>
+          )}
+
+          <Container flexDirection="row" gap={14} marginTop={10}>
+            <Button
+              variant="rect"
+              flexGrow={1}
+              disabled={atStart}
+              onClick={() => !atStart && onIndex(index - 1)}
+            >
+              <Text fontSize={17}>{"< Zurueck"}</Text>
+            </Button>
+            <Button
+              variant="rect"
+              flexGrow={1}
+              selected={!atEnd}
+              disabled={atEnd}
+              onClick={() => !atEnd && onIndex(index + 1)}
+            >
+              <Text fontSize={17}>{atEnd ? "Fertig" : "Weiter >"}</Text>
+            </Button>
+          </Container>
+        </Card>
+      </Root>
     </group>
   );
 }
