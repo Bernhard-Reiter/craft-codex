@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Text } from "@react-three/drei";
 import type { AnreissFlow, AnreissSchritt } from "../lib/zinken/anreiss-flow";
 import { XR_FONT_URL } from "../lib/xr/font";
+import { XRButton } from "./XRButton";
 
 /**
  * Geführtes Anreissen im XR-Headset: eine schwebende 3D-Tafel zeigt pro
@@ -93,68 +93,26 @@ export function XRAnreissFlow({
         </group>
       )}
 
-      {/* Navigations-Buttons */}
-      <NavButton
-        position={[-0.13, -0.235, 0.002]}
+      {/* Navigations-Buttons im Meta-Quest-Stil */}
+      <XRButton
+        position={[-0.13, -0.235, 0.004]}
         label="< Zurueck"
+        width={0.2}
+        height={0.05}
+        fontSize={0.017}
         disabled={atStart}
         onClick={() => !atStart && onIndex(index - 1)}
       />
-      <NavButton
-        position={[0.13, -0.235, 0.002]}
+      <XRButton
+        position={[0.13, -0.235, 0.004]}
         label={atEnd ? "Fertig" : "Weiter >"}
+        width={0.2}
+        height={0.05}
+        fontSize={0.017}
         primary={!atEnd}
         disabled={atEnd}
         onClick={() => !atEnd && onIndex(index + 1)}
       />
-    </group>
-  );
-}
-
-function NavButton({
-  position,
-  label,
-  onClick,
-  primary = false,
-  disabled = false,
-}: {
-  position: [number, number, number];
-  label: string;
-  onClick: () => void;
-  primary?: boolean;
-  disabled?: boolean;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const base = disabled ? "#23211e" : primary ? "#ffed00" : "#32373c";
-  const color = hovered && !disabled ? (primary ? "#fff45a" : "#444b52") : base;
-  const fg = primary && !disabled ? "#0a0a0a" : "#f0f0f0";
-
-  return (
-    <group position={position}>
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-        }}
-        onPointerOut={() => setHovered(false)}
-      >
-        <boxGeometry args={[0.2, 0.05, 0.015]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
-      </mesh>
-      <Text
-        position={[0, 0, 0.011]}
-        fontSize={0.017}
-        color={fg}
-        anchorX="center"
-        anchorY="middle"
-        font={XR_FONT_URL}
-      >
-        {label}
-      </Text>
     </group>
   );
 }
