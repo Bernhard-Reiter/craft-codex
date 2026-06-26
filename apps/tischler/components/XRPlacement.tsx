@@ -6,7 +6,8 @@ import { Text } from "@react-three/drei";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { Vec3 } from "../lib/xr/use-board-placement";
 import { XR_FONT_URL } from "../lib/xr/font";
-import { XRButton } from "./XRButton";
+import { Root, Text as UIText } from "@react-three/uikit";
+import { Card, Button } from "@react-three/uikit-apfel";
 
 interface XRPlacementProps {
   position: Vec3;
@@ -171,35 +172,37 @@ function PlacementControls({
 }) {
   return (
     <group position={position}>
-      <CtrlButton y={0.18} label="Hoeher +" onClick={() => onHeight(1)} />
-      <CtrlButton y={0.12} label="Tiefer -" onClick={() => onHeight(-1)} />
-      <CtrlButton y={0.06} label="Naeher" onClick={() => onDepth(1)} />
-      <CtrlButton y={0.0} label="Weiter" onClick={() => onDepth(-1)} />
-      <CtrlButton y={-0.08} label="Reset" onClick={onReset} accent />
+      <Root pixelSize={0.001} anchorX="center" anchorY="center">
+        <Card flexDirection="column" gap={8} padding={12} borderRadius={20}>
+          <CtrlButton label="Hoeher +" onClick={() => onHeight(1)} />
+          <CtrlButton label="Tiefer -" onClick={() => onHeight(-1)} />
+          <CtrlButton label="Naeher" onClick={() => onDepth(1)} />
+          <CtrlButton label="Weiter" onClick={() => onDepth(-1)} />
+          <CtrlButton label="Reset" onClick={onReset} accent />
+        </Card>
+      </Root>
     </group>
   );
 }
 
 function CtrlButton({
-  y,
   label,
   onClick,
   accent = false,
 }: {
-  y: number;
   label: string;
   onClick: () => void;
   accent?: boolean;
 }) {
   return (
-    <XRButton
-      label={label}
-      position={[0, y, 0]}
-      width={0.12}
-      height={0.05}
-      fontSize={0.018}
-      primary={accent}
+    <Button
+      variant="pill"
+      selected={accent}
+      width={120}
       onClick={onClick}
-    />
+    >
+      <UIText fontSize={16}>{label}</UIText>
+    </Button>
   );
 }
+
