@@ -1,6 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Canvas (R3F) ist client-only → dynamisch ohne SSR laden.
+const AnreissLektion = dynamic(
+  () => import("../../components/AnreissLektion").then((m) => m.AnreissLektion),
+  { ssr: false, loading: () => <p className="cc-muted">Anreiß-Modus lädt …</p> },
+);
 import { useMemo } from "react";
 import { LocalRAGProvider } from "../../lib/rag/local-rag";
 import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
@@ -83,6 +90,11 @@ export default function LernenPage() {
             <span className="cc-live">Jede Antwort aus geprüftem Meisterwissen</span>
             <OfflineTrust />
           </div>
+        </section>
+
+        {/* ── GEFÜHRTES ANREISSEN (Tafel + Brett) ──────────────── */}
+        <section style={{ marginTop: "2rem" }}>
+          <AnreissLektion rag={rag} guard={guard} voiceBundle={voiceBundle} />
         </section>
 
         {/* ── WAS IST EIN ZINKEN ───────────────────────────────── */}

@@ -42,6 +42,12 @@ export interface AnreissSchritt {
   zeigeLinien: string[];
   /** Kennzahl zum Einblenden neben dem Brett (z.B. "4 Schwalben"). */
   kennzahl?: string;
+  /**
+   * Tafel-Anschrieb fuer diesen Schritt: die Formel(n) Zeile fuer Zeile, mit
+   * echten Werten — wie der Meister sie an die Tafel schreibt, bevor er es am
+   * Brett vorzeigt. Leer = reiner Brett-/Handgriff-Schritt ohne Rechnung.
+   */
+  tafel: string[];
   /** Lehrling darf jederzeit nachfragen. */
   frageErlaubt: boolean;
 }
@@ -79,6 +85,7 @@ export function buildAnreissFlow(
         `ganze Zinkenteilung zu berechnen. Wenn du willst, frag ruhig nach.`,
       zeigeLinien: [],
       kennzahl: `B = ${mm(B)} mm · D = ${mm(D)} mm`,
+      tafel: [`Brettbreite   B = ${mm(B)} mm`, `Brettdicke    D = ${mm(D)} mm`],
       frageErlaubt: true,
     },
     {
@@ -92,6 +99,11 @@ export function buildAnreissFlow(
         `der Werkstatt — frag nach, wenn du wissen willst, warum.`,
       zeigeLinien: [],
       kennzahl: `${L.AZS} Schwalben`,
+      tafel: [
+        `AZS = B / (1,7 · D)`,
+        `    = ${mm(B)} / ${mm(1.7 * D)}`,
+        `    = ${L.AZS_raw.toFixed(2).replace(".", ",")} ≈ ${L.AZS} Schwalben`,
+      ],
       frageErlaubt: true,
     },
     {
@@ -104,6 +116,11 @@ export function buildAnreissFlow(
         `(${mm(L.zinkenBreite)} mm), eine Schwalbe 2 Teile (${mm(L.schwalbeBreite)} mm).`,
       zeigeLinien: [],
       kennzahl: `${L.AZT} Teile à ${mm(L.T)} mm`,
+      tafel: [
+        `AZT = AZS · 3 + 1 = ${L.AZT} Teile`,
+        `T   = B / AZT = ${mm(L.T)} mm`,
+        `Zinken 1T = ${mm(L.zinkenBreite)} · Schwalbe 2T = ${mm(L.schwalbeBreite)}`,
+      ],
       frageErlaubt: true,
     },
     {
@@ -114,6 +131,7 @@ export function buildAnreissFlow(
         `Diese rote Linie ist deine Stemmtiefe — tiefer gehst du beim Stemmen ` +
         `nie. Schau, so läuft sie umlaufend ums Brett.`,
       zeigeLinien: ["streichmass_brettstaerke"],
+      tafel: [`Stemmtiefe = Brettdicke D = ${mm(D)} mm`],
       frageErlaubt: true,
     },
     {
@@ -125,6 +143,11 @@ export function buildAnreissFlow(
         `Die Risse zeigen dir, wo später gesägt wird.`,
       zeigeLinien: ["winkel_pin_"],
       kennzahl: `${L.AZS} Schwalben markiert`,
+      tafel: [
+        `Zinken  = 1 Teil  (${mm(L.zinkenBreite)} mm)`,
+        `Schwalbe = 2 Teile (${mm(L.schwalbeBreite)} mm)`,
+        `${L.AZS} Schwalben gleichmäßig verteilt`,
+      ],
       frageErlaubt: true,
     },
     {
@@ -137,6 +160,10 @@ export function buildAnreissFlow(
         `1 zu ${L.slopeRatio} ist der bewährte Mittelweg.`,
       zeigeLinien: ["winkel_pin_"],
       kennzahl: `Schräge 1:${L.slopeRatio}`,
+      tafel: [
+        `Schräge = 1 : ${L.slopeRatio}  (≈ ${L.slopeDeg.toFixed(0)}°)`,
+        `ZS = ${L.slopeRatio} · T = ${mm(L.ZS)} mm`,
+      ],
       frageErlaubt: true,
     },
     {
@@ -147,6 +174,12 @@ export function buildAnreissFlow(
         `jedes ${mm(L.T)} Millimeter, mit der Schräge 1 zu ${L.slopeRatio}. ` +
         `Jetzt darf gesägt werden — immer auf der Abfallseite der Linie.`,
       zeigeLinien: ["streichmass_brettstaerke", "winkel_pin_"],
+      kennzahl: "Anriss komplett",
+      tafel: [
+        `${L.AZS} Schwalben · ${L.AZT} Teile à ${mm(L.T)} mm`,
+        `Schräge 1 : ${L.slopeRatio}`,
+        `→ bereit zum Sägen`,
+      ],
       frageErlaubt: true,
     },
   ];

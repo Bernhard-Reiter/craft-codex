@@ -30,15 +30,21 @@ export function MarkingTubes({
   radiusMm = 2.2,
   /** Sanftes Pulsieren der Emission an/aus. Default an. */
   pulse = true,
+  /** Progressive Anzeige: nur Linien zeigen, deren id true ergibt. */
+  markingFilter,
 }: {
   params: DovetailParams;
   step: DovetailStep;
   radiusMm?: number;
   pulse?: boolean;
+  markingFilter?: (id: string) => boolean;
 }) {
   const markings = useMemo(
-    () => generateMarkings(step, params),
-    [step, params],
+    () =>
+      generateMarkings(step, params).filter(
+        (m) => !markingFilter || markingFilter(m.id),
+      ),
+    [step, params, markingFilter],
   );
 
   return (

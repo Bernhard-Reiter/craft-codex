@@ -36,6 +36,17 @@ describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
     expect(teile.meisterSagt).toContain("13"); // AZT
   });
 
+  it("schreibt pro Rechen-Schritt die Formel an die Tafel (mit Werten)", () => {
+    for (const s of flow.schritte) {
+      expect(Array.isArray(s.tafel)).toBe(true);
+    }
+    const schwalben = flow.schritte.find((s) => s.id === "schwalbenzahl")!;
+    expect(schwalben.tafel.join(" ")).toContain("AZS = B / (1,7");
+    expect(schwalben.tafel.join(" ")).toContain("4 Schwalben");
+    const teile = flow.schritte.find((s) => s.id === "teile")!;
+    expect(teile.tafel.join(" ")).toContain("13 Teile");
+  });
+
   it("Rechen-/Mess-Schritte zeigen noch KEINE Linie (progressiv)", () => {
     for (const id of ["messen", "schwalbenzahl", "teile"] as const) {
       const s = flow.schritte.find((x) => x.id === id)!;
