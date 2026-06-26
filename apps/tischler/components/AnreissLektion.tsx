@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import type { IRAGProvider, ITopicGuard, DovetailParams } from "@craft-codex/core";
 import {
   buildAnreissFlow,
@@ -33,6 +34,9 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
   const [maße, setMaße] = useState(START);
   const [i, setI] = useState(0);
   const [zeigeWerkzeug, setZeigeWerkzeug] = useState(true);
+  // Reset-Handle der OrbitControls — bringt die Ansicht zurueck ins Zentrum,
+  // falls man das Brett weggezoomt hat.
+  const controlsRef = useRef<{ reset: () => void } | null>(null);
 
   const flow = useMemo(
     () => buildAnreissFlow(maße.width_mm, maße.thickness_mm),
@@ -173,7 +177,19 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
         </div>
 
         {/* 3D-Brett mit progressiven Anrisslinien */}
-        <div className="cc-stage" style={{ height: 280, minHeight: 230 }}>
+        <div
+          className="cc-stage"
+          style={{ height: 280, minHeight: 230, position: "relative" }}
+        >
+          <button
+            type="button"
+            onClick={() => controlsRef.current?.reset()}
+            className="cc-btn cc-btn--sm"
+            style={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+            title="Brett wieder zentrieren"
+          >
+            🎯 Zentrieren
+          </button>
           <Canvas
             shadows
             camera={{ position: [0.16, 0.22, 0.28], fov: 45 }}
@@ -184,11 +200,22 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               step="anreissen"
               markingStyle="line"
               markingFilter={markingFilter}
-              withOrbitControls
+              withOrbitControls={false}
             />
             {zeigeWerkzeug && (
               <WerkzeugAmBrett phase={schritt.id} params={params} layout={layout} />
             )}
+            {/* Eigene Controls: Pan AUS (Brett bleibt zentriert), Zoom gedeckelt,
+                Reset-Handle fuer den Zentrieren-Button. */}
+            <OrbitControls
+              ref={controlsRef as never}
+              makeDefault
+              target={[0, 0, 0]}
+              enablePan={false}
+              enableZoom
+              minDistance={0.12}
+              maxDistance={0.7}
+            />
           </Canvas>
         </div>
       </div>
