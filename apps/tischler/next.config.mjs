@@ -1,7 +1,17 @@
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
+const monorepoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@craft-codex/core'],
+  // pnpm-Monorepo: ohne expliziten Tracing-Root tracet Next.js die
+  // Serverless-Funktionen gegen falsche .pnpm-Symlink-Pfade → der
+  // `vercel deploy --prebuilt`-Upload bricht mit ENOENT auf next-server.
+  // Root aufs Workspace-Root zeigen, damit die Datei-Traces stimmen.
+  outputFileTracingRoot: monorepoRoot,
   experimental: {
     optimizePackageImports: ['@react-three/drei', '@react-three/fiber'],
   },
