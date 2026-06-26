@@ -38,12 +38,18 @@ export function DovetailSceneContents({
   step,
   withOrbitControls = true,
   markingStyle = "line",
+  markingFilter,
 }: {
   params: DovetailParams;
   step: DovetailStep;
   withOrbitControls?: boolean;
   /** "line" = duenne 2D-Linien, "tube" = emissive Roehren fuer XR-Passthrough. */
   markingStyle?: MarkingStyle;
+  /**
+   * Progressive Anzeige: nur Anrisslinien zeigen, deren id die Funktion mit
+   * true beantwortet. Ohne Filter sind alle Linien des Schritts sichtbar.
+   */
+  markingFilter?: (id: string) => boolean;
 }) {
   return (
     <>
@@ -57,9 +63,9 @@ export function DovetailSceneContents({
       <BoardA params={params} />
       <BoardB params={params} />
       {markingStyle === "tube" ? (
-        <MarkingTubes params={params} step={step} />
+        <MarkingTubes params={params} step={step} markingFilter={markingFilter} />
       ) : (
-        <MarkingLines params={params} step={step} />
+        <MarkingLines params={params} step={step} markingFilter={markingFilter} />
       )}
       {withOrbitControls && (
         <OrbitControls
@@ -128,14 +134,18 @@ function BoardB({ params }: { params: DovetailParams }) {
 function MarkingLines({
   params,
   step,
+  markingFilter,
 }: {
   params: DovetailParams;
   step: DovetailStep;
+  markingFilter?: (id: string) => boolean;
 }) {
   const lineSegments = useMemo(() => {
-    const markings = generateMarkings(step, params);
+    const markings = generateMarkings(step, params).filter(
+      (m) => !markingFilter || markingFilter(m.id),
+    );
     return markingsToLineSegments(markings, THREE);
-  }, [params, step]);
+  }, [params, step, markingFilter]);
   useEffect(
     () => () => {
       lineSegments.geometry.dispose();

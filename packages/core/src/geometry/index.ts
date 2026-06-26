@@ -10,3 +10,15 @@ export {
   generateBoardBMesh,
   markingsToLineSegments,
 } from "./three-helpers.js";
+export {
+  computeDovetailLayout,
+  method1Mittellinie,
+  method2Randverstaerkung,
+  method3Grundlinie,
+  nearestOdd,
+} from "./construction.js";
+export type {
+  DovetailLayout,
+  DovetailMethod,
+  ConstructionOptions,
+} from "./construction.js";
