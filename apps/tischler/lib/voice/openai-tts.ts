@@ -35,14 +35,19 @@ export interface OpenAITTSConfig {
 }
 
 const DEFAULT_MODEL = "gpt-4o-mini-tts";
-const DEFAULT_VOICE = "onyx";
+// "ash" = klare, energische, lebendige Männerstimme (statt der tiefen, betont
+// ruhigen "onyx" — die klang brav/schläfrig). Per OPENAI_TTS_VOICE überschreibbar
+// (Alternativen: "verse", "ballad", "coral", "fable", "nova").
+const DEFAULT_VOICE = "ash";
 const DEFAULT_ENDPOINT = "https://api.openai.com";
 /** response_format "pcm" ist bei OpenAI immer 24 kHz, 16-bit, mono, LE. */
 const PCM_SAMPLE_RATE = 24000;
 const DEFAULT_INSTRUCTIONS =
-  "Sprich ruhig, deutlich und freundlich wie ein erfahrener Tischlermeister, " +
-  "der einem Lehrling geduldig Schritt für Schritt etwas erklärt. Hochdeutsch, " +
-  "warm, ohne Hektik, mit kleinen natürlichen Pausen.";
+  "Sprich lebendig, warm und mit echter Begeisterung fürs Handwerk — wie ein " +
+  "junger, mitreißender Tischlermeister, der seinem Lehrling Freude am Werken " +
+  "vermittelt. Energisch und motivierend, natürliches bis leicht zügiges Tempo, " +
+  "klares Hochdeutsch. Klinge nie monoton oder müde, sondern neugierig und " +
+  "voller Tatendrang — als würdest du am liebsten sofort die Säge ansetzen.";
 
 export class OpenAITTSProvider implements ITTSProvider {
   private apiKey: string;

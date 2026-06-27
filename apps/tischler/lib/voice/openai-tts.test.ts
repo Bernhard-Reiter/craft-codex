@@ -28,7 +28,7 @@ describe("OpenAITTSProvider", () => {
     expect(headers["authorization"]).toBe("Bearer sk-test");
     const body = JSON.parse(String(captured!.init.body));
     expect(body.model).toBe("gpt-4o-mini-tts");
-    expect(body.voice).toBe("onyx");
+    expect(body.voice).toBe("ash");
     expect(body.input).toBe("Hallo Werkstatt");
     expect(body.response_format).toBe("pcm");
     expect(typeof body.instructions).toBe("string");
