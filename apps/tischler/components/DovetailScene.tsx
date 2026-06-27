@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { useEffect, useMemo, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, type ReactNode } from "react";
 import * as THREE from "three";
 import {
   generateBoardAMesh,
@@ -12,6 +12,7 @@ import {
 } from "@craft-codex/core";
 import type { DovetailParams, DovetailStep } from "@craft-codex/core";
 import { MarkingTubes } from "./MarkingTubes";
+import { useHolzMaterial } from "../lib/textures/use-holz-material";
 
 /** Wie Anrisslinien gerendert werden: duenne Lines (2D) oder emissive Roehren (XR). */
 export type MarkingStyle = "line" | "tube";
@@ -66,8 +67,10 @@ export function DovetailSceneContents({
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
-      <BoardA params={params} />
-      {showBoardB && <BoardB params={params} />}
+      <Suspense fallback={null}>
+        <BoardA params={params} />
+        {showBoardB && <BoardB params={params} />}
+      </Suspense>
       {markingStyle === "tube" ? (
         <MarkingTubes params={params} step={step} markingFilter={markingFilter} />
       ) : (
@@ -102,17 +105,17 @@ function BoardA({ params }: { params: DovetailParams }) {
   // Alte BufferGeometry freigeben, wenn sich params ändern / beim Unmount —
   // sonst leckt über eine lange Slider-Session GPU-Speicher.
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const material = useHolzMaterial("#caa46f");
 
   return (
     <mesh
       geometry={geometry}
+      material={material}
       scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}
       position={[0, BOARD_SEPARATION_M / 2, 0]}
       castShadow
       receiveShadow
-    >
-      <meshStandardMaterial color="#c89a6c" roughness={0.7} metalness={0} />
-    </mesh>
+    />
   );
 }
 
@@ -122,18 +125,18 @@ function BoardB({ params }: { params: DovetailParams }) {
     return mesh.geometry;
   }, [params]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const material = useHolzMaterial("#b8915e");
 
   return (
     <mesh
       geometry={geometry}
+      material={material}
       scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}
       position={[0, -BOARD_SEPARATION_M / 2, 0]}
       rotation={[0, Math.PI, 0]}
       castShadow
       receiveShadow
-    >
-      <meshStandardMaterial color="#a98256" roughness={0.7} metalness={0} />
-    </mesh>
+    />
   );
 }
 
