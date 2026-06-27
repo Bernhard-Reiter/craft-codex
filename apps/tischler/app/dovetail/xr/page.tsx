@@ -31,6 +31,7 @@ import { LocalRAGProvider } from "../../../lib/rag/local-rag";
 import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../lib/rag/corpus";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
+import { useMeisterSpeak } from "../../../lib/voice/use-meister-speak";
 
 // Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
 // auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
@@ -98,6 +99,15 @@ export default function DovetailXRPage() {
     return { rag: r, guard: g };
   }, []);
   const { bundle: voiceBundle } = useServerVoice(rag, guard);
+  const speak = useMeisterSpeak(voiceBundle?.tts);
+
+  // Schrittwechsel = gefuehrte Vorfuehrung: setzen + Meister erklaert per Stimme
+  // (Klick zaehlt als Geste → Audio-Autoplay erlaubt). Die Linie waechst dazu.
+  const gotoSchritt = (i: number) => {
+    setAnreissIndex(i);
+    const s = anreissFlow.schritte[Math.min(i, anreissFlow.schritte.length - 1)];
+    if (s) speak(s.meisterSagt);
+  };
 
   const store = useMemo(
     () =>
@@ -339,7 +349,7 @@ export default function DovetailXRPage() {
                   <XRAnreissFlow
                     flow={anreissFlow}
                     index={anreissIndex}
-                    onIndex={setAnreissIndex}
+                    onIndex={gotoSchritt}
                     masse={{
                       width_mm: params.width_mm,
                       thickness_mm: params.thickness_mm,

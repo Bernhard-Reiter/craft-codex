@@ -71,6 +71,8 @@ function MarkingTube({
   pulse: boolean;
 }) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
+  // Wachstum 0..1 — die Linie wird "gezogen" wie vom Streichmass/Stift.
+  const growth = useRef(0);
 
   const geometry = useMemo(() => {
     const pts = dedupePoints(marking.points);
@@ -88,11 +90,23 @@ function MarkingTube({
     return new THREE.TubeGeometry(curve, segments, radiusMm, 8, false);
   }, [marking.points, radiusMm]);
 
+  // Neue Linie → von vorne wachsen.
+  useEffect(() => {
+    growth.current = 0;
+    if (geometry?.index) geometry.setDrawRange(0, 0);
+  }, [geometry]);
+
   // GPU-Speicher freigeben, wenn sich die Geometrie aendert / beim Unmount.
   useEffect(() => () => geometry?.dispose(), [geometry]);
 
-  // Sanfter, gemeinsamer Puls — guenstig (eine Sinus-Auswertung pro Roehre).
-  useFrame((state) => {
+  useFrame((state, delta) => {
+    // Linie ueber ~0.9 s ausziehen (drawRange waechst entlang der Roehre).
+    if (geometry?.index && growth.current < 1) {
+      growth.current = Math.min(1, growth.current + delta * 1.1);
+      const total = geometry.index.count;
+      geometry.setDrawRange(0, Math.floor(growth.current * total));
+    }
+    // Sanfter, gemeinsamer Puls.
     const mat = matRef.current;
     if (!mat) return;
     if (!pulse) {
@@ -100,7 +114,6 @@ function MarkingTube({
       return;
     }
     const t = state.clock.elapsedTime;
-    // 1.1 .. 2.3 in ~1.6s — deutlich sichtbar, aber nicht hektisch.
     mat.emissiveIntensity = 1.7 + Math.sin(t * 3.9) * 0.6;
   });
 
