@@ -1,5 +1,6 @@
 /**
- * POST /api/voice/tts — ElevenLabs synthesis, server-side (key never in browser).
+ * POST /api/voice/tts — server-side TTS (key never in browser).
+ * Provider per ttsProvider(): openai (default) · gemini · elevenlabs.
  * Body: { text: string }
  * 200:  raw PCM Int16 bytes, header X-Sample-Rate (matches the cache player)
  * 503:  { error: "tts_unavailable" } → client falls back to cached PCM / mock
@@ -8,6 +9,7 @@
 import type { ITTSProvider } from "@craft-codex/core";
 import { ElevenLabsTTSProvider } from "../../../../lib/voice/elevenlabs-tts";
 import { GeminiTTSProvider } from "../../../../lib/voice/gemini-tts";
+import { OpenAITTSProvider } from "../../../../lib/voice/openai-tts";
 import { jsonError, rateLimited, ttsProvider } from "../_lib/server-voice";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,15 @@ const MAX_TEXT_CHARS = 800;
 
 function buildProvider(): ITTSProvider | null {
   switch (ttsProvider()) {
+    case "openai":
+      return new OpenAITTSProvider({
+        apiKey: process.env.OPENAI_API_KEY ?? "",
+        ...(process.env.OPENAI_TTS_VOICE ? { defaultVoice: process.env.OPENAI_TTS_VOICE } : {}),
+        ...(process.env.OPENAI_TTS_MODEL ? { model: process.env.OPENAI_TTS_MODEL } : {}),
+        ...(process.env.OPENAI_TTS_INSTRUCTIONS
+          ? { instructions: process.env.OPENAI_TTS_INSTRUCTIONS }
+          : {}),
+      });
     case "gemini":
       return new GeminiTTSProvider({
         apiKey: process.env.GEMINI_API_KEY ?? "",

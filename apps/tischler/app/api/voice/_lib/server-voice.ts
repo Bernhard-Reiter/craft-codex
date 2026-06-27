@@ -18,7 +18,7 @@ import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
 import { createGeminiAnswerFn, type DialogTurn } from "../../../../lib/voice/gemini-answer";
 import type { AnswerFn } from "../../../../lib/voice/pipeline";
 
-export type TTSProviderName = "gemini" | "elevenlabs" | null;
+export type TTSProviderName = "openai" | "gemini" | "elevenlabs" | null;
 
 export interface ServerVoiceCapabilities {
   /** Whisper STT available (OPENAI_API_KEY set). */
@@ -32,14 +32,17 @@ export interface ServerVoiceCapabilities {
 }
 
 /**
- * Provider pick: explicit TTS_PROVIDER env wins; otherwise gemini when the
- * (already existing) GEMINI_API_KEY is set, else elevenlabs. Bake-off
- * 2026-06-10: Bernhard chose Gemini for the Lienz demo voice.
+ * Provider pick: explicit TTS_PROVIDER env wins; sonst Auto-Pick nach Qualität/
+ * Latenz: OpenAI (gpt-4o-mini-tts, ~1–2 s, natürliches Hochdeutsch, PCM-nativ) >
+ * Gemini (~7,5 s) > ElevenLabs. Umgestellt 2026-06-27 auf GPT-Voice für die
+ * Live-Meister-Stimme im XR-Anreiss-Modus (der Gemini-Delay war zu lang).
  */
 export function ttsProvider(): TTSProviderName {
   const forced = process.env.TTS_PROVIDER;
+  if (forced === "openai") return process.env.OPENAI_API_KEY ? "openai" : null;
   if (forced === "gemini") return process.env.GEMINI_API_KEY ? "gemini" : null;
   if (forced === "elevenlabs") return process.env.ELEVENLABS_API_KEY ? "elevenlabs" : null;
+  if (process.env.OPENAI_API_KEY) return "openai";
   if (process.env.GEMINI_API_KEY) return "gemini";
   if (process.env.ELEVENLABS_API_KEY) return "elevenlabs";
   return null;
