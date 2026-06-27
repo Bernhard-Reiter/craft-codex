@@ -1,6 +1,7 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import type { Object3D } from "three";
 import { Handle, HandleTarget } from "@react-three/handle";
 import type { Vec3 } from "../lib/xr/use-board-placement";
 import { Root, Text as UIText } from "@react-three/uikit";
@@ -35,11 +36,28 @@ export function XRPlacement({
   overlay,
   children,
 }: XRPlacementProps) {
+  const targetRef = useRef<Object3D>(null);
+
+  // Brett wieder lotrecht stellen: Rotation auf 0, Position bleibt.
+  const lotrecht = () => {
+    const o = targetRef.current;
+    if (!o) return;
+    o.rotation.set(0, 0, 0);
+    o.quaternion.set(0, 0, 0, 1);
+  };
+
   return (
     <group position={position}>
-      {/* Greifbares Holzstueck: Hand/Controller fasst an, HandleTarget folgt. */}
-      <HandleTarget>
-        <Handle targetRef="from-context" translate rotate scale={false}>
+      {/* Greifbares Holzstueck: anfassen → schieben + drehen (nur um die
+          senkrechte Y-Achse, wie ein Werkstueck auf dem Tisch — frei in 3D war
+          schwer kontrollierbar). */}
+      <HandleTarget ref={targetRef}>
+        <Handle
+          targetRef="from-context"
+          translate
+          rotate={{ x: false, y: true, z: false }}
+          scale={false}
+        >
           <group scale={[contentScale, contentScale, contentScale]}>
             {children}
           </group>
@@ -55,6 +73,7 @@ export function XRPlacement({
         onHeight={onHeight}
         onDepth={onDepth}
         onReset={onReset}
+        onLotrecht={lotrecht}
       />
     </group>
   );
@@ -65,11 +84,13 @@ function PlacementControls({
   onHeight,
   onDepth,
   onReset,
+  onLotrecht,
 }: {
   position: [number, number, number];
   onHeight: (dir: 1 | -1) => void;
   onDepth: (dir: 1 | -1) => void;
   onReset: () => void;
+  onLotrecht: () => void;
 }) {
   return (
     <group position={position}>
@@ -79,6 +100,7 @@ function PlacementControls({
           <CtrlButton label="Tiefer -" onClick={() => onHeight(-1)} />
           <CtrlButton label="Naeher" onClick={() => onDepth(1)} />
           <CtrlButton label="Weiter" onClick={() => onDepth(-1)} />
+          <CtrlButton label="Lotrecht" onClick={onLotrecht} />
           <CtrlButton label="Reset" onClick={onReset} accent />
         </Card>
       </Root>

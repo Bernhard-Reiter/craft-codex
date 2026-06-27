@@ -34,7 +34,7 @@ import { useServerVoice } from "../../../lib/voice/use-server-voice";
 
 // Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
 // auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
-const MENU_DEFAULT: [number, number, number] = [-0.62, 1.2, -0.5];
+const MENU_DEFAULT: [number, number, number] = [-0.8, 1.2, -0.5];
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
@@ -355,7 +355,7 @@ export default function DovetailXRPage() {
               {anreissModus && tafelOffen && (
                 <XRMovable
                   key={`tafel-${resetKey}`}
-                  position={[0, 1.25, -0.78]}
+                  position={[0, 1.55, -1.05]}
                   griffOffsetY={-0.42}
                   griffBreite={300}
                 >
@@ -371,7 +371,7 @@ export default function DovetailXRPage() {
               {/* Navigations-Dock (apfel TabBar) — verschiebbar */}
               <XRMovable
                 key={`nav-${resetKey}`}
-                position={[0, 0.82, -0.45]}
+                position={[0, 0.7, -0.4]}
                 griffOffsetY={-0.07}
               >
                 <XRNavBar
