@@ -65,10 +65,24 @@ export interface AnrissDimension {
   at: AnrissPoint;
 }
 
+/**
+ * Auf welcher Ebene die gleichmaessige T-Teilung abgetragen wird:
+ *  - "stirn"       — an der Stirnkante (y=0); dort exakt 1T/2T, verjuengt zur
+ *                    Grundlinie. Praxisnah (so reisst der Lehrling am Holz an).
+ *  - "mittellinie" — auf der Mittellinie (y=D/2); dort exakt 1T/2T, an der
+ *                    Stirnkante breiter (±Δ/2), an der Grundlinie schmaler.
+ *                    Lehrbuch-Methode "geometrische Zinkenteilung auf der Mittellinie".
+ */
+export type TeilungEbene = "stirn" | "mittellinie";
+
 export interface DovetailAnriss {
   board: { width: number; thickness: number };
   layout: DovetailLayout;
-  /** Flankenversatz Stirnkante→Grundlinie (= D / slopeRatio). */
+  /** Auf welcher Ebene die Teilung abgetragen wird. */
+  teilung: TeilungEbene;
+  /** y-Koordinate der Teilungsebene (0 = Stirn, D/2 = Mittellinie). */
+  teilungY: number;
+  /** Flankenversatz Stirnkante→Grundlinie ueber die volle Tiefe (= D / slopeRatio). */
   flankOffset: number;
   /** Teilungspunkte auf der Stirnkante (X in mm). */
   divisions: number[];
@@ -103,10 +117,18 @@ export function buildDovetailAnriss(
   D: number,
   method: DovetailMethod = "mittellinie",
   opts: ConstructionOptions = {},
+  teilung: TeilungEbene = "stirn",
 ): DovetailAnriss {
   const layout = computeDovetailLayout(B, D, method, opts);
   const { AZS, T, slopeRatio } = layout;
   const flankOffset = D / slopeRatio;
+
+  // Vereinheitlichte Flankengeometrie: die Teilung liegt auf der Ankerebene
+  // anchorY; jede Flanke kippt mit 1:slopeRatio nach Stirn UND Grund. sStirn/sBase
+  // = seitlicher Versatz auf dem jeweiligen Tiefenabschnitt.
+  const anchorY = teilung === "mittellinie" ? D / 2 : 0;
+  const sStirn = anchorY / slopeRatio; // Versatz Anker→Stirnkante (y=0)
+  const sBase = (D - anchorY) / slopeRatio; // Versatz Anker→Grundlinie (y=D)
 
   // T-Grenzen aufbauen: Start Zinken(1), dann je Schwalbe(2)+Zinken(1).
   const boundsT: number[] = [0];
@@ -135,53 +157,56 @@ export function buildDovetailAnriss(
     const isTail = seg % 2 === 1; // 0=Abfall, 1=Schwalbe, …
 
     if (isTail) {
-      // Schwalbe: breit an der Stirnkante (y=0), schmäler zur Grundlinie (y=D).
+      // Schwalbe: an der Ankerebene exakt 2T, Flanken kippen nach Stirn (breiter)
+      // und Grund (schmaler). Stirn: left−sStirn..right+sStirn, Grund: left+sBase..right−sBase.
       const id = `tail-${String(tailIdx).padStart(2, "0")}`;
       tails.push({
         id,
         role: "tail",
         materialState: "keep",
         polygon: [
-          { x: left, y: 0 },
-          { x: right, y: 0 },
-          { x: right - flankOffset, y: D },
-          { x: left + flankOffset, y: D },
+          { x: left - sStirn, y: 0 },
+          { x: right + sStirn, y: 0 },
+          { x: right - sBase, y: D },
+          { x: left + sBase, y: D },
         ],
       });
-      // Zwei Flanken (die eigentlichen Anrisslinien).
+      // Zwei Flanken (die eigentlichen Anrisslinien) durch die Ankerebene.
       flanks.push({
         id: `${id}-flank-l`,
         role: "flank",
-        a: { x: left, y: 0 },
-        b: { x: left + flankOffset, y: D },
+        a: { x: left - sStirn, y: 0 },
+        b: { x: left + sBase, y: D },
         widthMm: 0.35,
         style: "solid",
       });
       flanks.push({
         id: `${id}-flank-r`,
         role: "flank",
-        a: { x: right, y: 0 },
-        b: { x: right - flankOffset, y: D },
+        a: { x: right + sStirn, y: 0 },
+        b: { x: right - sBase, y: D },
         widthMm: 0.35,
         style: "solid",
       });
       tailIdx++;
     } else {
-      // Abfall: schmal an der Stirnkante, breiter zur Grundlinie (Gegenstück).
-      // An den Brettkanten bleibt die Kante senkrecht.
+      // Abfall: Gegenstueck zur Schwalbe. An den Brettkanten bleibt die Kante
+      // senkrecht; innen folgen die Flanken den angrenzenden Schwalben.
       const atLeftEdge = left <= 1e-6;
       const atRightEdge = right >= B - 1e-6;
-      const leftBase = atLeftEdge ? left : left - flankOffset;
-      const rightBase = atRightEdge ? right : right + flankOffset;
+      const stirnLeft = atLeftEdge ? left : left + sStirn;
+      const stirnRight = atRightEdge ? right : right - sStirn;
+      const baseLeft = atLeftEdge ? left : left - sBase;
+      const baseRight = atRightEdge ? right : right + sBase;
       wastes.push({
         id: `waste-${String(wasteIdx).padStart(2, "0")}`,
         role: "waste",
         materialState: "remove",
         polygon: [
-          { x: left, y: 0 },
-          { x: right, y: 0 },
-          { x: rightBase, y: D },
-          { x: leftBase, y: D },
+          { x: stirnLeft, y: 0 },
+          { x: stirnRight, y: 0 },
+          { x: baseRight, y: D },
+          { x: baseLeft, y: D },
         ],
       });
       wasteIdx++;
@@ -206,6 +231,8 @@ export function buildDovetailAnriss(
   return {
     board: { width: B, thickness: D },
     layout,
+    teilung,
+    teilungY: anchorY,
     flankOffset,
     divisions,
     baseline,

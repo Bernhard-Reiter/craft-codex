@@ -17,7 +17,7 @@
  * fehler. buildDovetailAnriss liefert die exakten divisions[] bereits so.
  */
 
-import { buildDovetailAnriss, type AnrissPoint } from "./anriss.js";
+import { buildDovetailAnriss, type AnrissPoint, type TeilungEbene } from "./anriss.js";
 import type { ConstructionOptions, DovetailMethod } from "./construction.js";
 
 export type DimKind =
@@ -56,6 +56,12 @@ export interface Dimension {
   explanation: DimExplanation;
   /** Lernschritte, in denen dieses Mass sichtbar ist (Spec §15). */
   phases: string[];
+  /**
+   * Nur fuer kind="verhaeltnis": Steigungsdreieck (3 Eckpunkte). Klarer als ein
+   * senkrechtes Mass — zeigt 1 quer zu slopeRatio laengs. Der Renderer zeichnet
+   * die drei Schenkel + das Verhaeltnis-Label.
+   */
+  triangle?: [AnrissPoint, AnrissPoint, AnrissPoint];
 }
 
 /** mm gerundet, deutsches Komma. */
@@ -74,10 +80,12 @@ export function buildDovetailDimensions(
   D: number,
   method: DovetailMethod = "mittellinie",
   opts: ConstructionOptions = {},
+  teilung: TeilungEbene = "stirn",
 ): Dimension[] {
-  const A = buildDovetailAnriss(B, D, method, opts);
+  const A = buildDovetailAnriss(B, D, method, opts, teilung);
   const { AZS, AZT, T, slopeRatio, zinkenBreite, schwalbeBreite } = A.layout;
   const flankOffset = A.flankOffset;
+  const teilungY = A.teilungY; // 0 (Stirn) oder D/2 (Mittellinie)
   const dims: Dimension[] = [];
 
   // A) Gesamtmaß Brettbreite B — aussen, oberhalb der Stirnkante (y<0).
@@ -134,12 +142,14 @@ export function buildDovetailDimensions(
       wozu: "Auf der Mittellinie ist ein Zinken 1T, eine Schwalbe 2T breit.",
       fehler: "Mit gerundetem T 13-mal addiert entsteht ein Fehler; Positionen daher aus B·index/AZT rechnen.",
     },
-    phases: ["teile", "markieren"],
+    phases: ["teile"],
   });
 
-  // D) 1T/2T-Maßkette — Teilmaße auf der Mittellinie. Segmente abwechselnd
-  //    Zinken(1T)/Schwalbe(2T), Positionen aus den exakten divisions[].
+  // D) 1T/2T-Maßkette — Teilmaße GEMESSEN auf der Teilungsebene (dort sind die
+  //    Breiten exakt 1T/2T), die Maßlinie aussen ueber der Stirnkante (y=-8) mit
+  //    Maßhilfslinien zur Teilungsebene. Positionen aus den exakten divisions[].
   const div = A.divisions; // [0,1T,3T,4T,...,B]
+  const ketteY = -8;
   for (let i = 0; i < div.length - 1; i++) {
     const left = div[i]!;
     const right = div[i + 1]!;
@@ -147,9 +157,9 @@ export function buildDovetailDimensions(
     dims.push({
       id: `dim-part-${i}`,
       kind: "teil",
-      a: { x: left, y: D / 2 },
-      b: { x: right, y: D / 2 },
-      offset: -3,
+      a: { x: left, y: teilungY },
+      b: { x: right, y: teilungY },
+      offset: ketteY - teilungY,
       direction: "horizontal",
       label: isSchwalbe ? "2T" : "1T",
       exactValue: right - left,
@@ -163,16 +173,28 @@ export function buildDovetailDimensions(
     });
   }
 
-  // E) Zinkenschräge 1:slopeRatio — Verhaeltnismass mit seitlichem Versatz.
+  // E) Zinkenschräge als STEIGUNGSDREIECK (1 quer : slopeRatio laengs) — eindeutig
+  //    fuer den Werker; ein senkrechtes Einzelmass wuerde wie eine Hoehe wirken.
+  //    Rechts neben dem Brett: langer Senkrecht-Schenkel (slopeRatio), kurzer
+  //    Quer-Schenkel (1), Hypotenuse = die Flanke.
+  const u = 3; // mm pro Verhaeltnis-Einheit
+  const triX = B + 12;
+  const triY = 3;
+  const tri: [AnrissPoint, AnrissPoint, AnrissPoint] = [
+    { x: triX, y: triY }, // oben
+    { x: triX, y: triY + slopeRatio * u }, // unten (slopeRatio laengs)
+    { x: triX + u, y: triY + slopeRatio * u }, // 1 quer
+  ];
   dims.push({
     id: "dim-slope",
     kind: "verhaeltnis",
-    a: { x: A.tails[0]?.polygon[0]?.x ?? 0, y: 0 },
-    b: { x: A.tails[0]?.polygon[3]?.x ?? 0, y: D },
+    a: tri[0],
+    b: tri[2],
     offset: 0,
     direction: "vertical",
     label: `1 : ${slopeRatio}`,
     exactValue: flankOffset,
+    triangle: tri,
     explanation: {
       was: `Die Flankensteigung der Schwalbe, 1 : ${slopeRatio}.`,
       wie: `Seitlicher Versatz = D / ${slopeRatio} = ${r(D, 0)} / ${slopeRatio} = ${r(flankOffset)} mm ueber die Tiefe.`,

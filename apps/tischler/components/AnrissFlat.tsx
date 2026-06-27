@@ -3,7 +3,12 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { buildDovetailAnriss } from "@craft-codex/core";
-import type { AnrissArea, AnrissLine, DovetailMethod } from "@craft-codex/core";
+import type {
+  AnrissArea,
+  AnrissLine,
+  DovetailMethod,
+  TeilungEbene,
+} from "@craft-codex/core";
 
 const SCALE_MM_TO_M = 0.001;
 const BOARD_SEPARATION_M = 0.15;
@@ -30,18 +35,21 @@ export function AnrissFlat({
   thicknessMm: D,
   lengthMm: L,
   method = "mittellinie",
+  teilung = "stirn",
   layers,
 }: {
   widthMm: number;
   thicknessMm: number;
   lengthMm: number;
   method?: DovetailMethod;
+  /** Teilungsebene: "stirn" (an der Stirnkante) oder "mittellinie" (Lehrbuch). */
+  teilung?: TeilungEbene;
   /** Welche Anriss-Ebenen sichtbar sind (progressiv pro Lernschritt). */
   layers: ReadonlySet<AnrissLayer>;
 }) {
   const anriss = useMemo(
-    () => buildDovetailAnriss(B, D, method),
-    [B, D, method],
+    () => buildDovetailAnriss(B, D, method, {}, teilung),
+    [B, D, method, teilung],
   );
   const halfL = L / 2;
 

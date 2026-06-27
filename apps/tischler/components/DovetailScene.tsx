@@ -10,7 +10,7 @@ import {
   generateMarkings,
   markingsToLineSegments,
 } from "@craft-codex/core";
-import type { DovetailParams, DovetailStep } from "@craft-codex/core";
+import type { DovetailParams, DovetailStep, TeilungEbene } from "@craft-codex/core";
 import { MarkingTubes } from "./MarkingTubes";
 import { AnrissFlat, type AnrissLayer } from "./AnrissFlat";
 import { DimensionLayer } from "./DimensionLayer";
@@ -45,6 +45,7 @@ export function DovetailSceneContents({
   showBoardB = true,
   anrissLayers,
   dimensionPhase,
+  teilung = "stirn",
 }: {
   params: DovetailParams;
   step: DovetailStep;
@@ -72,6 +73,8 @@ export function DovetailSceneContents({
    * werden geometrie-gebundene Maße (B/D/T/Maßkette/Schraege) eingeblendet.
    */
   dimensionPhase?: string;
+  /** Teilungsebene fuer Anriss + Bemaßung: "stirn" oder "mittellinie". */
+  teilung?: TeilungEbene;
 }) {
   return (
     <>
@@ -92,6 +95,7 @@ export function DovetailSceneContents({
           thicknessMm={params.thickness_mm}
           lengthMm={params.length_mm}
           phase={dimensionPhase}
+          teilung={teilung}
         />
       )}
       {anrissLayers ? (
@@ -100,6 +104,7 @@ export function DovetailSceneContents({
           thicknessMm={params.thickness_mm}
           lengthMm={params.length_mm}
           layers={anrissLayers}
+          teilung={teilung}
         />
       ) : markingStyle === "tube" ? (
         <MarkingTubes params={params} step={step} markingFilter={markingFilter} />

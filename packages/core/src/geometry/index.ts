@@ -25,6 +25,7 @@ export type {
 export { buildDovetailAnriss } from "./anriss.js";
 export type {
   DovetailAnriss,
+  TeilungEbene,
   AnrissPoint,
   AnrissLine,
   AnrissLineRole,

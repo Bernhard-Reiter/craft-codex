@@ -46,6 +46,8 @@ export function XRToolbar({
   onReset,
   onNudgeHeight,
   onNudgeDepth,
+  teilung,
+  onTeilung,
   rag,
   guard,
   tts,
@@ -69,6 +71,9 @@ export function XRToolbar({
   onReset: () => void;
   onNudgeHeight: (dir: 1 | -1) => void;
   onNudgeDepth: (dir: 1 | -1) => void;
+  /** Teilungsebene + Umschalter (Lehrbuch-Methode vs. praxisnah). */
+  teilung: "stirn" | "mittellinie";
+  onTeilung: (t: "stirn" | "mittellinie") => void;
   rag: IRAGProvider;
   guard: ITopicGuard;
   tts?: ITTSProvider;
@@ -138,6 +143,19 @@ export function XRToolbar({
                 onChange={(v) => onMasse({ ...masse, thickness_mm: v })} />
               <MassRow label="Laenge L" value={masse.length_mm} min={120} max={400}
                 onChange={(v) => onMasse({ ...masse, length_mm: v })} />
+
+              {/* 2c) Teilungsebene: Lehrbuch (Mittellinie) vs. praxisnah (Stirn) */}
+              <Container flexDirection="row" gap={8} alignItems="center">
+                <Text fontSize={13} width={66} color="#cdd6e4">Teilung</Text>
+                <Button variant="rect" flexGrow={1} selected={teilung === "stirn"}
+                  onClick={() => onTeilung("stirn")}>
+                  <Text fontSize={14}>Stirnkante</Text>
+                </Button>
+                <Button variant="rect" flexGrow={1} selected={teilung === "mittellinie"}
+                  onClick={() => onTeilung("mittellinie")}>
+                  <Text fontSize={14}>Mittellinie</Text>
+                </Button>
+              </Container>
 
               <Divider />
 

@@ -7,6 +7,7 @@ import {
   buildDovetailDimensions,
   istMassSichtbar,
   type Dimension,
+  type TeilungEbene,
 } from "@craft-codex/core";
 
 const SCALE_MM_TO_M = 0.001;
@@ -28,16 +29,22 @@ export function DimensionLayer({
   thicknessMm: D,
   lengthMm: L,
   phase,
+  teilung = "stirn",
 }: {
   widthMm: number;
   thicknessMm: number;
   lengthMm: number;
   /** Aktueller Lernschritt — blendet nur die zugehoerigen Maße ein. */
   phase: string;
+  /** Teilungsebene: Maße folgen der Stirn- oder Mittellinien-Teilung. */
+  teilung?: TeilungEbene;
 }) {
   const dims = useMemo(
-    () => buildDovetailDimensions(B, D).filter((d) => istMassSichtbar(d, phase)),
-    [B, D, phase],
+    () =>
+      buildDovetailDimensions(B, D, "mittellinie", {}, teilung).filter((d) =>
+        istMassSichtbar(d, phase),
+      ),
+    [B, D, phase, teilung],
   );
   const halfL = L / 2;
   const yLine = 0.32; // mm ueber der Oberseite
@@ -70,6 +77,25 @@ function DimensionView({
   halfL: number;
   y: number;
 }) {
+  // Verhaeltnismass = Steigungsdreieck: drei Schenkel + Label am Schwerpunkt.
+  if (dim.kind === "verhaeltnis" && dim.triangle) {
+    const [t1, t2, t3] = dim.triangle;
+    const c = { x: (t1.x + t2.x + t3.x) / 3, y: (t1.y + t2.y + t3.y) / 3 };
+    const lp = p3(c.x + 8, c.y, B, halfL, y + 0.05);
+    return (
+      <group>
+        <Ribbon a={t1} b={t2} B={B} halfL={halfL} y={y} w={0.9} color="#33415c" />
+        <Ribbon a={t2} b={t3} B={B} halfL={halfL} y={y} w={0.9} color="#33415c" />
+        <Ribbon a={t3} b={t1} B={B} halfL={halfL} y={y} w={0.9} color="#1d2c4a" />
+        <group position={[lp.x, lp.y, lp.z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <Root pixelSize={1} anchorX="center" anchorY="center">
+            <Text fontSize={13} color="#1d2c4a" fontWeight="bold">{dim.label}</Text>
+          </Root>
+        </group>
+      </group>
+    );
+  }
+
   const horizontal = dim.direction === "horizontal";
 
   // Maßlinie um den Versatz senkrecht zur Spanne verschoben.

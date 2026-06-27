@@ -10,6 +10,7 @@ import {
   DEFAULT_DOVETAIL_PARAMS,
   type DovetailParams,
   type DovetailStep,
+  type TeilungEbene,
 } from "@craft-codex/core";
 import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRPlacement } from "../../../components/XRPlacement";
@@ -62,6 +63,9 @@ export default function DovetailXRPage() {
   // Stiller Werkstatt-Modus: Default zeigt nur Holz + Anriss + kleines Ornament.
   // Das Detail-Panel (Maße/Formel/Werkzeug) erscheint erst auf "Mehr…".
   const [panelOffen, setPanelOffen] = useState(false);
+  // Teilungsebene: "stirn" (praxisnah) oder "mittellinie" (Lehrbuch) — Anriss +
+  // Bemaßung passen sich an; der Lehrling sieht den Unterschied.
+  const [teilung, setTeilung] = useState<TeilungEbene>("stirn");
   const placement = useBoardPlacement();
   const previewControls = useRef<{ reset: () => void } | null>(null);
   // Ref auf das greifbare Brett — die Toolbar nutzt ihn fuer "Lotrecht".
@@ -335,6 +339,7 @@ export default function DovetailXRPage() {
                   showBoardB={!anreissModus}
                   anrissLayers={anreissModus ? anrissLayers : undefined}
                   dimensionPhase={anreissModus ? anreissSchritt.id : undefined}
+                  teilung={teilung}
                 />
                 {/* Werkzeug-Sollposition gehoert laut Spec NICHT in die Anreiss-
                     Phase (sie verdeckte die Geometrie) — sie kommt als eigenes,
@@ -404,6 +409,8 @@ export default function DovetailXRPage() {
                     onReset={placement.reset}
                     onNudgeHeight={placement.nudgeHeight}
                     onNudgeDepth={placement.nudgeDepth}
+                    teilung={teilung}
+                    onTeilung={setTeilung}
                     rag={rag}
                     guard={guard}
                     tts={voiceBundle?.tts}
