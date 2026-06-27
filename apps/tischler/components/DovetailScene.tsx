@@ -105,7 +105,8 @@ function BoardA({ params }: { params: DovetailParams }) {
   // Alte BufferGeometry freigeben, wenn sich params ändern / beim Unmount —
   // sonst leckt über eine lange Slider-Session GPU-Speicher.
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const material = useHolzMaterial("#caa46f");
+  // Weiss → die echte (helle) Fichte-Texturfarbe kommt unverfaelscht durch.
+  const material = useHolzMaterial("#ffffff");
 
   return (
     <mesh
@@ -125,7 +126,8 @@ function BoardB({ params }: { params: DovetailParams }) {
     return mesh.geometry;
   }, [params]);
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const material = useHolzMaterial("#b8915e");
+  // Brett B minimal waermer getoent → leichte Unterscheidung der zwei Bretter.
+  const material = useHolzMaterial("#f0e2cc");
 
   return (
     <mesh
