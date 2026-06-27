@@ -67,9 +67,12 @@ export function useHolzMaterial(
             "vec3 hN = abs(normalize(vHolzNrm));",
             "vec3 hP = vHolzPos * texScale;",
             "vec3 woodCol;",
+            // Faser laeuft entlang der Laenge (z). Die Maserung der Textur
+            // verlaeuft vertikal (V-Achse), also muss V immer auf z gemappt sein:
+            // Oben/unten → (x, z), Seiten → (y, z). Stirnseiten (±z) = Hirnholz.
             "if (hN.z > 0.55) { woodCol = texture2D(mapHirn, hP.xy).rgb; }",
             "else if (hN.y >= hN.x) { woodCol = texture2D(mapLaengs, hP.xz).rgb; }",
-            "else { woodCol = texture2D(mapLaengs, hP.zy).rgb; }",
+            "else { woodCol = texture2D(mapLaengs, hP.yz).rgb; }",
             "diffuseColor.rgb *= woodCol;",
           ].join("\n"),
         );

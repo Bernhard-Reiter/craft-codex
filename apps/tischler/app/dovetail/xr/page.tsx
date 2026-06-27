@@ -15,6 +15,7 @@ import { XRStepBar } from "../../../components/XRStepBar";
 import { XRPlacement } from "../../../components/XRPlacement";
 import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
+import { XRDetailTafel } from "../../../components/XRDetailTafel";
 import { XRDraggablePanel } from "../../../components/XRDraggablePanel";
 import { XRNavBar } from "../../../components/XRNavBar";
 import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
@@ -40,8 +41,14 @@ const MENU_DEFAULT: [number, number, number] = [-0.62, 1.2, -0.5];
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
-  const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
+  const [params, setParams] = useState<DovetailParams>({
+    ...DEFAULT_DOVETAIL_PARAMS,
+    width_mm: 140,
+    thickness_mm: 13,
+    length_mm: 200,
+  });
   const [step, setStep] = useState<DovetailStep>("anreissen");
+  const [tafelOffen, setTafelOffen] = useState(false);
   const placement = useBoardPlacement();
   // Menue-Panel: eigene, vom Brett ENTKOPPELTE Pose → verschwindet nicht, wenn
   // das Brett bewegt wird. Default rechts vor dem User, auf Arbeitshoehe.
@@ -341,8 +348,24 @@ export default function DovetailXRPage() {
                     flow={anreissFlow}
                     index={anreissIndex}
                     onIndex={setAnreissIndex}
+                    masse={{
+                      width_mm: params.width_mm,
+                      thickness_mm: params.thickness_mm,
+                      length_mm: params.length_mm,
+                    }}
+                    onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
+                    onTafel={() => setTafelOffen((o) => !o)}
                   />
                 </XRDraggablePanel>
+              )}
+
+              {/* Grosse Detail-Tafel (auf Wunsch) */}
+              {anreissModus && tafelOffen && (
+                <XRDetailTafel
+                  flow={anreissFlow}
+                  index={anreissIndex}
+                  onClose={() => setTafelOffen(false)}
+                />
               )}
 
               {/* Navigations-Dock (Quest-Standard, apfel TabBar) — immer
