@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
+import { Handle, HandleTarget } from "@react-three/handle";
 import type { Vec3 } from "../lib/xr/use-board-placement";
 import { Root, Text as UIText } from "@react-three/uikit";
 import { Card, Button } from "@react-three/uikit-apfel";
@@ -20,10 +21,10 @@ interface XRPlacementProps {
 /**
  * Platzierungs-Wrapper fuer den Brett-Stack in XR.
  *
- * Das Brett wird ueber die apfel-Buttons (Hoeher/Tiefer/Naeher/Weiter/Reset)
- * bewegt — der fruehere freie Ziehgriff war redundant und ist entfallen.
- * Die Bretter (children) liegen in einer separat skalierten Gruppe; die Controls
- * bleiben unskaliert.
+ * Das Brett ist mit der HAND greifbar (via @react-three/handle): anfassen →
+ * schieben + drehen + positionieren. Funktioniert mit Hand-Tracking, Controller
+ * UND Maus (2D-Vorschau). Zusaetzlich bleiben die apfel-Buttons (Hoehe/Distanz/
+ * Reset) als treffsicherer Pfad.
  */
 export function XRPlacement({
   position,
@@ -36,12 +37,19 @@ export function XRPlacement({
 }: XRPlacementProps) {
   return (
     <group position={position}>
-      <group scale={[contentScale, contentScale, contentScale]}>{children}</group>
+      {/* Greifbares Holzstueck: Hand/Controller fasst an, HandleTarget folgt. */}
+      <HandleTarget>
+        <Handle targetRef="from-context" translate rotate scale={false}>
+          <group scale={[contentScale, contentScale, contentScale]}>
+            {children}
+          </group>
+        </Handle>
+      </HandleTarget>
 
       {/* Unskaliertes UI (Step-Bar) in echter Groesse, wandert mit dem Brett */}
       {overlay}
 
-      {/* Brett-Justierung (apfel-Buttons) */}
+      {/* Brett-Justierung (apfel-Buttons) — treffsicherer Zweitpfad */}
       <PlacementControls
         position={[0.32, -0.05, 0]}
         onHeight={onHeight}

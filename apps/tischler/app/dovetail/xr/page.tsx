@@ -16,7 +16,6 @@ import { XRPlacement } from "../../../components/XRPlacement";
 import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
 import { XRDetailTafel } from "../../../components/XRDetailTafel";
-import { XRDraggablePanel } from "../../../components/XRDraggablePanel";
 import { XRNavBar } from "../../../components/XRNavBar";
 import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
 import { SiteFooter } from "../../../components/SiteFooter";
@@ -26,10 +25,8 @@ import {
 } from "../../../lib/zinken/anreiss-flow";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
-import {
-  useBoardPlacement,
-  usePersistentPose,
-} from "../../../lib/xr/use-board-placement";
+import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
+import { XRMovable } from "../../../components/XRMovable";
 import { LocalRAGProvider } from "../../../lib/rag/local-rag";
 import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../lib/rag/corpus";
@@ -50,16 +47,15 @@ export default function DovetailXRPage() {
   const [step, setStep] = useState<DovetailStep>("anreissen");
   const [tafelOffen, setTafelOffen] = useState(false);
   const placement = useBoardPlacement();
-  // Menue-Panel: eigene, vom Brett ENTKOPPELTE Pose → verschwindet nicht, wenn
-  // das Brett bewegt wird. Default rechts vor dem User, auf Arbeitshoehe.
-  const menuPose = usePersistentPose("xr-menu", MENU_DEFAULT);
   const previewControls = useRef<{ reset: () => void } | null>(null);
+  // Reset-Key: erhoehen remountet die verschiebbaren Panels → zurueck auf ihre
+  // Default-Pose (die Handle-Transform wird dabei verworfen).
+  const [resetKey, setResetKey] = useState(0);
 
-  // Brett, Menue UND Vorschau-Ansicht zuruecksetzen — fuer den Fall, dass eine
-  // alte, weggeschobene Pose aus localStorage etwas aus dem Blick raeumt.
+  // Brett, Panels UND Vorschau-Ansicht zuruecksetzen.
   const zentrieren = () => {
     placement.reset();
-    menuPose.reset();
+    setResetKey((k) => k + 1);
     previewControls.current?.reset();
   };
 
@@ -333,16 +329,12 @@ export default function DovetailXRPage() {
                 )}
               </XRPlacement>
 
-              {/* Anreiss-Menue als eigenes, vom Brett ENTKOPPELTES, verschiebbares
-                  Quest-Panel — bleibt sichtbar, auch wenn das Brett bewegt wird. */}
+              {/* Anreiss-Menue — verschiebbar (Hand-Grab), vom Brett entkoppelt. */}
               {anreissModus && (
-                <XRDraggablePanel
-                  position={menuPose.position}
-                  onDragMove={menuPose.moveTo}
-                  onDragEnd={menuPose.commit}
-                  width={0.56}
-                  height={0.5}
-                  bare
+                <XRMovable
+                  key={`menu-${resetKey}`}
+                  position={MENU_DEFAULT}
+                  griffOffsetY={-0.3}
                 >
                   <XRAnreissFlow
                     flow={anreissFlow}
@@ -356,26 +348,39 @@ export default function DovetailXRPage() {
                     onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
                     onTafel={() => setTafelOffen((o) => !o)}
                   />
-                </XRDraggablePanel>
+                </XRMovable>
               )}
 
-              {/* Grosse Detail-Tafel (auf Wunsch) */}
+              {/* Grosse Detail-Tafel (auf Wunsch) — verschiebbar */}
               {anreissModus && tafelOffen && (
-                <XRDetailTafel
-                  flow={anreissFlow}
-                  index={anreissIndex}
-                  onClose={() => setTafelOffen(false)}
-                />
+                <XRMovable
+                  key={`tafel-${resetKey}`}
+                  position={[0, 1.25, -0.78]}
+                  griffOffsetY={-0.42}
+                  griffBreite={300}
+                >
+                  <XRDetailTafel
+                    flow={anreissFlow}
+                    index={anreissIndex}
+                    onClose={() => setTafelOffen(false)}
+                    position={[0, 0, 0]}
+                  />
+                </XRMovable>
               )}
 
-              {/* Navigations-Dock (Quest-Standard, apfel TabBar) — immer
-                  sichtbar vor dem User, vom Brett entkoppelt. */}
-              <XRNavBar
-                anreissModus={anreissModus}
-                onModus={setAnreissModus}
-                onZentrieren={zentrieren}
+              {/* Navigations-Dock (apfel TabBar) — verschiebbar */}
+              <XRMovable
+                key={`nav-${resetKey}`}
                 position={[0, 0.82, -0.45]}
-              />
+                griffOffsetY={-0.07}
+              >
+                <XRNavBar
+                  anreissModus={anreissModus}
+                  onModus={setAnreissModus}
+                  onZentrieren={zentrieren}
+                  position={[0, 0, 0]}
+                />
+              </XRMovable>
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
                 Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}

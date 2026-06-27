@@ -23,6 +23,9 @@ importers:
       '@react-three/fiber':
         specifier: ^9.6.0
         version: 9.6.1(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.170.0)
+      '@react-three/handle':
+        specifier: 6.6.29
+        version: 6.6.29(@react-three/fiber@9.6.1(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.170.0))(@types/react@19.2.14)(react@19.2.6)(three@0.170.0)
       '@react-three/uikit':
         specifier: ^0.8.21
         version: 0.8.21(@react-three/fiber@9.6.1(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.170.0))(@types/react@19.2.14)(react@19.2.6)(three@0.170.0)
@@ -731,6 +734,13 @@ packages:
         optional: true
       react-native:
         optional: true
+
+  '@react-three/handle@6.6.29':
+    resolution: {integrity: sha512-WL0cZkxYZw5ItLxSVYi2HsuovQHlquCfL4XgGdSvkSqhgD9WNXR47PYm8I3JLfP+oMhyYcbpJ+bnTsaoP5IHxw==}
+    peerDependencies:
+      '@react-three/fiber': '>=8'
+      react: '>=18'
+      three: '*'
 
   '@react-three/uikit-apfel@0.8.21':
     resolution: {integrity: sha512-/hlYH+0pA6eqduxtP4auwimcoZPjUrWtHLDpOUd7XzYOfCP52saIL9PzvFxx+N4X5TMYKU0K2ZOiwmKkEFCnIQ==}
@@ -3579,6 +3589,18 @@ snapshots:
       zustand: 5.0.13(@types/react@19.2.14)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
     optionalDependencies:
       react-dom: 19.2.6(react@19.2.6)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+
+  '@react-three/handle@6.6.29(@react-three/fiber@9.6.1(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.170.0))(@types/react@19.2.14)(react@19.2.6)(three@0.170.0)':
+    dependencies:
+      '@pmndrs/handle': 6.6.29(@types/react@19.2.14)(react@19.2.6)
+      '@pmndrs/pointer-events': 6.6.29
+      '@react-three/fiber': 9.6.1(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.170.0)
+      react: 19.2.6
+      three: 0.170.0
+      zustand: 4.5.7(@types/react@19.2.14)(react@19.2.6)
     transitivePeerDependencies:
       - '@types/react'
       - immer
