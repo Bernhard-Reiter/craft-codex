@@ -13,6 +13,7 @@ import {
 import type { DovetailParams, DovetailStep } from "@craft-codex/core";
 import { MarkingTubes } from "./MarkingTubes";
 import { AnrissFlat, type AnrissLayer } from "./AnrissFlat";
+import { DimensionLayer } from "./DimensionLayer";
 import { useHolzMaterial } from "../lib/textures/use-holz-material";
 
 /** Wie Anrisslinien gerendert werden: duenne Lines (2D) oder emissive Roehren (XR). */
@@ -43,6 +44,7 @@ export function DovetailSceneContents({
   markingFilter,
   showBoardB = true,
   anrissLayers,
+  dimensionPhase,
 }: {
   params: DovetailParams;
   step: DovetailStep;
@@ -65,6 +67,11 @@ export function DovetailSceneContents({
    * Anreiss-Darstellung. Das Set steuert, welche Ebenen progressiv sichtbar sind.
    */
   anrissLayers?: ReadonlySet<AnrissLayer>;
+  /**
+   * Technische Bemaßung fuer den aktuellen Lernschritt (Spec §17). Wenn gesetzt,
+   * werden geometrie-gebundene Maße (B/D/T/Maßkette/Schraege) eingeblendet.
+   */
+  dimensionPhase?: string;
 }) {
   return (
     <>
@@ -79,6 +86,14 @@ export function DovetailSceneContents({
         <BoardA params={params} />
         {showBoardB && <BoardB params={params} />}
       </Suspense>
+      {dimensionPhase && (
+        <DimensionLayer
+          widthMm={params.width_mm}
+          thicknessMm={params.thickness_mm}
+          lengthMm={params.length_mm}
+          phase={dimensionPhase}
+        />
+      )}
       {anrissLayers ? (
         <AnrissFlat
           widthMm={params.width_mm}

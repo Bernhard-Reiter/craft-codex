@@ -32,3 +32,10 @@ export type {
   AnrissDimension,
   MaterialState,
 } from "./anriss.js";
+export { buildDovetailDimensions, istMassSichtbar } from "./dimensions.js";
+export type {
+  Dimension,
+  DimKind,
+  DimDir,
+  DimExplanation,
+} from "./dimensions.js";

@@ -334,6 +334,7 @@ export default function DovetailXRPage() {
                   markingStyle="tube"
                   showBoardB={!anreissModus}
                   anrissLayers={anreissModus ? anrissLayers : undefined}
+                  dimensionPhase={anreissModus ? anreissSchritt.id : undefined}
                 />
                 {/* Werkzeug-Sollposition gehoert laut Spec NICHT in die Anreiss-
                     Phase (sie verdeckte die Geometrie) — sie kommt als eigenes,
