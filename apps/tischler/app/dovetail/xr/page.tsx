@@ -410,8 +410,10 @@ export default function DovetailXRPage() {
                 </XRMovable>
               )}
 
-              {/* Grosse Detail-Tafel (auf Wunsch) — das zweite, separate Element. */}
-              {anreissModus && tafelOffen && (
+              {/* Detail-Tafel als visionOS-Fenster (auf Wunsch) — das zweite,
+                  separate Element. Persistiert ueber beide Modi (die Tab-Rail
+                  links schaltet Anreissen/Hand). */}
+              {tafelOffen && (
                 <XRMovable
                   key={`tafel-${resetKey}`}
                   position={[0, 1.55, -1.05]}
@@ -421,6 +423,8 @@ export default function DovetailXRPage() {
                   <XRDetailTafel
                     flow={anreissFlow}
                     index={anreissIndex}
+                    anreissModus={anreissModus}
+                    onModus={setAnreissModus}
                     onClose={() => setTafelOffen(false)}
                     position={[0, 0, 0]}
                   />

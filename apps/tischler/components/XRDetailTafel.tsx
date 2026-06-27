@@ -1,77 +1,136 @@
 "use client";
 
 import { Root, Container, Text } from "@react-three/uikit";
-import { Button } from "@react-three/uikit-apfel";
+import { Card, Button } from "@react-three/uikit-apfel";
+import { PencilRuler, Hammer, X } from "@react-three/uikit-lucide";
 import type { AnreissFlow } from "../lib/zinken/anreiss-flow";
 import type { DovetailLayout } from "@craft-codex/core";
 
 /**
- * Grosse virtuelle Schultafel — auf Wunsch eingeblendet. Erklaert die Formel
- * des aktuellen Anreiss-Schritts "wie in der Schule" ganz genau, mit echten
- * Werten aus dem berechneten Layout.
+ * Detail-Tafel als visionOS-Fenster.
  *
- * Dunkelgruene Tafel-Optik, grosse Schrift, links die Formel/Rechnung, darunter
- * die ausfuehrliche Erklaerung. Schliessen ueber den Button.
+ * Apple-/visionOS-Window-Pattern: ein GLAS-Fensterrahmen (apfel Card, grosse
+ * Rundung) mit einer vertikalen Tab-Rail LINKS (Anreissen/Hand), rundem
+ * Schliessen-Button OBEN-RECHTS und der eigentlichen Schultafel als dunkler,
+ * "eingehaengter" Schreibflaeche darin (Ebenen = Tiefe). Die Fensterleiste zum
+ * Greifen liefert die XRMovable-Huelle unten.
+ *
+ * Inhalt: im Anreiss-Modus die Formel + ausfuehrliche Erklaerung des aktuellen
+ * Schritts; im Hand-Modus die Uebersicht der fuenf Handschritte.
  */
 export function XRDetailTafel({
   flow,
   index,
+  anreissModus,
+  onModus,
   onClose,
   position = [0, 1.25, -0.75],
 }: {
   flow: AnreissFlow;
   index: number;
+  anreissModus: boolean;
+  onModus: (anreiss: boolean) => void;
   onClose: () => void;
   position?: [number, number, number];
 }) {
   const schritt = flow.schritte[Math.min(index, flow.schritte.length - 1)]!;
   const detail = detailFuer(schritt.id, flow.layout);
+  const titel = anreissModus ? `Tafel - ${schritt.label}` : "Tafel - Handschritte";
 
   return (
     <group position={position}>
-      <Root pixelSize={0.0014} anchorX="center" anchorY="center">
-        <Container
-          flexDirection="column"
-          width={900}
-          padding={40}
-          gap={18}
-          borderRadius={16}
-          backgroundColor="#16241c"
-          borderWidth={6}
-          borderColor="#6b4a2f"
-        >
-          {/* Kopfzeile */}
-          <Container flexDirection="row" justifyContent="space-between" alignItems="center">
-            <Text fontSize={26} color="#e9f3ec">
-              {asciiFold(`Tafel - ${schritt.label}`)}
-            </Text>
-            <Button variant="rect" onClick={onClose}>
-              <Text fontSize={18}>schliessen</Text>
+      <Root pixelSize={0.0011} anchorX="center" anchorY="center">
+        {/* GLAS-Fensterrahmen (visionOS) — feste Breite, damit der Text umbricht
+            und das Fenster nicht ins Riesenhafte waechst. */}
+        <Card flexDirection="row" width={1020} padding={22} gap={20} borderRadius={40}>
+          {/* Tab-Rail LINKS */}
+          <Container flexDirection="column" gap={12} alignItems="center">
+            <Button
+              variant="icon"
+              size="md"
+              selected={anreissModus}
+              onClick={() => onModus(true)}
+            >
+              <PencilRuler width={20} height={20} />
+            </Button>
+            <Button
+              variant="icon"
+              size="md"
+              selected={!anreissModus}
+              onClick={() => onModus(false)}
+            >
+              <Hammer width={20} height={20} />
             </Button>
           </Container>
 
-          <Container height={2} backgroundColor="#3c5a48" />
+          {/* Hauptbereich */}
+          <Container flexDirection="column" gap={16} flexGrow={1}>
+            {/* Kopfzeile mit rundem Schliessen-Button oben-rechts */}
+            <Container flexDirection="row" justifyContent="space-between" alignItems="center">
+              <Text fontSize={26} color="#f4f1e8">{asciiFold(titel)}</Text>
+              <Button variant="icon" size="sm" onClick={onClose}>
+                <X width={18} height={18} />
+              </Button>
+            </Container>
 
-          {/* Formel gross */}
-          <Container flexDirection="column" gap={8}>
-            {schritt.tafel.map((zeile, k) => (
-              <Text key={k} fontSize={34} color="#fdf6df">
-                {asciiFold(zeile)}
-              </Text>
-            ))}
+            {/* Dunkle Schultafel als eingehaengte Schreibflaeche */}
+            <Container
+              flexDirection="column"
+              gap={14}
+              padding={32}
+              borderRadius={22}
+              backgroundColor="#16241c"
+              borderWidth={4}
+              borderColor="#6b4a2f"
+            >
+              {anreissModus ? (
+                <>
+                  <Container flexDirection="column" gap={8}>
+                    {schritt.tafel.map((zeile, k) => (
+                      <Text key={k} fontSize={32} color="#fdf6df">{asciiFold(zeile)}</Text>
+                    ))}
+                  </Container>
+                  <Container backgroundColor="#0e1813" borderRadius={12} padding={20} marginTop={6}>
+                    <Text fontSize={19} color="#cfe3d6">{asciiFold(detail)}</Text>
+                  </Container>
+                </>
+              ) : (
+                <Container flexDirection="column" gap={12}>
+                  {HANDSCHRITTE.map((h, k) => (
+                    <Container key={h.name} flexDirection="row" gap={12} alignItems="flex-start">
+                      <Container
+                        width={34}
+                        height={34}
+                        borderRadius={17}
+                        backgroundColor="#3c5a48"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text fontSize={18} color="#fdf6df">{String(k + 1)}</Text>
+                      </Container>
+                      <Container flexDirection="column" flexGrow={1}>
+                        <Text fontSize={22} color="#fdf6df">{h.name}</Text>
+                        <Text fontSize={16} color="#cfe3d6">{asciiFold(h.hint)}</Text>
+                      </Container>
+                    </Container>
+                  ))}
+                </Container>
+              )}
+            </Container>
           </Container>
-
-          {/* Ausfuehrliche Erklaerung */}
-          <Container backgroundColor="#0e1813" borderRadius={10} padding={20} marginTop={8}>
-            <Text fontSize={20} color="#cfe3d6">
-              {asciiFold(detail)}
-            </Text>
-          </Container>
-        </Container>
+        </Card>
       </Root>
     </group>
   );
 }
+
+const HANDSCHRITTE: ReadonlyArray<{ name: string; hint: string }> = [
+  { name: "Anreissen", hint: "Risslinien aufs Holz uebertragen — die Grundlage fuer alles." },
+  { name: "Saegen", hint: "Auf der Abfallseite saegen, die Anrisslinie stehen lassen." },
+  { name: "Stemmen", hint: "Abfall bis zur Grundlinie ausstemmen — von beiden Seiten." },
+  { name: "Passen", hint: "Gegenstueck anzeichnen und trocken einpassen." },
+  { name: "Pruefen", hint: "Fugen pruefen, nacharbeiten bis die Verbindung satt schliesst." },
+];
 
 /** Ausfuehrliche Lehrer-Erklaerung pro Schritt, mit echten Werten. */
 function detailFuer(
