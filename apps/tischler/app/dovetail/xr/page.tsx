@@ -15,6 +15,7 @@ import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRPlacement } from "../../../components/XRPlacement";
 import { XRDetailTafel } from "../../../components/XRDetailTafel";
 import { XRToolbar } from "../../../components/XRToolbar";
+import { XRWristMenu } from "../../../components/XRWristMenu";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
   buildAnreissFlow,
@@ -390,6 +391,23 @@ export default function DovetailXRPage() {
                   />
                 </XRMovable>
               )}
+
+              {/* Wrist-Menü (Hand-Tracking) — Schnellzugriff am Handgelenk, wenn
+                  die Handflaeche zum User zeigt. Additiv: ohne Hand rendert es
+                  nichts, die Welt-Toolbar bleibt der Fallback (Controller/Desktop). */}
+              <XRWristMenu
+                anreissModus={anreissModus}
+                onModus={setAnreissModus}
+                onPrev={() => gotoSchritt(Math.max(0, anreissIndex - 1))}
+                onNext={() =>
+                  gotoSchritt(
+                    Math.min(anreissFlow.schritte.length - 1, anreissIndex + 1),
+                  )
+                }
+                onTafel={() => setTafelOffen((o) => !o)}
+                onZentrieren={zentrieren}
+                onLotrecht={lotrecht}
+              />
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
                 Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}
