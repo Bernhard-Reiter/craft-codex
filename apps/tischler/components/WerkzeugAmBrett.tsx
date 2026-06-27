@@ -31,39 +31,14 @@ export function WerkzeugAmBrett({
   const halfL = params.length_mm / 2;
   const t = params.thickness_mm;
 
-  const showMassband =
-    phase === "messen" || phase === "teile" || phase === "markieren";
   const showWinkel = phase === "schraege" || phase === "markieren";
   const showStreichmass = phase === "streichmass";
-
-  // Teil-Grenzen der Lehrbuch-Teilung: AZT+1 Striche ueber die Breite.
-  const striche = useMemo(() => {
-    const out: number[] = [];
-    for (let k = 0; k <= layout.AZT; k++) out.push(-halfW + k * layout.T);
-    return out;
-  }, [layout.AZT, layout.T, halfW]);
 
   return (
     <group
       scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}
       position={[0, BOARD_SEPARATION_M / 2 + 0.003, 0]}
     >
-      {/* ── Maßband mit Teilstrichen, vor der Stirnkante ── */}
-      {showMassband && (
-        <group position={[0, 7, halfL + 9]}>
-          <mesh>
-            <boxGeometry args={[params.width_mm, 4, 13]} />
-            <meshStandardMaterial color="#e7c486" roughness={0.6} />
-          </mesh>
-          {striche.map((x, i) => (
-            <mesh key={i} position={[x, 2.6, 0]}>
-              <boxGeometry args={[0.9, 1.2, 13]} />
-              <meshStandardMaterial color="#2b2b20" roughness={0.5} />
-            </mesh>
-          ))}
-        </group>
-      )}
-
       {/* ── Streichmaß-Anschlag an der rechten Brettkante ── */}
       {showStreichmass && (
         <group position={[halfW + 9, -t / 2, halfL - t / 2]}>
