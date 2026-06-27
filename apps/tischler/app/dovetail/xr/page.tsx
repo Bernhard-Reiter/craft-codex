@@ -34,8 +34,9 @@ import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../lib/rag/corpus";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
 
-// Menue-Panel-Startpose: rechts neben dem Brett, auf Arbeitshoehe vor dem User.
-const MENU_DEFAULT: [number, number, number] = [0.55, 1.15, -0.6];
+// Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
+// auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
+const MENU_DEFAULT: [number, number, number] = [-0.62, 1.2, -0.5];
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
@@ -284,8 +285,6 @@ export default function DovetailXRPage() {
                   + Buttons frei platzierbar; die Pose ueberlebt einen Reload. */}
               <XRPlacement
                 position={placement.position}
-                onDragMove={placement.moveTo}
-                onDragEnd={placement.commit}
                 onHeight={placement.nudgeHeight}
                 onDepth={placement.nudgeDepth}
                 onReset={placement.reset}
@@ -336,7 +335,6 @@ export default function DovetailXRPage() {
                   onDragEnd={menuPose.commit}
                   width={0.56}
                   height={0.5}
-                  title="Anreissen"
                   bare
                 >
                   <XRAnreissFlow
@@ -353,7 +351,7 @@ export default function DovetailXRPage() {
                 anreissModus={anreissModus}
                 onModus={setAnreissModus}
                 onZentrieren={zentrieren}
-                position={[0, 0.72, -0.62]}
+                position={[0, 0.82, -0.45]}
               />
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
