@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { Object3D } from "three";
 import Link from "next/link";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -11,12 +12,9 @@ import {
   type DovetailStep,
 } from "@craft-codex/core";
 import { DovetailSceneContents } from "../../../components/DovetailScene";
-import { XRStepBar } from "../../../components/XRStepBar";
 import { XRPlacement } from "../../../components/XRPlacement";
-import { XRVoicePanel } from "../../../components/XRVoicePanel";
-import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
 import { XRDetailTafel } from "../../../components/XRDetailTafel";
-import { XRNavBar } from "../../../components/XRNavBar";
+import { XRToolbar } from "../../../components/XRToolbar";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
   buildAnreissFlow,
@@ -61,6 +59,14 @@ export default function DovetailXRPage() {
   const [tafelOffen, setTafelOffen] = useState(false);
   const placement = useBoardPlacement();
   const previewControls = useRef<{ reset: () => void } | null>(null);
+  // Ref auf das greifbare Brett — die Toolbar nutzt ihn fuer "Lotrecht".
+  const boardRef = useRef<Object3D | null>(null);
+  const lotrecht = () => {
+    const o = boardRef.current;
+    if (!o) return;
+    o.rotation.set(0, 0, 0);
+    o.quaternion.set(0, 0, 0, 1);
+  };
   // Reset-Key: erhoehen remountet die verschiebbaren Panels → zurueck auf ihre
   // Default-Pose (die Handle-Transform wird dabei verworfen).
   const [resetKey, setResetKey] = useState(0);
@@ -313,29 +319,8 @@ export default function DovetailXRPage() {
                   + Buttons frei platzierbar; die Pose ueberlebt einen Reload. */}
               <XRPlacement
                 position={placement.position}
-                onHeight={placement.nudgeHeight}
-                onDepth={placement.nudgeDepth}
-                onReset={placement.reset}
+                boardRef={boardRef}
                 contentScale={3}
-                overlay={
-                  anreissModus ? null : (
-                    <>
-                      <XRStepBar
-                        active={step}
-                        onChange={(s) => {
-                          setStep(s);
-                          saveSession({ params, step: s, updatedAt: Date.now() });
-                        }}
-                      />
-                      <XRVoicePanel
-                        step={step}
-                        rag={rag}
-                        guard={guard}
-                        tts={voiceBundle?.tts}
-                      />
-                    </>
-                  )
-                }
               >
                 <DovetailSceneContents
                   params={xrParams}
@@ -350,46 +335,46 @@ export default function DovetailXRPage() {
                     transparentes Guide-Objekt erst beim Saege-/Stemm-Schritt (PR2). */}
               </XRPlacement>
 
-              {/* Anreiss-Menue — verschiebbar (Hand-Grab), vom Brett entkoppelt. */}
-              {anreissModus && (
-                <XRMovable
-                  key={`menu-${resetKey}`}
-                  position={MENU_DEFAULT}
-                  griffOffsetY={-0.3}
-                >
-                  <XRAnreissFlow
-                    flow={anreissFlow}
-                    index={anreissIndex}
-                    onIndex={gotoSchritt}
-                    masse={{
-                      width_mm: params.width_mm,
-                      thickness_mm: params.thickness_mm,
-                      length_mm: params.length_mm,
-                    }}
-                    onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
-                    onTafel={() => setTafelOffen((o) => !o)}
-                  />
-                </XRMovable>
-              )}
+              {/* EINE Toolbar (verschiebbar, billboardet zum Betrachter) —
+                  buendelt Modus, Maße, Schritt, Tafel-Schalter, Brett-Ausrichtung
+                  und "Frag den Meister". Frueher vier verstreute Panels. */}
+              <XRMovable
+                key={`toolbar-${resetKey}`}
+                position={MENU_DEFAULT}
+                griffOffsetY={-0.45}
+                griffBreite={260}
+              >
+                <XRToolbar
+                  anreissModus={anreissModus}
+                  onModus={setAnreissModus}
+                  onZentrieren={zentrieren}
+                  flow={anreissFlow}
+                  index={anreissIndex}
+                  onIndex={gotoSchritt}
+                  masse={{
+                    width_mm: params.width_mm,
+                    thickness_mm: params.thickness_mm,
+                    length_mm: params.length_mm,
+                  }}
+                  onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
+                  onTafel={() => setTafelOffen((o) => !o)}
+                  tafelOffen={tafelOffen}
+                  step={step}
+                  onStep={(s) => {
+                    setStep(s);
+                    saveSession({ params, step: s, updatedAt: Date.now() });
+                  }}
+                  onLotrecht={lotrecht}
+                  onReset={placement.reset}
+                  onNudgeHeight={placement.nudgeHeight}
+                  onNudgeDepth={placement.nudgeDepth}
+                  rag={rag}
+                  guard={guard}
+                  tts={voiceBundle?.tts}
+                />
+              </XRMovable>
 
-              {/* Voice-Coach im Anreiss-Modus — verschiebbar, rechts vom Brett */}
-              {anreissModus && (
-                <XRMovable
-                  key={`voice-${resetKey}`}
-                  position={[0.82, 1.2, -0.5]}
-                  griffOffsetY={-0.2}
-                >
-                  <XRVoicePanel
-                    step="anreissen"
-                    rag={rag}
-                    guard={guard}
-                    tts={voiceBundle?.tts}
-                    position={[0, 0, 0]}
-                  />
-                </XRMovable>
-              )}
-
-              {/* Grosse Detail-Tafel (auf Wunsch) — verschiebbar */}
+              {/* Grosse Detail-Tafel (auf Wunsch) — das zweite, separate Element. */}
               {anreissModus && tafelOffen && (
                 <XRMovable
                   key={`tafel-${resetKey}`}
@@ -405,20 +390,6 @@ export default function DovetailXRPage() {
                   />
                 </XRMovable>
               )}
-
-              {/* Navigations-Dock (apfel TabBar) — verschiebbar */}
-              <XRMovable
-                key={`nav-${resetKey}`}
-                position={[0, 0.7, -0.4]}
-                griffOffsetY={-0.07}
-              >
-                <XRNavBar
-                  anreissModus={anreissModus}
-                  onModus={setAnreissModus}
-                  onZentrieren={zentrieren}
-                  position={[0, 0, 0]}
-                />
-              </XRMovable>
             </XR>
             {/* Vorschau-Navigation (nur am Screen; in der AR-Session steuert das
                 Headset die Kamera). Pan AUS + Blick aufs Brett = nie "verloren". */}
