@@ -90,21 +90,26 @@ function MarkingTube({
     return new THREE.TubeGeometry(curve, segments, radiusMm, 8, false);
   }, [marking.points, radiusMm]);
 
-  // Neue Linie → von vorne wachsen.
+  // Neue Linie → von vorne wachsen (growth zuruecksetzen, KEIN drawRange hier —
+  // das setzt der Frame-Loop, sonst bleibt die Linie unsichtbar haengen).
   useEffect(() => {
     growth.current = 0;
-    if (geometry?.index) geometry.setDrawRange(0, 0);
   }, [geometry]);
 
   // GPU-Speicher freigeben, wenn sich die Geometrie aendert / beim Unmount.
   useEffect(() => () => geometry?.dispose(), [geometry]);
 
   useFrame((state, delta) => {
-    // Linie ueber ~0.9 s ausziehen (drawRange waechst entlang der Roehre).
-    if (geometry?.index && growth.current < 1) {
-      growth.current = Math.min(1, growth.current + delta * 1.1);
-      const total = geometry.index.count;
-      geometry.setDrawRange(0, Math.floor(growth.current * total));
+    if (geometry) {
+      // Linie ueber ~0.8 s ausziehen. Total = Index-Anzahl (TubeGeometry ist
+      // indexed); Fallback auf Vertex-Anzahl. Am Ende voll sichtbar.
+      if (growth.current < 1) {
+        growth.current = Math.min(1, growth.current + delta * 1.3);
+      }
+      const total =
+        geometry.index?.count ?? geometry.attributes.position?.count ?? 0;
+      // Mindestens ein kurzes Stueck zeigen → Linie ist nie ganz unsichtbar.
+      geometry.setDrawRange(0, Math.max(12, Math.ceil(growth.current * total)));
     }
     // Sanfter, gemeinsamer Puls.
     const mat = matRef.current;

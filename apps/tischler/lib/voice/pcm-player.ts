@@ -34,9 +34,13 @@ function int16ToFloat32(bytes: Uint8Array): Float32Array {
  * Play collected PCM chunks; resolves when playback finishes.
  * Returns false when there is nothing audible (mock silence stays silent).
  */
-export async function playPcmChunks(chunks: ReadonlyArray<TTSChunk>): Promise<boolean> {
+export async function playPcmChunks(
+  chunks: ReadonlyArray<TTSChunk>,
+  signal?: AbortSignal,
+): Promise<boolean> {
   const Ctor = getAudioContextCtor();
   if (!Ctor || chunks.length === 0) return false;
+  if (signal?.aborted) return false;
 
   const sampleRate = chunks[0]?.sampleRate ?? 24000;
   const totalBytes = chunks.reduce((n, c) => n + c.audio.length, 0);
@@ -81,10 +85,20 @@ export async function playPcmChunks(chunks: ReadonlyArray<TTSChunk>): Promise<bo
       // Haenge-Schutz: onended ist nicht auf jedem Geraet zuverlaessig —
       // nach Audiodauer + Marge loesen wir immer auf.
       const guard = setTimeout(resolve, durationMs + 2000);
-      source.onended = () => {
+      const done = () => {
         clearTimeout(guard);
         resolve();
       };
+      source.onended = done;
+      // Abbruch (neuer Sprech-Auftrag) → laufendes Audio sofort stoppen.
+      signal?.addEventListener("abort", () => {
+        try {
+          source.stop();
+        } catch {
+          /* schon gestoppt */
+        }
+        done();
+      });
       source.start();
     });
     return true;
