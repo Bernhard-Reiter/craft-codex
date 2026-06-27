@@ -15,6 +15,7 @@ import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRPlacement } from "../../../components/XRPlacement";
 import { XRDetailTafel } from "../../../components/XRDetailTafel";
 import { XRToolbar } from "../../../components/XRToolbar";
+import { XROrnament } from "../../../components/XROrnament";
 import { XRWristMenu } from "../../../components/XRWristMenu";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
@@ -58,6 +59,9 @@ export default function DovetailXRPage() {
   });
   const [step, setStep] = useState<DovetailStep>("anreissen");
   const [tafelOffen, setTafelOffen] = useState(false);
+  // Stiller Werkstatt-Modus: Default zeigt nur Holz + Anriss + kleines Ornament.
+  // Das Detail-Panel (Maße/Formel/Werkzeug) erscheint erst auf "Mehr…".
+  const [panelOffen, setPanelOffen] = useState(false);
   const placement = useBoardPlacement();
   const previewControls = useRef<{ reset: () => void } | null>(null);
   // Ref auf das greifbare Brett — die Toolbar nutzt ihn fuer "Lotrecht".
@@ -336,44 +340,75 @@ export default function DovetailXRPage() {
                     transparentes Guide-Objekt erst beim Saege-/Stemm-Schritt (PR2). */}
               </XRPlacement>
 
-              {/* EINE Toolbar (verschiebbar, billboardet zum Betrachter) —
-                  buendelt Modus, Maße, Schritt, Tafel-Schalter, Brett-Ausrichtung
-                  und "Frag den Meister". Frueher vier verstreute Panels. */}
+              {/* STILLER MODUS: das ruhige Apple-/visionOS-Ornament ist die
+                  einzige dauerhafte Bedienung — Lernschritt, schneller Tafel-
+                  Zugriff, Ein-Tap-Meister, "Mehr…". Comfort-platziert, billboardet. */}
               <XRMovable
-                key={`toolbar-${resetKey}`}
-                position={MENU_DEFAULT}
-                griffOffsetY={-0.45}
-                griffBreite={260}
+                key={`ornament-${resetKey}`}
+                position={[0, 0.92, -0.42]}
+                griffOffsetY={-0.07}
+                griffBreite={160}
               >
-                <XRToolbar
-                  anreissModus={anreissModus}
-                  onModus={setAnreissModus}
-                  onZentrieren={zentrieren}
-                  flow={anreissFlow}
+                <XROrnament
                   index={anreissIndex}
-                  onIndex={gotoSchritt}
-                  masse={{
-                    width_mm: params.width_mm,
-                    thickness_mm: params.thickness_mm,
-                    length_mm: params.length_mm,
-                  }}
-                  onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
+                  total={anreissFlow.schritte.length}
+                  label={anreissSchritt.label}
+                  meisterFrage="Wie reisse ich mit dem Streichmass an"
+                  onPrev={() => gotoSchritt(Math.max(0, anreissIndex - 1))}
+                  onNext={() =>
+                    gotoSchritt(
+                      Math.min(anreissFlow.schritte.length - 1, anreissIndex + 1),
+                    )
+                  }
                   onTafel={() => setTafelOffen((o) => !o)}
                   tafelOffen={tafelOffen}
-                  step={step}
-                  onStep={(s) => {
-                    setStep(s);
-                    saveSession({ params, step: s, updatedAt: Date.now() });
-                  }}
-                  onLotrecht={lotrecht}
-                  onReset={placement.reset}
-                  onNudgeHeight={placement.nudgeHeight}
-                  onNudgeDepth={placement.nudgeDepth}
+                  onMehr={() => setPanelOffen((o) => !o)}
+                  panelOffen={panelOffen}
                   rag={rag}
                   guard={guard}
                   tts={voiceBundle?.tts}
                 />
               </XRMovable>
+
+              {/* Detail-Panel — erscheint NUR auf "Mehr…" (Maße/Formel/Werkzeug/
+                  Modus/Voice). Im stillen Modus tritt es zurueck. */}
+              {panelOffen && (
+                <XRMovable
+                  key={`toolbar-${resetKey}`}
+                  position={MENU_DEFAULT}
+                  griffOffsetY={-0.45}
+                  griffBreite={260}
+                >
+                  <XRToolbar
+                    anreissModus={anreissModus}
+                    onModus={setAnreissModus}
+                    onZentrieren={zentrieren}
+                    flow={anreissFlow}
+                    index={anreissIndex}
+                    onIndex={gotoSchritt}
+                    masse={{
+                      width_mm: params.width_mm,
+                      thickness_mm: params.thickness_mm,
+                      length_mm: params.length_mm,
+                    }}
+                    onMasse={(m) => setParams((p) => ({ ...p, ...m }))}
+                    onTafel={() => setTafelOffen((o) => !o)}
+                    tafelOffen={tafelOffen}
+                    step={step}
+                    onStep={(s) => {
+                      setStep(s);
+                      saveSession({ params, step: s, updatedAt: Date.now() });
+                    }}
+                    onLotrecht={lotrecht}
+                    onReset={placement.reset}
+                    onNudgeHeight={placement.nudgeHeight}
+                    onNudgeDepth={placement.nudgeDepth}
+                    rag={rag}
+                    guard={guard}
+                    tts={voiceBundle?.tts}
+                  />
+                </XRMovable>
+              )}
 
               {/* Grosse Detail-Tafel (auf Wunsch) — das zweite, separate Element. */}
               {anreissModus && tafelOffen && (
