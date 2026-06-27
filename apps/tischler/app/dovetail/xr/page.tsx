@@ -17,12 +17,12 @@ import { XRVoicePanel } from "../../../components/XRVoicePanel";
 import { XRAnreissFlow } from "../../../components/XRAnreissFlow";
 import { XRDetailTafel } from "../../../components/XRDetailTafel";
 import { XRNavBar } from "../../../components/XRNavBar";
-import { WerkzeugAmBrett } from "../../../components/WerkzeugAmBrett";
 import { SiteFooter } from "../../../components/SiteFooter";
 import {
   buildAnreissFlow,
-  istLinieSichtbar,
+  type AnreissPhase,
 } from "../../../lib/zinken/anreiss-flow";
+import type { AnrissLayer } from "../../../components/AnrissFlat";
 import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../lib/storage/local";
 import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
@@ -36,6 +36,18 @@ import { useMeisterSpeak } from "../../../lib/voice/use-meister-speak";
 // Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
 // auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
 const MENU_DEFAULT: [number, number, number] = [-0.8, 1.2, -0.5];
+
+// Progressiver Anriss-Aufbau pro Lernschritt (wie der Meister anreisst):
+// erst einteilen → Grundlinie → Schwalben + Abfall. Leere Schritte zeigen nichts.
+const ANRISS_LAYERS_BY_PHASE: Record<AnreissPhase, AnrissLayer[]> = {
+  messen: [],
+  schwalbenzahl: [],
+  teile: ["divisions"],
+  streichmass: ["baseline", "divisions"],
+  markieren: ["baseline", "divisions", "flanks", "tails", "wastes"],
+  schraege: ["baseline", "flanks", "tails", "wastes"],
+  fertig: ["baseline", "flanks", "tails", "wastes"],
+};
 
 export default function DovetailXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
@@ -81,9 +93,12 @@ export default function DovetailXRPage() {
         : params,
     [anreissModus, params, anreissFlow.layout.AZS, anreissFlow.layout.slopeRatio],
   );
-  const anreissFilter = useMemo(
-    () => (id: string) => istLinieSichtbar(anreissSchritt, id),
-    [anreissSchritt],
+  // Welche flachen Anriss-Ebenen pro Lernschritt sichtbar sind (progressiver
+  // Aufbau wie ein Meister: erst einteilen, dann Grundlinie, dann Schwalben +
+  // Abfall). Ersetzt die alten Roehren-Linien durch die fachliche Darstellung.
+  const anrissLayers = useMemo<ReadonlySet<AnrissLayer>>(
+    () => new Set(ANRISS_LAYERS_BY_PHASE[anreissSchritt.id]),
+    [anreissSchritt.id],
   );
 
   // Voice-Coach: gleicher RAG + TopicGuard + Stimm-Kette wie /dovetail.
@@ -327,16 +342,12 @@ export default function DovetailXRPage() {
                   step={anreissModus ? "anreissen" : step}
                   withOrbitControls={false}
                   markingStyle="tube"
-                  markingFilter={anreissModus ? anreissFilter : undefined}
                   showBoardB={!anreissModus}
+                  anrissLayers={anreissModus ? anrissLayers : undefined}
                 />
-                {anreissModus && (
-                  <WerkzeugAmBrett
-                    phase={anreissSchritt.id}
-                    params={xrParams}
-                    layout={anreissFlow.layout}
-                  />
-                )}
+                {/* Werkzeug-Sollposition gehoert laut Spec NICHT in die Anreiss-
+                    Phase (sie verdeckte die Geometrie) — sie kommt als eigenes,
+                    transparentes Guide-Objekt erst beim Saege-/Stemm-Schritt (PR2). */}
               </XRPlacement>
 
               {/* Anreiss-Menue — verschiebbar (Hand-Grab), vom Brett entkoppelt. */}

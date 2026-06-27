@@ -12,6 +12,7 @@ import {
 } from "@craft-codex/core";
 import type { DovetailParams, DovetailStep } from "@craft-codex/core";
 import { MarkingTubes } from "./MarkingTubes";
+import { AnrissFlat, type AnrissLayer } from "./AnrissFlat";
 import { useHolzMaterial } from "../lib/textures/use-holz-material";
 
 /** Wie Anrisslinien gerendert werden: duenne Lines (2D) oder emissive Roehren (XR). */
@@ -41,6 +42,7 @@ export function DovetailSceneContents({
   markingStyle = "line",
   markingFilter,
   showBoardB = true,
+  anrissLayers,
 }: {
   params: DovetailParams;
   step: DovetailStep;
@@ -57,6 +59,12 @@ export function DovetailSceneContents({
    * Brett — dann false, damit das Gegenstueck nicht ablenkt. Default true.
    */
   showBoardB?: boolean;
+  /**
+   * Flacher Anriss (Grundlinie/Flanken/Abfallflaechen statt Roehren). Wenn
+   * gesetzt, ersetzt er die alten Marking-Linien — das ist die fachliche
+   * Anreiss-Darstellung. Das Set steuert, welche Ebenen progressiv sichtbar sind.
+   */
+  anrissLayers?: ReadonlySet<AnrissLayer>;
 }) {
   return (
     <>
@@ -71,7 +79,14 @@ export function DovetailSceneContents({
         <BoardA params={params} />
         {showBoardB && <BoardB params={params} />}
       </Suspense>
-      {markingStyle === "tube" ? (
+      {anrissLayers ? (
+        <AnrissFlat
+          widthMm={params.width_mm}
+          thicknessMm={params.thickness_mm}
+          lengthMm={params.length_mm}
+          layers={anrissLayers}
+        />
+      ) : markingStyle === "tube" ? (
         <MarkingTubes params={params} step={step} markingFilter={markingFilter} />
       ) : (
         <MarkingLines params={params} step={step} markingFilter={markingFilter} />

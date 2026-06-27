@@ -22,3 +22,13 @@ export type {
   DovetailMethod,
   ConstructionOptions,
 } from "./construction.js";
+export { buildDovetailAnriss } from "./anriss.js";
+export type {
+  DovetailAnriss,
+  AnrissPoint,
+  AnrissLine,
+  AnrissLineRole,
+  AnrissArea,
+  AnrissDimension,
+  MaterialState,
+} from "./anriss.js";
