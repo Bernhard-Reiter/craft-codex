@@ -35,10 +35,10 @@ export interface OpenAITTSConfig {
 }
 
 const DEFAULT_MODEL = "gpt-4o-mini-tts";
-// "ash" = klare, energische, lebendige Männerstimme (statt der tiefen, betont
-// ruhigen "onyx" — die klang brav/schläfrig). Per OPENAI_TTS_VOICE überschreibbar
-// (Alternativen: "verse", "ballad", "coral", "fable", "nova").
-const DEFAULT_VOICE = "ash";
+// "verse" = sehr expressive, dynamische Stimme (Bernhards Wahl) — bringt die
+// Begeisterung fürs Handwerk besser rüber als die brave "onyx"/"ash". Per
+// OPENAI_TTS_VOICE überschreibbar (Alternativen: "ash", "ballad", "coral", "nova").
+const DEFAULT_VOICE = "verse";
 const DEFAULT_ENDPOINT = "https://api.openai.com";
 /** response_format "pcm" ist bei OpenAI immer 24 kHz, 16-bit, mono, LE. */
 const PCM_SAMPLE_RATE = 24000;
