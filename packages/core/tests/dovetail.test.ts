@@ -64,12 +64,14 @@ describe("computePins", () => {
 });
 
 describe("generateMarkings", () => {
-  it("anreissen → streichmass + 2 lines per pin", () => {
+  it("anreissen → streichmass + mittellinie + 1 Schwalben-Kontur pro Pin", () => {
     const m = generateMarkings("anreissen", { ...P, pinCount: 5 });
-    const streichmass = m.find((x) => x.id === "streichmass_brettstaerke");
-    expect(streichmass).toBeDefined();
-    const winkel = m.filter((x) => x.id.startsWith("winkel_pin_"));
-    expect(winkel).toHaveLength(10);
+    expect(m.find((x) => x.id === "streichmass_brettstaerke")).toBeDefined();
+    expect(m.find((x) => x.id === "mittellinie")).toBeDefined();
+    const konturen = m.filter((x) => x.id.startsWith("schwalbe_pin_"));
+    expect(konturen).toHaveLength(5);
+    // Volle Trapez-Kontur = geschlossene Polyline (5 Punkte).
+    expect(konturen[0]!.points).toHaveLength(5);
   });
 
   it("saegen → 2 cut lines per pin", () => {

@@ -47,28 +47,33 @@ describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
     expect(teile.tafel.join(" ")).toContain("13 Teile");
   });
 
-  it("Rechen-/Mess-Schritte zeigen noch KEINE Linie (progressiv)", () => {
-    for (const id of ["messen", "schwalbenzahl", "teile"] as const) {
+  it("Mess-/Rechen-Schritte zeigen noch keine Brett-Kontur (progressiv)", () => {
+    // messen + schwalbenzahl: noch gar nichts; teile: die Mittellinie erscheint,
+    // auf der danach geteilt wird.
+    for (const id of ["messen", "schwalbenzahl"] as const) {
       const s = flow.schritte.find((x) => x.id === id)!;
       expect(s.zeigeLinien).toEqual([]);
     }
+    const teile = flow.schritte.find((x) => x.id === "teile")!;
+    expect(teile.zeigeLinien).toEqual(["mittellinie"]);
   });
 
   it("Streichmaß-Schritt zeigt genau die Streichmaß-Linie", () => {
     const s = flow.schritte.find((x) => x.id === "streichmass")!;
     expect(istLinieSichtbar(s, "streichmass_brettstaerke")).toBe(true);
-    expect(istLinieSichtbar(s, "winkel_pin_0_left")).toBe(false);
+    expect(istLinieSichtbar(s, "schwalbe_pin_0")).toBe(false);
   });
 
-  it("Markieren-Schritt zeigt die Schwalbenwinkel-Linien (Praefix-Match)", () => {
+  it("Markieren-Schritt zeigt Mittellinie + Schwalben-Konturen (Praefix-Match)", () => {
     const s = flow.schritte.find((x) => x.id === "markieren")!;
-    expect(istLinieSichtbar(s, "winkel_pin_0_left")).toBe(true);
-    expect(istLinieSichtbar(s, "winkel_pin_3_right")).toBe(true);
+    expect(istLinieSichtbar(s, "mittellinie")).toBe(true);
+    expect(istLinieSichtbar(s, "schwalbe_pin_0")).toBe(true);
+    expect(istLinieSichtbar(s, "schwalbe_pin_3")).toBe(true);
   });
 
   it("Fertig-Schritt zeigt alle Anrisslinien zusammen", () => {
     const s = flow.schritte.find((x) => x.id === "fertig")!;
     expect(istLinieSichtbar(s, "streichmass_brettstaerke")).toBe(true);
-    expect(istLinieSichtbar(s, "winkel_pin_1_left")).toBe(true);
+    expect(istLinieSichtbar(s, "schwalbe_pin_1")).toBe(true);
   });
 });

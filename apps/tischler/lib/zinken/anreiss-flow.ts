@@ -114,7 +114,7 @@ export function buildAnreissFlow(
         `${L.AZS} mal 3 plus 1 = ${L.AZT} Teile. Jedes Teil ist T = B durch AZT ` +
         `= ${mm(L.T)} Millimeter breit. Merk dir: ein Zinken ist 1 Teil ` +
         `(${mm(L.zinkenBreite)} mm), eine Schwalbe 2 Teile (${mm(L.schwalbeBreite)} mm).`,
-      zeigeLinien: [],
+      zeigeLinien: ["mittellinie"],
       kennzahl: `${L.AZT} Teile à ${mm(L.T)} mm`,
       tafel: [
         `AZT = AZS · 3 + 1 = ${L.AZT} Teile`,
@@ -141,7 +141,7 @@ export function buildAnreissFlow(
         `Jetzt teilen wir die Breite ein und markieren die Schwalben — ${L.AZS} ` +
         `Stück, gleichmäßig verteilt. Zinken schmal, Schwalbe doppelt so breit. ` +
         `Die Risse zeigen dir, wo später gesägt wird.`,
-      zeigeLinien: ["winkel_pin_"],
+      zeigeLinien: ["mittellinie", "schwalbe_pin_"],
       kennzahl: `${L.AZS} Schwalben markiert`,
       tafel: [
         `Zinken  = 1 Teil  (${mm(L.zinkenBreite)} mm)`,
@@ -158,7 +158,7 @@ export function buildAnreissFlow(
         `${L.slopeDeg.toFixed(0)} Grad. Mit der Schmiege legst du jede ` +
         `Schwalbenflanke an. Steiler bricht aus, flacher hält schlechter — ` +
         `1 zu ${L.slopeRatio} ist der bewährte Mittelweg.`,
-      zeigeLinien: ["winkel_pin_"],
+      zeigeLinien: ["mittellinie", "schwalbe_pin_"],
       kennzahl: `Schräge 1:${L.slopeRatio}`,
       tafel: [
         `Schräge = 1 : ${L.slopeRatio}  (≈ ${L.slopeDeg.toFixed(0)}°)`,
@@ -173,7 +173,7 @@ export function buildAnreissFlow(
         `Das Anreissen steht. Du hast ${L.AZS} Schwalben in ${L.AZT} Teilen, ` +
         `jedes ${mm(L.T)} Millimeter, mit der Schräge 1 zu ${L.slopeRatio}. ` +
         `Jetzt darf gesägt werden — immer auf der Abfallseite der Linie.`,
-      zeigeLinien: ["streichmass_brettstaerke", "winkel_pin_"],
+      zeigeLinien: ["streichmass_brettstaerke", "mittellinie", "schwalbe_pin_"],
       kennzahl: "Anriss komplett",
       tafel: [
         `${L.AZS} Schwalben · ${L.AZT} Teile à ${mm(L.T)} mm`,

@@ -71,8 +71,6 @@ function MarkingTube({
   pulse: boolean;
 }) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
-  // Wachstum 0..1 — die Linie wird "gezogen" wie vom Streichmass/Stift.
-  const growth = useRef(0);
 
   const geometry = useMemo(() => {
     const pts = dedupePoints(marking.points);
@@ -90,28 +88,11 @@ function MarkingTube({
     return new THREE.TubeGeometry(curve, segments, radiusMm, 8, false);
   }, [marking.points, radiusMm]);
 
-  // Neue Linie → von vorne wachsen (growth zuruecksetzen, KEIN drawRange hier —
-  // das setzt der Frame-Loop, sonst bleibt die Linie unsichtbar haengen).
-  useEffect(() => {
-    growth.current = 0;
-  }, [geometry]);
-
   // GPU-Speicher freigeben, wenn sich die Geometrie aendert / beim Unmount.
   useEffect(() => () => geometry?.dispose(), [geometry]);
 
-  useFrame((state, delta) => {
-    if (geometry) {
-      // Linie ueber ~0.8 s ausziehen. Total = Index-Anzahl (TubeGeometry ist
-      // indexed); Fallback auf Vertex-Anzahl. Am Ende voll sichtbar.
-      if (growth.current < 1) {
-        growth.current = Math.min(1, growth.current + delta * 1.3);
-      }
-      const total =
-        geometry.index?.count ?? geometry.attributes.position?.count ?? 0;
-      // Mindestens ein kurzes Stueck zeigen → Linie ist nie ganz unsichtbar.
-      geometry.setDrawRange(0, Math.max(12, Math.ceil(growth.current * total)));
-    }
-    // Sanfter, gemeinsamer Puls.
+  // Sanfter, gemeinsamer Puls (Linie ist sofort voll sichtbar).
+  useFrame((state) => {
     const mat = matRef.current;
     if (!mat) return;
     if (!pulse) {

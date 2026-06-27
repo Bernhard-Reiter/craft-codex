@@ -97,23 +97,31 @@ export function generateMarkings(
       ],
     });
 
+    // Mittellinie: auf ihr wird die Teilung abgetragen (Lehrbuch).
+    markings.push({
+      id: "mittellinie",
+      description: "Mittellinie der Zinkenteilung",
+      color: "#FF3030",
+      points: [
+        [-halfW, 0, halfL - t / 2],
+        [halfW, 0, halfL - t / 2],
+      ],
+    });
+
+    // Pro Schwalbe die VOLLE keilfoermige Kontur (Trapez) auf der Oberseite —
+    // schmal an der Stirnkante (z=halfL), breit am Streichmass (z=halfL-t),
+    // Flanken im Verhaeltnis 1:ratio. So sieht es aus wie die Lehrbuch-Zeichnung.
     pins.forEach((pin) => {
       markings.push({
-        id: `winkel_pin_${pin.index}_left`,
-        description: `Schwalbenwinkel Pin ${pin.index + 1} (links 1:${p.ratio})`,
+        id: `schwalbe_pin_${pin.index}`,
+        description: `Schwalbe ${pin.index + 1} (Kontur 1:${p.ratio})`,
         color: "#FF8800",
         points: [
           [pin.narrowLeft_mm, 0, halfL],
           [pin.wideLeft_mm, 0, halfL - t],
-        ],
-      });
-      markings.push({
-        id: `winkel_pin_${pin.index}_right`,
-        description: `Schwalbenwinkel Pin ${pin.index + 1} (rechts 1:${p.ratio})`,
-        color: "#FF8800",
-        points: [
-          [pin.narrowRight_mm, 0, halfL],
           [pin.wideRight_mm, 0, halfL - t],
+          [pin.narrowRight_mm, 0, halfL],
+          [pin.narrowLeft_mm, 0, halfL],
         ],
       });
     });
