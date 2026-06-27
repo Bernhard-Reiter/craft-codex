@@ -73,25 +73,24 @@ export function XRDetailTafel({
               </Button>
             </Container>
 
-            {/* Dunkle Schultafel als eingehaengte Schreibflaeche */}
-            <Container
-              flexDirection="column"
-              gap={14}
-              padding={32}
-              borderRadius={22}
-              backgroundColor="#16241c"
-              borderWidth={4}
-              borderColor="#6b4a2f"
-            >
+            {/* Inhalt direkt auf dem Glas — modern, neutral; kein gruenes Brett,
+                kein Holzrahmen. Erklaerung in einem dezenten dunklen Glas-Panel. */}
+            <Container flexDirection="column" gap={16}>
               {anreissModus ? (
                 <>
                   <Container flexDirection="column" gap={8}>
                     {schritt.tafel.map((zeile, k) => (
-                      <Text key={k} fontSize={32} color="#fdf6df">{asciiFold(zeile)}</Text>
+                      <Text key={k} fontSize={32} color="#f4f1e8">{asciiFold(zeile)}</Text>
                     ))}
                   </Container>
-                  <Container backgroundColor="#0e1813" borderRadius={12} padding={20} marginTop={6}>
-                    <Text fontSize={19} color="#cfe3d6">{asciiFold(detail)}</Text>
+                  <Container
+                    backgroundColor="#000000"
+                    backgroundOpacity={0.22}
+                    borderRadius={16}
+                    padding={20}
+                    marginTop={2}
+                  >
+                    <Text fontSize={19} color="#c7cdd6">{asciiFold(detail)}</Text>
                   </Container>
                 </>
               ) : (
@@ -102,15 +101,15 @@ export function XRDetailTafel({
                         width={34}
                         height={34}
                         borderRadius={17}
-                        backgroundColor="#3c5a48"
+                        backgroundColor="#2b2f3a"
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <Text fontSize={18} color="#fdf6df">{String(k + 1)}</Text>
+                        <Text fontSize={18} color="#f4f1e8">{String(k + 1)}</Text>
                       </Container>
                       <Container flexDirection="column" flexGrow={1}>
-                        <Text fontSize={22} color="#fdf6df">{h.name}</Text>
-                        <Text fontSize={16} color="#cfe3d6">{asciiFold(h.hint)}</Text>
+                        <Text fontSize={22} color="#f4f1e8">{h.name}</Text>
+                        <Text fontSize={16} color="#aeb4bf">{asciiFold(h.hint)}</Text>
                       </Container>
                     </Container>
                   ))}
