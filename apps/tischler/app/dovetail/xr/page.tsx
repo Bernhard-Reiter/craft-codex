@@ -351,6 +351,23 @@ export default function DovetailXRPage() {
                 </XRMovable>
               )}
 
+              {/* Voice-Coach im Anreiss-Modus — verschiebbar, rechts vom Brett */}
+              {anreissModus && (
+                <XRMovable
+                  key={`voice-${resetKey}`}
+                  position={[0.82, 1.2, -0.5]}
+                  griffOffsetY={-0.2}
+                >
+                  <XRVoicePanel
+                    step="anreissen"
+                    rag={rag}
+                    guard={guard}
+                    tts={voiceBundle?.tts}
+                    position={[0, 0, 0]}
+                  />
+                </XRMovable>
+              )}
+
               {/* Grosse Detail-Tafel (auf Wunsch) — verschiebbar */}
               {anreissModus && tafelOffen && (
                 <XRMovable
