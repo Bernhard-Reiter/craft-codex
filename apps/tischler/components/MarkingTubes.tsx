@@ -49,10 +49,17 @@ export function MarkingTubes({
 
   return (
     <group
-      // Identischer Scale + Y-Offset wie die alte MarkingLines-Komponente,
-      // damit die Roehren exakt auf Brett A liegen.
+      // Identischer Scale + Y-Offset wie die MarkingLines-Komponente, damit die
+      // Roehren exakt auf Brett A liegen.
+      //
+      // WICHTIG: `position` wirkt im ELTERN-Koordinatensystem (Meter) und wird
+      // NICHT vom eigenen `scale` der Group beeinflusst — scale skaliert nur die
+      // Kinder. Der Offset ist also direkt in Metern (BoardA sitzt bei
+      // BOARD_SEPARATION_M/2 = 0,075 m, +1 mm Luft). Ein frueheres
+      // `/ SCALE_MM_TO_M` machte daraus 76 m → die Roehren waren 76 Meter ueber
+      // dem Brett, also unsichtbar (das war der "keine Striche"-Bug).
       scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}
-      position={[0, (BOARD_SEPARATION_M / 2 + 0.001) / SCALE_MM_TO_M, 0]}
+      position={[0, BOARD_SEPARATION_M / 2 + 0.001, 0]}
     >
       {markings.map((m) => (
         <MarkingTube key={m.id} marking={m} radiusMm={radiusMm} pulse={pulse} />
@@ -75,17 +82,19 @@ function MarkingTube({
   const geometry = useMemo(() => {
     const pts = dedupePoints(marking.points);
     if (pts.length < 2) return null;
-    const curve = new THREE.CatmullRomCurve3(
-      pts.map((p) => new THREE.Vector3(p[0], p[1], p[2])),
-      false,
-      // "centripetal" verhindert Schleifen/Ueberschwinger an Ecken —
-      // Anrisslinien sind ueberwiegend gerade, das haelt sie sauber.
-      "centripetal",
-      0.5,
-    );
-    // tubularSegments proportional zur Polyline-Laenge, damit Ecken sitzen.
-    const segments = Math.max(8, (pts.length - 1) * 8);
-    return new THREE.TubeGeometry(curve, segments, radiusMm, 8, false);
+    const vecs = pts.map((p) => new THREE.Vector3(p[0], p[1], p[2]));
+    // SCHARFE Ecken: gerade LineCurve3-Segmente statt CatmullRom-Glaettung.
+    // Anrisslinien sind technische Zeichnungen — die Schwalben-Kontur muss als
+    // klares keilfoermiges Trapez sitzen (wie im Lehrbuch), nicht als rundlicher
+    // Blob. Eine CurvePath aus geraden Segmenten haelt jede Kante exakt.
+    const path = new THREE.CurvePath<THREE.Vector3>();
+    for (let i = 0; i < vecs.length - 1; i++) {
+      path.add(new THREE.LineCurve3(vecs[i]!, vecs[i + 1]!));
+    }
+    // Wenige Segmente pro gerader Strecke reichen (kein Bogen zu approximieren);
+    // die Ecken bleiben dadurch knackig statt verschliffen.
+    const segments = Math.max(2, (vecs.length - 1) * 2);
+    return new THREE.TubeGeometry(path, segments, radiusMm, 8, false);
   }, [marking.points, radiusMm]);
 
   // GPU-Speicher freigeben, wenn sich die Geometrie aendert / beim Unmount.
