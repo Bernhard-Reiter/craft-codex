@@ -89,7 +89,7 @@ function DimensionView({
         <Ribbon a={t3} b={t1} B={B} halfL={halfL} y={y} w={0.32} color="#1d2c4a" />
         <group position={[lp.x, lp.y, lp.z]} rotation={[-Math.PI / 2, 0, 0]}>
           <Root pixelSize={1} anchorX="center" anchorY="center">
-            <Text fontSize={13} color="#1d2c4a" fontWeight="bold">{dim.label}</Text>
+            <Text fontSize={12} color="#1d2c4a" fontWeight="normal">{dim.label}</Text>
           </Root>
         </group>
       </group>
@@ -135,7 +135,7 @@ function DimensionView({
       {/* Maßtext flach in der Ebene */}
       <group position={[labelPos.x, labelPos.y, labelPos.z]} rotation={[-Math.PI / 2, 0, 0]}>
         <Root pixelSize={1} anchorX="center" anchorY="center">
-          <Text fontSize={13} color={dimColor} fontWeight="bold">
+          <Text fontSize={12} color={dimColor} fontWeight="normal">
             {dim.label}
           </Text>
         </Root>
