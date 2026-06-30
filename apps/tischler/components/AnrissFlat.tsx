@@ -8,6 +8,7 @@ import type {
   AnrissLine,
   DovetailMethod,
   TeilungEbene,
+  DovetailVariante,
 } from "@craft-codex/core";
 
 const SCALE_MM_TO_M = 0.001;
@@ -36,6 +37,7 @@ export function AnrissFlat({
   lengthMm: L,
   method = "mittellinie",
   teilung = "stirn",
+  variante = "standard",
   layers,
 }: {
   widthMm: number;
@@ -44,12 +46,14 @@ export function AnrissFlat({
   method?: DovetailMethod;
   /** Teilungsebene: "stirn" (an der Stirnkante) oder "mittellinie" (Lehrbuch). */
   teilung?: TeilungEbene;
+  /** Variante: "standard" oder "rzv" (Randzinkenverstaerkung). */
+  variante?: DovetailVariante;
   /** Welche Anriss-Ebenen sichtbar sind (progressiv pro Lernschritt). */
   layers: ReadonlySet<AnrissLayer>;
 }) {
   const anriss = useMemo(
-    () => buildDovetailAnriss(B, D, method, {}, teilung),
-    [B, D, method, teilung],
+    () => buildDovetailAnriss(B, D, method, {}, teilung, variante),
+    [B, D, method, teilung, variante],
   );
   const halfL = L / 2;
 

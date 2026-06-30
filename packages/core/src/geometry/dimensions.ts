@@ -17,7 +17,12 @@
  * fehler. buildDovetailAnriss liefert die exakten divisions[] bereits so.
  */
 
-import { buildDovetailAnriss, type AnrissPoint, type TeilungEbene } from "./anriss.js";
+import {
+  buildDovetailAnriss,
+  type AnrissPoint,
+  type TeilungEbene,
+  type DovetailVariante,
+} from "./anriss.js";
 import type { ConstructionOptions, DovetailMethod } from "./construction.js";
 
 export type DimKind =
@@ -81,11 +86,13 @@ export function buildDovetailDimensions(
   method: DovetailMethod = "mittellinie",
   opts: ConstructionOptions = {},
   teilung: TeilungEbene = "stirn",
+  variante: DovetailVariante = "standard",
 ): Dimension[] {
-  const A = buildDovetailAnriss(B, D, method, opts, teilung);
+  const A = buildDovetailAnriss(B, D, method, opts, teilung, variante);
   const { AZS, AZT, T, slopeRatio, zinkenBreite, schwalbeBreite } = A.layout;
   const flankOffset = A.flankOffset;
   const teilungY = A.teilungY; // 0 (Stirn) oder D/2 (Mittellinie)
+  const isRzv = variante === "rzv";
   const dims: Dimension[] = [];
 
   // A) Gesamtmaß Brettbreite B — aussen, oberhalb der Stirnkante (y<0).
@@ -126,34 +133,38 @@ export function buildDovetailDimensions(
     phases: ["messen", "streichmass", "fertig"],
   });
 
-  // C) Teilbreite T — Einzelmaß, nah am Werkstueck (am ersten Teil).
-  dims.push({
-    id: "dim-part-width",
-    kind: "einzel",
-    a: { x: 0, y: 0 },
-    b: { x: T, y: 0 },
-    offset: -8,
-    direction: "horizontal",
-    label: `T = ${r(T)} mm`,
-    exactValue: T,
-    explanation: {
-      was: "Das Grundmodul der Einteilung (Breite eines Teils auf der Mittellinie).",
-      wie: `T = B / AZT = ${r(B, 0)} / ${AZT} = ${r(T)} mm (intern unrund weiterrechnen).`,
-      wozu: "Auf der Mittellinie ist ein Zinken 1T, eine Schwalbe 2T breit.",
-      fehler: "Mit gerundetem T 13-mal addiert entsteht ein Fehler; Positionen daher aus B·index/AZT rechnen.",
-    },
-    phases: ["teile"],
-  });
+  // C) Teilbreite T — Einzelmaß (nur Standard; bei RZV ersetzen RZV/RB das Modul).
+  if (!isRzv) {
+    dims.push({
+      id: "dim-part-width",
+      kind: "einzel",
+      a: { x: 0, y: 0 },
+      b: { x: T, y: 0 },
+      offset: -8,
+      direction: "horizontal",
+      label: `T = ${r(T)} mm`,
+      exactValue: T,
+      explanation: {
+        was: "Das Grundmodul der Einteilung (Breite eines Teils auf der Mittellinie).",
+        wie: `T = B / AZT = ${r(B, 0)} / ${AZT} = ${r(T)} mm (intern unrund weiterrechnen).`,
+        wozu: "Auf der Mittellinie ist ein Zinken 1T, eine Schwalbe 2T breit.",
+        fehler: "Mit gerundetem T 13-mal addiert entsteht ein Fehler; Positionen daher aus B·index/AZT rechnen.",
+      },
+      phases: ["teile"],
+    });
+  }
 
   // D) 1T/2T-Maßkette — Teilmaße GEMESSEN auf der Teilungsebene (dort sind die
   //    Breiten exakt 1T/2T), die Maßlinie aussen ueber der Stirnkante (y=-8) mit
   //    Maßhilfslinien zur Teilungsebene. Positionen aus den exakten divisions[].
   const div = A.divisions; // [0,1T,3T,4T,...,B]
   const ketteY = -8;
+  const mmLabel = (w: number) => (Number.isInteger(w) ? String(w) : r(w, 1));
   for (let i = 0; i < div.length - 1; i++) {
     const left = div[i]!;
     const right = div[i + 1]!;
     const isSchwalbe = i % 2 === 1; // 0=Zinken,1=Schwalbe,...
+    const w = right - left;
     dims.push({
       id: `dim-part-${i}`,
       kind: "teil",
@@ -161,15 +172,61 @@ export function buildDovetailDimensions(
       b: { x: right, y: teilungY },
       offset: ketteY - teilungY,
       direction: "horizontal",
-      label: isSchwalbe ? "2T" : "1T",
-      exactValue: right - left,
+      // RZV: echte mm-Breiten (Rand 6,5 / Innenzinken 13 / Schwalbe 22);
+      // Standard: 1T/2T-Module.
+      label: isRzv ? mmLabel(w) : isSchwalbe ? "2T" : "1T",
+      exactValue: w,
       explanation: {
-        was: isSchwalbe ? "Eine Schwalbe — 2 Teile breit." : "Ein Zinken — 1 Teil breit.",
-        wie: `Auf der Mittellinie; ${isSchwalbe ? `2T = ${r(schwalbeBreite)} mm` : `1T = ${r(zinkenBreite)} mm`}.`,
-        wozu: `${AZS} Schwalben (2T) und ${AZS + 1} Zinken (1T) ergeben ${AZT}T = die ganze Breite.`,
+        was: isSchwalbe ? "Eine Schwalbe." : "Ein Zinken.",
+        wie: isRzv
+          ? `${mmLabel(w)} mm (${isSchwalbe ? "Schwalbe" : "Zinken"} bei Randzinkenverstaerkung).`
+          : `Auf der Mittellinie; ${isSchwalbe ? `2T = ${r(schwalbeBreite)} mm` : `1T = ${r(zinkenBreite)} mm`}.`,
+        wozu: isRzv
+          ? `Kraeftige Randzinken (RZV) + ${AZS - 1} Innenzinken (2·RZV) tragen die ${AZS} Schwalben.`
+          : `${AZS} Schwalben (2T) und ${AZS + 1} Zinken (1T) ergeben ${AZT}T = die ganze Breite.`,
         fehler: "Gleich breite Rechtecke waeren falsch — durch die Schraege aendert sich die Breite zur Stirnkante/Grundlinie.",
       },
       phases: ["markieren"],
+    });
+  }
+
+  // D2) Nur RZV: Restbreite RB als Teilmaß (zwischen den Randzinken) + die
+  //     beiden Randzinkenverstaerkungen — der Kern der Methode.
+  if (isRzv && A.rzv) {
+    const { RZV, RB } = A.rzv;
+    dims.push({
+      id: "dim-rb",
+      kind: "teil",
+      a: { x: RZV, y: teilungY },
+      b: { x: B - RZV, y: teilungY },
+      offset: -15 - teilungY,
+      direction: "horizontal",
+      label: `RB = ${r(RB, 0)} mm`,
+      exactValue: RB,
+      explanation: {
+        was: "Restbreite — die Breite zwischen den beiden Randzinken.",
+        wie: `RB = B − 2·RZV = ${r(B, 0)} − 2·${r(RZV, 1)} = ${r(RB, 0)} mm.`,
+        wozu: "Erst die kraeftigen Randzinken festlegen, dann nur die Restbreite gleichmaessig auf die Schwalben teilen.",
+        fehler: "Wird RB falsch geteilt, sitzen die Schwalben unsymmetrisch oder die Randzinken werden zu schwach.",
+      },
+      phases: ["teile", "markieren"],
+    });
+    dims.push({
+      id: "dim-rzv",
+      kind: "einzel",
+      a: { x: 0, y: teilungY },
+      b: { x: RZV, y: teilungY },
+      offset: -8 - teilungY,
+      direction: "horizontal",
+      label: `RZV ${r(RZV, 1)}`,
+      exactValue: RZV,
+      explanation: {
+        was: "Randzinkenverstaerkung — der kraeftige Eckzinken (halb sichtbar).",
+        wie: `RZV = D/3 = ${r(D, 0)}/3 ≈ ${r(RZV, 1)} mm (Werkstattmass auf 0,5 gerundet). Voller Innenzinken = 2·RZV.`,
+        wozu: "Der Eckzinken ist die schwaechste Stelle — Verstaerkung verhindert das Ausbrechen der Kante.",
+        fehler: "Zu schmaler Randzinken bricht an der Ecke aus; zu breit stoert das Teilungsbild.",
+      },
+      phases: ["teile", "markieren"],
     });
   }
 

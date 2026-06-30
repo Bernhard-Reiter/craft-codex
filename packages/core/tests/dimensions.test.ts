@@ -34,8 +34,39 @@ describe("Teilungsebene Stirn vs Mittellinie (B=140, D=20, T=10,769, Δ=3,333)",
   it("Mittellinie: Maßkette liegt auf der Mittellinie (y=D/2)", () => {
     const dims = buildDovetailDimensions(140, 20, "mittellinie", {}, "mittellinie");
     const kette = dims.filter((d) => d.kind === "teil");
+    // 9 Segmente + RB (auch kind "teil" bei Standard nicht vorhanden)
     expect(kette.length).toBe(9);
     expect(kette.every((d) => d.a.y === 10)).toBe(true);
+  });
+});
+
+describe("Randzinkenverstaerkung (RZV, B=140, D=20, AZS=4)", () => {
+  it("Geometrie kachelt exakt: Grenzliste 0..140, Schwalbe 22, Innenzinken 13, RZV 6,5", () => {
+    const A = buildDovetailAnriss(140, 20, "mittellinie", {}, "stirn", "rzv");
+    expect(A.rzv).toEqual({ RZV: 6.5, RB: 127, innenZinken: 13, schwalbe: 22 });
+    const expected = [0, 6.5, 28.5, 41.5, 63.5, 76.5, 98.5, 111.5, 133.5, 140];
+    expect(A.divisions).toHaveLength(expected.length);
+    A.divisions.forEach((d, i) => expect(d).toBeCloseTo(expected[i]!, 6));
+  });
+
+  it("Invariante: 2·RZV + AZS·Schwalbe + (AZS−1)·Innenzinken = B", () => {
+    const A = buildDovetailAnriss(140, 20, "mittellinie", {}, "stirn", "rzv");
+    const { RZV, schwalbe, innenZinken } = A.rzv!;
+    expect(2 * RZV + 4 * schwalbe + 3 * innenZinken).toBeCloseTo(140, 6);
+    expect(A.tails).toHaveLength(4); // 4 Schwalben
+    expect(A.wastes).toHaveLength(5); // 2 Rand- + 3 Innenzinken
+  });
+
+  it("Bemaßung zeigt RZV + RB + echte mm-Segmentbreiten (nicht 1T/2T)", () => {
+    const dims = buildDovetailDimensions(140, 20, "mittellinie", {}, "stirn", "rzv");
+    expect(dims.find((d) => d.id === "dim-rzv")?.label).toBe("RZV 6,5");
+    expect(dims.find((d) => d.id === "dim-rb")?.label).toBe("RB = 127 mm");
+    const kette = dims.filter((d) => d.id.startsWith("dim-part-"));
+    expect(kette.map((d) => d.label)).toEqual([
+      "6,5", "22", "13", "22", "13", "22", "13", "22", "6,5",
+    ]);
+    // KEIN Standard-T-Einzelmaß bei RZV.
+    expect(dims.find((d) => d.id === "dim-part-width")).toBeUndefined();
   });
 });
 

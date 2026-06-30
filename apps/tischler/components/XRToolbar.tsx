@@ -48,6 +48,8 @@ export function XRToolbar({
   onNudgeDepth,
   teilung,
   onTeilung,
+  variante,
+  onVariante,
   rag,
   guard,
   tts,
@@ -74,6 +76,9 @@ export function XRToolbar({
   /** Teilungsebene + Umschalter (Lehrbuch-Methode vs. praxisnah). */
   teilung: "stirn" | "mittellinie";
   onTeilung: (t: "stirn" | "mittellinie") => void;
+  /** Variante + Umschalter (Standard vs. Randzinkenverstaerkung). */
+  variante: "standard" | "rzv";
+  onVariante: (v: "standard" | "rzv") => void;
   rag: IRAGProvider;
   guard: ITopicGuard;
   tts?: ITTSProvider;
@@ -154,6 +159,19 @@ export function XRToolbar({
                 <Button variant="rect" flexGrow={1} selected={teilung === "mittellinie"}
                   onClick={() => onTeilung("mittellinie")}>
                   <Text fontSize={14}>Mittellinie</Text>
+                </Button>
+              </Container>
+
+              {/* 2d) Variante: Standard vs. Randzinkenverstaerkung */}
+              <Container flexDirection="row" gap={8} alignItems="center">
+                <Text fontSize={13} width={66} color="#cdd6e4">Variante</Text>
+                <Button variant="rect" flexGrow={1} selected={variante === "standard"}
+                  onClick={() => onVariante("standard")}>
+                  <Text fontSize={14}>Standard</Text>
+                </Button>
+                <Button variant="rect" flexGrow={1} selected={variante === "rzv"}
+                  onClick={() => onVariante("rzv")}>
+                  <Text fontSize={14}>Randverst.</Text>
                 </Button>
               </Container>
 

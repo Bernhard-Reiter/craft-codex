@@ -75,9 +75,35 @@ export interface AnrissDimension {
  */
 export type TeilungEbene = "stirn" | "mittellinie";
 
+/**
+ * Konstruktionsvariante der Breitenteilung:
+ *  - "standard" — gleichmaessige 1T/2T-Teilung (Zinken 1T, Schwalbe 2T).
+ *  - "rzv"      — Randzinkenverstaerkung: kraeftige Randzinken (RZV = D/3,
+ *                 Werkstattmass auf 0,5mm gerundet), Innenzinken = 2·RZV,
+ *                 Schwalben = (RB − (AZS−1)·2·RZV)/AZS. Bei AZS Schwalben:
+ *                 2 halbe Randzinken + (AZS−1) volle Innenzinken + AZS Schwalben.
+ */
+export type DovetailVariante = "standard" | "rzv";
+
+/** Kennzahlen der Randzinkenverstaerkung (nur variante "rzv"). */
+export interface RzvInfo {
+  /** Randzinkenverstaerkung je Seite (mm, auf 0,5 gerundet). */
+  RZV: number;
+  /** Restbreite zwischen den Randzinken (mm). */
+  RB: number;
+  /** Volle Innenzinkenbreite = 2·RZV (mm). */
+  innenZinken: number;
+  /** Schwalbenbreite (mm). */
+  schwalbe: number;
+}
+
 export interface DovetailAnriss {
   board: { width: number; thickness: number };
   layout: DovetailLayout;
+  /** Konstruktionsvariante der Breitenteilung. */
+  variante: DovetailVariante;
+  /** RZV-Kennzahlen (nur variante "rzv"). */
+  rzv?: RzvInfo;
   /** Auf welcher Ebene die Teilung abgetragen wird. */
   teilung: TeilungEbene;
   /** y-Koordinate der Teilungsebene (0 = Stirn, D/2 = Mittellinie). */
@@ -118,6 +144,7 @@ export function buildDovetailAnriss(
   method: DovetailMethod = "mittellinie",
   opts: ConstructionOptions = {},
   teilung: TeilungEbene = "stirn",
+  variante: DovetailVariante = "standard",
 ): DovetailAnriss {
   const layout = computeDovetailLayout(B, D, method, opts);
   const { AZS, T, slopeRatio } = layout;
@@ -130,20 +157,48 @@ export function buildDovetailAnriss(
   const sStirn = anchorY / slopeRatio; // Versatz Anker→Stirnkante (y=0)
   const sBase = (D - anchorY) / slopeRatio; // Versatz Anker→Grundlinie (y=D)
 
-  // T-Grenzen aufbauen: Start Zinken(1), dann je Schwalbe(2)+Zinken(1).
-  const boundsT: number[] = [0];
-  let acc = 0;
-  for (let i = 0; i < AZS; i++) {
-    acc += 1;
-    boundsT.push(acc); // Ende eines Abfall-Zinkens
-    acc += 2;
-    boundsT.push(acc); // Ende einer Schwalbe
-  }
-  acc += 1;
-  boundsT.push(acc); // letzter Abfall-Zinken → acc == AZT
+  // Grenzliste (mm) je Variante. Beide Varianten alternieren Zinken/Schwalbe,
+  // sodass die nachfolgende Segment-Schleife (isTail = seg%2===1) unveraendert
+  // greift — nur die Positionen unterscheiden sich.
+  let divisions: number[];
+  let rzv: RzvInfo | undefined;
+  if (variante === "rzv") {
+    // Randzinkenverstaerkung — fachlich verifizierte Kachelung (Brainstorm
+    // 30.06.): (AZS−1) Innenzinken, NICHT AZS. Innenzinken = 2·RZV.
+    const RZV = Math.round((D / 3) * 2) / 2; // Werkstattmass auf 0,5mm
+    const innenZinken = 2 * RZV;
+    const RB = B - 2 * RZV;
+    const schwalbe = (RB - (AZS - 1) * innenZinken) / AZS;
+    rzv = { RZV, RB, innenZinken, schwalbe };
 
-  const xAt = (tUnits: number) => tUnits * T;
-  const divisions = boundsT.map(xAt);
+    const b: number[] = [0];
+    let x = RZV; // linker Randzinken (halb)
+    b.push(x);
+    for (let i = 0; i < AZS; i++) {
+      x += schwalbe;
+      b.push(x); // Ende Schwalbe
+      if (i < AZS - 1) {
+        x += innenZinken;
+        b.push(x); // Ende Innenzinken
+      }
+    }
+    x += RZV; // rechter Randzinken (halb) → == B
+    b.push(x);
+    divisions = b;
+  } else {
+    // Standard: gleichmaessige T-Grenzen [0,1,3,4,…,AZT] → mm.
+    const boundsT: number[] = [0];
+    let acc = 0;
+    for (let i = 0; i < AZS; i++) {
+      acc += 1;
+      boundsT.push(acc);
+      acc += 2;
+      boundsT.push(acc);
+    }
+    acc += 1;
+    boundsT.push(acc);
+    divisions = boundsT.map((tUnits) => tUnits * T);
+  }
 
   const tails: AnrissArea[] = [];
   const wastes: AnrissArea[] = [];
@@ -151,9 +206,9 @@ export function buildDovetailAnriss(
 
   let tailIdx = 0;
   let wasteIdx = 0;
-  for (let seg = 0; seg < boundsT.length - 1; seg++) {
-    const left = xAt(boundsT[seg]!);
-    const right = xAt(boundsT[seg + 1]!);
+  for (let seg = 0; seg < divisions.length - 1; seg++) {
+    const left = divisions[seg]!;
+    const right = divisions[seg + 1]!;
     const isTail = seg % 2 === 1; // 0=Abfall, 1=Schwalbe, …
 
     if (isTail) {
@@ -231,6 +286,8 @@ export function buildDovetailAnriss(
   return {
     board: { width: B, thickness: D },
     layout,
+    variante,
+    ...(rzv ? { rzv } : {}),
     teilung,
     teilungY: anchorY,
     flankOffset,

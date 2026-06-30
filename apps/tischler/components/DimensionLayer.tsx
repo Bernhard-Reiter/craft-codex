@@ -8,6 +8,7 @@ import {
   istMassSichtbar,
   type Dimension,
   type TeilungEbene,
+  type DovetailVariante,
 } from "@craft-codex/core";
 
 const SCALE_MM_TO_M = 0.001;
@@ -30,6 +31,7 @@ export function DimensionLayer({
   lengthMm: L,
   phase,
   teilung = "stirn",
+  variante = "standard",
 }: {
   widthMm: number;
   thicknessMm: number;
@@ -38,13 +40,15 @@ export function DimensionLayer({
   phase: string;
   /** Teilungsebene: Maße folgen der Stirn- oder Mittellinien-Teilung. */
   teilung?: TeilungEbene;
+  /** Variante: "standard" oder "rzv" (Randzinkenverstaerkung). */
+  variante?: DovetailVariante;
 }) {
   const dims = useMemo(
     () =>
-      buildDovetailDimensions(B, D, "mittellinie", {}, teilung).filter((d) =>
-        istMassSichtbar(d, phase),
+      buildDovetailDimensions(B, D, "mittellinie", {}, teilung, variante).filter(
+        (d) => istMassSichtbar(d, phase),
       ),
-    [B, D, phase, teilung],
+    [B, D, phase, teilung, variante],
   );
   const halfL = L / 2;
   const yLine = 0.32; // mm ueber der Oberseite

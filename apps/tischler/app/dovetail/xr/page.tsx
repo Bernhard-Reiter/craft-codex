@@ -11,6 +11,7 @@ import {
   type DovetailParams,
   type DovetailStep,
   type TeilungEbene,
+  type DovetailVariante,
 } from "@craft-codex/core";
 import { DovetailSceneContents } from "../../../components/DovetailScene";
 import { XRPlacement } from "../../../components/XRPlacement";
@@ -66,6 +67,8 @@ export default function DovetailXRPage() {
   // Teilungsebene: "stirn" (praxisnah) oder "mittellinie" (Lehrbuch) — Anriss +
   // Bemaßung passen sich an; der Lehrling sieht den Unterschied.
   const [teilung, setTeilung] = useState<TeilungEbene>("stirn");
+  // Variante: Standard-Teilung oder Randzinkenverstaerkung (kraeftige Eckzinken).
+  const [variante, setVariante] = useState<DovetailVariante>("standard");
   const placement = useBoardPlacement();
   const previewControls = useRef<{ reset: () => void } | null>(null);
   // Ref auf das greifbare Brett — die Toolbar nutzt ihn fuer "Lotrecht".
@@ -340,6 +343,7 @@ export default function DovetailXRPage() {
                   anrissLayers={anreissModus ? anrissLayers : undefined}
                   dimensionPhase={anreissModus ? anreissSchritt.id : undefined}
                   teilung={teilung}
+                  variante={variante}
                 />
                 {/* Werkzeug-Sollposition gehoert laut Spec NICHT in die Anreiss-
                     Phase (sie verdeckte die Geometrie) — sie kommt als eigenes,
@@ -411,6 +415,8 @@ export default function DovetailXRPage() {
                     onNudgeDepth={placement.nudgeDepth}
                     teilung={teilung}
                     onTeilung={setTeilung}
+                    variante={variante}
+                    onVariante={setVariante}
                     rag={rag}
                     guard={guard}
                     tts={voiceBundle?.tts}

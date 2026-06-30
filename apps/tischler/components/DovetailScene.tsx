@@ -10,7 +10,12 @@ import {
   generateMarkings,
   markingsToLineSegments,
 } from "@craft-codex/core";
-import type { DovetailParams, DovetailStep, TeilungEbene } from "@craft-codex/core";
+import type {
+  DovetailParams,
+  DovetailStep,
+  TeilungEbene,
+  DovetailVariante,
+} from "@craft-codex/core";
 import { MarkingTubes } from "./MarkingTubes";
 import { AnrissFlat, type AnrissLayer } from "./AnrissFlat";
 import { DimensionLayer } from "./DimensionLayer";
@@ -46,6 +51,7 @@ export function DovetailSceneContents({
   anrissLayers,
   dimensionPhase,
   teilung = "stirn",
+  variante = "standard",
 }: {
   params: DovetailParams;
   step: DovetailStep;
@@ -75,6 +81,8 @@ export function DovetailSceneContents({
   dimensionPhase?: string;
   /** Teilungsebene fuer Anriss + Bemaßung: "stirn" oder "mittellinie". */
   teilung?: TeilungEbene;
+  /** Variante: "standard" oder "rzv" (Randzinkenverstaerkung). */
+  variante?: DovetailVariante;
 }) {
   return (
     <>
@@ -96,6 +104,7 @@ export function DovetailSceneContents({
           lengthMm={params.length_mm}
           phase={dimensionPhase}
           teilung={teilung}
+          variante={variante}
         />
       )}
       {anrissLayers ? (
@@ -105,6 +114,7 @@ export function DovetailSceneContents({
           lengthMm={params.length_mm}
           layers={anrissLayers}
           teilung={teilung}
+          variante={variante}
         />
       ) : markingStyle === "tube" ? (
         <MarkingTubes params={params} step={step} markingFilter={markingFilter} />
