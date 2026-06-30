@@ -84,9 +84,9 @@ function DimensionView({
     const lp = p3(c.x + 8, c.y, B, halfL, y + 0.05);
     return (
       <group>
-        <Ribbon a={t1} b={t2} B={B} halfL={halfL} y={y} w={0.9} color="#33415c" />
-        <Ribbon a={t2} b={t3} B={B} halfL={halfL} y={y} w={0.9} color="#33415c" />
-        <Ribbon a={t3} b={t1} B={B} halfL={halfL} y={y} w={0.9} color="#1d2c4a" />
+        <Ribbon a={t1} b={t2} B={B} halfL={halfL} y={y} w={0.3} color="#33415c" />
+        <Ribbon a={t2} b={t3} B={B} halfL={halfL} y={y} w={0.3} color="#33415c" />
+        <Ribbon a={t3} b={t1} B={B} halfL={halfL} y={y} w={0.32} color="#1d2c4a" />
         <group position={[lp.x, lp.y, lp.z]} rotation={[-Math.PI / 2, 0, 0]}>
           <Root pixelSize={1} anchorX="center" anchorY="center">
             <Text fontSize={13} color="#1d2c4a" fontWeight="bold">{dim.label}</Text>
@@ -109,7 +109,10 @@ function DimensionView({
     : { x: bSpan.x + dim.offset, y: bSpan.y };
 
   const dimColor = dim.kind === "gesamt" ? "#1d2c4a" : "#33415c";
-  const widths = { dimLine: 0.9, ext: 0.6, tick: 0.9 };
+  // Pencil-fein wie ein gut gespitzter Bleistift (Spec: Maßlinie 0,30 / Hilfs-
+  // linie 0,25 mm). Aus schraegem Vorschau-Winkel subtil — auf der Quest (naher,
+  // gerader Blick) klar als feine technische Linie.
+  const widths = { dimLine: 0.3, ext: 0.22, tick: 0.3 };
 
   // Label-Position: Mitte der Maßlinie, etwas ueber die Linie hinaus.
   const midX = (aLine.x + bLine.x) / 2;

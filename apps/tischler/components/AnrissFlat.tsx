@@ -140,11 +140,10 @@ function LineRibbon({
     const dx = b.x - a.x;
     const dz = b.z - a.z;
     const len = Math.hypot(dx, dz) || 1;
-    // Senkrechte in der xz-Ebene, halbe Strichbreite. Die fachliche Strichstärke
-    // (0,3–0,4 mm) waere aus Arbeitsdistanz sub-pixel — daher eine Sichtbarkeits-
-    // Breite mit Boden, damit der Anriss flach UND lesbar bleibt (auch im
-    // XR-Passthrough), ohne zu Leucht-Rohren zu werden.
-    const renderWidthMm = Math.max(line.widthMm * 2.6, 0.9);
+    // Pencil-fein wie ein gut gespitzter Bleistift — die fachliche Strichstärke
+    // (Flanken 0,35 / Grundlinie 0,40 mm) bleibt erhalten, nur mit einem kleinen
+    // Sichtbarkeits-Boden, damit sie aus Arbeitsdistanz nicht ganz verschwindet.
+    const renderWidthMm = Math.max(line.widthMm, 0.3);
     const hw = renderWidthMm / 2;
     const nx = (-dz / len) * hw;
     const nz = (dx / len) * hw;
@@ -230,7 +229,7 @@ function DivisionTick({
 }) {
   const geometry = useMemo(() => {
     const len = 4; // mm in die Fläche
-    const hw = 0.5;
+    const hw = 0.18; // pencil-fein
     const a = to3D(x, 0, B, halfL, y);
     const verts = new Float32Array([
       a.x - hw, y, a.z,
