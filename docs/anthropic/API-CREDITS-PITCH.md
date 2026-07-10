@@ -1,8 +1,11 @@
 # Craft Codex × Anthropic — API Credits Proposal
 
-> Status: DRAFT — Bernhard reviewt vor Absenden. Kanal: Begleittext zur OSS-Bewerbung
-> (Freitextfeld) + ggf. Follow-up an den Anthropic-Kontakt, der sich meldet.
-> Ask: **USD 5,000 in API credits over 6 months.**
+> Status: DRAFT — Bernhard reviewt vor Absenden.
+> ROLLE (Strategie-Update 10.07. nachm.): BEILAGE zu BEIDEN Formular-Antraegen —
+> (1) Claude for OSS (APPLICATION-claude-for-oss.md) und
+> (2) Anthropic for Startups (APPLICATION-startup-program.md, der eigentliche Credits-Kanal).
+> Kein eigenstaendiger Freiform-Versand.
+> Ask: **USD 5,000 in API credits over 6 months** (= Startup-Standard-Tier-Rahmen).
 
 ---
 
