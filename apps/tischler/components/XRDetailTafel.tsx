@@ -4,7 +4,6 @@ import { Root, Container, Text } from "@react-three/uikit";
 import { Card, Button } from "@react-three/uikit-apfel";
 import { PencilRuler, Hammer, X } from "@react-three/uikit-lucide";
 import type { AnreissFlow } from "../lib/zinken/anreiss-flow";
-import type { DovetailLayout } from "@craft-codex/core";
 
 /**
  * Detail-Tafel als visionOS-Fenster.
@@ -17,6 +16,10 @@ import type { DovetailLayout } from "@craft-codex/core";
  *
  * Inhalt: im Anreiss-Modus die Formel + ausfuehrliche Erklaerung des aktuellen
  * Schritts; im Hand-Modus die Uebersicht der fuenf Handschritte.
+ *
+ * i18n: Die Tafel rendert INNERHALB des R3F-Canvas — useTranslations darf hier
+ * nicht aufgerufen werden. Titel, Erklaertext und Handschritte kommen deshalb
+ * fertig uebersetzt als Props von der Seite.
  */
 export function XRDetailTafel({
   flow,
@@ -24,6 +27,9 @@ export function XRDetailTafel({
   anreissModus,
   onModus,
   onClose,
+  title,
+  detailText,
+  handSteps,
   position = [0, 1.25, -0.75],
 }: {
   flow: AnreissFlow;
@@ -31,11 +37,15 @@ export function XRDetailTafel({
   anreissModus: boolean;
   onModus: (anreiss: boolean) => void;
   onClose: () => void;
+  /** Fenster-Titel, vorformatiert (z.B. "Tafel - Teilen"). */
+  title: string;
+  /** Ausfuehrliche Lehrer-Erklaerung zum aktuellen Schritt, mit echten Werten. */
+  detailText: string;
+  /** Die fuenf Handschritte (Name + Merksatz), uebersetzt. */
+  handSteps: ReadonlyArray<{ name: string; hint: string }>;
   position?: [number, number, number];
 }) {
   const schritt = flow.schritte[Math.min(index, flow.schritte.length - 1)]!;
-  const detail = detailFuer(schritt.id, flow.layout);
-  const titel = anreissModus ? `Tafel - ${schritt.label}` : "Tafel - Handschritte";
 
   return (
     <group position={position}>
@@ -67,7 +77,7 @@ export function XRDetailTafel({
           <Container flexDirection="column" gap={16} flexGrow={1}>
             {/* Kopfzeile mit rundem Schliessen-Button oben-rechts */}
             <Container flexDirection="row" justifyContent="space-between" alignItems="center">
-              <Text fontSize={26} color="#f4f1e8">{asciiFold(titel)}</Text>
+              <Text fontSize={26} color="#f4f1e8">{asciiFold(title)}</Text>
               <Button variant="icon" size="sm" onClick={onClose}>
                 <X width={18} height={18} />
               </Button>
@@ -90,12 +100,12 @@ export function XRDetailTafel({
                     padding={20}
                     marginTop={2}
                   >
-                    <Text fontSize={19} color="#c7cdd6">{asciiFold(detail)}</Text>
+                    <Text fontSize={19} color="#c7cdd6">{asciiFold(detailText)}</Text>
                   </Container>
                 </>
               ) : (
                 <Container flexDirection="column" gap={12}>
-                  {HANDSCHRITTE.map((h, k) => (
+                  {handSteps.map((h, k) => (
                     <Container key={h.name} flexDirection="row" gap={12} alignItems="flex-start">
                       <Container
                         width={34}
@@ -108,7 +118,7 @@ export function XRDetailTafel({
                         <Text fontSize={18} color="#f4f1e8">{String(k + 1)}</Text>
                       </Container>
                       <Container flexDirection="column" flexGrow={1}>
-                        <Text fontSize={22} color="#f4f1e8">{h.name}</Text>
+                        <Text fontSize={22} color="#f4f1e8">{asciiFold(h.name)}</Text>
                         <Text fontSize={16} color="#aeb4bf">{asciiFold(h.hint)}</Text>
                       </Container>
                     </Container>
@@ -121,81 +131,6 @@ export function XRDetailTafel({
       </Root>
     </group>
   );
-}
-
-const HANDSCHRITTE: ReadonlyArray<{ name: string; hint: string }> = [
-  { name: "Anreissen", hint: "Risslinien aufs Holz uebertragen — die Grundlage fuer alles." },
-  { name: "Saegen", hint: "Auf der Abfallseite saegen, die Anrisslinie stehen lassen." },
-  { name: "Stemmen", hint: "Abfall bis zur Grundlinie ausstemmen — von beiden Seiten." },
-  { name: "Passen", hint: "Gegenstueck anzeichnen und trocken einpassen." },
-  { name: "Pruefen", hint: "Fugen pruefen, nacharbeiten bis die Verbindung satt schliesst." },
-];
-
-/** Ausfuehrliche Lehrer-Erklaerung pro Schritt, mit echten Werten. */
-function detailFuer(
-  phase: AnreissFlow["schritte"][number]["id"],
-  L: DovetailLayout,
-): string {
-  const mm = (x: number) => x.toFixed(1).replace(".", ",");
-  switch (phase) {
-    case "messen":
-      return (
-        `Bevor wir rechnen, messen wir das Brett genau aus. B ist die Breite ` +
-        `(${mm(L.B)} mm, von Kante zu Kante), D die Dicke (${mm(L.D)} mm, die ` +
-        `Staerke des Bretts). Diese zwei Masse bestimmen die ganze Zinkenteilung — ` +
-        `mehr brauchen wir nicht. Genaues Messen ist die Grundlage: ein falsches ` +
-        `Mass zieht sich durch die ganze Rechnung.`
-      );
-    case "schwalbenzahl":
-      return (
-        `AZS ist die Anzahl der Schwalben. Formel: AZS = B / (1,7 * D). Warum 1,7? ` +
-        `Das ist ein Erfahrungswert aus der Werkstatt — er sorgt fuer ein schoenes ` +
-        `Verhaeltnis von Schwalbe zu Brettdicke (nicht zu viele winzige, nicht zu ` +
-        `wenige klobige). Hier: ${mm(L.B)} / (1,7 * ${mm(L.D)}) = ${mm(L.B)} / ` +
-        `${mm(1.7 * L.D)} = ${L.AZS_raw.toFixed(2).replace(".", ",")} ~ ${L.AZS} ` +
-        `Schwalben. Willst du weniger und breitere, nimm 2 statt 1,7.`
-      );
-    case "teile":
-      return (
-        `AZT ist die Anzahl der Einteilungsteile. Eine Schwalbe ist 2 Teile breit, ` +
-        `ein Zinken 1 Teil — pro Schwalbe also 3 Teile, plus 1 fuer die beiden ` +
-        `Randzinken: AZT = AZS * 3 + 1 = ${L.AZS} * 3 + 1 = ${L.AZT}. Die Teilbreite ` +
-        `T = B / AZT = ${mm(L.B)} / ${L.AZT} = ${mm(L.T)} mm. Damit ist jeder Zinken ` +
-        `${mm(L.zinkenBreite)} mm und jede Schwalbe ${mm(L.schwalbeBreite)} mm breit.`
-      );
-    case "streichmass":
-      return (
-        `Mit dem Streichmass uebertragen wir die Brettdicke D = ${mm(L.D)} mm ` +
-        `umlaufend ums Brett. Diese Linie ist die Stemmtiefe — bis hierher wird ` +
-        `gestemmt, nie tiefer. Sie laeuft auf allen vier Seiten gleich, damit der ` +
-        `Grund der Verbindung sauber auf einer Hoehe liegt.`
-      );
-    case "markieren":
-      return (
-        `Jetzt teilen wir die Breite in die ${L.AZT} berechneten Teile und ` +
-        `markieren die ${L.AZS} Schwalben. Zinken schmal (1 Teil, ${mm(L.zinkenBreite)} ` +
-        `mm), Schwalbe breit (2 Teile, ${mm(L.schwalbeBreite)} mm). Die Teilpunkte ` +
-        `mit Stechzirkel oder Lineal sauber abtragen — gleichmaessig verteilt gibt ` +
-        `das ruhige, schoene Bild.`
-      );
-    case "schraege":
-      return (
-        `Die Schwalbenflanke bekommt die Schraege 1 : ${L.slopeRatio} (rund ` +
-        `${L.slopeDeg.toFixed(0)} Grad). Mit der Schmiege jede Flanke anlegen. ` +
-        `Steiler bricht an den Spitzen aus (dort steht kurzes Hirnholz), flacher ` +
-        `haelt schlechter auf Zug. 1 : ${L.slopeRatio} ist der bewaehrte Mittelweg ` +
-        `zwischen Halt und Haltbarkeit.`
-      );
-    case "fertig":
-      return (
-        `Der Anriss steht: ${L.AZS} Schwalben in ${L.AZT} Teilen, jedes ${mm(L.T)} ` +
-        `mm, mit der Schraege 1 : ${L.slopeRatio}. Jetzt wird gesaegt — immer auf ` +
-        `der Abfallseite der Linie, damit die Anrisslinie als feiner Strich ` +
-        `stehenbleibt. Sie ist spaeter deine Pruefmarke beim Passen.`
-      );
-    default:
-      return "";
-  }
 }
 
 function asciiFold(s: string): string {

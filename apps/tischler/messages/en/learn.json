@@ -1,0 +1,110 @@
+{
+  "loading": "Loading layout mode …",
+  "hero": {
+    "eyebrow": "Overview · from the very beginning",
+    "h1": "Dovetails — the <hl>crowning discipline</hl> of joinery.",
+    "lead": "Before the first line goes on the wood: what is a pin, what is it good for, and which types are there? Understand first — then lay out.",
+    "trust": "Every answer from verified master knowledge"
+  },
+  "overviewQueries": [
+    "What is a pin?",
+    "What are dovetails good for?",
+    "Which dovetail types are there?",
+    "Why does it hold without screws?",
+    "Where do I best start?"
+  ],
+  "what": {
+    "kicker": "What is this?",
+    "title": "Two boards that interlock like the fingers of two hands.",
+    "body": "At the end of each board — the <strong>end grain</strong> — a comb-like pattern is cut out. Push the boards together at the corner, and each <strong>pin</strong> fits into the gap in the other. In a dovetail the pins and tails are wedge-shaped: they <strong>lock together</strong> and hold even without glue or screws.",
+    "note": "A cabinetmaker calls this a <strong>mechanical lock</strong> — the shape itself holds the corner together. That's why the dovetail is the strongest corner joint in furniture making.",
+    "diagramKicker": "Pull the joint apart"
+  },
+  "history": {
+    "kicker": "The history",
+    "title": "Older than you'd think — and <hl>never obsolete</hl>."
+  },
+  "uses": {
+    "kicker": "Where you need it",
+    "title": "Anywhere a corner <hl>has to hold</hl>."
+  },
+  "angle": {
+    "kicker": "The dovetail angle",
+    "title": "1:6 or 1:8 — <hl>which angle?</hl>",
+    "sub": "The dovetail angle sets how wedge-shaped the pins and tails are. Pick one and see the difference:"
+  },
+  "path": {
+    "kicker": "The learning path",
+    "title": "Which dovetail do you want to <hl>learn</hl>?",
+    "sub": "Recommended order, from the easy start to the masterpiece:"
+  },
+  "ris": {
+    "note": "<strong>Anchored in law.</strong> The {aoTitel} (RIS — Austria's official legal information system, statute no. {gesNr}) mandates <em>laying out</em> and <em>dovetail joints</em> verbatim as required skills; the {lpTitel} cites {zitat}. This learning tool covers exactly one legally mandated core skill of the Austrian cabinetmaker apprenticeship.",
+    "sourceLink": "View the source"
+  },
+  "ask": {
+    "eyebrow": "The master's voice",
+    "title": "Ask, as if he's at the next bench.",
+    "sub": "Ask a question — the answer comes from the verified trade corpus, with its source, even with no network at all.",
+    "connecting": "Connecting the voice …"
+  },
+  "cta": {
+    "kicker": "Ready?",
+    "title": "Learn the dovetail — step by step on the 3D workpiece.",
+    "button": "Start the guided lesson →"
+  },
+  "artCard": {
+    "step": "STEP {order}",
+    "difficulty": "Difficulty {level} of 3",
+    "when": "When:",
+    "master": "The master: “{text}”",
+    "learnCta": "Learn this one →",
+    "preparing": "In the works · the voice can already explain it"
+  },
+  "anreiss": {
+    "kicker": "Guided layout",
+    "title": "The master lays out <mark>on the board</mark>",
+    "intro": "Set the board dimensions — on the left the master works the numbers on the chalkboard, on the right the same spacing appears on the board. Step by step, questions welcome anytime.",
+    "sliderWidth": "Width B",
+    "sliderThickness": "Thickness D",
+    "sliderLength": "Length L",
+    "result": "By the textbook that gives you: <strong>{azs} tails</strong> · {azt} parts at {teil} mm each · slope 1:{slope}",
+    "boardHeader": "Chalkboard · Step {current}/{total} — {label}",
+    "showOnBoard": "— shown on the board —",
+    "recenter": "🎯 Recenter",
+    "recenterTitle": "Bring the board back to center",
+    "masterLabel": "Master:",
+    "back": "◀ Back",
+    "stepCount": "Step {current} / {total}",
+    "next": "Next ▶",
+    "done": "Done",
+    "restart": "↺ start over",
+    "toolHide": "🔧 Tool off",
+    "toolShow": "🔧 Tool on",
+    "askHint": "Something unclear? Ask the master — he knows the layout rules.",
+    "sampleQueries": [
+      "Why does the tail formula use the number 1.7",
+      "What are reinforced half pins",
+      "Can you glue long grain to cross grain"
+    ]
+  },
+  "anglePicker": {
+    "svgLabel": "Dovetail at a ratio of 1 to {ratio}, {deg}",
+    "groupLabel": "Dovetail angle",
+    "steeper": "steeper",
+    "finer": "finer",
+    "ratios": {
+      "6": {
+        "deg": "≈ 9.5°",
+        "title": "1:6 — the steeper angle",
+        "text": "The tails wedge in harder — more mechanical hold. The tips are sturdier. The classic choice for coarser work."
+      },
+      "8": {
+        "deg": "≈ 7°",
+        "title": "1:8 — the finer angle",
+        "text": "Looks more elegant and delicate. Popular for fine furniture. An even steeper angle would leave short end grain at the tips, and that breaks out."
+      }
+    },
+    "note": "<strong>The difference:</strong> Both hold firm. 1:6 is steeper and locks harder, 1:8 is shallower and looks finer. Which ratio goes with which wood is a matter of workshop tradition — your master decides that."
+  }
+}

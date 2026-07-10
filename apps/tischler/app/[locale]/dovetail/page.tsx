@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
   DEFAULT_DOVETAIL_PARAMS,
@@ -9,33 +9,36 @@ import {
   type ModeId,
   type SurfaceContext,
 } from "@craft-codex/core";
-import { DovetailScene } from "../../components/DovetailSceneDynamic";
-import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
-import { ModeBar } from "../../components/ModeBar";
-import { ParamSliders } from "../../components/ParamSliders";
-import { ZinkenDiagram } from "../../components/ZinkenDiagram";
-import { SurfaceModeBar } from "../../components/SurfaceModeBar";
-import { SurfacePanel } from "../../components/SurfacePanel";
-import { PlacementHandles } from "../../components/PlacementHandles";
-import { VoiceConsole } from "../../components/VoiceConsole";
-import { createDefaultModeBundle } from "../../lib/surface-modes";
-import { createPersistedPlacementProvider } from "../../lib/tracking/persisted-placement";
-import { registerDefaultModels } from "../../lib/surface-modes/cad-defaults";
-import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
-import { getDemoCorpus } from "../../lib/rag/corpus";
-import { useServerVoice } from "../../lib/voice/use-server-voice";
-import { createServerAnswerFn } from "../../lib/voice/server-providers";
+import { DovetailScene } from "../../../components/DovetailSceneDynamic";
+import { SceneBoundary, SceneFallback } from "../../../components/SceneBoundary";
+import { ModeBar } from "../../../components/ModeBar";
+import { ParamSliders } from "../../../components/ParamSliders";
+import { ZinkenDiagram } from "../../../components/ZinkenDiagram";
+import { SurfaceModeBar } from "../../../components/SurfaceModeBar";
+import { SurfacePanel } from "../../../components/SurfacePanel";
+import { PlacementHandles } from "../../../components/PlacementHandles";
+import { VoiceConsole } from "../../../components/VoiceConsole";
+import { createDefaultModeBundle } from "../../../lib/surface-modes";
+import { createPersistedPlacementProvider } from "../../../lib/tracking/persisted-placement";
+import { registerDefaultModels } from "../../../lib/surface-modes/cad-defaults";
+import { LocalRAGProvider } from "../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../lib/rag/corpus";
+import { useServerVoice } from "../../../lib/voice/use-server-voice";
+import { createServerAnswerFn } from "../../../lib/voice/server-providers";
 import {
   loadModes,
   loadSession,
   saveModes,
   saveSession,
-} from "../../lib/storage/local";
+} from "../../../lib/storage/local";
+import { Link } from "../../../i18n/navigation";
 
 const PLACEMENT_TARGET_ID = "dovetail-pair";
 
 export default function DovetailPage() {
+  const t = useTranslations("dovetail");
+  const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
   const [params, setParams] = useState<DovetailParams>(DEFAULT_DOVETAIL_PARAMS);
   // Start auf "Überblick": erst die Verbindung verstehen, dann anreißen.
   const [step, setStep] = useState<DovetailStep>("ueberblick");
@@ -66,7 +69,7 @@ export default function DovetailPage() {
 
   // Voice-Pipeline: RAG + TopicGuard fuer Schwalbenschwanz-Korpus.
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDemoCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus(appLocale));
     const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
@@ -74,11 +77,11 @@ export default function DovetailPage() {
       blacklist: ["bitcoin", "krypto", "trading"],
     });
     return { rag: r, guard: g };
-  }, []);
+  }, [appLocale]);
 
   // Gleiche Stimm-Kette wie /voice: Server-Routen + Offline-Cache. Ohne
   // Server (offline/statisch) bleibt voiceBundle null → Mock wie bisher.
-  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
+  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard, appLocale);
 
   useEffect(() => {
     void placementProvider.start();
@@ -151,26 +154,26 @@ export default function DovetailPage() {
     <main className="cc-workbench">
       <aside className="cc-workbench-rail">
         <header>
-          <p className="cc-kicker">Werkstück 01</p>
+          <p className="cc-kicker">{t("kicker")}</p>
           <h1
             style={{
               margin: "0.4rem 0 0",
               fontSize: "1.6rem",
             }}
           >
-            Schwalbenschwanz
+            {t("title")}
           </h1>
           <p
             className="cc-muted"
             style={{ margin: "0.25rem 0 0", fontSize: "0.85rem" }}
           >
-            Lernschritt und Brettmaße — live im 3D-Modell.
+            {t("subtitle")}
           </p>
         </header>
 
         <section className="cc-card cc-card--flat">
           <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
-            Lernschritt
+            {t("stepKicker")}
           </p>
           <ModeBar active={step} onChange={setStep} />
         </section>
@@ -178,15 +181,15 @@ export default function DovetailPage() {
         {step === "ueberblick" ? (
           <section className="cc-card cc-card--flat">
             <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
-              Was du baust
+              {t("overview.kicker")}
             </p>
             <p
               className="cc-muted"
               style={{ margin: "0 0 0.9rem", fontSize: "0.85rem", lineHeight: 1.5 }}
             >
-              Zwei Bretter, die sich über Eck verzahnen. Die keilförmigen Zinken
-              verriegeln sich — <strong>Formschluss</strong>, hält ohne Leim.
-              Zieh sie auseinander:
+              {t.rich("overview.body", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             <ZinkenDiagram showLabels={false} />
             <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.9rem", flexWrap: "wrap" }}>
@@ -195,17 +198,17 @@ export default function DovetailPage() {
                 className="cc-btn cc-btn--primary cc-btn--sm"
                 onClick={() => setStep("anreissen")}
               >
-                Los geht’s: Anreißen →
+                {t("overview.start")}
               </button>
               <Link href="/lernen" className="cc-btn cc-btn--sm">
-                Zum Überblick
+                {t("overview.toOverview")}
               </Link>
             </div>
           </section>
         ) : (
           <section className="cc-card cc-card--flat">
             <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
-              Brettmaße
+              {t("paramsKicker")}
             </p>
             <ParamSliders params={params} onChange={setParams} />
           </section>
@@ -213,11 +216,11 @@ export default function DovetailPage() {
 
         <section>
           <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
-            Meister fragen
+            {t("askMaster")}
           </p>
           {voiceStatus === "probing" ? (
             <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
-              Stimme wird verbunden …
+              {t("voiceConnecting")}
             </p>
           ) : voiceBundle ? (
             <VoiceConsole
@@ -225,7 +228,7 @@ export default function DovetailPage() {
               guard={guard}
               tts={voiceBundle.tts}
               answer={voiceBundle.answer}
-              makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+              makeAnswer={(history) => createServerAnswerFn(undefined, history, appLocale)}
               mode={voiceBundle.mode}
             />
           ) : (
@@ -234,7 +237,7 @@ export default function DovetailPage() {
         </section>
       </aside>
 
-      <section className="cc-stage" aria-label="3D-Werkstück">
+      <section className="cc-stage" aria-label={t("stageAria")}>
         {step === "ueberblick" && (
           <div
             style={{
@@ -251,7 +254,7 @@ export default function DovetailPage() {
               letterSpacing: "0.08em",
             }}
           >
-            Fertiges Werkstück · noch keine Anrisse
+            {t("stageBadge")}
           </div>
         )}
         <SceneBoundary
@@ -285,12 +288,12 @@ export default function DovetailPage() {
           style={{ position: "absolute", top: "0.6rem", right: "0.6rem" }}
           aria-pressed={showPlacement}
         >
-          {showPlacement ? "Drag aktiv" : "Brett positionieren"}
+          {showPlacement ? t("placement.active") : t("placement.start")}
         </button>
       </section>
 
       <section
-        aria-label="Master-Surface"
+        aria-label={t("surfaceAria")}
         style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
       >
         <SurfaceModeBar

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 /**
@@ -8,6 +9,7 @@ import { useState } from "react";
  * jungfraeulich. 2-Klick-Bestaetigung, kein window.confirm (blockt WebXR).
  */
 export function DemoResetButton() {
+  const t = useTranslations("common.demoReset");
   const [armed, setArmed] = useState(false);
 
   const reset = () => {
@@ -29,11 +31,11 @@ export function DemoResetButton() {
       onClick={reset}
       className="cc-btn cc-btn--sm cc-btn--danger"
     >
-      Wirklich zurücksetzen? (löscht Fortschritt + Platzierungen)
+      {t("confirm")}
     </button>
   ) : (
     <button type="button" onClick={() => setArmed(true)} className="cc-btn cc-btn--sm">
-      ↺ Demo zurücksetzen
+      {t("button")}
     </button>
   );
 }

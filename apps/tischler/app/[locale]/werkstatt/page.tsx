@@ -1,21 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_DOVETAIL_PARAMS } from "@craft-codex/core";
-import { DovetailScene } from "../../components/DovetailSceneDynamic";
-import { SceneBoundary, SceneFallback } from "../../components/SceneBoundary";
-import { ZinkenDiagram } from "../../components/ZinkenDiagram";
-import { VoiceConsole } from "../../components/VoiceConsole";
-import { OfflineTrust } from "../../components/OfflineTrust";
-import { SiteFooter } from "../../components/SiteFooter";
-import { playPcmChunks } from "../../lib/voice/pcm-player";
-import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
-import { getDemoCorpus } from "../../lib/rag/corpus";
-import { useServerVoice } from "../../lib/voice/use-server-voice";
-import { createServerAnswerFn } from "../../lib/voice/server-providers";
-import { getLektion } from "../../lib/zinken/lektion";
+import { Link } from "../../../i18n/navigation";
+import { DovetailScene } from "../../../components/DovetailSceneDynamic";
+import { SceneBoundary, SceneFallback } from "../../../components/SceneBoundary";
+import { ZinkenDiagram } from "../../../components/ZinkenDiagram";
+import { VoiceConsole } from "../../../components/VoiceConsole";
+import { OfflineTrust } from "../../../components/OfflineTrust";
+import { SiteFooter } from "../../../components/SiteFooter";
+import { playPcmChunks } from "../../../lib/voice/pcm-player";
+import { LocalRAGProvider } from "../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../lib/rag/corpus";
+import { useServerVoice } from "../../../lib/voice/use-server-voice";
+import { createServerAnswerFn } from "../../../lib/voice/server-providers";
+import { getLektion } from "../../../lib/zinken/lektion";
+import { getLektionEn } from "../../../lib/zinken/lektion.en";
 
 /**
  * Geführte Werkstatt — die interaktive Regie-Bühne (Slice 1).
@@ -23,8 +25,10 @@ import { getLektion } from "../../lib/zinken/lektion";
  * erzählt jeden Beat, Stimme jederzeit fragbar, XR-Übergabe als Höhepunkt.
  */
 export default function WerkstattPage() {
+  const t = useTranslations("workshop");
+  const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDemoCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus(appLocale));
     const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
@@ -32,10 +36,10 @@ export default function WerkstattPage() {
       blacklist: ["bitcoin", "krypto", "trading"],
     });
     return { rag: r, guard: g };
-  }, []);
-  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
+  }, [appLocale]);
+  const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard, appLocale);
 
-  const lektion = getLektion();
+  const lektion = appLocale === "en" ? getLektionEn() : getLektion();
   const [i, setI] = useState(0);
   const beat = lektion[i]!;
   const atStart = i === 0;
@@ -52,11 +56,11 @@ export default function WerkstattPage() {
   }, []);
   useEffect(() => {
     if (!kiosk) return;
-    const t = setInterval(
+    const timer = setInterval(
       () => setI((n) => (n < lektion.length - 1 ? n + 1 : n)),
       35000,
     );
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, [kiosk, lektion.length]);
 
   // Meister liest den Beat vor (Google-TTS via Bundle: Cache → live Gemini).
@@ -93,28 +97,28 @@ export default function WerkstattPage() {
       <main className="cc-workbench">
         <aside className="cc-workbench-rail">
           <header>
-            <p className="cc-kicker">Geführte Lektion</p>
+            <p className="cc-kicker">{t("rail.kicker")}</p>
             <h1 style={{ margin: "0.4rem 0 0", fontSize: "1.5rem" }}>
-              Schwalbenschwanz
+              {t("rail.title")}
             </h1>
             <p
               className="cc-muted"
               style={{ margin: "0.25rem 0 0", fontSize: "0.85rem" }}
             >
-              Der Meister führt — frag jederzeit dazwischen.
+              {t("rail.sub")}
             </p>
             <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.7rem", flexWrap: "wrap" }}>
               <OfflineTrust />
               {kiosk && (
                 <span className="cc-badge cc-badge--yellow" style={{ fontSize: "0.6rem" }}>
-                  Kiosk · Auto
+                  {t("rail.kioskBadge")}
                 </span>
               )}
             </div>
           </header>
 
           {/* Beat-Leiste: Fortschritt + Sprung */}
-          <div role="group" aria-label="Lektions-Beats" className="cc-tabbar">
+          <div role="group" aria-label={t("rail.beatsLabel")} className="cc-tabbar">
             {lektion.map((b, idx) => (
               <button
                 key={b.id}
@@ -147,7 +151,7 @@ export default function WerkstattPage() {
                 paddingLeft: "0.8rem",
               }}
             >
-              Der Meister: „{beat.meisterSays}“
+              {t("beat.master", { text: beat.meisterSays })}
             </p>
             {voiceBundle && (
               <button
@@ -157,7 +161,7 @@ export default function WerkstattPage() {
                 onClick={() => void vorlesen(beat.meisterSays)}
                 disabled={speaking}
               >
-                {speaking ? "🔊 Spricht …" : "🔊 Vorlesen"}
+                {speaking ? t("beat.speaking") : t("beat.readAloud")}
               </button>
             )}
             <div
@@ -174,13 +178,13 @@ export default function WerkstattPage() {
                 onClick={() => setI((n) => Math.max(0, n - 1))}
                 disabled={atStart}
               >
-                ◀ Zurück
+                {t("beat.back")}
               </button>
               <span
                 className="cc-mono cc-muted"
                 style={{ flex: 1, textAlign: "center" }}
               >
-                Beat {i + 1}/{lektion.length}
+                {t("beat.counter", { current: i + 1, total: lektion.length })}
               </span>
               {!atEnd ? (
                 <button
@@ -188,14 +192,14 @@ export default function WerkstattPage() {
                   className="cc-btn cc-btn--primary cc-btn--sm"
                   onClick={() => setI((n) => Math.min(lektion.length - 1, n + 1))}
                 >
-                  Weiter ▶
+                  {t("beat.next")}
                 </button>
               ) : (
                 <Link
                   href={beat.href ?? "/dovetail/xr"}
                   className="cc-btn cc-btn--primary cc-btn--sm"
                 >
-                  In XR starten ▶
+                  {t("beat.startXr")}
                 </Link>
               )}
             </div>
@@ -204,11 +208,11 @@ export default function WerkstattPage() {
           {/* KI-Assist: jederzeit fragen */}
           <section>
             <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
-              Meister fragen
+              {t("ask.kicker")}
             </p>
             {voiceStatus === "probing" ? (
               <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
-                Stimme wird verbunden …
+                {t("ask.connecting")}
               </p>
             ) : voiceBundle ? (
               <VoiceConsole
@@ -216,7 +220,7 @@ export default function WerkstattPage() {
                 guard={guard}
                 tts={voiceBundle.tts}
                 answer={voiceBundle.answer}
-                makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+                makeAnswer={(history) => createServerAnswerFn(undefined, history, appLocale)}
                 mode={voiceBundle.mode}
               />
             ) : (
@@ -228,7 +232,7 @@ export default function WerkstattPage() {
         {/* BÜHNE — zeigt die Fläche des aktiven Beats */}
         <section
           className="cc-stage"
-          aria-label="Lern-Bühne"
+          aria-label={t("stage.label")}
           style={{ gridRow: "1 / span 2" }}
         >
           <div
@@ -279,6 +283,7 @@ export default function WerkstattPage() {
 }
 
 function XRHandoff({ href }: { href: string }) {
+  const t = useTranslations("workshop");
   return (
     <div
       style={{
@@ -304,7 +309,7 @@ function XRHandoff({ href }: { href: string }) {
           maxWidth: "18ch",
         }}
       >
-        Jetzt du — die Verbindung schwebt auf deiner Werkbank.
+        {t("xrHandoff.title")}
       </h2>
       <p
         style={{
@@ -314,11 +319,10 @@ function XRHandoff({ href }: { href: string }) {
           lineHeight: 1.5,
         }}
       >
-        Setz die Brille auf: ein Hologramm führt dich Schritt für Schritt durch
-        Anreißen, Sägen und Stemmen — direkt am echten Holz.
+        {t("xrHandoff.body")}
       </p>
       <Link href={href} className="cc-btn cc-btn--primary">
-        XR-Führung starten →
+        {t("xrHandoff.cta")}
       </Link>
     </div>
   );

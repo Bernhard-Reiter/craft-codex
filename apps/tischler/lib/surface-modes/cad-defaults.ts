@@ -17,8 +17,9 @@ export const DEFAULT_DOVETAIL_CAD_MODELS: ReadonlyArray<CADModelEntry> = [
     scale: 0.01,
   },
   {
+    // 1:8 = Hartholz-Winkel (Meister-Doktrin 10.07.: 1:6 Weichholz / 1:8 Hartholz).
     url: "parametric:dovetail?pinCount=7&ratio=8&width_mm=150",
-    label: "Schwalbenschwanz Weichholz-Variante (7 Pins, 1:8, 150mm)",
+    label: "Schwalbenschwanz Hartholz-Variante (7 Pins, 1:8, 150mm)",
     scale: 0.01,
   },
   {

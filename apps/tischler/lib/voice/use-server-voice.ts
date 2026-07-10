@@ -35,6 +35,7 @@ export interface ServerVoiceState {
 export function useServerVoice(
   rag: IRAGProvider,
   guard: ITopicGuard,
+  locale: "de" | "en" = "de",
 ): ServerVoiceState {
   const [bundle, setBundle] = useState<VoiceProviderBundle | null>(null);
   const [cacheCount, setCacheCount] = useState(0);
@@ -61,6 +62,7 @@ export function useServerVoice(
             guard,
             health,
             ttsCacheManifest: manifest,
+            locale,
           }),
         );
         setStatus("ready");
@@ -72,7 +74,7 @@ export function useServerVoice(
     return () => {
       on = false;
     };
-  }, [rag, guard]);
+  }, [rag, guard, locale]);
 
   return { bundle, cacheCount, status };
 }

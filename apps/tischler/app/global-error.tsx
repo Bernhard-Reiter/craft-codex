@@ -36,11 +36,16 @@ export default function GlobalError({
               borderBottom: "6px solid #ffd400",
             }}
           />
+          {/* Ausserhalb des [locale]-Baums gibt es keinen i18n-Context →
+              letztes Netz zweisprachig, DE zuerst. */}
           <h1 style={{ fontWeight: 600, fontSize: "1.5rem", margin: "0 0 0.6rem" }}>
             Da ist etwas hängengeblieben.
           </h1>
-          <p style={{ color: "#71716a", lineHeight: 1.5, margin: "0 0 1.5rem" }}>
+          <p style={{ color: "#71716a", lineHeight: 1.5, margin: "0 0 0.75rem" }}>
             Kein Problem — nichts ist verloren. Lade die Werkstatt einfach neu.
+          </p>
+          <p style={{ color: "#71716a", lineHeight: 1.5, margin: "0 0 1.5rem", fontSize: "0.85rem" }}>
+            Something got stuck — nothing is lost. Just reload the workshop.
           </p>
           <button
             type="button"
@@ -56,7 +61,7 @@ export default function GlobalError({
               cursor: "pointer",
             }}
           >
-            Erneut versuchen
+            Erneut versuchen · Try again
           </button>
         </div>
       </body>

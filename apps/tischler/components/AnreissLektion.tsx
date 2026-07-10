@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { IRAGProvider, ITopicGuard, DovetailParams } from "@craft-codex/core";
@@ -31,6 +32,8 @@ interface AnreissLektionProps {
  * durch die 7 Phasen und darf jederzeit nachfragen.
  */
 export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps) {
+  const t = useTranslations("learn.anreiss");
+  const format = useFormatter();
   const [maße, setMaße] = useState(START);
   const [i, setI] = useState(0);
   const [zeigeWerkzeug, setZeigeWerkzeug] = useState(true);
@@ -69,13 +72,14 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
   return (
     <section className="cc-card" style={{ display: "grid", gap: "1rem" }}>
       <div>
-        <p className="cc-kicker">Geführtes Anreißen</p>
+        <p className="cc-kicker">{t("kicker")}</p>
         <h2 style={{ margin: "0.3rem 0 0.2rem", textTransform: "uppercase" }}>
-          Der Meister reißt <span className="cc-mark">am Brett</span> an
+          {t.rich("title", {
+            mark: (chunks) => <span className="cc-mark">{chunks}</span>,
+          })}
         </h2>
         <p className="cc-muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-          Stell die Brettmaße ein — links rechnet der Meister an der Tafel, rechts
-          erscheint dieselbe Teilung am Brett. Schritt für Schritt, Fragen jederzeit.
+          {t("intro")}
         </p>
       </div>
 
@@ -85,30 +89,37 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
         style={{ display: "grid", gap: "0.7rem", padding: "0.8rem 1rem" }}
       >
         <MaßSlider
-          label="Breite B"
+          label={t("sliderWidth")}
           value={maße.width_mm}
           min={80}
           max={300}
           onChange={(v) => setMaße((m) => ({ ...m, width_mm: v }))}
         />
         <MaßSlider
-          label="Dicke D"
+          label={t("sliderThickness")}
           value={maße.thickness_mm}
           min={8}
           max={40}
           onChange={(v) => setMaße((m) => ({ ...m, thickness_mm: v }))}
         />
         <MaßSlider
-          label="Länge L"
+          label={t("sliderLength")}
           value={maße.length_mm}
           min={120}
           max={400}
           onChange={(v) => setMaße((m) => ({ ...m, length_mm: v }))}
         />
         <p className="cc-muted" style={{ margin: 0, fontSize: "0.78rem" }}>
-          Ergibt nach Lehrbuch:{" "}
-          <strong>{layout.AZS} Schwalben</strong> · {layout.AZT} Teile à{" "}
-          {layout.T.toFixed(1).replace(".", ",")} mm · Schräge 1:{layout.slopeRatio}
+          {t.rich("result", {
+            strong: (chunks) => <strong>{chunks}</strong>,
+            azs: layout.AZS,
+            azt: layout.AZT,
+            teil: format.number(layout.T, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }),
+            slope: layout.slopeRatio,
+          })}
         </p>
       </div>
 
@@ -142,7 +153,11 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               color: "#9fc7b0",
             }}
           >
-            Tafel · Schritt {i + 1}/{flow.schritte.length} — {schritt.label}
+            {t("boardHeader", {
+              current: i + 1,
+              total: flow.schritte.length,
+              label: schritt.label,
+            })}
           </div>
           <div
             style={{
@@ -155,7 +170,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
             {schritt.tafel.length > 0 ? (
               schritt.tafel.map((zeile, k) => <div key={k}>{zeile}</div>)
             ) : (
-              <div style={{ color: "#9fc7b0" }}>— am Brett zeigen —</div>
+              <div style={{ color: "#9fc7b0" }}>{t("showOnBoard")}</div>
             )}
           </div>
           {schritt.kennzahl && (
@@ -186,9 +201,9 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
             onClick={() => controlsRef.current?.reset()}
             className="cc-btn cc-btn--sm"
             style={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
-            title="Brett wieder zentrieren"
+            title={t("recenterTitle")}
           >
-            🎯 Zentrieren
+            {t("recenter")}
           </button>
           <Canvas
             shadows
@@ -227,7 +242,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
         style={{ display: "grid", gap: "0.7rem", padding: "0.9rem 1rem" }}
       >
         <p style={{ margin: 0, lineHeight: 1.6 }}>
-          <strong>Meister:</strong> {schritt.meisterSagt}
+          <strong>{t("masterLabel")}</strong> {schritt.meisterSagt}
         </p>
         <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
           <button
@@ -236,10 +251,10 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
             disabled={atStart}
             onClick={() => setI((x) => Math.max(0, x - 1))}
           >
-            ◀ Zurück
+            {t("back")}
           </button>
           <span className="cc-muted" style={{ fontSize: "0.8rem" }}>
-            Schritt {i + 1} / {flow.schritte.length}
+            {t("stepCount", { current: i + 1, total: flow.schritte.length })}
           </span>
           <button
             type="button"
@@ -247,7 +262,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
             disabled={atEnd}
             onClick={() => setI((x) => Math.min(flow.schritte.length - 1, x + 1))}
           >
-            {atEnd ? "Fertig" : "Weiter ▶"}
+            {atEnd ? t("done") : t("next")}
           </button>
           {!atStart && (
             <button
@@ -255,7 +270,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
               className="cc-chip"
               onClick={() => setI(0)}
             >
-              ↺ von vorne
+              {t("restart")}
             </button>
           )}
           <button
@@ -264,7 +279,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
             onClick={() => setZeigeWerkzeug((w) => !w)}
             style={{ marginLeft: "auto" }}
           >
-            🔧 Werkzeug {zeigeWerkzeug ? "aus" : "an"}
+            {zeigeWerkzeug ? t("toolHide") : t("toolShow")}
           </button>
         </div>
       </div>
@@ -272,7 +287,7 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
       {/* ── Nachfragen jederzeit (Voice-Coach) ─────────────────── */}
       <div>
         <p className="cc-muted" style={{ fontSize: "0.8rem", margin: "0 0 0.4rem" }}>
-          Etwas unklar? Frag den Meister — er kennt die Konstruktionsregeln.
+          {t("askHint")}
         </p>
         <VoiceConsole
           rag={rag}
@@ -280,9 +295,9 @@ export function AnreissLektion({ rag, guard, voiceBundle }: AnreissLektionProps)
           tts={voiceBundle?.tts}
           answer={voiceBundle?.answer}
           sampleQueries={[
-            "Warum steht in der Schwalbenformel die Zahl 1,7",
-            "Was ist die Randzinkenverstaerkung",
-            "Darf man Laengsholz mit Querholz verleimen",
+            t("sampleQueries.0"),
+            t("sampleQueries.1"),
+            t("sampleQueries.2"),
           ]}
         />
       </div>

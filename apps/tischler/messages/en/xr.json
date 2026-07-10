@@ -1,0 +1,117 @@
+{
+  "kicker": "Workpiece 03",
+  "h1": "The Dovetail as a <mark>Hologram</mark>",
+  "intro": "The same 3D scene as in the workshop, now as a real WebXR session. Hit “Enter AR” on a Quest 3 or Galaxy XR (or Chrome with the WebXR emulator) — the board appears at bench height in your room.",
+  "checking": "Checking XR support …",
+  "capability": {
+    "ready": "ready",
+    "unavailable": "not available"
+  },
+  "reasonLabel": "Reason:",
+  "fallback": {
+    "title": "No XR device available.",
+    "body": "You can still use the demo in 3D — in the <link>workshop</link>. For XR you need a Galaxy XR, a Quest 3 or Chrome with the WebXR emulator (chrome://flags/#webxr-incubations).",
+    "detail": "Detail: {reason}"
+  },
+  "modes": {
+    "guided": "Guided layout",
+    "hand": "Hand steps"
+  },
+  "center": "🎯 Center the board",
+  "centerTitle": "Bring board and view back to center",
+  "stepSummary": "Step {current}/{total} — {label} · {count} tails",
+  "preview": "Preview shows the current learning step: <strong>{step}</strong> · board {width}×{length}mm, {pins} pins, 1:{ratio}. Adjustable in the <link>workshop</link> (state shared via localStorage).",
+  "phases": {
+    "messen": "Measure",
+    "schwalbenzahl": "Tail count",
+    "teile": "Divide",
+    "streichmass": "Marking gauge",
+    "markieren": "Mark",
+    "schraege": "Slope",
+    "fertig": "Done"
+  },
+  "ornament": {
+    "step": "Step {current}/{total}",
+    "tafel": "Chalkboard",
+    "master": "Master"
+  },
+  "wrist": {
+    "tafel": "Chalkboard",
+    "plumb": "Plumb"
+  },
+  "toolbar": {
+    "tabAnreissen": "Lay out",
+    "tabHand": "Hand steps",
+    "width": "Width B",
+    "thickness": "Thickness D",
+    "length": "Length L",
+    "teilung": "Spacing",
+    "stirnkante": "End edge",
+    "mittellinie": "Centerline",
+    "variante": "Variant",
+    "standard": "Standard",
+    "rzv": "Reinforced",
+    "step": "Step {current}/{total} - {label}",
+    "back": "< Back",
+    "tafel": "Chalkboard",
+    "done": "Done",
+    "next": "Next >",
+    "handTitle": "Choose a hand step",
+    "hand": {
+      "anreissen": "Lay out",
+      "saegen": "Saw",
+      "stemmen": "Chop",
+      "passen": "Fit",
+      "pruefen": "Check"
+    },
+    "board": "Board",
+    "plumb": "Plumb",
+    "up": "Up",
+    "down": "Down",
+    "near": "Near",
+    "far": "Far",
+    "reset": "Reset",
+    "askMaster": "Ask the master",
+    "status": {
+      "thinking": "Thinking ...",
+      "speaking": "Speaking ...",
+      "listening": "Listening ..."
+    },
+    "noAudio": "no audio - text answer"
+  },
+  "tafel": {
+    "titleGuided": "Chalkboard - {label}",
+    "titleHand": "Chalkboard - Hand steps",
+    "handSteps": {
+      "anreissen": {
+        "name": "Lay out",
+        "hint": "Transfer the layout lines onto the wood — the foundation for everything."
+      },
+      "saegen": {
+        "name": "Saw",
+        "hint": "Saw on the waste side, leave the layout line standing."
+      },
+      "stemmen": {
+        "name": "Chop",
+        "hint": "Chop out the waste down to the baseline — from both sides."
+      },
+      "passen": {
+        "name": "Fit",
+        "hint": "Mark the mating piece and dry-fit it."
+      },
+      "pruefen": {
+        "name": "Check",
+        "hint": "Check the seams and refine until the joint closes up snug."
+      }
+    },
+    "detail": {
+      "messen": "Before we do any math, we measure the board carefully. B is the width ({B} mm, edge to edge), D the thickness ({D} mm, how thick the board is). These two measurements determine the whole dovetail layout — that's all we need. Careful measuring is the foundation: one wrong number runs through the entire calculation.",
+      "schwalbenzahl": "AZS is the number of tails. Formula: AZS = B / (1.7 * D). Why 1.7? It's a rule of thumb from the workshop — it gives a pleasing ratio of tail to board thickness (not too many tiny ones, not too few chunky ones). Here: {B} / (1.7 * {D}) = {B} / {BD} = {AZSraw} ~ {AZS} tails. If you want fewer, wider tails, use 2 instead of 1.7.",
+      "teile": "AZT is the number of layout divisions. A tail is 2 parts wide, a pin 1 part — so 3 parts per tail, plus 1 for the two half pins: AZT = AZS * 3 + 1 = {AZS} * 3 + 1 = {AZT}. The division width T = B / AZT = {B} / {AZT} = {T} mm. That makes each pin {zinken} mm and each tail {schwalbe} mm wide.",
+      "streichmass": "With the marking gauge we scribe the board thickness D = {D} mm all the way around the board. This line is the chopping depth — you chop down to here, never deeper. It runs the same on all four sides, so the bottom of the joint sits cleanly at one level.",
+      "markieren": "Now we divide the width into the {AZT} calculated parts and mark the {AZS} tails. Pins narrow (1 part, {zinken} mm), tails wide (2 parts, {schwalbe} mm). Step off the division points cleanly with dividers or a ruler — evenly spaced gives that calm, handsome look.",
+      "schraege": "The tail flank gets a slope of 1 : {ratio} (about {deg} degrees). Set each flank with the sliding bevel. Steeper, and the tips break out (that's short end grain there); shallower, and it holds worse under pull. 1 : {ratio} is the proven middle ground between grip and durability.",
+      "fertig": "The layout is done: {AZS} tails in {AZT} parts, each {T} mm, with a slope of 1 : {ratio}. Now comes the sawing — always on the waste side of the line, so the layout line stays as a fine mark. Later it's your reference when fitting."
+    }
+  }
+}

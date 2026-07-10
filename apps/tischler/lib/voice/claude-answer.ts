@@ -1,4 +1,11 @@
 import type { IRAGProvider, ITopicGuard } from "@craft-codex/core";
+import {
+  DEFAULT_VOICE_LOCALE,
+  getOffTopicReply,
+  getTemplateAnswerStrings,
+  getVoiceSystemPrompt,
+  type VoiceLocale,
+} from "./voice-locale";
 
 /**
  * Claude SSE AnswerFn fuer VoicePipeline (Phase D).
@@ -26,30 +33,26 @@ export interface ClaudeAnswerConfig {
   maxTokens?: number;
   /** Custom fetch (fuer Tests). Default: globalThis.fetch */
   fetchImpl?: typeof fetch;
+  /** Antwortsprache (System-Prompt + Fallback-Strings). Default: "de" */
+  locale?: VoiceLocale;
 }
 
-const DEFAULT_SYSTEM_PROMPT = `Du bist ein erfahrener Tischler-Meister und unterrichtest einen Lehrling.
-
-Erkläre Schwalbenschwanz-Verbindungen in einfachen, klaren Worten auf Deutsch (Du-Form, Werkstatt-Slang ok). Maximal 3 kurze Sätze pro Antwort. Bleibe IMMER beim Thema Holzhandwerk — wenn die Frage abweicht, fuehre sanft zurueck zur Aufgabe.
-
-Wenn dir RAG-Context zur Verfuegung gestellt wird, nutze ihn als Faktenbasis. Erfinde nichts.`;
-
 const DEFAULT_ENDPOINT = "https://api.anthropic.com/v1/messages";
-
-const DEFAULT_OFF_TOPIC =
-  "Das passt jetzt nicht zum Schwalbenschwanz. Bleib am Werkstueck — wenn du eine konkrete Frage zum aktuellen Schritt hast, helfe ich dir.";
 
 export function createClaudeAnswerFn(config: ClaudeAnswerConfig) {
   const {
     apiKey,
     model = "claude-sonnet-4-6",
     endpoint = DEFAULT_ENDPOINT,
-    systemPrompt = DEFAULT_SYSTEM_PROMPT,
+    locale = DEFAULT_VOICE_LOCALE,
+    systemPrompt = getVoiceSystemPrompt(locale),
     rag,
     guard,
     maxTokens = 400,
     fetchImpl,
   } = config;
+  const offTopicReply = getOffTopicReply(locale);
+  const { emptyQuery } = getTemplateAnswerStrings(locale);
 
   return async function* answer(query: string): AsyncIterable<string> {
     if (!apiKey) {
@@ -59,14 +62,14 @@ export function createClaudeAnswerFn(config: ClaudeAnswerConfig) {
     }
     const trimmed = query.trim();
     if (trimmed.length === 0) {
-      yield "Ich habe nichts gehoert. Stell deine Frage noch einmal.";
+      yield emptyQuery;
       return;
     }
 
     if (guard) {
       const v = await guard.evaluate(trimmed);
       if (v.decision === "off") {
-        yield DEFAULT_OFF_TOPIC;
+        yield offTopicReply;
         return;
       }
     }

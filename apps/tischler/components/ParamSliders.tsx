@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { DovetailParams } from "@craft-codex/core";
 
 interface ParamSlidersProps {
@@ -9,7 +10,8 @@ interface ParamSlidersProps {
 
 interface SliderConfig {
   key: keyof DovetailParams;
-  label: string;
+  /** Message-Key unter dovetail.paramSliders.* */
+  labelKey: "pinCount" | "ratio" | "thickness" | "width";
   min: number;
   max: number;
   step: number;
@@ -17,11 +19,11 @@ interface SliderConfig {
 }
 
 const SLIDERS: SliderConfig[] = [
-  { key: "pinCount", label: "Pin-Anzahl", min: 1, max: 12, step: 1 },
-  { key: "ratio", label: "Schwalbenwinkel 1:N", min: 4, max: 10, step: 0.5 },
+  { key: "pinCount", labelKey: "pinCount", min: 1, max: 12, step: 1 },
+  { key: "ratio", labelKey: "ratio", min: 4, max: 10, step: 0.5 },
   {
     key: "thickness_mm",
-    label: "Brettstärke",
+    labelKey: "thickness",
     min: 8,
     max: 40,
     step: 1,
@@ -29,7 +31,7 @@ const SLIDERS: SliderConfig[] = [
   },
   {
     key: "width_mm",
-    label: "Brettbreite",
+    labelKey: "width",
     min: 50,
     max: 300,
     step: 5,
@@ -38,6 +40,7 @@ const SLIDERS: SliderConfig[] = [
 ];
 
 export function ParamSliders({ params, onChange }: ParamSlidersProps) {
+  const t = useTranslations("dovetail.paramSliders");
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
       {SLIDERS.map((cfg) => {
@@ -56,7 +59,7 @@ export function ParamSliders({ params, onChange }: ParamSlidersProps) {
               }}
             >
               <span className="cc-muted" style={{ fontWeight: 600 }}>
-                {cfg.label}
+                {t(cfg.labelKey)}
               </span>
               <span className="cc-mono" style={{ fontWeight: 700 }}>
                 {value}

@@ -28,6 +28,15 @@ import {
  * Komponente nichts — die Welt-Toolbar bleibt als Fallback (Desktop/Controller).
  * Die Trigger-Geometrie ist in lib/xr/wrist-trigger.ts isoliert + unit-getestet.
  */
+/**
+ * Übersetzte UI-Strings — das Menü rendert INNERHALB des R3F-Canvas,
+ * useTranslations darf hier nicht aufgerufen werden. Die Seite baut das Objekt.
+ */
+export interface XRWristMenuLabels {
+  tafel: string;
+  plumb: string;
+}
+
 export function XRWristMenu({
   anreissModus,
   onModus,
@@ -36,6 +45,7 @@ export function XRWristMenu({
   onTafel,
   onZentrieren,
   onLotrecht,
+  labels,
   /** Linke oder rechte Hand fürs Menü (Default links — rechts bedient). */
   handedness = "left",
 }: {
@@ -46,6 +56,8 @@ export function XRWristMenu({
   onTafel: () => void;
   onZentrieren: () => void;
   onLotrecht: () => void;
+  /** Übersetzte Strings — von der Seite (ausserhalb des Canvas) gereicht. */
+  labels: XRWristMenuLabels;
   handedness?: "left" | "right";
 }) {
   const handState = useXRInputSourceState("hand", handedness);
@@ -143,10 +155,10 @@ export function XRWristMenu({
                       <Text fontSize={14}>{">"}</Text>
                     </Button>
                     <Button variant="rect" onClick={onTafel}>
-                      <Text fontSize={13}>Tafel</Text>
+                      <Text fontSize={13}>{labels.tafel}</Text>
                     </Button>
                     <Button variant="rect" onClick={onLotrecht}>
-                      <Text fontSize={13}>Lot</Text>
+                      <Text fontSize={13}>{labels.plumb}</Text>
                     </Button>
                   </Container>
                 </Card>

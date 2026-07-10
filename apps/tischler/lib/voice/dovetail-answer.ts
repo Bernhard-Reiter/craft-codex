@@ -3,6 +3,11 @@ import type {
   ITopicGuard,
   RAGDocument,
 } from "@craft-codex/core";
+import {
+  DEFAULT_VOICE_LOCALE,
+  getTemplateAnswerStrings,
+  type VoiceLocale,
+} from "./voice-locale";
 
 /**
  * Antwort-Synthesizer fuer Schwalbenschwanz-Voice-Pipeline.
@@ -21,18 +26,18 @@ export interface DovetailAnswerConfig {
   guard: ITopicGuard;
   topK?: number;
   minScore?: number;
+  /** Antwortsprache der Template-Strings. Default: "de" */
+  locale?: VoiceLocale;
 }
 
-const DEFAULT_OFF_TOPIC =
-  "Das passt jetzt nicht zum Schwalbenschwanz. Schau dass du beim Werkstueck bleibst — wenn du eine konkrete Frage zum Anriss, Saegen, Stemmen, Passen oder Pruefen hast, helfe ich dir gerne.";
-
 export function createDovetailAnswerFn(config: DovetailAnswerConfig) {
-  const { rag, guard, topK = 3, minScore = 0.1 } = config;
+  const { rag, guard, topK = 3, minScore = 0.1, locale = DEFAULT_VOICE_LOCALE } = config;
+  const strings = getTemplateAnswerStrings(locale);
 
   return async function answer(query: string): Promise<string> {
     const trimmed = query.trim();
     if (trimmed.length === 0) {
-      return "Ich habe nichts gehoert. Stell deine Frage noch einmal.";
+      return strings.emptyQuery;
     }
 
     const verdict = await guard.evaluate(trimmed);
@@ -40,17 +45,17 @@ export function createDovetailAnswerFn(config: DovetailAnswerConfig) {
     if (verdict.decision === "off") {
       const reason = "reason" in verdict ? verdict.reason : "";
       return reason
-        ? `${DEFAULT_OFF_TOPIC} (${reason})`
-        : DEFAULT_OFF_TOPIC;
+        ? `${strings.offTopic} (${reason})`
+        : strings.offTopic;
     }
 
     const hits = await rag.query(trimmed, { topK, minScore });
 
     if (hits.length === 0) {
-      return "Dazu finde ich gerade nichts im Lehrling-Korpus. Versuch eine konkretere Frage zum aktuellen Lernschritt.";
+      return strings.noHits;
     }
 
-    const body = synthesizeFromHits(hits);
+    const body = synthesizeFromHits(hits, strings.sourcePrefix);
 
     if (verdict.decision === "redirect") {
       const bridge = "bridge" in verdict ? verdict.bridge : null;
@@ -65,7 +70,7 @@ export function createDovetailAnswerFn(config: DovetailAnswerConfig) {
  * Bauen der Antwort: erste 1-2 Sätze des Top-Hits + ggf. Anker-Verweis auf
  * den zweiten Hit. Quellen-Liste am Ende fuer Lehrling-Transparenz.
  */
-export function synthesizeFromHits(hits: RAGDocument[]): string {
+export function synthesizeFromHits(hits: RAGDocument[], sourcePrefix = "Quelle:"): string {
   if (hits.length === 0) return "";
   const top = hits[0]!;
   const main = firstSentences(top.text, 2);
@@ -75,7 +80,7 @@ export function synthesizeFromHits(hits: RAGDocument[]): string {
 
   const sources = uniqueSources(hits);
   const sourcesLine =
-    sources.length > 0 ? `Quelle: ${sources.join(", ")}.` : "";
+    sources.length > 0 ? `${sourcePrefix} ${sources.join(", ")}.` : "";
 
   const lines = [main];
   if (supplement) lines.push(supplement);

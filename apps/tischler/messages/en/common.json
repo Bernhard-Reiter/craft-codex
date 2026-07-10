@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "title": "Craft Codex · Cabinetmaker — an open knowledge pool for the trades",
+    "description": "MR learning tool for woodworking: a parametric dovetail in 3D, master answers by voice (RAG, offline-proof), WebXR on Quest 3. Open source, MIT."
+  },
+  "header": {
+    "brandSuffix": "/ Cabinetmaker",
+    "nav": {
+      "start": "Home",
+      "vision": "Vision",
+      "overview": "Overview",
+      "lesson": "Lesson",
+      "teacher": "Teacher",
+      "freeBuild": "Free build",
+      "xr": "XR"
+    },
+    "navAria": "Main navigation",
+    "languageToggle": "Switch language"
+  },
+  "footer": {
+    "claim": "Craft. <em>Hologram.</em> Master knowledge.",
+    "metaLine": "Craft Codex — an open knowledge pool for the trades · MIT license",
+    "cybercraft": "In the spirit of CyberCraft — Handcraft. Cybercraft. Supercraft."
+  },
+  "systemStatus": {
+    "kicker": "System check — live",
+    "offlineChain": "Offline chain: cache → server → text. The demo never breaks.",
+    "corpus": {
+      "label": "Knowledge corpus",
+      "detail": "{count} trade documents · local in your browser, always on"
+    },
+    "brain": {
+      "label": "Answer brain",
+      "probing": "checking server …",
+      "template": "server up · template answers from the corpus",
+      "live": "server up · {provider} answering live",
+      "offline": "offline · the local corpus template takes over"
+    },
+    "voice": {
+      "label": "Voice",
+      "probing": "checking cache …",
+      "cached": "{count} answers pre-voiced offline",
+      "cachedLive": "{count} answers pre-voiced offline · server TTS live on top",
+      "serverOnly": "server TTS live",
+      "none": "no audio · answers come as text"
+    },
+    "xr": {
+      "label": "WebXR",
+      "probing": "checking headset support …",
+      "ready": "ready: {modes}",
+      "none": "this browser can't do XR · the 3D workshop still runs"
+    }
+  },
+  "demoReset": {
+    "button": "↺ Reset demo",
+    "confirm": "Really reset? (clears progress + placements)"
+  }
+}

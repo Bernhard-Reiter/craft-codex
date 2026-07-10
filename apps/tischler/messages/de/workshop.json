@@ -1,0 +1,88 @@
+{
+  "rail": {
+    "kicker": "Geführte Lektion",
+    "title": "Schwalbenschwanz",
+    "sub": "Der Meister führt — frag jederzeit dazwischen.",
+    "kioskBadge": "Kiosk · Auto",
+    "beatsLabel": "Lektions-Beats"
+  },
+  "beat": {
+    "master": "Der Meister: „{text}“",
+    "speaking": "🔊 Spricht …",
+    "readAloud": "🔊 Vorlesen",
+    "back": "◀ Zurück",
+    "counter": "Beat {current}/{total}",
+    "next": "Weiter ▶",
+    "startXr": "In XR starten ▶"
+  },
+  "ask": {
+    "kicker": "Meister fragen",
+    "connecting": "Stimme wird verbunden …"
+  },
+  "stage": {
+    "label": "Lern-Bühne"
+  },
+  "xrHandoff": {
+    "title": "Jetzt du — die Verbindung schwebt auf deiner Werkbank.",
+    "body": "Setz die Brille auf: ein Hologramm führt dich Schritt für Schritt durch Anreißen, Sägen und Stemmen — direkt am echten Holz.",
+    "cta": "XR-Führung starten →"
+  },
+  "offlineTrust": {
+    "title": "Läuft vollständig lokal — offline-fest gebaut",
+    "compact": "Läuft lokal · offline-fest",
+    "full": "Läuft lokal · kein Byte verlässt das Gerät"
+  },
+  "diagram": {
+    "svgTitle": "Schwalbenschwanz-Verbindung — oberes und unteres Brett verzahnen sich",
+    "labelTop": "ZINKEN ▸ oberes Brett",
+    "labelBottom": "SCHWALBEN ▸ unteres Brett",
+    "apart": "◀ Auseinander",
+    "join": "Zusammenfügen ▶",
+    "rangeLabel": "Verbindung auseinanderziehen oder zusammenfügen",
+    "stateLocked": "▸ Verriegelt: die keilförmigen Zinken halten ohne Leim.",
+    "stateApart": "▸ Getrennt: jeder Zinken greift in die Lücke des anderen Bretts.",
+    "stateHint": "▸ Schieb die Bretter zusammen …"
+  },
+  "voiceConsole": {
+    "defaultQueries": [
+      "Wie reisse ich mit dem Streichmass an",
+      "Schwalbenwinkel fuer Hartholz",
+      "Stemmeisen Schliff",
+      "Auf welcher Seite saege ich",
+      "Wie pruefe ich die Passung"
+    ],
+    "trust": {
+      "official": "Amtlich · RIS",
+      "wikipedia": "Wikipedia",
+      "default": "Geprüftes Fachwissen"
+    },
+    "askButton": "Frage stellen",
+    "fallbackQuestion": "Frage",
+    "status": {
+      "listening": "Höre zu …",
+      "thinking": "Denke nach …",
+      "speaking": "Spricht …"
+    },
+    "badge": {
+      "server": "Server",
+      "real": "Live",
+      "mock": "Mock"
+    },
+    "typedPlaceholder": "… oder Frage tippen (geht auch offline)",
+    "typedLabel": "Frage eingeben",
+    "typedSubmit": "Fragen",
+    "questionLabel": "Frage:",
+    "sourceBadge": "📚 Quelle",
+    "audioPlayed": "🔊 Audio abgespielt",
+    "audioNone": "🔇 kein Audio (Cache/Server leer — Text-Antwort)",
+    "offlineFallback": "Offline-Fallback: lokales Wissen",
+    "dialogCount": "💬 Gespräch: {count, plural, one {# Frage} other {# Fragen}}",
+    "newDialog": "neues Gespräch",
+    "pipelineError": "Pipeline-Fehler"
+  },
+  "tafel": {
+    "canvasLabel": "Tafel-Zeichenfläche",
+    "clearLabel": "Tafel leeren",
+    "clear": "Clear"
+  }
+}

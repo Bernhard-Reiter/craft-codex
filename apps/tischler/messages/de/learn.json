@@ -1,0 +1,110 @@
+{
+  "loading": "Anreiß-Modus lädt …",
+  "hero": {
+    "eyebrow": "Überblick · von ganz vorne",
+    "h1": "Zinken — die <hl>Königsdisziplin</hl> der Holzverbindung.",
+    "lead": "Bevor der erste Strich aufs Holz kommt: Was ist ein Zinken, wofür ist er gut, und welche Arten gibt es? Erst verstehen — dann anreißen.",
+    "trust": "Jede Antwort aus geprüftem Meisterwissen"
+  },
+  "overviewQueries": [
+    "Was ist ein Zinken?",
+    "Wofür sind Zinken gut?",
+    "Welche Zinkenarten gibt es?",
+    "Warum hält das ohne Schrauben?",
+    "Womit fange ich am besten an?"
+  ],
+  "what": {
+    "kicker": "Was ist das?",
+    "title": "Zwei Bretter, die ineinandergreifen wie die Finger zweier Hände.",
+    "body": "An der Stirnseite — dem <strong>Hirnholz</strong> — wird jedes Brett kammartig ausgeschnitten. Schiebt man die Bretter über Eck zusammen, greift jeder <strong>Zinken</strong> in die Lücke des anderen. Beim Schwalbenschwanz sind die Zinken keilförmig: sie <strong>verriegeln sich</strong> und halten sogar ohne Leim oder Schraube.",
+    "note": "Das nennt der Tischler <strong>Formschluss</strong> — die Form selbst hält die Ecke zusammen. Darum ist der Schwalbenschwanz die stabilste Eckverbindung im Möbelbau.",
+    "diagramKicker": "Zieh die Verbindung auseinander"
+  },
+  "history": {
+    "kicker": "Die Geschichte",
+    "title": "Älter als man denkt — und <hl>nie veraltet</hl>."
+  },
+  "uses": {
+    "kicker": "Wofür man sie braucht",
+    "title": "Überall, wo eine Ecke <hl>halten muss</hl>."
+  },
+  "angle": {
+    "kicker": "Der Schwalbenwinkel",
+    "title": "1:6 oder 1:8 — <hl>welcher Winkel?</hl>",
+    "sub": "Der Schwalbenwinkel bestimmt, wie keilförmig die Zinken sind. Wähl ihn und sieh den Unterschied:"
+  },
+  "path": {
+    "kicker": "Der Lernpfad",
+    "title": "Welchen Zinken willst du <hl>lernen</hl>?",
+    "sub": "Empfohlene Reihenfolge vom einfachen Einstieg zum Meisterstück:"
+  },
+  "ris": {
+    "note": "<strong>Amtlich verankert.</strong> Die {aoTitel} (RIS, GesNr {gesNr}) schreibt <em>Anreißen</em> und <em>Zinkenverbindungen</em> wörtlich als Pflichtkompetenz vor; der {lpTitel} nennt {zitat}. Dieses Lerntool deckt damit exakt eine vorgeschriebene Kernkompetenz der Tischler-Lehre ab.",
+    "sourceLink": "Quelle ansehen"
+  },
+  "ask": {
+    "eyebrow": "Stimme des Meisters",
+    "title": "Frag, wie am Hobel nebenan.",
+    "sub": "Stell eine Frage — die Antwort kommt aus dem geprüften Fachkorpus, mit Quelle, auch komplett ohne Netz.",
+    "connecting": "Stimme wird verbunden …"
+  },
+  "cta": {
+    "kicker": "Bereit?",
+    "title": "Lern den Schwalbenschwanz — Schritt für Schritt am 3D-Werkstück.",
+    "button": "Geführte Lektion starten →"
+  },
+  "artCard": {
+    "step": "SCHRITT {order}",
+    "difficulty": "Schwierigkeit {level} von 3",
+    "when": "Wann:",
+    "master": "Der Meister: „{text}“",
+    "learnCta": "Diesen lernen →",
+    "preparing": "In Vorbereitung · Stimme erklärt schon"
+  },
+  "anreiss": {
+    "kicker": "Geführtes Anreißen",
+    "title": "Der Meister reißt <mark>am Brett</mark> an",
+    "intro": "Stell die Brettmaße ein — links rechnet der Meister an der Tafel, rechts erscheint dieselbe Teilung am Brett. Schritt für Schritt, Fragen jederzeit.",
+    "sliderWidth": "Breite B",
+    "sliderThickness": "Dicke D",
+    "sliderLength": "Länge L",
+    "result": "Ergibt nach Lehrbuch: <strong>{azs} Schwalben</strong> · {azt} Teile à {teil} mm · Schräge 1:{slope}",
+    "boardHeader": "Tafel · Schritt {current}/{total} — {label}",
+    "showOnBoard": "— am Brett zeigen —",
+    "recenter": "🎯 Zentrieren",
+    "recenterTitle": "Brett wieder zentrieren",
+    "masterLabel": "Meister:",
+    "back": "◀ Zurück",
+    "stepCount": "Schritt {current} / {total}",
+    "next": "Weiter ▶",
+    "done": "Fertig",
+    "restart": "↺ von vorne",
+    "toolHide": "🔧 Werkzeug aus",
+    "toolShow": "🔧 Werkzeug an",
+    "askHint": "Etwas unklar? Frag den Meister — er kennt die Konstruktionsregeln.",
+    "sampleQueries": [
+      "Warum steht in der Schwalbenformel die Zahl 1,7",
+      "Was ist die Randzinkenverstaerkung",
+      "Darf man Laengsholz mit Querholz verleimen"
+    ]
+  },
+  "anglePicker": {
+    "svgLabel": "Schwalbenschwanz im Verhältnis 1 zu {ratio}, {deg}",
+    "groupLabel": "Schwalbenwinkel",
+    "steeper": "steiler",
+    "finer": "feiner",
+    "ratios": {
+      "6": {
+        "deg": "≈ 9,5°",
+        "title": "1:6 — der steilere Winkel",
+        "text": "Die Schwalben verhaken kräftiger — mehr mechanischer Halt. Die Zinkenspitzen sind robuster. Klassisch für gröbere Arbeiten."
+      },
+      "8": {
+        "deg": "≈ 7°",
+        "title": "1:8 — der feinere Winkel",
+        "text": "Wirkt eleganter und filigraner. Beliebt für feine Möbel. Ein noch steilerer Winkel würde an den Spitzen kurzes Hirnholz ergeben, das ausbricht."
+      }
+    },
+    "note": "<strong>Der Unterschied:</strong> Beide halten fest. 1:6 ist steiler und verriegelt kräftiger, 1:8 ist flacher und sieht feiner aus. Welches Verhältnis zu welchem Holz gehört, ist Sache der Werkstatt-Tradition — das legt dein Meister fest."
+  }
+}

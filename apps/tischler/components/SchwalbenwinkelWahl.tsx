@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Schwalbenwinkel-Auswahl: 1:6 ODER 1:8 — und der Unterschied erklärt.
@@ -24,23 +25,11 @@ function flareFor(ratio: Ratio): number {
   return ((BOT_Y - TOP_Y) / ratio) * 1.9;
 }
 
-const INFO: Record<Ratio, { grad: string; titel: string; text: string }> = {
-  6: {
-    grad: "≈ 9,5°",
-    titel: "1:6 — der steilere Winkel",
-    text: "Die Schwalben verhaken kräftiger — mehr mechanischer Halt. Die Zinkenspitzen sind robuster. Klassisch für gröbere Arbeiten.",
-  },
-  8: {
-    grad: "≈ 7°",
-    titel: "1:8 — der feinere Winkel",
-    text: "Wirkt eleganter und filigraner. Beliebt für feine Möbel. Ein noch steilerer Winkel würde an den Spitzen kurzes Hirnholz ergeben, das ausbricht.",
-  },
-};
-
 export function SchwalbenwinkelWahl() {
+  const t = useTranslations("learn.anglePicker");
   const [ratio, setRatio] = useState<Ratio>(6);
   const flare = flareFor(ratio);
-  const info = INFO[ratio];
+  const deg = t(`ratios.${ratio}.deg`);
 
   const tail = [
     `${CX - HALF},${TOP_Y}`,
@@ -62,7 +51,7 @@ export function SchwalbenwinkelWahl() {
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`Schwalbenschwanz im Verhältnis 1 zu ${ratio}, ${info.grad}`}
+        aria-label={t("svgLabel", { ratio, deg })}
         style={{ width: "100%", maxWidth: 200 }}
       >
         {/* Hirnholz-Grundlinie */}
@@ -101,12 +90,12 @@ export function SchwalbenwinkelWahl() {
           fontSize="14"
           fill="var(--cc-ink)"
         >
-          1:{ratio} · {info.grad}
+          1:{ratio} · {deg}
         </text>
       </svg>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        <div style={{ display: "flex", gap: "0.5rem" }} role="group" aria-label="Schwalbenwinkel">
+        <div style={{ display: "flex", gap: "0.5rem" }} role="group" aria-label={t("groupLabel")}>
           {([6, 8] as Ratio[]).map((r) => (
             <button
               key={r}
@@ -115,21 +104,20 @@ export function SchwalbenwinkelWahl() {
               className="cc-tab"
               onClick={() => setRatio(r)}
             >
-              1:{r} {r === 6 ? "steiler" : "feiner"}
+              1:{r} {r === 6 ? t("steeper") : t("finer")}
             </button>
           ))}
         </div>
         <p style={{ margin: 0, fontWeight: 600, fontSize: "0.95rem" }}>
-          {info.titel}
+          {t(`ratios.${ratio}.title`)}
         </p>
         <p className="cc-muted" style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.55 }}>
-          {info.text}
+          {t(`ratios.${ratio}.text`)}
         </p>
         <p className="cc-note" style={{ marginTop: "0.25rem" }}>
-          <strong>Der Unterschied:</strong> Beide halten fest. 1:6 ist steiler
-          und verriegelt kräftiger, 1:8 ist flacher und sieht feiner aus. Welches
-          Verhältnis zu welchem Holz gehört, ist Sache der Werkstatt-Tradition —
-          das legt dein Meister fest.
+          {t.rich("note", {
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
       </div>
     </div>

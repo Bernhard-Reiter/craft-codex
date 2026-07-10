@@ -22,6 +22,10 @@ pnpm dev
 
 Open `/dovetail` for the 2D demo, `/dovetail/xr` for immersive WebXR (Quest 3 / Galaxy XR / Chrome with WebXR emulator).
 
+## Languages 🌍
+
+The site is fully bilingual — **German** (`/de`, default) and **English** (`/en`), switchable in the header. This covers UI, lessons, the RAG knowledge corpus and the voice master (system prompts, STT language hint, TTS delivery). Terminology follows [`docs/i18n/GLOSSARY.md`](docs/i18n/GLOSSARY.md) — the single source of truth for DE→EN trade terms. One deliberate exception: **Austrian legal sources (RIS) are never translated** — regulations stay authentic German and are cited as such. DE↔EN message parity is enforced in CI (`pnpm --filter @craft-codex/tischler i18n:check`).
+
 ## Project layout
 
 The repo is organised by **Gewerk** (trade). Each trade ships as its own app sharing the same core engine. Workpieces live as routes inside the trade app.

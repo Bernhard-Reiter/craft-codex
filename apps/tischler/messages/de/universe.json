@@ -1,0 +1,80 @@
+{
+  "eyebrow": "Die Vision · gemeinsam gebaut",
+  "h1": "Das Craft Codex <hl>Universum</hl>.",
+  "lead": "Cody, Schüler und Lehrer bauen es gemeinsam — Generation für Generation.",
+  "notProduct": {
+    "kicker": "Kein Produkt. Ein Universum.",
+    "lead": "Craft Codex ist kein fertiges Werkzeug, das man kauft. Es ist ein lebendes, wachsendes Universum aus Handwerkswissen — und es gehört allen, die es bauen.",
+    "sub": "Es beginnt klein: mit den Zinken in der Tischlerei. Aber jede Branche ist eine eigene Welt in diesem Universum — der Metaller, die Elektrotechnik, der Maschinenbau, jedes Handwerk und jede technische Disziplin. Das Universum dehnt sich aus, Welt für Welt, Meister für Meister, Generation für Generation."
+  },
+  "why": {
+    "kicker": "Das Warum",
+    "title": "Mit jedem Meister, der geht, stirbt ein <hl>Leben voll Wissen</hl>.",
+    "body": "Bisher war das ein Verlust ohne Rückweg. Jetzt nicht mehr: Das Wissen des alten Meisters kann eingefangen, geprüft und weitergegeben werden — nicht als totes Lehrbuch, sondern als ein geduldiger digitaler Meister, der nie müde wird und in der Sprache des Lehrlings antwortet. Das Handwerk wird nicht konserviert wie im Museum. Es lebt und wächst ins KI-Zeitalter hinein."
+  },
+  "how": {
+    "kicker": "Wie es gebaut wird — die Gemeinschaft ist der Baumeister",
+    "title": "Nicht einer baut. Cody verwandelt die Worte der Gemeinschaft in<hl> lebendige Werkzeuge</hl>.",
+    "roles": [
+      {
+        "who": "Der Meister",
+        "what": "ist die Quelle. Sein Wissen, sein Auge, sein Gefühl fürs Material — das ist der Rohstoff."
+      },
+      {
+        "who": "Der Lehrer",
+        "what": "führt und ordnet. Er macht aus Erfahrung Lehrstoff."
+      },
+      {
+        "who": "Der Schüler",
+        "what": "baut. Er beschreibt das Handwerk in seiner Sprache, und Cody formt daraus ein interaktives Werkzeug — Stimme, VR, am Werkstück."
+      },
+      {
+        "who": "Cody",
+        "what": "ist der unsichtbare Motor. Er ersetzt niemanden. Er ist der Webstuhl, an dem die Gemeinschaft webt — man sieht ihn nie, man sieht nur, was entsteht."
+      }
+    ],
+    "note1": "<strong>Das Bauen ist der Lehrplan.</strong> Während die Schüler das Universum erweitern, lernen sie eine neue Disziplin — Angewandte KI: sie lernen das Handwerk und sie lernen, die KI dafür zu bauen.",
+    "note2": "Bevor ein Werkzeug jemanden unterrichtet, gibt ein Meister es frei. Der digitale Meister <strong>erfindet nichts</strong> — jede Antwort steht auf geprüftem Wissen aus echter Quelle."
+  },
+  "flywheel": {
+    "kicker": "Das Schwungrad",
+    "chain": "mehr Schüler bauen → mehr Meisterwissen wird eingefangen → bessere Werkzeuge → mehr Branchen → mehr Schüler, die das Handwerk wieder als Zukunft sehen → die bauen wieder mehr.",
+    "body": "Kein einzelner Mensch ist der Flaschenhals. Cody skaliert das Bauen, die Gemeinschaft skaliert das Wissen — vom Tischler bis zum Metaller, ohne dass einer allein jedes Werkzeug bauen müsste."
+  },
+  "benefits": {
+    "kicker": "Was jeder bekommt",
+    "items": [
+      {
+        "who": "Der Meister",
+        "what": "sein Lebenswerk geht nicht verloren, sondern weiter. Und das ewig Wiederholte übernimmt die Maschine: Zeit zurück für das, was nur ein Mensch kann."
+      },
+      {
+        "who": "Der Lehrer",
+        "what": "einen neuen Lehrplan und Schüler, die etwas können, das es vorher nicht gab."
+      },
+      {
+        "who": "Der Schüler",
+        "what": "lernt von einem geduldigen Meister rund um die Uhr und lernt zugleich, KI zu bauen. Wer das Handwerk beherrscht und die KI dazu, ist unersetzlich."
+      },
+      {
+        "who": "Die Region",
+        "what": "wird Vorreiter einer neuen Disziplin und hält die Jungen im Tal, statt sie zu verlieren."
+      },
+      {
+        "who": "Europa",
+        "what": "ein Handwerks-Wissens-Commons, das offen bleibt. Der Output dieser Schicht ist frei. Made in Europe, und es bleibt in Europa."
+      }
+    ]
+  },
+  "engine": {
+    "kicker": "Cody — der unsichtbare Motor",
+    "body": "Cody selbst bleibt verborgen. Niemand sieht ihn — die Gemeinschaft sieht nur, was entsteht: das wachsende Universum. Der Motor ist das Geheimnis, der Output ist das Geschenk. So kann das Universum großzügig offen sein, ohne dass je preisgegeben wird, womit es gewebt wurde."
+  },
+  "horizon": {
+    "kicker": "Der Horizont",
+    "body": "In zehn, in zwanzig Jahren trägt das Universum das gesammelte Wissen unzähliger Meister aus jeder Branche — laufend erweitert von jeder neuen Generation, frei verfügbar, unterrichtet von unermüdlichen digitalen Meistern. Und daneben bleibt das Unersetzliche: die Hand, das Auge, das Urteil des Menschen.",
+    "punch": "Das Wissen des alten Meisters stirbt nicht mehr mit ihm. Es lebt weiter — und jede Generation baut es größer.",
+    "tagline": "Das ist das Craft Codex Universum.",
+    "cta": "Wo es beginnt: die Zinken →"
+  }
+}

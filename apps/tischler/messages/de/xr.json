@@ -1,0 +1,117 @@
+{
+  "kicker": "Werkstück 03",
+  "h1": "Schwalbenschwanz als <mark>Hologramm</mark>",
+  "intro": "Dieselbe 3D-Szene wie in der Werkstatt, jetzt als echte WebXR-Session. „Enter AR“ auf einer Quest 3 oder Galaxy XR (oder Chrome mit WebXR-Emulator) — das Brett erscheint auf Tischhöhe in deinem Raum.",
+  "checking": "Prüfe XR-Support …",
+  "capability": {
+    "ready": "bereit",
+    "unavailable": "nicht verfügbar"
+  },
+  "reasonLabel": "Grund:",
+  "fallback": {
+    "title": "Kein XR-Gerät verfügbar.",
+    "body": "Du kannst die Demo trotzdem in 3D nutzen — in der <link>Werkstatt</link>. Für XR brauchst du Galaxy XR, Quest 3 oder Chrome mit WebXR-Emulator (chrome://flags/#webxr-incubations).",
+    "detail": "Detail: {reason}"
+  },
+  "modes": {
+    "guided": "Geführtes Anreißen",
+    "hand": "Hand-Schritte"
+  },
+  "center": "🎯 Brett zentrieren",
+  "centerTitle": "Brett und Ansicht zurueck ins Zentrum",
+  "stepSummary": "Schritt {current}/{total} — {label} · {count} Schwalben",
+  "preview": "Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett {width}×{length}mm, {pins} Pins, 1:{ratio}. Änderbar in der <link>Werkstatt</link> (State geteilt via localStorage).",
+  "phases": {
+    "messen": "Messen",
+    "schwalbenzahl": "Schwalbenzahl",
+    "teile": "Teilen",
+    "streichmass": "Streichmaß",
+    "markieren": "Markieren",
+    "schraege": "Schräge",
+    "fertig": "Fertig"
+  },
+  "ornament": {
+    "step": "Schritt {current}/{total}",
+    "tafel": "Tafel",
+    "master": "Meister"
+  },
+  "wrist": {
+    "tafel": "Tafel",
+    "plumb": "Lot"
+  },
+  "toolbar": {
+    "tabAnreissen": "Anreissen",
+    "tabHand": "Hand-Schritte",
+    "width": "Breite B",
+    "thickness": "Dicke D",
+    "length": "Laenge L",
+    "teilung": "Teilung",
+    "stirnkante": "Stirnkante",
+    "mittellinie": "Mittellinie",
+    "variante": "Variante",
+    "standard": "Standard",
+    "rzv": "Randverst.",
+    "step": "Schritt {current}/{total} - {label}",
+    "back": "< Zurueck",
+    "tafel": "Tafel",
+    "done": "Fertig",
+    "next": "Weiter >",
+    "handTitle": "Handschritt waehlen",
+    "hand": {
+      "anreissen": "Anreissen",
+      "saegen": "Saegen",
+      "stemmen": "Stemmen",
+      "passen": "Passen",
+      "pruefen": "Pruefen"
+    },
+    "board": "Brett",
+    "plumb": "Lotrecht",
+    "up": "Hoch",
+    "down": "Runter",
+    "near": "Nah",
+    "far": "Weit",
+    "reset": "Reset",
+    "askMaster": "Frag den Meister",
+    "status": {
+      "thinking": "Denke nach ...",
+      "speaking": "Spricht ...",
+      "listening": "Hoere zu ..."
+    },
+    "noAudio": "kein Audio - Text-Antwort"
+  },
+  "tafel": {
+    "titleGuided": "Tafel - {label}",
+    "titleHand": "Tafel - Handschritte",
+    "handSteps": {
+      "anreissen": {
+        "name": "Anreissen",
+        "hint": "Risslinien aufs Holz uebertragen — die Grundlage fuer alles."
+      },
+      "saegen": {
+        "name": "Saegen",
+        "hint": "Auf der Abfallseite saegen, die Anrisslinie stehen lassen."
+      },
+      "stemmen": {
+        "name": "Stemmen",
+        "hint": "Abfall bis zur Grundlinie ausstemmen — von beiden Seiten."
+      },
+      "passen": {
+        "name": "Passen",
+        "hint": "Gegenstueck anzeichnen und trocken einpassen."
+      },
+      "pruefen": {
+        "name": "Pruefen",
+        "hint": "Fugen pruefen, nacharbeiten bis die Verbindung satt schliesst."
+      }
+    },
+    "detail": {
+      "messen": "Bevor wir rechnen, messen wir das Brett genau aus. B ist die Breite ({B} mm, von Kante zu Kante), D die Dicke ({D} mm, die Staerke des Bretts). Diese zwei Masse bestimmen die ganze Zinkenteilung — mehr brauchen wir nicht. Genaues Messen ist die Grundlage: ein falsches Mass zieht sich durch die ganze Rechnung.",
+      "schwalbenzahl": "AZS ist die Anzahl der Schwalben. Formel: AZS = B / (1,7 * D). Warum 1,7? Das ist ein Erfahrungswert aus der Werkstatt — er sorgt fuer ein schoenes Verhaeltnis von Schwalbe zu Brettdicke (nicht zu viele winzige, nicht zu wenige klobige). Hier: {B} / (1,7 * {D}) = {B} / {BD} = {AZSraw} ~ {AZS} Schwalben. Willst du weniger und breitere, nimm 2 statt 1,7.",
+      "teile": "AZT ist die Anzahl der Einteilungsteile. Eine Schwalbe ist 2 Teile breit, ein Zinken 1 Teil — pro Schwalbe also 3 Teile, plus 1 fuer die beiden Randzinken: AZT = AZS * 3 + 1 = {AZS} * 3 + 1 = {AZT}. Die Teilbreite T = B / AZT = {B} / {AZT} = {T} mm. Damit ist jeder Zinken {zinken} mm und jede Schwalbe {schwalbe} mm breit.",
+      "streichmass": "Mit dem Streichmass uebertragen wir die Brettdicke D = {D} mm umlaufend ums Brett. Diese Linie ist die Stemmtiefe — bis hierher wird gestemmt, nie tiefer. Sie laeuft auf allen vier Seiten gleich, damit der Grund der Verbindung sauber auf einer Hoehe liegt.",
+      "markieren": "Jetzt teilen wir die Breite in die {AZT} berechneten Teile und markieren die {AZS} Schwalben. Zinken schmal (1 Teil, {zinken} mm), Schwalbe breit (2 Teile, {schwalbe} mm). Die Teilpunkte mit Stechzirkel oder Lineal sauber abtragen — gleichmaessig verteilt gibt das ruhige, schoene Bild.",
+      "schraege": "Die Schwalbenflanke bekommt die Schraege 1 : {ratio} (rund {deg} Grad). Mit der Schmiege jede Flanke anlegen. Steiler bricht an den Spitzen aus (dort steht kurzes Hirnholz), flacher haelt schlechter auf Zug. 1 : {ratio} ist der bewaehrte Mittelweg zwischen Halt und Haltbarkeit.",
+      "fertig": "Der Anriss steht: {AZS} Schwalben in {AZT} Teilen, jedes {T} mm, mit der Schraege 1 : {ratio}. Jetzt wird gesaegt — immer auf der Abfallseite der Linie, damit die Anrisslinie als feiner Strich stehenbleibt. Sie ist spaeter deine Pruefmarke beim Passen."
+    }
+  }
+}

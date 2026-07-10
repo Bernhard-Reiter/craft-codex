@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Component,
   Suspense,
@@ -47,6 +48,7 @@ export function CADViewer({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
 }: CADViewerProps) {
+  const t = useTranslations("dovetail.cad");
   const [activeUrl, setActiveUrl] = useState<string | null>(() =>
     mode.getActiveModelUrl(),
   );
@@ -103,12 +105,12 @@ export function CADViewer({
           gap: "0.5rem",
         }}
       >
-        <label htmlFor="cad-model-select">Modell:</label>
+        <label htmlFor="cad-model-select">{t("modelLabel")}</label>
         <select
           id="cad-model-select"
           value={activeUrl ?? ""}
           onChange={(e) => handleSelect(e.target.value)}
-          aria-label="CAD-Modell auswählen"
+          aria-label={t("selectAria")}
           style={{
             border: "1px solid #e3e5e8",
             borderRadius: 4,
@@ -117,7 +119,7 @@ export function CADViewer({
             color: "#0b0d10",
           }}
         >
-          <option value="">— kein Modell —</option>
+          <option value="">{t("noModelOption")}</option>
           {models.map((m) => (
             <option key={m.url} value={m.url}>
               {m.label}
@@ -155,9 +157,7 @@ export function CADViewer({
         <Suspense fallback={<LoadingFallback />}>
           {activeEntry ? (
             <ModelErrorBoundary
-              fallback={
-                <EmptyState message="Modell konnte nicht geladen werden" />
-              }
+              fallback={<EmptyState message={t("loadError")} />}
             >
               {activeEntry.url.startsWith("parametric:dovetail") ? (
                 <ParametricDovetailModel entry={activeEntry} />
@@ -183,7 +183,7 @@ export function CADViewer({
             fontSize: "0.95rem",
           }}
         >
-          Kein Modell ausgewählt
+          {t("noModelSelected")}
         </div>
       )}
     </div>

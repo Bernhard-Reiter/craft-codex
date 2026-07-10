@@ -1,0 +1,10 @@
+{
+  "kicker": "Werkstück 02",
+  "h1": "Stimme des <mark>Meisters</mark>",
+  "intro": "Frage per Demo-Button, Texteingabe oder Mikrofon stellen. Antworten kommen aus dem Fachkorpus ({count} Dokumente, inkl. offizieller Regelwerke) — gesprochen über die Offline-Kette: vorvertonter Cache zuerst, dann Server-Stimme, notfalls Text.",
+  "voiceConnecting": "Stimme wird verbunden …",
+  "offline": {
+    "kicker": "Offline-Kette",
+    "body": "Vorberechnete Stimme ({count} Antworten im Cache) → Server-TTS → Stille mit Text-Antwort. Antworten funktionieren immer — notfalls aus dem lokalen Wissenskorpus. Cache befüllen: <code>ELEVENLABS_API_KEY=… pnpm tts:cache</code>"
+  }
+}

@@ -1,21 +1,24 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname } from "../i18n/navigation";
+import { routing } from "../i18n/routing";
 import { DovetailMark } from "./DovetailMark";
 
-const LINKS: Array<{ href: string; label: string }> = [
-  { href: "/", label: "Start" },
-  { href: "/universum", label: "Vision" },
-  { href: "/lernen", label: "Überblick" },
-  { href: "/werkstatt", label: "Lektion" },
-  { href: "/cockpit", label: "Lehrer" },
-  { href: "/dovetail", label: "Frei bauen" },
-  { href: "/dovetail/xr", label: "XR" },
+const LINKS: Array<{ href: string; key: string }> = [
+  { href: "/", key: "start" },
+  { href: "/universum", key: "vision" },
+  { href: "/lernen", key: "overview" },
+  { href: "/werkstatt", key: "lesson" },
+  { href: "/cockpit", key: "teacher" },
+  { href: "/dovetail", key: "freeBuild" },
+  { href: "/dovetail/xr", key: "xr" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations("common.header");
 
   return (
     <header className="cc-header">
@@ -25,18 +28,18 @@ export function SiteHeader() {
           Craft Codex
           <span style={{ color: "var(--cc-muted)", fontWeight: 600 }}>
             {" "}
-            / Tischler
+            {t("brandSuffix")}
           </span>
         </span>
       </Link>
-      <nav className="cc-nav" aria-label="Hauptnavigation">
+      <nav className="cc-nav" aria-label={t("navAria")}>
         {LINKS.map((l) => (
           <Link
             key={l.href}
             href={l.href}
             aria-current={pathname === l.href ? "page" : undefined}
           >
-            {l.label}
+            {t(`nav.${l.key}`)}
           </Link>
         ))}
         <a
@@ -46,6 +49,24 @@ export function SiteHeader() {
         >
           GitHub ↗
         </a>
+        {/* Sprachumschalter: gleiche Seite, andere Locale. */}
+        <span aria-label={t("languageToggle")} style={{ display: "inline-flex", gap: "0.35rem" }}>
+          {routing.locales.map((l) => (
+            <Link
+              key={l}
+              href={pathname}
+              locale={l}
+              aria-current={l === locale ? "true" : undefined}
+              style={{
+                textTransform: "uppercase",
+                fontWeight: l === locale ? 800 : 500,
+                borderBottom: l === locale ? "3px solid var(--cc-yellow)" : "none",
+              }}
+            >
+              {l}
+            </Link>
+          ))}
+        </span>
       </nav>
     </header>
   );

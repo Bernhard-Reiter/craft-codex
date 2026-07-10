@@ -1,0 +1,54 @@
+{
+  "kicker": "Workpiece 01",
+  "title": "Dovetail",
+  "subtitle": "Learning step and board dimensions — live in the 3D model.",
+  "stepKicker": "Learning step",
+  "overview": {
+    "kicker": "What you're building",
+    "body": "Two boards meshing at a corner. The wedge-shaped tails and pins lock into each other — a <strong>mechanical interlock</strong> that holds without glue. Pull them apart:",
+    "start": "Let's go: Lay out →",
+    "toOverview": "To the overview"
+  },
+  "paramsKicker": "Board dimensions",
+  "askMaster": "Ask the master",
+  "voiceConnecting": "Connecting the voice …",
+  "stageAria": "3D workpiece",
+  "stageBadge": "Finished workpiece · no layout lines yet",
+  "placement": {
+    "active": "Drag active",
+    "start": "Position the board"
+  },
+  "surfaceAria": "Master surface",
+  "modeBar": {
+    "aria": "Learning steps",
+    "steps": {
+      "ueberblick": "Overview",
+      "anreissen": "Lay out",
+      "saegen": "Saw",
+      "stemmen": "Chop",
+      "passen": "Fit",
+      "pruefen": "Check"
+    }
+  },
+  "paramSliders": {
+    "pinCount": "Number of pins",
+    "ratio": "Dovetail angle 1:N",
+    "thickness": "Board thickness",
+    "width": "Board width"
+  },
+  "surface": {
+    "aria": "Master surface modes",
+    "empty": "No modes registered.",
+    "noneActive": "No mode active",
+    "pickHint": "Pick a mode above (Tafel / CAD / Video) to get started.",
+    "loading": "Loading {label} …"
+  },
+  "cad": {
+    "modelLabel": "Model:",
+    "selectAria": "Select a CAD model",
+    "noModelOption": "— no model —",
+    "noModelSelected": "No model selected",
+    "loadError": "The model could not be loaded"
+  },
+  "sceneFallback": "3D isn't available on this device — here's the joint in 2D."
+}

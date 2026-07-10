@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ModeId, ModeManager } from "@craft-codex/core";
 import { TafelMode } from "../lib/surface-modes/tafel";
 import { CADMode } from "../lib/surface-modes/cad";
@@ -23,6 +24,7 @@ interface SurfacePanelProps {
  * Lifecycle (activate/dispose) wird vom Caller via ModeManager verwaltet.
  */
 export function SurfacePanel({ manager, activeId }: SurfacePanelProps) {
+  const t = useTranslations("dovetail.surface");
   const meta = activeId
     ? manager.list().find((m) => m.id === activeId) ?? null
     : null;
@@ -57,7 +59,7 @@ export function SurfacePanel({ manager, activeId }: SurfacePanelProps) {
           </>
         ) : (
           <span className="cc-muted" style={{ fontWeight: 400, textTransform: "none" }}>
-            Kein Mode aktiv
+            {t("noneActive")}
           </span>
         )}
       </header>
@@ -75,10 +77,11 @@ function ActiveModeBody({
   active: ReturnType<ModeManager["getActive"]>;
   meta: { id: ModeId; label: string; icon: string } | null;
 }) {
+  const t = useTranslations("dovetail.surface");
   if (!meta) {
     return (
       <div className="cc-muted" style={{ fontSize: "0.85rem", lineHeight: 1.5 }}>
-        Wähle einen Mode oben (Tafel / CAD / Video) um zu starten.
+        {t("pickHint")}
       </div>
     );
   }
@@ -114,7 +117,7 @@ function ActiveModeBody({
       aria-busy="true"
       data-mode-loading={meta.id}
     >
-      {meta.label} wird geladen …
+      {t("loading", { label: meta.label })}
     </div>
   );
 }

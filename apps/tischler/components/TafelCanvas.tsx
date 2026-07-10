@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { getStroke } from "perfect-freehand";
 import type { TafelMode, TafelStroke } from "@/lib/surface-modes/tafel";
 
@@ -72,6 +73,7 @@ export function TafelCanvas({
   color = "#0b0d10",
   size = 6,
 }: TafelCanvasProps) {
+  const t = useTranslations("workshop.tafel");
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [strokes, setStrokes] = useState<readonly TafelStroke[]>(() =>
     mode.getStrokes(),
@@ -204,7 +206,7 @@ export function TafelCanvas({
           touchAction: "none",
           cursor: "crosshair",
         }}
-        aria-label="Tafel-Zeichenfläche"
+        aria-label={t("canvasLabel")}
         role="img"
       >
         {strokes.map((s) => (
@@ -227,9 +229,9 @@ export function TafelCanvas({
           fontSize: "0.85rem",
           cursor: "pointer",
         }}
-        aria-label="Tafel leeren"
+        aria-label={t("clearLabel")}
       >
-        Clear
+        {t("clear")}
       </button>
     </div>
   );

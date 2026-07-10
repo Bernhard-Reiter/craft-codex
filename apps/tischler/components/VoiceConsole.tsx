@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type {
   IRAGProvider,
   ITopicGuard,
@@ -25,16 +26,16 @@ interface RAGCitation {
   url?: string;
 }
 
-/** Lizenz → vertrauensbildendes Label für den Citation-Badge. */
-function trustLabel(license?: string): string {
+/** Lizenz → Message-Key des vertrauensbildenden Labels für den Citation-Badge. */
+function trustLabelKey(license?: string): "official" | "wikipedia" | "default" {
   switch (license) {
     case "official-document":
-      return "Amtlich · RIS";
+      return "official";
     case "CC-BY-SA-4.0":
     case "CC-BY-4.0":
-      return "Wikipedia";
+      return "wikipedia";
     default:
-      return "Geprüftes Fachwissen";
+      return "default";
   }
 }
 
@@ -63,15 +64,9 @@ interface VoiceConsoleProps {
   mode?: VoiceMode;
 }
 
-// ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
-// vorvertonte Offline-Stimme nicht mehr.
-const DEFAULT_SAMPLE_QUERIES: ReadonlyArray<string> = [
-  "Wie reisse ich mit dem Streichmass an",
-  "Schwalbenwinkel fuer Hartholz",
-  "Stemmeisen Schliff",
-  "Auf welcher Seite saege ich",
-  "Wie pruefe ich die Passung",
-];
+// ⚠️ DE-Wortlaut (workshop.voiceConsole.defaultQueries) = TTS-Cache-Key —
+// nicht umformulieren, sonst greift die vorvertonte Offline-Stimme nicht mehr.
+const DEFAULT_SAMPLE_QUERY_COUNT = 5;
 
 export function VoiceConsole({
   rag,
@@ -80,9 +75,18 @@ export function VoiceConsole({
   tts,
   answer,
   makeAnswer,
-  sampleQueries = DEFAULT_SAMPLE_QUERIES,
+  sampleQueries,
   mode,
 }: VoiceConsoleProps) {
+  const t = useTranslations("workshop.voiceConsole");
+  const defaultQueries = useMemo(
+    () =>
+      Array.from({ length: DEFAULT_SAMPLE_QUERY_COUNT }, (_, i) =>
+        t(`defaultQueries.${i}`),
+      ),
+    [t],
+  );
+  const queries = sampleQueries ?? defaultQueries;
   const effectiveMode: VoiceMode =
     mode ?? (makeAnswer || answer ? "server" : stt && tts ? "real" : "mock");
   const queryIdxRef = useRef(0);
@@ -175,7 +179,7 @@ export function VoiceConsole({
       const played = await playPcmChunks(result.chunks);
       setAudioPlayed(played);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Pipeline-Fehler");
+      setError(e instanceof Error ? e.message : t("pipelineError"));
       // Pipeline-Crash lässt den Status sonst auf listening/speaking hängen
       // → Konsole wäre bis zum Reload busy-locked. Antwort/Frage bleiben.
       setState((s) => (s.status === "idle" ? s : { ...s, status: "idle" }));
@@ -183,9 +187,9 @@ export function VoiceConsole({
   };
 
   const handleMicClick = () => {
-    const idx = queryIdxRef.current % sampleQueries.length;
+    const idx = queryIdxRef.current % queries.length;
     queryIdxRef.current += 1;
-    void ask(sampleQueries[idx] ?? "Frage");
+    void ask(queries[idx] ?? t("fallbackQuestion"));
   };
 
   const handleTypedSubmit = () => {
@@ -200,6 +204,12 @@ export function VoiceConsole({
 
   const busy = state.status !== "idle";
   const badge = badgeFor(effectiveMode);
+  const busyLabel =
+    state.status === "listening" ||
+    state.status === "thinking" ||
+    state.status === "speaking"
+      ? t(`status.${state.status}`)
+      : "";
 
   return (
     <div
@@ -221,13 +231,13 @@ export function VoiceConsole({
           disabled={busy}
           className="cc-btn cc-btn--primary cc-btn--sm"
         >
-          🎤 {!busy ? "Frage stellen" : labelFor(state.status)}
+          🎤 {!busy ? t("askButton") : busyLabel}
         </button>
         <span
           className={`cc-badge ${badge.className}`}
           aria-label={`Voice mode: ${effectiveMode}`}
         >
-          {badge.label}
+          {t(`badge.${effectiveMode}`)}
         </span>
         {busy && (
           <span
@@ -245,7 +255,7 @@ export function VoiceConsole({
 
       {/* Demo-Fragen — der kontrollierte Pfad fuer die Vorfuehrung. */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-        {sampleQueries.map((q) => (
+        {queries.map((q) => (
           <button
             key={q}
             type="button"
@@ -266,9 +276,9 @@ export function VoiceConsole({
           onKeyDown={(e) => {
             if (e.key === "Enter") handleTypedSubmit();
           }}
-          placeholder="… oder Frage tippen (geht auch offline)"
+          placeholder={t("typedPlaceholder")}
           disabled={busy}
-          aria-label="Frage eingeben"
+          aria-label={t("typedLabel")}
           className="cc-input"
         />
         <button
@@ -277,7 +287,7 @@ export function VoiceConsole({
           disabled={busy || typed.trim().length === 0}
           className="cc-btn cc-btn--sm"
         >
-          Fragen
+          {t("typedSubmit")}
         </button>
       </div>
 
@@ -290,7 +300,7 @@ export function VoiceConsole({
             borderTop: "1.5px solid var(--cc-line-soft)",
           }}
         >
-          <strong>Frage:</strong> {state.currentQuery}
+          <strong>{t("questionLabel")}</strong> {state.currentQuery}
         </div>
       )}
 
@@ -321,8 +331,10 @@ export function VoiceConsole({
             fontSize: "0.72rem",
           }}
         >
-          <span className="cc-badge cc-badge--yellow">📚 Quelle</span>
-          <span style={{ fontWeight: 600 }}>{trustLabel(citation.license)}</span>
+          <span className="cc-badge cc-badge--yellow">{t("sourceBadge")}</span>
+          <span style={{ fontWeight: 600 }}>
+            {t(`trust.${trustLabelKey(citation.license)}`)}
+          </span>
           <span className="cc-muted">·</span>
           {citation.url ? (
             <a
@@ -359,12 +371,12 @@ export function VoiceConsole({
           )}
         {audioPlayed === true && (
           <span style={{ fontSize: "0.72rem", color: "var(--cc-good)", fontWeight: 700 }}>
-            🔊 Audio abgespielt
+            {t("audioPlayed")}
           </span>
         )}
         {audioPlayed === false && state.currentResponse && (
           <span className="cc-muted" style={{ fontSize: "0.72rem" }}>
-            🔇 kein Audio (Cache/Server leer — Text-Antwort)
+            {t("audioNone")}
           </span>
         )}
         {usedFallback && (
@@ -372,13 +384,13 @@ export function VoiceConsole({
             className="cc-badge cc-badge--yellow"
             style={{ fontSize: "0.58rem" }}
           >
-            Offline-Fallback: lokales Wissen
+            {t("offlineFallback")}
           </span>
         )}
         {dialog.length > 0 && (
           <>
             <span className="cc-muted" style={{ fontSize: "0.72rem" }}>
-              💬 Gespräch: {dialog.length} Frage{dialog.length === 1 ? "" : "n"}
+              {t("dialogCount", { count: dialog.length })}
             </span>
             <button
               type="button"
@@ -386,7 +398,7 @@ export function VoiceConsole({
               disabled={busy}
               className="cc-chip"
             >
-              neues Gespräch
+              {t("newDialog")}
             </button>
           </>
         )}
@@ -401,27 +413,15 @@ export function VoiceConsole({
   );
 }
 
-function labelFor(status: VoicePipelineState["status"]): string {
-  switch (status) {
-    case "listening":
-      return "Höre zu …";
-    case "thinking":
-      return "Denke nach …";
-    case "speaking":
-      return "Spricht …";
-    default:
-      return "";
-  }
-}
-
-function badgeFor(mode: VoiceMode): { label: string; className: string } {
+// Sichtbare Badge-Texte kommen aus workshop.voiceConsole.badge.<mode>.
+function badgeFor(mode: VoiceMode): { className: string } {
   switch (mode) {
     case "server":
-      return { label: "Server", className: "cc-badge--dark" };
+      return { className: "cc-badge--dark" };
     case "real":
-      return { label: "Live", className: "cc-badge--good" };
+      return { className: "cc-badge--good" };
     default:
-      return { label: "Mock", className: "" };
+      return { className: "" };
   }
 }
 

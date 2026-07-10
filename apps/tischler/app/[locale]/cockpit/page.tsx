@@ -1,5 +1,8 @@
-import { OfflineTrust } from "../../components/OfflineTrust";
-import { SiteFooter } from "../../components/SiteFooter";
+import { useTranslations } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { use } from "react";
+import { OfflineTrust } from "../../../components/OfflineTrust";
+import { SiteFooter } from "../../../components/SiteFooter";
 
 /**
  * Lehrer-Cockpit (Pitch-Mockup, statisch).
@@ -13,37 +16,46 @@ import { SiteFooter } from "../../components/SiteFooter";
  * Förderzusage (liefert dann auch die Outcomes für den Abschlussbericht).
  */
 
+type LernStatus = "laeuft" | "braucht-meister" | "fertig";
+
 interface Lernender {
-  name: string;
-  schritt: string;
   fortschritt: number;
-  status: "laeuft" | "braucht-meister" | "fertig";
-  hinweis?: string;
+  status: LernStatus;
+  hatHinweis?: boolean;
 }
 
+// Namen/Schritte/Hinweise kommen aus messages/{locale}/cockpit.json
+// (students.<index>.*) — hier nur die sprachneutralen Werte.
 const KLASSE: Lernender[] = [
-  { name: "Sarah B.", schritt: "Prüfen", fortschritt: 95, status: "fertig", hinweis: "Spalt 0,1 mm — sehr sauber" },
-  { name: "Lena M.", schritt: "Passen", fortschritt: 80, status: "laeuft" },
-  {
-    name: "Tobias K.",
-    schritt: "Stemmen",
-    fortschritt: 55,
-    status: "braucht-meister",
-    hinweis: "3× nach „Hirnholz-Ausriss“ gefragt",
-  },
-  { name: "David R.", schritt: "Anreißen", fortschritt: 20, status: "laeuft" },
-  { name: "Mehmet Y.", schritt: "Sägen", fortschritt: 40, status: "laeuft" },
+  { fortschritt: 95, status: "fertig", hatHinweis: true },
+  { fortschritt: 80, status: "laeuft" },
+  { fortschritt: 55, status: "braucht-meister", hatHinweis: true },
+  { fortschritt: 20, status: "laeuft" },
+  { fortschritt: 40, status: "laeuft" },
 ];
 
-function StatusBadge({ s }: { s: Lernender["status"] }) {
+function StatusBadge({ s }: { s: LernStatus }) {
+  const t = useTranslations("cockpit");
   if (s === "braucht-meister")
-    return <span className="cc-badge cc-badge--yellow">braucht Meister</span>;
+    return (
+      <span className="cc-badge cc-badge--yellow">
+        {t("status.braucht-meister")}
+      </span>
+    );
   if (s === "fertig")
-    return <span className="cc-badge cc-badge--good">fertig</span>;
-  return <span className="cc-badge">läuft</span>;
+    return <span className="cc-badge cc-badge--good">{t("status.fertig")}</span>;
+  return <span className="cc-badge">{t("status.laeuft")}</span>;
 }
 
-export default function CockpitPage() {
+export default function CockpitPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
+  setRequestLocale(locale);
+  const t = useTranslations("cockpit");
+
   const offen = KLASSE.filter((l) => l.status === "braucht-meister").length;
 
   return (
@@ -52,31 +64,32 @@ export default function CockpitPage() {
         <section>
           <div className="cc-eyebrow">
             <span className="cc-winkel" />
-            <span>Lehrer-Ansicht</span>
+            <span>{t("eyebrow")}</span>
           </div>
           <h1 className="cc-display">
-            Der Meister <span className="cc-hl">sieht alles.</span>
+            {t.rich("h1", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h1>
           <p className="cc-lead" style={{ marginTop: "1.1rem" }}>
-            Craft Codex ersetzt keinen Lehrer. Es zeigt ihm in Echtzeit, wo jede
-            und jeder steht — und wer ihn gerade braucht.
+            {t("lead")}
           </p>
           <div style={{ display: "flex", gap: "0.5rem", marginTop: "1.1rem", flexWrap: "wrap" }}>
             <OfflineTrust />
             <span className="cc-badge cc-badge--yellow">
-              {offen} {offen === 1 ? "Lehrling braucht" : "Lehrlinge brauchen"} dich
+              {t("needYou", { count: offen })}
             </span>
           </div>
         </section>
 
         <section>
           <p className="cc-kicker" style={{ marginBottom: "0.9rem" }}>
-            Klasse 1b · Schwalbenschwanz
+            {t("classKicker")}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-            {KLASSE.map((l) => (
+            {KLASSE.map((l, idx) => (
               <div
-                key={l.name}
+                key={t(`students.${idx}.name`)}
                 className="cc-card cc-card--flat cc-stack-sm"
                 data-active={l.status === "braucht-meister" ? "true" : undefined}
                 style={{
@@ -89,8 +102,10 @@ export default function CockpitPage() {
                     : {}),
                 }}
               >
-                <div style={{ fontWeight: 600 }}>{l.name}</div>
-                <div className="cc-mono cc-muted">Schritt: {l.schritt}</div>
+                <div style={{ fontWeight: 600 }}>{t(`students.${idx}.name`)}</div>
+                <div className="cc-mono cc-muted">
+                  {t("stepLabel", { step: t(`students.${idx}.step`) })}
+                </div>
                 <div>
                   <div
                     style={{
@@ -108,9 +123,9 @@ export default function CockpitPage() {
                       }}
                     />
                   </div>
-                  {l.hinweis && (
+                  {l.hatHinweis && (
                     <p className="cc-muted" style={{ margin: "0.3rem 0 0", fontSize: "0.75rem" }}>
-                      {l.hinweis}
+                      {t(`students.${idx}.hint`)}
                     </p>
                   )}
                 </div>
@@ -120,11 +135,9 @@ export default function CockpitPage() {
           </div>
 
           <p className="cc-note" style={{ marginTop: "1.5rem" }}>
-            <strong>Die KI übernimmt die Wiederholung — der Meister die
-            Korrektur.</strong> Das Geduldige, ewig Wiederholte macht das Tool;
-            für das, was nur ein Mensch kann, bleibt mehr Zeit. Der Lernfortschritt
-            ist jederzeit sichtbar und lässt sich für den Förder-Abschlussbericht
-            exportieren.
+            {t.rich("note", {
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </section>
       </main>

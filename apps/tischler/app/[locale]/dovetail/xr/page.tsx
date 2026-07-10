@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { Object3D } from "three";
-import Link from "next/link";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { XR, createXRStore } from "@react-three/xr";
@@ -13,27 +13,29 @@ import {
   type TeilungEbene,
   type DovetailVariante,
 } from "@craft-codex/core";
-import { DovetailSceneContents } from "../../../components/DovetailScene";
-import { XRPlacement } from "../../../components/XRPlacement";
-import { XRDetailTafel } from "../../../components/XRDetailTafel";
-import { XRToolbar } from "../../../components/XRToolbar";
-import { XROrnament } from "../../../components/XROrnament";
-import { XRWristMenu } from "../../../components/XRWristMenu";
-import { SiteFooter } from "../../../components/SiteFooter";
+import { DovetailSceneContents } from "../../../../components/DovetailScene";
+import { XRPlacement } from "../../../../components/XRPlacement";
+import { XRDetailTafel } from "../../../../components/XRDetailTafel";
+import { XRToolbar } from "../../../../components/XRToolbar";
+import { XROrnament } from "../../../../components/XROrnament";
+import { XRWristMenu } from "../../../../components/XRWristMenu";
+import { SiteFooter } from "../../../../components/SiteFooter";
+import { buildAnreissFlowEn } from "../../../../lib/zinken/anreiss-flow.en";
 import {
   buildAnreissFlow,
   type AnreissPhase,
-} from "../../../lib/zinken/anreiss-flow";
-import type { AnrissLayer } from "../../../components/AnrissFlat";
-import { detectXRSupport, type XRSupport } from "../../../lib/xr/support";
-import { loadSession, saveSession } from "../../../lib/storage/local";
-import { useBoardPlacement } from "../../../lib/xr/use-board-placement";
-import { XRMovable } from "../../../components/XRMovable";
-import { LocalRAGProvider } from "../../../lib/rag/local-rag";
-import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
-import { getDemoCorpus } from "../../../lib/rag/corpus";
-import { useServerVoice } from "../../../lib/voice/use-server-voice";
-import { useMeisterSpeak } from "../../../lib/voice/use-meister-speak";
+} from "../../../../lib/zinken/anreiss-flow";
+import type { AnrissLayer } from "../../../../components/AnrissFlat";
+import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
+import { loadSession, saveSession } from "../../../../lib/storage/local";
+import { useBoardPlacement } from "../../../../lib/xr/use-board-placement";
+import { XRMovable } from "../../../../components/XRMovable";
+import { LocalRAGProvider } from "../../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../../lib/rag/corpus";
+import { useServerVoice } from "../../../../lib/voice/use-server-voice";
+import { useMeisterSpeak } from "../../../../lib/voice/use-meister-speak";
+import { Link } from "../../../../i18n/navigation";
 
 // Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
 // auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
@@ -52,6 +54,9 @@ const ANRISS_LAYERS_BY_PHASE: Record<AnreissPhase, AnrissLayer[]> = {
 };
 
 export default function DovetailXRPage() {
+  const t = useTranslations("xr");
+  const locale = useLocale();
+  const appLocale: "de" | "en" = locale === "en" ? "en" : "de";
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [params, setParams] = useState<DovetailParams>({
     ...DEFAULT_DOVETAIL_PARAMS,
@@ -96,8 +101,11 @@ export default function DovetailXRPage() {
   const [anreissModus, setAnreissModus] = useState(true);
   const [anreissIndex, setAnreissIndex] = useState(0);
   const anreissFlow = useMemo(
-    () => buildAnreissFlow(params.width_mm, params.thickness_mm),
-    [params.width_mm, params.thickness_mm],
+    () =>
+      appLocale === "en"
+        ? buildAnreissFlowEn(params.width_mm, params.thickness_mm)
+        : buildAnreissFlow(params.width_mm, params.thickness_mm),
+    [appLocale, params.width_mm, params.thickness_mm],
   );
   const anreissSchritt =
     anreissFlow.schritte[
@@ -119,10 +127,131 @@ export default function DovetailXRPage() {
     [anreissSchritt.id],
   );
 
+  // Übersetztes Kurzlabel des aktuellen Anreiss-Schritts (Phase-Id als Key —
+  // die Fachdaten in lib/zinken bleiben unangetastet).
+  const phaseLabel = t(`phases.${anreissSchritt.id}`);
+  const stepTotal = anreissFlow.schritte.length;
+
+  // Masszahlen wie der Meister sie anschreibt: DE mit Komma, EN mit Punkt.
+  const dec = locale === "de" ? "," : ".";
+  const fmt1 = (x: number) => x.toFixed(1).replace(".", dec);
+  const fmt2 = (x: number) => x.toFixed(2).replace(".", dec);
+
+  // Ausfuehrliche Lehrer-Erklaerung fuer die Detail-Tafel — hier (ausserhalb
+  // des Canvas) uebersetzt und als fertiger String reingereicht.
+  const L = anreissFlow.layout;
+  const tafelDetail = (() => {
+    switch (anreissSchritt.id) {
+      case "messen":
+        return t("tafel.detail.messen", { B: fmt1(L.B), D: fmt1(L.D) });
+      case "schwalbenzahl":
+        return t("tafel.detail.schwalbenzahl", {
+          B: fmt1(L.B),
+          D: fmt1(L.D),
+          BD: fmt1(1.7 * L.D),
+          AZSraw: fmt2(L.AZS_raw),
+          AZS: L.AZS,
+        });
+      case "teile":
+        return t("tafel.detail.teile", {
+          AZS: L.AZS,
+          AZT: L.AZT,
+          B: fmt1(L.B),
+          T: fmt1(L.T),
+          zinken: fmt1(L.zinkenBreite),
+          schwalbe: fmt1(L.schwalbeBreite),
+        });
+      case "streichmass":
+        return t("tafel.detail.streichmass", { D: fmt1(L.D) });
+      case "markieren":
+        return t("tafel.detail.markieren", {
+          AZT: L.AZT,
+          AZS: L.AZS,
+          zinken: fmt1(L.zinkenBreite),
+          schwalbe: fmt1(L.schwalbeBreite),
+        });
+      case "schraege":
+        return t("tafel.detail.schraege", {
+          ratio: L.slopeRatio,
+          deg: L.slopeDeg.toFixed(0),
+        });
+      case "fertig":
+        return t("tafel.detail.fertig", {
+          AZS: L.AZS,
+          AZT: L.AZT,
+          T: fmt1(L.T),
+          ratio: L.slopeRatio,
+        });
+      default:
+        return "";
+    }
+  })();
+
+  // Die fuenf Handschritte (Name + Merksatz) fuer die Detail-Tafel.
+  const tafelHandSteps = (
+    ["anreissen", "saegen", "stemmen", "passen", "pruefen"] as const
+  ).map((id) => ({
+    name: t(`tafel.handSteps.${id}.name`),
+    hint: t(`tafel.handSteps.${id}.hint`),
+  }));
+
+  // Label-Objekte fuer die Canvas-Komponenten (nie useTranslations im Canvas).
+  const toolbarLabels = {
+    tabAnreissen: t("toolbar.tabAnreissen"),
+    tabHand: t("toolbar.tabHand"),
+    width: t("toolbar.width"),
+    thickness: t("toolbar.thickness"),
+    length: t("toolbar.length"),
+    teilung: t("toolbar.teilung"),
+    stirnkante: t("toolbar.stirnkante"),
+    mittellinie: t("toolbar.mittellinie"),
+    variante: t("toolbar.variante"),
+    standard: t("toolbar.standard"),
+    rzv: t("toolbar.rzv"),
+    step: t("toolbar.step", {
+      current: anreissIndex + 1,
+      total: stepTotal,
+      label: phaseLabel,
+    }),
+    back: t("toolbar.back"),
+    tafel: t("toolbar.tafel"),
+    done: t("toolbar.done"),
+    next: t("toolbar.next"),
+    handTitle: t("toolbar.handTitle"),
+    handSteps: {
+      anreissen: t("toolbar.hand.anreissen"),
+      saegen: t("toolbar.hand.saegen"),
+      stemmen: t("toolbar.hand.stemmen"),
+      passen: t("toolbar.hand.passen"),
+      pruefen: t("toolbar.hand.pruefen"),
+    },
+    board: t("toolbar.board"),
+    plumb: t("toolbar.plumb"),
+    up: t("toolbar.up"),
+    down: t("toolbar.down"),
+    near: t("toolbar.near"),
+    far: t("toolbar.far"),
+    reset: t("toolbar.reset"),
+    askMaster: t("toolbar.askMaster"),
+    statusThinking: t("toolbar.status.thinking"),
+    statusSpeaking: t("toolbar.status.speaking"),
+    statusListening: t("toolbar.status.listening"),
+    noAudio: t("toolbar.noAudio"),
+  };
+  const ornamentLabels = {
+    step: t("ornament.step", { current: anreissIndex + 1, total: stepTotal }),
+    tafel: t("ornament.tafel"),
+    master: t("ornament.master"),
+  };
+  const wristLabels = {
+    tafel: t("wrist.tafel"),
+    plumb: t("wrist.plumb"),
+  };
+
   // Voice-Coach: gleicher RAG + TopicGuard + Stimm-Kette wie /dovetail.
   // Ohne Server/Cache bleibt tts undefined → Text-Antwort, Demo laeuft weiter.
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDemoCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus(appLocale));
     const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
@@ -130,8 +259,8 @@ export default function DovetailXRPage() {
       blacklist: ["bitcoin", "krypto", "trading"],
     });
     return { rag: r, guard: g };
-  }, []);
-  const { bundle: voiceBundle } = useServerVoice(rag, guard);
+  }, [appLocale]);
+  const { bundle: voiceBundle } = useServerVoice(rag, guard, appLocale);
   const speak = useMeisterSpeak(voiceBundle?.tts);
 
   // Schrittwechsel = gefuehrte Vorfuehrung: setzen + Meister erklaert per Stimme
@@ -199,7 +328,7 @@ export default function DovetailXRPage() {
   return (
     <>
       <main className="cc-page" style={{ maxWidth: 960 }}>
-        <p className="cc-kicker">Werkstück 03</p>
+        <p className="cc-kicker">{t("kicker")}</p>
         <h1
           style={{
             margin: "0.5rem 0 0.75rem",
@@ -207,17 +336,17 @@ export default function DovetailXRPage() {
             textTransform: "uppercase",
           }}
         >
-          Schwalbenschwanz als <span className="cc-mark">Hologramm</span>
+          {t.rich("h1", {
+            mark: (chunks) => <span className="cc-mark">{chunks}</span>,
+          })}
         </h1>
         <p className="cc-muted" style={{ lineHeight: 1.6, margin: 0 }}>
-          Dieselbe 3D-Szene wie in der Werkstatt, jetzt als echte WebXR-Session.
-          „Enter AR“ auf einer Quest 3 oder Galaxy XR (oder Chrome mit
-          WebXR-Emulator) — das Brett erscheint auf Tischhöhe in deinem Raum.
+          {t("intro")}
         </p>
 
         {support === null && (
           <p className="cc-muted" style={{ marginTop: "1.5rem" }}>
-            Prüfe XR-Support …
+            {t("checking")}
           </p>
         )}
 
@@ -232,7 +361,7 @@ export default function DovetailXRPage() {
                 className="cc-muted"
                 style={{ marginTop: "1rem", fontSize: "0.85rem" }}
               >
-                <strong>Grund:</strong> {support.reason}
+                <strong>{t("reasonLabel")}</strong> {support.reason}
               </p>
             )}
 
@@ -282,28 +411,32 @@ export default function DovetailXRPage() {
             className={anreissModus ? "cc-btn cc-btn--primary cc-btn--sm" : "cc-btn cc-btn--sm"}
             onClick={() => setAnreissModus(true)}
           >
-            Geführtes Anreißen
+            {t("modes.guided")}
           </button>
           <button
             type="button"
             className={!anreissModus ? "cc-btn cc-btn--primary cc-btn--sm" : "cc-btn cc-btn--sm"}
             onClick={() => setAnreissModus(false)}
           >
-            Hand-Schritte
+            {t("modes.hand")}
           </button>
           <button
             type="button"
             className="cc-btn cc-btn--sm"
             onClick={zentrieren}
             style={{ marginLeft: "auto" }}
-            title="Brett und Ansicht zurueck ins Zentrum"
+            title={t("centerTitle")}
           >
-            🎯 Brett zentrieren
+            {t("center")}
           </button>
           {anreissModus && (
             <span className="cc-muted" style={{ fontSize: "0.8rem" }}>
-              Schritt {anreissIndex + 1}/{anreissFlow.schritte.length} —{" "}
-              {anreissSchritt.label} · {anreissFlow.layout.AZS} Schwalben
+              {t("stepSummary", {
+                current: anreissIndex + 1,
+                total: stepTotal,
+                label: phaseLabel,
+                count: anreissFlow.layout.AZS,
+              })}
             </span>
           )}
         </div>
@@ -362,7 +495,8 @@ export default function DovetailXRPage() {
                 <XROrnament
                   index={anreissIndex}
                   total={anreissFlow.schritte.length}
-                  label={anreissSchritt.label}
+                  label={phaseLabel}
+                  labels={ornamentLabels}
                   meisterFrage="Wie reisse ich mit dem Streichmass an"
                   onPrev={() => gotoSchritt(Math.max(0, anreissIndex - 1))}
                   onNext={() =>
@@ -393,6 +527,7 @@ export default function DovetailXRPage() {
                     anreissModus={anreissModus}
                     onModus={setAnreissModus}
                     onZentrieren={zentrieren}
+                    labels={toolbarLabels}
                     flow={anreissFlow}
                     index={anreissIndex}
                     onIndex={gotoSchritt}
@@ -440,6 +575,13 @@ export default function DovetailXRPage() {
                     anreissModus={anreissModus}
                     onModus={setAnreissModus}
                     onClose={() => setTafelOffen(false)}
+                    title={
+                      anreissModus
+                        ? t("tafel.titleGuided", { label: phaseLabel })
+                        : t("tafel.titleHand")
+                    }
+                    detailText={tafelDetail}
+                    handSteps={tafelHandSteps}
                     position={[0, 0, 0]}
                   />
                 </XRMovable>
@@ -451,6 +593,7 @@ export default function DovetailXRPage() {
               <XRWristMenu
                 anreissModus={anreissModus}
                 onModus={setAnreissModus}
+                labels={wristLabels}
                 onPrev={() => gotoSchritt(Math.max(0, anreissIndex - 1))}
                 onNext={() =>
                   gotoSchritt(
@@ -478,13 +621,22 @@ export default function DovetailXRPage() {
           className="cc-card cc-card--gray cc-card--flat cc-muted"
           style={{ marginTop: "0.75rem", padding: "0.6rem 0.9rem", fontSize: "0.78rem" }}
         >
-          Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett{" "}
-          {params.width_mm}×{params.length_mm}mm, {params.pinCount} Pins, 1:
-          {params.ratio}. Änderbar in der{" "}
-          <Link href="/dovetail" style={{ borderBottom: "2px solid var(--cc-yellow)" }}>
-            Werkstatt
-          </Link>{" "}
-          (State geteilt via localStorage).
+          {t.rich("preview", {
+            step,
+            width: params.width_mm,
+            length: params.length_mm,
+            pins: params.pinCount,
+            ratio: params.ratio,
+            strong: (chunks) => <strong>{chunks}</strong>,
+            link: (chunks) => (
+              <Link
+                href="/dovetail"
+                style={{ borderBottom: "2px solid var(--cc-yellow)" }}
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </div>
       </main>
       <SiteFooter />
@@ -499,37 +651,40 @@ function Capability({
   label: string;
   supported: boolean;
 }) {
+  const t = useTranslations("xr");
   return (
     <div
       className={supported ? "cc-badge cc-badge--yellow" : "cc-badge"}
       style={{ fontSize: "0.72rem", padding: "0.4rem 0.7rem" }}
     >
-      {label}: {supported ? "bereit" : "nicht verfügbar"}
+      {label}: {supported ? t("capability.ready") : t("capability.unavailable")}
     </div>
   );
 }
 
 function FallbackMessage({ reason }: { reason?: string }) {
+  const t = useTranslations("xr");
   return (
     <div
       className="cc-card cc-card--gray cc-card--flat"
       style={{ marginTop: "1rem", fontSize: "0.9rem", lineHeight: 1.5 }}
     >
-      <strong>Kein XR-Gerät verfügbar.</strong>
+      <strong>{t("fallback.title")}</strong>
       <p className="cc-muted" style={{ margin: "0.5rem 0 0" }}>
-        Du kannst die Demo trotzdem in 3D nutzen — in der{" "}
-        <Link
-          href="/dovetail"
-          style={{ borderBottom: "2px solid var(--cc-yellow)", fontWeight: 600 }}
-        >
-          Werkstatt
-        </Link>
-        . Für XR brauchst du Galaxy XR, Quest 3 oder Chrome mit WebXR-Emulator
-        (chrome://flags/#webxr-incubations).
+        {t.rich("fallback.body", {
+          link: (chunks) => (
+            <Link
+              href="/dovetail"
+              style={{ borderBottom: "2px solid var(--cc-yellow)", fontWeight: 600 }}
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
       {reason && (
         <p className="cc-muted" style={{ margin: "0.5rem 0 0", fontSize: "0.8rem" }}>
-          Detail: {reason}
+          {t("fallback.detail", { reason })}
         </p>
       )}
     </div>
