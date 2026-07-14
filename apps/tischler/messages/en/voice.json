@@ -1,0 +1,10 @@
+{
+  "kicker": "Workpiece 02",
+  "h1": "Voice of the <mark>Master</mark>",
+  "intro": "Ask a question via demo button, text input or microphone. Answers come from the trade corpus ({count} documents, including official codes) — spoken through the offline chain: pre-voiced cache first, then server voice, plain text if all else fails.",
+  "voiceConnecting": "Connecting the voice …",
+  "offline": {
+    "kicker": "Offline chain",
+    "body": "Pre-voiced audio ({count} answers in the cache) → server TTS → silence with a text answer. Answers always work — from the local knowledge corpus if it comes to that. Fill the cache: <code>ELEVENLABS_API_KEY=… pnpm tts:cache</code>"
+  }
+}

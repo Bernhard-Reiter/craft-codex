@@ -1,52 +1,36 @@
-import Link from "next/link";
-import { DemoResetButton } from "../components/DemoResetButton";
-import { SiteFooter } from "../components/SiteFooter";
-import { SystemStatus } from "../components/SystemStatus";
+import { useTranslations } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { use } from "react";
+import { DemoResetButton } from "../../components/DemoResetButton";
+import { SiteFooter } from "../../components/SiteFooter";
+import { SystemStatus } from "../../components/SystemStatus";
+import { Link } from "../../i18n/navigation";
 
-const pieces: Array<{
-  href: string;
-  num: string;
-  title: string;
-  body: string;
-  cta: string;
-}> = [
-  {
-    href: "/lernen",
-    num: "00",
-    title: "Zinken verstehen",
-    body: "Von ganz vorne: Was ist ein Zinken, wofür ist er gut, welche Arten gibt es? Erst verstehen — dann anreißen. Mit Lernpfad und der Stimme des Meisters.",
-    cta: "Überblick starten",
-  },
-  {
-    href: "/dovetail",
-    num: "01",
-    title: "Schwalbenschwanz",
-    body: "Die Königsdisziplin der Eckverbindung — parametrisch in 3D. Pins, Winkel und Brettmaße live ziehen, alle fünf Lernschritte vom Anreißen bis zum Prüfen.",
-    cta: "Werkstatt öffnen",
-  },
-  {
-    href: "/voice",
-    num: "02",
-    title: "Stimme des Meisters",
-    body: "Fragen stellen wie am Hobel nebenan: Antworten aus dem Fachkorpus mit Quellen aus offiziellen Regelwerken — gesprochen, auch komplett ohne Netz.",
-    cta: "Stimme testen",
-  },
-  {
-    href: "/dovetail/xr",
-    num: "03",
-    title: "Hologramm (WebXR)",
-    body: "Dasselbe Werkstück immersiv: Quest 3 oder Galaxy XR aufsetzen, das Brett schwebt auf Tischhöhe im Raum — Lernschritte per Handgriff wechseln.",
-    cta: "XR starten",
-  },
-];
+const PIECE_HREFS = ["/lernen", "/dovetail", "/voice", "/dovetail/xr"] as const;
 
-export default function Page() {
+export default function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = use(params);
+  setRequestLocale(locale);
+  const t = useTranslations("home");
+
+  const pieces = PIECE_HREFS.map((href, i) => ({
+    href,
+    num: t(`pieces.${i}.num`),
+    title: t(`pieces.${i}.title`),
+    body: t(`pieces.${i}.body`),
+    cta: t(`pieces.${i}.cta`),
+  }));
+
   return (
     <>
       <main>
         {/* Hero — CyberCraft-Statement: groß, schwarz auf weiß, gelber Marker. */}
         <section className="cc-page" style={{ paddingTop: "3.5rem" }}>
-          <p className="cc-kicker">Offener Wissenspool fürs Handwerk</p>
+          <p className="cc-kicker">{t("kicker")}</p>
           <h1
             style={{
               fontSize: "clamp(2.4rem, 7vw, 4.5rem)",
@@ -54,7 +38,9 @@ export default function Page() {
               maxWidth: "16ch",
             }}
           >
-            Handwerk. <span className="cc-mark">Hologramm.</span> Meisterwissen.
+            {t.rich("h1", {
+              mark: (chunks) => <span className="cc-mark">{chunks}</span>,
+            })}
           </h1>
           <p
             className="cc-muted"
@@ -65,10 +51,7 @@ export default function Page() {
               margin: 0,
             }}
           >
-            Craft Codex bringt das Wissen der Meister dorthin, wo gearbeitet
-            wird: als parametrisches 3D-Werkstück, als Stimme, die Fachfragen
-            beantwortet, und als Hologramm im Raum. Offline-fest gebaut — für
-            Werkstätten, nicht für Schönwetter-WLAN.
+            {t("intro")}
           </p>
           <div
             style={{
@@ -79,13 +62,13 @@ export default function Page() {
             }}
           >
             <Link href="/lernen" className="cc-btn cc-btn--primary">
-              Überblick starten
+              {t("ctaOverview")}
             </Link>
             <Link href="/dovetail" className="cc-btn">
-              Werkstatt öffnen
+              {t("ctaWorkshop")}
             </Link>
             <Link href="/dovetail/xr" className="cc-btn cc-btn--dark">
-              XR-Demo
+              {t("ctaXr")}
             </Link>
           </div>
 
@@ -95,7 +78,7 @@ export default function Page() {
 
         {/* Werkstücke */}
         <section className="cc-page" style={{ marginTop: "3.5rem" }}>
-          <h2 className="cc-section-title">Werkstücke</h2>
+          <h2 className="cc-section-title">{t("piecesTitle")}</h2>
           <div className="cc-grid-cards">
             {pieces.map((p) => (
               <Link key={p.href} href={p.href} className="cc-card">
@@ -143,7 +126,9 @@ export default function Page() {
             style={{ display: "block" }}
           >
             <p className="cc-kicker" style={{ color: "var(--cc-yellow)" }}>
-              <span style={{ color: "var(--cc-paper)" }}>Die Vision</span>
+              <span style={{ color: "var(--cc-paper)" }}>
+                {t("vision.kicker")}
+              </span>
             </p>
             <h2
               style={{
@@ -153,12 +138,12 @@ export default function Page() {
                 maxWidth: "26ch",
               }}
             >
-              Kein Produkt. Ein <span className="cc-hl">Universum</span> aus
-              Handwerkswissen.
+              {t.rich("vision.title", {
+                hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+              })}
             </h2>
             <p style={{ color: "var(--cc-paper)", opacity: 0.85, margin: 0, maxWidth: "52ch", lineHeight: 1.55 }}>
-              Schüler, Lehrer und Meister bauen es gemeinsam — Cody verwandelt
-              ihre Worte in lebendige Werkzeuge. Generation für Generation.
+              {t("vision.body")}
             </p>
             <span
               style={{
@@ -171,7 +156,7 @@ export default function Page() {
                 color: "var(--cc-yellow)",
               }}
             >
-              Das Craft Codex Universum →
+              {t("vision.cta")}
             </span>
           </Link>
         </section>

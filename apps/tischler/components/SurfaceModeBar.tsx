@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ModeId, ModeManager } from "@craft-codex/core";
 
 interface SurfaceModeBarProps {
@@ -23,15 +24,16 @@ export function SurfaceModeBar({
   onSwitch,
   hideIds,
 }: SurfaceModeBarProps) {
+  const t = useTranslations("dovetail.surface");
   const modes = manager
     .list()
     .filter((m) => !hideIds?.includes(m.id));
 
   return (
-    <div role="group" aria-label="Master-Surface Modes" className="cc-tabbar">
+    <div role="group" aria-label={t("aria")} className="cc-tabbar">
       {modes.length === 0 ? (
         <span className="cc-muted" style={{ fontSize: "0.85rem" }}>
-          Keine Modes registriert.
+          {t("empty")}
         </span>
       ) : (
         modes.map((m) => {

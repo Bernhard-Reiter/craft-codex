@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "title": "Craft Codex · Tischler — Wissenspool fürs Handwerk",
+    "description": "MR-Lerntool fürs Holzhandwerk: parametrischer Schwalbenschwanz in 3D, Meister-Antworten per Stimme (RAG, offline-fest), WebXR auf Quest 3. Open Source, MIT."
+  },
+  "header": {
+    "brandSuffix": "/ Tischler",
+    "nav": {
+      "start": "Start",
+      "vision": "Vision",
+      "overview": "Überblick",
+      "lesson": "Lektion",
+      "teacher": "Lehrer",
+      "freeBuild": "Frei bauen",
+      "xr": "XR"
+    },
+    "navAria": "Hauptnavigation",
+    "languageToggle": "Sprache wechseln"
+  },
+  "footer": {
+    "claim": "Handwerk. <em>Hologramm.</em> Meisterwissen.",
+    "metaLine": "Craft Codex — offener Wissenspool fürs Handwerk · MIT-Lizenz",
+    "cybercraft": "Im Geist von CyberCraft — Handcraft. Cybercraft. Supercraft."
+  },
+  "systemStatus": {
+    "kicker": "Systemcheck — live",
+    "offlineChain": "Offline-Kette: Cache → Server → Text. Die Demo bricht nie.",
+    "corpus": {
+      "label": "Wissenskorpus",
+      "detail": "{count} Fachdokumente · lokal im Browser, läuft immer"
+    },
+    "brain": {
+      "label": "Antwort-Hirn",
+      "probing": "prüfe Server …",
+      "template": "Server erreichbar · Template-Antworten aus dem Korpus",
+      "live": "Server erreichbar · {provider} antwortet live",
+      "offline": "offline · lokales Template aus dem Korpus übernimmt"
+    },
+    "voice": {
+      "label": "Stimme",
+      "probing": "prüfe Cache …",
+      "cached": "{count} Antworten offline vorvertont",
+      "cachedLive": "{count} Antworten offline vorvertont · Server-TTS zusätzlich live",
+      "serverOnly": "Server-TTS live",
+      "none": "kein Audio · Antworten kommen als Text"
+    },
+    "xr": {
+      "label": "WebXR",
+      "probing": "prüfe Headset-Support …",
+      "ready": "bereit: {modes}",
+      "none": "dieser Browser kann kein XR · 3D-Werkstatt läuft trotzdem"
+    }
+  },
+  "demoReset": {
+    "button": "↺ Demo zurücksetzen",
+    "confirm": "Wirklich zurücksetzen? (löscht Fortschritt + Platzierungen)"
+  }
+}

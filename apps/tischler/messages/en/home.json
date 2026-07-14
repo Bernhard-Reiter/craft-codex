@@ -1,0 +1,41 @@
+{
+  "kicker": "An open knowledge pool for the trades",
+  "h1": "Craft. <mark>Hologram.</mark> Master knowledge.",
+  "intro": "Craft Codex brings the master's knowledge to where the work happens: as a parametric 3D workpiece, as a voice that answers trade questions, and as a hologram in the room. Built offline-proof — for real workshops, not fair-weather Wi-Fi.",
+  "ctaOverview": "Start the overview",
+  "ctaWorkshop": "Open the workshop",
+  "ctaXr": "XR demo",
+  "piecesTitle": "Workpieces",
+  "pieces": [
+    {
+      "num": "00",
+      "title": "Understanding pins & tails",
+      "body": "From the very beginning: what is a pin, what is it good for, which types are there? Understand first — then lay out. With a learning path and the master's voice.",
+      "cta": "Start the overview"
+    },
+    {
+      "num": "01",
+      "title": "Dovetail",
+      "body": "The crowning discipline of corner joints — parametric in 3D. Drag pins, angles and board dimensions live, through all five learning steps from layout to the final check.",
+      "cta": "Open the workshop"
+    },
+    {
+      "num": "02",
+      "title": "The master's voice",
+      "body": "Ask questions as if the master were at the next bench: answers from the trade corpus with sources from official codes — spoken, even fully offline.",
+      "cta": "Try the voice"
+    },
+    {
+      "num": "03",
+      "title": "Hologram (WebXR)",
+      "body": "The same workpiece, immersive: put on a Quest 3 or Galaxy XR and the board floats at bench height in your room — switch learning steps with a hand gesture.",
+      "cta": "Start XR"
+    }
+  ],
+  "vision": {
+    "kicker": "The vision",
+    "title": "Not a product. A <hl>universe</hl> of craft knowledge.",
+    "body": "Students, teachers and masters build it together — Cody turns their words into living tools. Generation after generation.",
+    "cta": "The Craft Codex universe →"
+  }
+}

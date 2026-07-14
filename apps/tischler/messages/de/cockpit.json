@@ -1,0 +1,38 @@
+{
+  "eyebrow": "Lehrer-Ansicht",
+  "h1": "Der Meister <hl>sieht alles.</hl>",
+  "lead": "Craft Codex ersetzt keinen Lehrer. Es zeigt ihm in Echtzeit, wo jede und jeder steht — und wer ihn gerade braucht.",
+  "needYou": "{count, plural, one {# Lehrling braucht} other {# Lehrlinge brauchen}} dich",
+  "classKicker": "Klasse 1b · Schwalbenschwanz",
+  "stepLabel": "Schritt: {step}",
+  "status": {
+    "laeuft": "läuft",
+    "braucht-meister": "braucht Meister",
+    "fertig": "fertig"
+  },
+  "students": [
+    {
+      "name": "Sarah B.",
+      "step": "Prüfen",
+      "hint": "Spalt 0,1 mm — sehr sauber"
+    },
+    {
+      "name": "Lena M.",
+      "step": "Passen"
+    },
+    {
+      "name": "Tobias K.",
+      "step": "Stemmen",
+      "hint": "3× nach „Hirnholz-Ausriss“ gefragt"
+    },
+    {
+      "name": "David R.",
+      "step": "Anreißen"
+    },
+    {
+      "name": "Mehmet Y.",
+      "step": "Sägen"
+    }
+  ],
+  "note": "<strong>Die KI übernimmt die Wiederholung — der Meister die Korrektur.</strong> Das Geduldige, ewig Wiederholte macht das Tool; für das, was nur ein Mensch kann, bleibt mehr Zeit. Der Lernfortschritt ist jederzeit sichtbar und lässt sich für den Förder-Abschlussbericht exportieren."
+}

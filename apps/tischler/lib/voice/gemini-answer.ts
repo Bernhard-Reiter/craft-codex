@@ -11,6 +11,13 @@
  */
 
 import type { IRAGProvider, ITopicGuard } from "@craft-codex/core";
+import {
+  DEFAULT_VOICE_LOCALE,
+  getOffTopicReply,
+  getTemplateAnswerStrings,
+  getVoiceSystemPrompt,
+  type VoiceLocale,
+} from "./voice-locale";
 
 type FetchLike = typeof globalThis.fetch;
 
@@ -31,20 +38,13 @@ export interface GeminiAnswerConfig {
   history?: ReadonlyArray<DialogTurn>;
   maxOutputTokens?: number;
   fetchImpl?: FetchLike;
+  /** Antwortsprache (System-Prompt + Off-Topic-Reply). Default: "de" */
+  locale?: VoiceLocale;
 }
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
 const DEFAULT_ENDPOINT = "https://generativelanguage.googleapis.com";
 const MAX_TURNS = 4;
-
-const DEFAULT_SYSTEM_PROMPT = `Du bist ein erfahrener Tischler-Meister und unterrichtest einen Lehrling an der Werkbank.
-
-Erklaere Zinken- und Schwalbenschwanz-Verbindungen in einfachen, klaren Worten auf Deutsch (Du-Form, Werkstatt-Ton). Maximal 3 kurze Saetze pro Antwort — der Lehrling hat ein Headset auf und Werkzeug in der Hand.
-
-Beziehe dich auf das bisherige Gespraech: Folgefragen wie "und bei Eiche?" beziehen sich auf deine letzte Antwort. Wenn dir Kontext aus dem Wissenskorpus mitgegeben wird, ist er deine Faktenbasis — erfinde nichts, nenne bei Rechts-/Lehrplanfragen die Quelle kurz (z.B. "laut Ausbildungsordnung"). Bleibe IMMER beim Holzhandwerk; bei fachfremden Fragen fuehre freundlich zurueck zum Werkstueck.`;
-
-const OFF_TOPIC_REPLY =
-  "Das passt jetzt nicht zum Werkstueck. Stell mir eine Frage zu deiner Zinkenverbindung — da helfe ich dir sofort.";
 
 /**
  * Follow-ups are often too short for the topic guard ("und bei Eiche?" has
@@ -63,13 +63,15 @@ export function createGeminiAnswerFn(config: GeminiAnswerConfig) {
     apiKey,
     model = DEFAULT_MODEL,
     endpoint = DEFAULT_ENDPOINT,
-    systemPrompt = DEFAULT_SYSTEM_PROMPT,
+    locale = DEFAULT_VOICE_LOCALE,
+    systemPrompt = getVoiceSystemPrompt(locale),
     rag,
     guard,
     history = [],
     maxOutputTokens = 512,
     fetchImpl,
   } = config;
+  const offTopicReply = getOffTopicReply(locale);
 
   // Gemini 2.5 ist ein Thinking-Modell: ohne Deckel verbrauchen die
   // Denk-Tokens das maxOutputTokens-Budget und die sichtbare Antwort bricht
@@ -89,7 +91,7 @@ export function createGeminiAnswerFn(config: GeminiAnswerConfig) {
     if (!apiKey) throw new Error("GEMINI_API_KEY missing — provide via GeminiAnswerConfig.apiKey");
     const trimmed = query.trim();
     if (trimmed.length === 0) {
-      yield "Ich habe nichts gehoert. Stell deine Frage noch einmal.";
+      yield getTemplateAnswerStrings(locale).emptyQuery;
       return;
     }
 
@@ -98,7 +100,7 @@ export function createGeminiAnswerFn(config: GeminiAnswerConfig) {
     if (guard) {
       const v = await guard.evaluate(guardQuery(trimmed, recent));
       if (v.decision === "off") {
-        yield OFF_TOPIC_REPLY;
+        yield offTopicReply;
         return;
       }
     }

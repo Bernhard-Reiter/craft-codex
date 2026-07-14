@@ -47,14 +47,17 @@ export async function probeServerVoice(fetchImpl?: FetchLike): Promise<ServerVoi
 
 /** TTS over /api/voice/tts — yields one PCM chunk (sample rate from header). */
 export class ServerTTSProvider implements ITTSProvider {
-  constructor(private fetchImpl?: FetchLike) {}
+  constructor(
+    private fetchImpl?: FetchLike,
+    private locale: "de" | "en" = "de",
+  ) {}
 
   async *synthesizeStream(text: string, _options?: TTSOptions): AsyncIterable<TTSChunk> {
     const f = this.fetchImpl ?? globalThis.fetch;
     const res = await f("/api/voice/tts", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, locale: this.locale }),
       signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
     if (!res.ok) {
@@ -68,7 +71,10 @@ export class ServerTTSProvider implements ITTSProvider {
 
 /** STT over /api/voice/stt — collects the mic PCM stream, posts it, yields the final transcript. */
 export class ServerSTTProvider implements ISTTProvider {
-  constructor(private fetchImpl?: FetchLike) {}
+  constructor(
+    private fetchImpl?: FetchLike,
+    private locale: "de" | "en" = "de",
+  ) {}
 
   async *transcribeStream(audioStream: ReadableStream<Uint8Array>): AsyncIterable<STTChunk> {
     const reader = audioStream.getReader();
@@ -87,7 +93,7 @@ export class ServerSTTProvider implements ISTTProvider {
     }
 
     const f = this.fetchImpl ?? globalThis.fetch;
-    const res = await f("/api/voice/stt", {
+    const res = await f(`/api/voice/stt?locale=${this.locale}`, {
       method: "POST",
       headers: { "content-type": "application/octet-stream" },
       body: pcm,
@@ -104,18 +110,20 @@ export class ServerSTTProvider implements ISTTProvider {
 /**
  * Answer over /api/voice/answer (RAG runs server-side; works without any key).
  * Pass the recent dialog turns so follow-up questions keep their context —
- * the route forwards them to the Gemini dialog brain.
+ * the route forwards them to the Gemini dialog brain. `locale` steuert
+ * Meister-Sprache + Korpus (Default "de").
  */
 export function createServerAnswerFn(
   fetchImpl?: FetchLike,
   history?: ReadonlyArray<{ question: string; answer: string }>,
+  locale: "de" | "en" = "de",
 ): AnswerFn {
   return async (query: string): Promise<string> => {
     const f = fetchImpl ?? globalThis.fetch;
     const res = await f("/api/voice/answer", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ question: query, history: history ?? [] }),
+      body: JSON.stringify({ question: query, history: history ?? [], locale }),
       signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`answer_http_${res.status}`);

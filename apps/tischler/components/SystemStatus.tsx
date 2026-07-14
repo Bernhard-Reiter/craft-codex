@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getDemoCorpus } from "../lib/rag/corpus";
 import {
@@ -16,6 +17,7 @@ import { detectXRSupport, type XRSupport } from "../lib/xr/support";
  * bleibt grün benutzbar: Ausfall heißt Fallback, nie Stillstand.
  */
 export function SystemStatus() {
+  const t = useTranslations("common.systemStatus");
   const [health, setHealth] = useState<ServerVoiceHealth | null | "probing">(
     "probing",
   );
@@ -51,40 +53,46 @@ export function SystemStatus() {
 
   const rows: Array<{ label: string; on: boolean; detail: string }> = [
     {
-      label: "Wissenskorpus",
+      label: t("corpus.label"),
       on: true,
-      detail: `${corpusCount} Fachdokumente · lokal im Browser, läuft immer`,
+      detail: t("corpus.detail", { count: corpusCount }),
     },
     {
-      label: "Antwort-Hirn",
+      label: t("brain.label"),
       on: true,
       detail: probing
-        ? "prüfe Server …"
+        ? t("brain.probing")
         : h?.ok
           ? h.answer === "template"
-            ? "Server erreichbar · Template-Antworten aus dem Korpus"
-            : `Server erreichbar · ${h.answer} antwortet live`
-          : "offline · lokales Template aus dem Korpus übernimmt",
+            ? t("brain.template")
+            : t("brain.live", { provider: h.answer })
+          : t("brain.offline"),
     },
     {
-      label: "Stimme",
+      label: t("voice.label"),
       on: !probing && ((cacheCount ?? 0) > 0 || h?.tts === true),
       detail: probing
-        ? "prüfe Cache …"
+        ? t("voice.probing")
         : (cacheCount ?? 0) > 0
-          ? `${cacheCount} Antworten offline vorvertont${h?.tts ? " · Server-TTS zusätzlich live" : ""}`
+          ? t(h?.tts ? "voice.cachedLive" : "voice.cached", {
+              count: cacheCount ?? 0,
+            })
           : h?.tts
-            ? "Server-TTS live"
-            : "kein Audio · Antworten kommen als Text",
+            ? t("voice.serverOnly")
+            : t("voice.none"),
     },
     {
-      label: "WebXR",
+      label: t("xr.label"),
       on: xr ? xr.ar || xr.vr : false,
       detail: !xr
-        ? "prüfe Headset-Support …"
+        ? t("xr.probing")
         : xr.ar || xr.vr
-          ? `bereit: ${[xr.ar ? "AR" : null, xr.vr ? "VR" : null].filter(Boolean).join(" + ")}`
-          : "dieser Browser kann kein XR · 3D-Werkstatt läuft trotzdem",
+          ? t("xr.ready", {
+              modes: [xr.ar ? "AR" : null, xr.vr ? "VR" : null]
+                .filter(Boolean)
+                .join(" + "),
+            })
+          : t("xr.none"),
     },
   ];
 
@@ -100,9 +108,9 @@ export function SystemStatus() {
           marginBottom: "0.75rem",
         }}
       >
-        <span className="cc-kicker">Systemcheck — live</span>
+        <span className="cc-kicker">{t("kicker")}</span>
         <span className="cc-muted" style={{ fontSize: "0.72rem" }}>
-          Offline-Kette: Cache → Server → Text. Die Demo bricht nie.
+          {t("offlineChain")}
         </span>
       </div>
       <div

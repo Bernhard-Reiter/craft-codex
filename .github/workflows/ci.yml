@@ -63,6 +63,9 @@ jobs:
       - name: Test (@craft-codex/tischler)
         run: pnpm --filter @craft-codex/tischler test
 
+      - name: i18n parity (DE ↔ EN message keys)
+        run: pnpm --filter @craft-codex/tischler i18n:check
+
       - name: Lint (@craft-codex/tischler)
         run: pnpm --filter @craft-codex/tischler lint
 

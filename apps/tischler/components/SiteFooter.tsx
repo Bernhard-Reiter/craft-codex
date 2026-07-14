@@ -1,11 +1,17 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export function SiteFooter() {
+  const t = useTranslations("common.footer");
+
   return (
     <footer className="cc-footer">
       <p className="cc-footer-claim">
-        Handwerk. <em>Hologramm.</em> Meisterwissen.
+        {t.rich("claim", { em: (chunks) => <em>{chunks}</em> })}
       </p>
       <div className="cc-footer-meta">
-        <span>Craft Codex — offener Wissenspool fürs Handwerk · MIT-Lizenz</span>
+        <span>{t("metaLine")}</span>
         <a
           href="https://github.com/Bernhard-Reiter/craft-codex"
           target="_blank"
@@ -14,7 +20,7 @@ export function SiteFooter() {
           GitHub
         </a>
         <a href="https://cybercraft.institute" target="_blank" rel="noreferrer">
-          Im Geist von CyberCraft — Handcraft. Cybercraft. Supercraft.
+          {t("cybercraft")}
         </a>
       </div>
     </footer>

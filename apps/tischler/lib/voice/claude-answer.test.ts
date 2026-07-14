@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { getOffTopicReply } from "./voice-locale";
 import { createClaudeAnswerFn } from "./claude-answer";
 import { LocalRAGProvider } from "../rag/local-rag";
 import { KeywordTopicGuard } from "../rag/topic-guard";
@@ -45,7 +46,8 @@ describe("createClaudeAnswerFn", () => {
       fetchImpl,
     });
     const r = await collect(answer("Wie kaufe ich Bitcoin"));
-    expect(r.toLowerCase()).toContain("schwalbenschwanz");
+    // Kanonische Off-Topic-Antwort kommt aus voice-locale (eine Quelle fuer alle Pfade).
+    expect(r).toBe(getOffTopicReply("de"));
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 

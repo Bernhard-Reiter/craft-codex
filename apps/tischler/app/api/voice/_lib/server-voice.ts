@@ -16,6 +16,10 @@ import { getDemoCorpus } from "../../../../lib/rag/corpus";
 import { createDovetailAnswerFn } from "../../../../lib/voice/dovetail-answer";
 import { createClaudeAnswerFn } from "../../../../lib/voice/claude-answer";
 import { createGeminiAnswerFn, type DialogTurn } from "../../../../lib/voice/gemini-answer";
+import {
+  DEFAULT_VOICE_LOCALE,
+  type VoiceLocale,
+} from "../../../../lib/voice/voice-locale";
 import type { AnswerFn } from "../../../../lib/voice/pipeline";
 
 export type TTSProviderName = "openai" | "gemini" | "elevenlabs" | null;
@@ -58,21 +62,27 @@ export function capabilities(): ServerVoiceCapabilities {
   };
 }
 
-// RAG corpus + guard are pure in-memory structures — build once per process.
-let ragSingleton: { rag: LocalRAGProvider; guard: KeywordTopicGuard } | null = null;
+// RAG corpus + guard are pure in-memory structures — build once per process
+// AND per locale (EN corpus = translated craft docs + authentic German RIS).
+const ragSingletons = new Map<
+  VoiceLocale,
+  { rag: LocalRAGProvider; guard: KeywordTopicGuard }
+>();
 
-export function serverRag() {
-  if (!ragSingleton) {
-    const rag = new LocalRAGProvider(getDemoCorpus());
+export function serverRag(locale: VoiceLocale = DEFAULT_VOICE_LOCALE) {
+  let entry = ragSingletons.get(locale);
+  if (!entry) {
+    const rag = new LocalRAGProvider(getDemoCorpus(locale));
     const guard = new KeywordTopicGuard({
       rag,
       onTopicMin: 0.25,
       offTopicMax: 0.05,
-      blacklist: ["bitcoin", "krypto", "trading"],
+      blacklist: ["bitcoin", "krypto", "trading", "crypto"],
     });
-    ragSingleton = { rag, guard };
+    entry = { rag, guard };
+    ragSingletons.set(locale, entry);
   }
-  return ragSingleton;
+  return entry;
 }
 
 export type AnswerProviderName = "gemini" | "claude" | "template";
@@ -92,11 +102,14 @@ export function answerProvider(): AnswerProviderName {
   return "template";
 }
 
-export function serverAnswerFn(history: ReadonlyArray<DialogTurn> = []): {
+export function serverAnswerFn(
+  history: ReadonlyArray<DialogTurn> = [],
+  locale: VoiceLocale = DEFAULT_VOICE_LOCALE,
+): {
   fn: AnswerFn;
   mode: AnswerProviderName;
 } {
-  const { rag, guard } = serverRag();
+  const { rag, guard } = serverRag(locale);
   switch (answerProvider()) {
     case "gemini":
       return {
@@ -105,17 +118,23 @@ export function serverAnswerFn(history: ReadonlyArray<DialogTurn> = []): {
           rag,
           guard,
           history,
+          locale,
           ...(process.env.GEMINI_ANSWER_MODEL ? { model: process.env.GEMINI_ANSWER_MODEL } : {}),
         }),
         mode: "gemini",
       };
     case "claude":
       return {
-        fn: createClaudeAnswerFn({ apiKey: process.env.ANTHROPIC_API_KEY ?? "", rag, guard }),
+        fn: createClaudeAnswerFn({
+          apiKey: process.env.ANTHROPIC_API_KEY ?? "",
+          rag,
+          guard,
+          locale,
+        }),
         mode: "claude",
       };
     default:
-      return { fn: createDovetailAnswerFn({ rag, guard }), mode: "template" };
+      return { fn: createDovetailAnswerFn({ rag, guard, locale }), mode: "template" };
   }
 }
 

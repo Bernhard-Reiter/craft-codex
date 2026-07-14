@@ -1,13 +1,14 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
-import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
-import { getDemoCorpus } from "../../lib/rag/corpus";
-import { VoiceConsole } from "../../components/VoiceConsole";
-import { SiteFooter } from "../../components/SiteFooter";
-import { createServerAnswerFn } from "../../lib/voice/server-providers";
-import { useServerVoice } from "../../lib/voice/use-server-voice";
+import { LocalRAGProvider } from "../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../lib/rag/corpus";
+import { VoiceConsole } from "../../../components/VoiceConsole";
+import { SiteFooter } from "../../../components/SiteFooter";
+import { createServerAnswerFn } from "../../../lib/voice/server-providers";
+import { useServerVoice } from "../../../lib/voice/use-server-voice";
 
 // ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
 // vorvertonte Offline-Stimme nicht mehr.
@@ -20,8 +21,10 @@ const SAMPLE_QUERIES = [
 ] as const;
 
 export default function VoiceTestPage() {
+  const t = useTranslations("voice");
+  const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDemoCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus(appLocale));
     const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
@@ -29,17 +32,17 @@ export default function VoiceTestPage() {
       blacklist: ["bitcoin", "krypto", "trading"],
     });
     return { rag: r, guard: g };
-  }, []);
+  }, [appLocale]);
 
   // Phase E: Server-Routen + TTS-Cache proben (shared Hook, gleiche Kette
   // wie die Werkstatt). Beides darf fehlen — die Console faellt dann auf
   // Mock/Template zurueck (Demo bricht nie).
-  const { bundle, cacheCount, status: voiceStatus } = useServerVoice(rag, guard);
+  const { bundle, cacheCount, status: voiceStatus } = useServerVoice(rag, guard, appLocale);
 
   return (
     <>
       <main className="cc-page" style={{ maxWidth: 780 }}>
-        <p className="cc-kicker">Werkstück 02</p>
+        <p className="cc-kicker">{t("kicker")}</p>
         <h1
           style={{
             margin: "0.5rem 0 0.75rem",
@@ -47,19 +50,18 @@ export default function VoiceTestPage() {
             textTransform: "uppercase",
           }}
         >
-          Stimme des <span className="cc-mark">Meisters</span>
+          {t.rich("h1", {
+            mark: (chunks) => <span className="cc-mark">{chunks}</span>,
+          })}
         </h1>
         <p className="cc-muted" style={{ lineHeight: 1.6, margin: 0 }}>
-          Frage per Demo-Button, Texteingabe oder Mikrofon stellen. Antworten
-          kommen aus dem Fachkorpus ({getDemoCorpus().length} Dokumente, inkl.
-          offizieller Regelwerke) — gesprochen über die Offline-Kette:
-          vorvertonter Cache zuerst, dann Server-Stimme, notfalls Text.
+          {t("intro", { count: getDemoCorpus(appLocale).length })}
         </p>
 
         <section style={{ marginTop: "1.75rem" }}>
           {voiceStatus === "probing" ? (
             <p className="cc-muted" style={{ fontSize: "0.9rem" }}>
-              Stimme wird verbunden …
+              {t("voiceConnecting")}
             </p>
           ) : bundle ? (
             <VoiceConsole
@@ -67,7 +69,7 @@ export default function VoiceTestPage() {
               guard={guard}
               tts={bundle.tts}
               answer={bundle.answer}
-              makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+              makeAnswer={(history) => createServerAnswerFn(undefined, history, appLocale)}
               sampleQueries={SAMPLE_QUERIES}
               mode={bundle.mode}
             />
@@ -81,13 +83,13 @@ export default function VoiceTestPage() {
           style={{ marginTop: "1.25rem", fontSize: "0.8rem", lineHeight: 1.6 }}
         >
           <span className="cc-kicker" style={{ marginBottom: "0.5rem" }}>
-            Offline-Kette
+            {t("offline.kicker")}
           </span>
           <p className="cc-muted" style={{ margin: "0.5rem 0 0" }}>
-            Vorberechnete Stimme ({cacheCount} Antworten im Cache) →
-            Server-TTS → Stille mit Text-Antwort. Antworten funktionieren
-            immer — notfalls aus dem lokalen Wissenskorpus. Cache befüllen:{" "}
-            <code className="cc-mono">ELEVENLABS_API_KEY=… pnpm tts:cache</code>
+            {t.rich("offline.body", {
+              count: cacheCount,
+              code: (chunks) => <code className="cc-mono">{chunks}</code>,
+            })}
           </p>
         </section>
       </main>

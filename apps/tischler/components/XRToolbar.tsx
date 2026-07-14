@@ -20,6 +20,45 @@ export interface Masse {
 }
 
 /**
+ * Übersetzte UI-Strings für die Toolbar. Die Toolbar rendert INNERHALB des
+ * R3F-Canvas — useTranslations darf hier nicht aufgerufen werden (React-Context
+ * kreuzt die Reconciler-Grenze evtl. nicht). Die Seite baut das Objekt.
+ */
+export interface XRToolbarLabels {
+  tabAnreissen: string;
+  tabHand: string;
+  width: string;
+  thickness: string;
+  length: string;
+  teilung: string;
+  stirnkante: string;
+  mittellinie: string;
+  variante: string;
+  standard: string;
+  rzv: string;
+  /** Vorformatiert, z.B. "Schritt 3/7 - Teilen". */
+  step: string;
+  back: string;
+  tafel: string;
+  done: string;
+  next: string;
+  handTitle: string;
+  handSteps: Record<Exclude<DovetailStep, "ueberblick">, string>;
+  board: string;
+  plumb: string;
+  up: string;
+  down: string;
+  near: string;
+  far: string;
+  reset: string;
+  askMaster: string;
+  statusThinking: string;
+  statusSpeaking: string;
+  statusListening: string;
+  noAudio: string;
+}
+
+/**
  * EINE vereinte XR-Toolbar (apfel-Kit) — fasst Modus-Umschalter, Brettmaße,
  * Schritt-Navigation, Tafel-Schalter, "Frag den Meister" und Zentrieren in
  * EINEM verschiebbaren Panel zusammen (frueher vier verstreute Panels). Nur die
@@ -53,6 +92,7 @@ export function XRToolbar({
   rag,
   guard,
   tts,
+  labels,
   position = [0, 0, 0],
 }: {
   anreissModus: boolean;
@@ -82,6 +122,8 @@ export function XRToolbar({
   rag: IRAGProvider;
   guard: ITopicGuard;
   tts?: ITTSProvider;
+  /** Übersetzte Strings — von der Seite (ausserhalb des Canvas) gereicht. */
+  labels: XRToolbarLabels;
   position?: [number, number, number];
 }) {
   const schritt = flow.schritte[Math.min(index, flow.schritte.length - 1)]!;
@@ -107,11 +149,11 @@ export function XRToolbar({
       : QUESTIONS_BY_STEP[voiceStep];
   const statusLabel =
     status === "thinking"
-      ? "Denke nach ..."
+      ? labels.statusThinking
       : status === "speaking"
-        ? "Spricht ..."
+        ? labels.statusSpeaking
         : status === "listening"
-          ? "Hoere zu ..."
+          ? labels.statusListening
           : "";
 
   return (
@@ -126,10 +168,10 @@ export function XRToolbar({
               onValueChange={(v) => onModus(v === "anreissen")}
             >
               <TabBarItem value="anreissen" icon={<PencilRuler />}>
-                <Text>Anreissen</Text>
+                <Text>{asciiFold(labels.tabAnreissen)}</Text>
               </TabBarItem>
               <TabBarItem value="hand" icon={<Hammer />}>
-                <Text>Hand-Schritte</Text>
+                <Text>{asciiFold(labels.tabHand)}</Text>
               </TabBarItem>
             </TabBar>
             <Button variant="icon" size="md" onClick={onZentrieren}>
@@ -142,36 +184,36 @@ export function XRToolbar({
           {anreissModus ? (
             <>
               {/* 2a) Brettmaße */}
-              <MassRow label="Breite B" value={masse.width_mm} min={80} max={300}
+              <MassRow label={asciiFold(labels.width)} value={masse.width_mm} min={80} max={300}
                 onChange={(v) => onMasse({ ...masse, width_mm: v })} />
-              <MassRow label="Dicke D" value={masse.thickness_mm} min={8} max={40}
+              <MassRow label={asciiFold(labels.thickness)} value={masse.thickness_mm} min={8} max={40}
                 onChange={(v) => onMasse({ ...masse, thickness_mm: v })} />
-              <MassRow label="Laenge L" value={masse.length_mm} min={120} max={400}
+              <MassRow label={asciiFold(labels.length)} value={masse.length_mm} min={120} max={400}
                 onChange={(v) => onMasse({ ...masse, length_mm: v })} />
 
               {/* 2c) Teilungsebene: Lehrbuch (Mittellinie) vs. praxisnah (Stirn) */}
               <Container flexDirection="row" gap={8} alignItems="center">
-                <Text fontSize={13} width={66} color="#cdd6e4">Teilung</Text>
+                <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.teilung)}</Text>
                 <Button variant="rect" flexGrow={1} selected={teilung === "stirn"}
                   onClick={() => onTeilung("stirn")}>
-                  <Text fontSize={14}>Stirnkante</Text>
+                  <Text fontSize={14}>{asciiFold(labels.stirnkante)}</Text>
                 </Button>
                 <Button variant="rect" flexGrow={1} selected={teilung === "mittellinie"}
                   onClick={() => onTeilung("mittellinie")}>
-                  <Text fontSize={14}>Mittellinie</Text>
+                  <Text fontSize={14}>{asciiFold(labels.mittellinie)}</Text>
                 </Button>
               </Container>
 
               {/* 2d) Variante: Standard vs. Randzinkenverstaerkung */}
               <Container flexDirection="row" gap={8} alignItems="center">
-                <Text fontSize={13} width={66} color="#cdd6e4">Variante</Text>
+                <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.variante)}</Text>
                 <Button variant="rect" flexGrow={1} selected={variante === "standard"}
                   onClick={() => onVariante("standard")}>
-                  <Text fontSize={14}>Standard</Text>
+                  <Text fontSize={14}>{asciiFold(labels.standard)}</Text>
                 </Button>
                 <Button variant="rect" flexGrow={1} selected={variante === "rzv"}
                   onClick={() => onVariante("rzv")}>
-                  <Text fontSize={14}>Randverst.</Text>
+                  <Text fontSize={14}>{asciiFold(labels.rzv)}</Text>
                 </Button>
               </Container>
 
@@ -179,7 +221,7 @@ export function XRToolbar({
 
               {/* 3a) Gefuehrter Schritt + animierte Formel */}
               <Text fontSize={15} color="#9fc7b0">
-                {`Schritt ${index + 1}/${flow.schritte.length} - ${asciiFold(schritt.label)}`}
+                {asciiFold(labels.step)}
               </Text>
               {schritt.tafel.slice(0, sichtbar).map((zeile, k) => (
                 <Text key={k} fontSize={19} color="#f4f1e8">{asciiFold(zeile)}</Text>
@@ -198,28 +240,28 @@ export function XRToolbar({
               <Container flexDirection="row" gap={10} marginTop={8}>
                 <Button variant="rect" flexGrow={1} disabled={atStart}
                   onClick={() => !atStart && onIndex(index - 1)}>
-                  <Text fontSize={16}>{"< Zurueck"}</Text>
+                  <Text fontSize={16}>{asciiFold(labels.back)}</Text>
                 </Button>
                 <Button variant="rect" selected={tafelOffen} onClick={onTafel}>
-                  <Text fontSize={16}>Tafel</Text>
+                  <Text fontSize={16}>{asciiFold(labels.tafel)}</Text>
                 </Button>
                 <Button variant="rect" flexGrow={1} selected={!atEnd} disabled={atEnd}
                   onClick={() => !atEnd && onIndex(index + 1)}>
-                  <Text fontSize={16}>{atEnd ? "Fertig" : "Weiter >"}</Text>
+                  <Text fontSize={16}>{asciiFold(atEnd ? labels.done : labels.next)}</Text>
                 </Button>
               </Container>
             </>
           ) : (
             <>
               {/* 2b/3b) Handschritte */}
-              <Text fontSize={15} color="#9fc7b0">Handschritt waehlen</Text>
+              <Text fontSize={15} color="#9fc7b0">{asciiFold(labels.handTitle)}</Text>
               <Container flexDirection="row" gap={8}>
                 {HAND_STEPS.map((s, i) => (
                   <Button key={s} variant="rect" flexGrow={1} selected={s === step}
                     onClick={() => onStep(s)}>
                     <Container flexDirection="column" alignItems="center">
                       <Text fontSize={17}>{String(i + 1)}</Text>
-                      <Text fontSize={11}>{HAND_LABELS[s]}</Text>
+                      <Text fontSize={11}>{asciiFold(labels.handSteps[s])}</Text>
                     </Container>
                   </Button>
                 ))}
@@ -231,21 +273,21 @@ export function XRToolbar({
 
           {/* 4c) Brett ausrichten (Zweitpfad zum Hand-Greifen) */}
           <Container flexDirection="row" gap={8} alignItems="center">
-            <Text fontSize={13} width={66} color="#cdd6e4">Brett</Text>
+            <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.board)}</Text>
             <Button variant="rect" flexGrow={1} onClick={onLotrecht}>
-              <Text fontSize={14}>Lotrecht</Text>
+              <Text fontSize={14}>{asciiFold(labels.plumb)}</Text>
             </Button>
-            <Button variant="rect" onClick={() => onNudgeHeight(1)}><Text fontSize={14}>Hoch</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeHeight(-1)}><Text fontSize={14}>Runter</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeDepth(1)}><Text fontSize={14}>Nah</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeDepth(-1)}><Text fontSize={14}>Weit</Text></Button>
-            <Button variant="rect" selected onClick={onReset}><Text fontSize={14}>Reset</Text></Button>
+            <Button variant="rect" onClick={() => onNudgeHeight(1)}><Text fontSize={14}>{asciiFold(labels.up)}</Text></Button>
+            <Button variant="rect" onClick={() => onNudgeHeight(-1)}><Text fontSize={14}>{asciiFold(labels.down)}</Text></Button>
+            <Button variant="rect" onClick={() => onNudgeDepth(1)}><Text fontSize={14}>{asciiFold(labels.near)}</Text></Button>
+            <Button variant="rect" onClick={() => onNudgeDepth(-1)}><Text fontSize={14}>{asciiFold(labels.far)}</Text></Button>
+            <Button variant="rect" selected onClick={onReset}><Text fontSize={14}>{asciiFold(labels.reset)}</Text></Button>
           </Container>
 
           <Divider />
 
           {/* 5) Frag den Meister */}
-          <Text fontSize={16} color="#ffed00">Frag den Meister</Text>
+          <Text fontSize={16} color="#ffed00">{asciiFold(labels.askMaster)}</Text>
           <Container flexDirection="row" gap={8} flexWrap="wrap">
             {questions.map((q) => (
               <Button key={q} variant="rect" flexGrow={1} disabled={busy} onClick={() => ask(q)}>
@@ -253,14 +295,14 @@ export function XRToolbar({
               </Button>
             ))}
           </Container>
-          {statusLabel && <Text fontSize={13} color="#ffed00">{statusLabel}</Text>}
+          {statusLabel && <Text fontSize={13} color="#ffed00">{asciiFold(statusLabel)}</Text>}
           {response && (
             <Container backgroundColor="#0e0d0c" borderRadius={10} padding={10}>
               <Text fontSize={13} color="#f0f0f0">{asciiFold(clip(response, 200))}</Text>
             </Container>
           )}
           {audioPlayed === false && !busy && response && (
-            <Text fontSize={11} color="#9a9a9a">kein Audio - Text-Antwort</Text>
+            <Text fontSize={11} color="#9a9a9a">{asciiFold(labels.noAudio)}</Text>
           )}
         </Card>
       </Root>
@@ -275,13 +317,6 @@ const HAND_STEPS: ReadonlyArray<Exclude<DovetailStep, "ueberblick">> = [
   "passen",
   "pruefen",
 ];
-const HAND_LABELS: Record<Exclude<DovetailStep, "ueberblick">, string> = {
-  anreissen: "Anreissen",
-  saegen: "Saegen",
-  stemmen: "Stemmen",
-  passen: "Passen",
-  pruefen: "Pruefen",
-};
 
 // Wortlaut = TTS-Cache-Key — exakt wie in VoiceConsole, sonst greift die
 // vorvertonte Offline-Stimme nicht.

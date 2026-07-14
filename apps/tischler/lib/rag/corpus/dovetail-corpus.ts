@@ -44,7 +44,7 @@ export const DOVETAIL_CORPUS: RAGDocument[] = [
       "Mit dem Streichmass wird die Brettstaerke umlaufend auf das " +
       "Hirnholz uebertragen — diese Linie markiert die maximale Stemmtiefe. " +
       "Anschliessend werden die Schwalbenwinkel mit der Schmiege auf 1:6 " +
-      "(Hartholz) bzw. 1:8 (Weichholz) angetragen. Wichtig: alle Anrisse " +
+      "(Weichholz) bzw. 1:8 (Hartholz) angetragen. Wichtig: alle Anrisse " +
       "umlaufend ziehen, damit man von beiden Seiten saegen kann.",
     metadata: {
       source: "spannagel",
@@ -89,11 +89,13 @@ export const DOVETAIL_CORPUS: RAGDocument[] = [
     id: "schwalbenwinkel-ratio",
     text:
       "Der Schwalbenwinkel beschreibt das Verhaeltnis von Brettstaerke zu " +
-      "seitlichem Versatz. 1:6 (etwa 9.5°) ist Standard fuer Hartholz wie " +
-      "Eiche oder Buche — der Winkel ist steil genug um die mechanische " +
-      "Verriegelung zu garantieren. 1:8 (etwa 7°) wird fuer Weichholz wie " +
-      "Kiefer oder Fichte empfohlen, da steilere Winkel beim Quellen brechen " +
-      "wuerden. Steiler als 1:4 verboten — bricht bei Belastung.",
+      "seitlichem Versatz. 1:8 (etwa 7°) ist Standard fuer Hartholz wie " +
+      "Eiche oder Buche — der flache Winkel genuegt, zu steile Winkel " +
+      "liessen die kurzen Fasern an den Schwalbenspitzen ausbrechen. " +
+      "1:6 (etwa 9.5°) wird fuer Weichholz wie Kiefer oder Fichte " +
+      "empfohlen: das weichere Holz gibt unter Last nach, der steilere " +
+      "Winkel sichert die mechanische Verriegelung. Steiler als 1:4 " +
+      "verboten — bricht bei Belastung.",
     metadata: {
       source: "klausz",
       title: "Dovetails by Hand — Angle Selection",
@@ -901,9 +903,9 @@ export const DOVETAIL_CORPUS: RAGDocument[] = [
       "Naegeln kombinieren. (2) Buche — dichter als Eiche, gut zum " +
       "Stemmen, neigt aber zu Verzug bei Feuchteschwankung. (3) Esche — " +
       "elastisch und stossfest, vor allem fuer beanspruchte Verbindungen. " +
-      "Gemeinsam: alle drei profitieren vom 1:6 Schwalbenwinkel und " +
-      "scharfen Werkzeugen. Schwalbenwinkel 1:8 nicht zu flach waehlen, " +
-      "sonst greift die Verriegelung nicht voll.",
+      "Gemeinsam: alle drei profitieren vom 1:8 Schwalbenwinkel und " +
+      "scharfen Werkzeugen. Flacher als 1:8 nicht gehen, sonst greift " +
+      "die Verriegelung nicht voll.",
     metadata: {
       source: "own-paraphrase",
       title: "Harthoelzer — Eiche, Buche, Esche",
@@ -918,8 +920,8 @@ export const DOVETAIL_CORPUS: RAGDocument[] = [
       "— harzhaltig, verklebt das Saegeblatt, regelmaessiges Reinigen " +
       "noetig. (2) Fichte — splittert leicht beim Stemmen, scharfe " +
       "Werkzeuge sind Pflicht. (3) Tanne — aehnlich Fichte, etwas " +
-      "weicher noch. Generell: Schwalbenwinkel 1:8 statt 1:6, " +
-      "weil steile Winkel im Weichholz beim Quellen brechen wuerden. " +
+      "weicher noch. Generell: Schwalbenwinkel 1:6 statt 1:8 — das " +
+      "weiche Holz gibt nach, der steilere Winkel haelt die Verriegelung. " +
       "Saegeschnitt langsam fuehren — schneller Schnitt zerreisst Fasern. " +
       "Pin-Mindestbreite 6mm statt 4mm.",
     metadata: {

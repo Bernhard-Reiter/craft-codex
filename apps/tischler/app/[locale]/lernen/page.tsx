@@ -1,44 +1,48 @@
 "use client";
 
-import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "../../../i18n/navigation";
 
 // Canvas (R3F) ist client-only → dynamisch ohne SSR laden.
 const AnreissLektion = dynamic(
-  () => import("../../components/AnreissLektion").then((m) => m.AnreissLektion),
-  { ssr: false, loading: () => <p className="cc-muted">Anreiß-Modus lädt …</p> },
+  () => import("../../../components/AnreissLektion").then((m) => m.AnreissLektion),
+  { ssr: false, loading: () => <AnreissLoading /> },
 );
 import { useMemo } from "react";
-import { LocalRAGProvider } from "../../lib/rag/local-rag";
-import { KeywordTopicGuard } from "../../lib/rag/topic-guard";
-import { getDemoCorpus } from "../../lib/rag/corpus";
-import { useServerVoice } from "../../lib/voice/use-server-voice";
-import { createServerAnswerFn } from "../../lib/voice/server-providers";
-import { VoiceConsole } from "../../components/VoiceConsole";
-import { ZinkenDiagram } from "../../components/ZinkenDiagram";
-import { SchwalbenwinkelWahl } from "../../components/SchwalbenwinkelWahl";
-import { OfflineTrust } from "../../components/OfflineTrust";
-import { SiteFooter } from "../../components/SiteFooter";
+import { LocalRAGProvider } from "../../../lib/rag/local-rag";
+import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
+import { getDemoCorpus } from "../../../lib/rag/corpus";
+import { useServerVoice } from "../../../lib/voice/use-server-voice";
+import { createServerAnswerFn } from "../../../lib/voice/server-providers";
+import { VoiceConsole } from "../../../components/VoiceConsole";
+import { ZinkenDiagram } from "../../../components/ZinkenDiagram";
+import { SchwalbenwinkelWahl } from "../../../components/SchwalbenwinkelWahl";
+import { OfflineTrust } from "../../../components/OfflineTrust";
+import { SiteFooter } from "../../../components/SiteFooter";
 import {
   getLernpfad,
   ZINKEN_GESCHICHTE,
   ZINKEN_ANWENDUNGEN,
   RIS_ANKER,
   type Zinkenart,
-} from "../../lib/zinken/zinkenarten";
+} from "../../../lib/zinken/zinkenarten";
+import {
+  getLernpfadEn,
+  ZINKEN_GESCHICHTE_EN,
+  ZINKEN_ANWENDUNGEN_EN,
+  RIS_ANKER_EN,
+} from "../../../lib/zinken/zinkenarten.en";
 
-// Laien-Einstiegsfragen — der kontrollierte Rückfragen-Pfad für den Pitch.
-const OVERVIEW_QUERIES: ReadonlyArray<string> = [
-  "Was ist ein Zinken?",
-  "Wofür sind Zinken gut?",
-  "Welche Zinkenarten gibt es?",
-  "Warum hält das ohne Schrauben?",
-  "Womit fange ich am besten an?",
-];
+function AnreissLoading() {
+  const t = useTranslations("learn");
+  return <p className="cc-muted">{t("loading")}</p>;
+}
 
 function DiffDots({ level }: { level: 1 | 2 | 3 }) {
+  const t = useTranslations("learn");
   return (
-    <span className="cc-diff" aria-label={`Schwierigkeit ${level} von 3`}>
+    <span className="cc-diff" aria-label={t("artCard.difficulty", { level })}>
       {[1, 2, 3].map((n) => (
         <i key={n} className={n <= level ? "on" : ""} />
       ))}
@@ -47,8 +51,14 @@ function DiffDots({ level }: { level: 1 | 2 | 3 }) {
 }
 
 export default function LernenPage() {
+  const t = useTranslations("learn");
+  const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
+  const en = appLocale === "en";
+  const geschichte = en ? ZINKEN_GESCHICHTE_EN : ZINKEN_GESCHICHTE;
+  const anwendungen = en ? ZINKEN_ANWENDUNGEN_EN : ZINKEN_ANWENDUNGEN;
+  const risAnker = en ? RIS_ANKER_EN : RIS_ANKER;
   const { rag, guard } = useMemo(() => {
-    const r = new LocalRAGProvider(getDemoCorpus());
+    const r = new LocalRAGProvider(getDemoCorpus(appLocale));
     const g = new KeywordTopicGuard({
       rag: r,
       onTopicMin: 0.25,
@@ -56,10 +66,16 @@ export default function LernenPage() {
       blacklist: ["bitcoin", "krypto", "trading"],
     });
     return { rag: r, guard: g };
-  }, []);
+  }, [appLocale]);
   const { bundle: voiceBundle, status: voiceStatus } = useServerVoice(rag, guard);
 
-  const pfad = getLernpfad();
+  // Laien-Einstiegsfragen — der kontrollierte Rückfragen-Pfad für den Pitch.
+  const overviewQueries = useMemo(
+    () => Array.from({ length: 5 }, (_, i) => t(`overviewQueries.${i}`)),
+    [t],
+  );
+
+  const pfad = en ? getLernpfadEn() : getLernpfad();
 
   return (
     <>
@@ -68,15 +84,15 @@ export default function LernenPage() {
         <section>
           <div className="cc-eyebrow">
             <span className="cc-winkel" />
-            <span>Überblick · von ganz vorne</span>
+            <span>{t("hero.eyebrow")}</span>
           </div>
           <h1 className="cc-display">
-            Zinken — die <span className="cc-hl">Königsdisziplin</span> der
-            Holzverbindung.
+            {t.rich("hero.h1", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h1>
           <p className="cc-lead" style={{ marginTop: "1.25rem" }}>
-            Bevor der erste Strich aufs Holz kommt: Was ist ein Zinken, wofür ist
-            er gut, und welche Arten gibt es? Erst verstehen — dann anreißen.
+            {t("hero.lead")}
           </p>
           <div
             style={{
@@ -87,7 +103,7 @@ export default function LernenPage() {
               alignItems: "center",
             }}
           >
-            <span className="cc-live">Jede Antwort aus geprüftem Meisterwissen</span>
+            <span className="cc-live">{t("hero.trust")}</span>
             <OfflineTrust />
           </div>
         </section>
@@ -108,27 +124,24 @@ export default function LernenPage() {
           }}
         >
           <div>
-            <p className="cc-kicker">Was ist das?</p>
+            <p className="cc-kicker">{t("what.kicker")}</p>
             <h2
               style={{
                 fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
                 margin: "0.6rem 0 0.9rem",
               }}
             >
-              Zwei Bretter, die ineinandergreifen wie die Finger zweier Hände.
+              {t("what.title")}
             </h2>
             <p className="cc-sub">
-              An der Stirnseite — dem <strong>Hirnholz</strong> — wird jedes
-              Brett kammartig ausgeschnitten. Schiebt man die Bretter über Eck
-              zusammen, greift jeder <strong>Zinken</strong> in die Lücke des
-              anderen. Beim Schwalbenschwanz sind die Zinken keilförmig: sie{" "}
-              <strong>verriegeln sich</strong> und halten sogar ohne Leim oder
-              Schraube.
+              {t.rich("what.body", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             <p className="cc-note" style={{ marginTop: "1.1rem" }}>
-              Das nennt der Tischler <strong>Formschluss</strong> — die Form
-              selbst hält die Ecke zusammen. Darum ist der Schwalbenschwanz die
-              stabilste Eckverbindung im Möbelbau.
+              {t.rich("what.note", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           </div>
           <div className="cc-card" style={{ background: "var(--cc-paper-pure)" }}>
@@ -136,7 +149,7 @@ export default function LernenPage() {
               className="cc-kicker"
               style={{ marginBottom: "0.75rem" }}
             >
-              Zieh die Verbindung auseinander
+              {t("what.diagramKicker")}
             </p>
             <ZinkenDiagram />
           </div>
@@ -144,18 +157,19 @@ export default function LernenPage() {
 
         {/* ── GESCHICHTE ───────────────────────────────────────── */}
         <section>
-          <p className="cc-kicker">Die Geschichte</p>
+          <p className="cc-kicker">{t("history.kicker")}</p>
           <h2
             style={{
               fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               margin: "0.6rem 0 1.25rem",
             }}
           >
-            Älter als man denkt — und <span className="cc-hl">nie veraltet</span>
-            .
+            {t.rich("history.title", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h2>
           <div className="cc-grid-cards">
-            {ZINKEN_GESCHICHTE.map((g) => (
+            {geschichte.map((g) => (
               <div key={g.epoche} className="cc-card cc-card--flat">
                 <p className="cc-kicker" style={{ marginBottom: "0.5rem" }}>
                   {g.epoche}
@@ -170,17 +184,19 @@ export default function LernenPage() {
 
         {/* ── WOFÜR ────────────────────────────────────────────── */}
         <section>
-          <p className="cc-kicker">Wofür man sie braucht</p>
+          <p className="cc-kicker">{t("uses.kicker")}</p>
           <h2
             style={{
               fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               margin: "0.6rem 0 1rem",
             }}
           >
-            Überall, wo eine Ecke <span className="cc-hl">halten muss</span>.
+            {t.rich("uses.title", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
-            {ZINKEN_ANWENDUNGEN.map((a) => (
+            {anwendungen.map((a) => (
               <span
                 key={a}
                 className="cc-chip"
@@ -194,18 +210,19 @@ export default function LernenPage() {
 
         {/* ── SCHWALBENWINKEL ──────────────────────────────────── */}
         <section>
-          <p className="cc-kicker">Der Schwalbenwinkel</p>
+          <p className="cc-kicker">{t("angle.kicker")}</p>
           <h2
             style={{
               fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               margin: "0.6rem 0 0.5rem",
             }}
           >
-            1:6 oder 1:8 — <span className="cc-hl">welcher Winkel?</span>
+            {t.rich("angle.title", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h2>
           <p className="cc-sub" style={{ marginBottom: "1.25rem" }}>
-            Der Schwalbenwinkel bestimmt, wie keilförmig die Zinken sind. Wähl
-            ihn und sieh den Unterschied:
+            {t("angle.sub")}
           </p>
           <div className="cc-card" style={{ background: "var(--cc-paper-pure)" }}>
             <SchwalbenwinkelWahl />
@@ -214,17 +231,19 @@ export default function LernenPage() {
 
         {/* ── LERNPFAD ─────────────────────────────────────────── */}
         <section>
-          <p className="cc-kicker">Der Lernpfad</p>
+          <p className="cc-kicker">{t("path.kicker")}</p>
           <h2
             style={{
               fontSize: "clamp(1.6rem, 3.2vw, 2.4rem)",
               margin: "0.6rem 0 0.5rem",
             }}
           >
-            Welchen Zinken willst du <span className="cc-hl">lernen</span>?
+            {t.rich("path.title", {
+              hl: (chunks) => <span className="cc-hl">{chunks}</span>,
+            })}
           </h2>
           <p className="cc-sub" style={{ marginBottom: "0.4rem" }}>
-            Empfohlene Reihenfolge vom einfachen Einstieg zum Meisterstück:
+            {t("path.sub")}
           </p>
           <div className="cc-pathline" style={{ marginBottom: "1.5rem" }}>
             {pfad.map((z, i) => (
@@ -244,20 +263,21 @@ export default function LernenPage() {
           </div>
 
           <p className="cc-note cc-note--official" style={{ marginTop: "1.5rem" }}>
-            <strong>Amtlich verankert.</strong> Die{" "}
-            {RIS_ANKER.ausbildungsordnung.titel} (RIS, GesNr{" "}
-            {RIS_ANKER.ausbildungsordnung.gesetzesnummer}) schreibt{" "}
-            <em>Anreißen</em> und <em>Zinkenverbindungen</em> wörtlich als
-            Pflichtkompetenz vor; der {RIS_ANKER.lehrplan.titel} nennt{" "}
-            {RIS_ANKER.lehrplan.zitat}. Dieses Lerntool deckt damit exakt eine
-            vorgeschriebene Kernkompetenz der Tischler-Lehre ab.{" "}
+            {t.rich("ris.note", {
+              strong: (chunks) => <strong>{chunks}</strong>,
+              em: (chunks) => <em>{chunks}</em>,
+              aoTitel: risAnker.ausbildungsordnung.titel,
+              gesNr: risAnker.ausbildungsordnung.gesetzesnummer,
+              lpTitel: risAnker.lehrplan.titel,
+              zitat: risAnker.lehrplan.zitat,
+            })}{" "}
             <a
-              href={RIS_ANKER.ausbildungsordnung.url}
+              href={risAnker.ausbildungsordnung.url}
               target="_blank"
               rel="noreferrer"
               style={{ borderBottom: "2px solid var(--cc-yellow)" }}
             >
-              Quelle ansehen
+              {t("ris.sourceLink")}
             </a>
           </p>
         </section>
@@ -266,7 +286,7 @@ export default function LernenPage() {
         <section>
           <div className="cc-eyebrow">
             <span className="cc-winkel cc-winkel--sm" />
-            <span>Stimme des Meisters</span>
+            <span>{t("ask.eyebrow")}</span>
           </div>
           <h2
             style={{
@@ -274,16 +294,15 @@ export default function LernenPage() {
               margin: "0.4rem 0 0.9rem",
             }}
           >
-            Frag, wie am Hobel nebenan.
+            {t("ask.title")}
           </h2>
           <p className="cc-sub" style={{ marginBottom: "1rem" }}>
-            Stell eine Frage — die Antwort kommt aus dem geprüften Fachkorpus,
-            mit Quelle, auch komplett ohne Netz.
+            {t("ask.sub")}
           </p>
           <div style={{ maxWidth: 640 }}>
             {voiceStatus === "probing" ? (
               <p className="cc-muted" style={{ fontSize: "0.85rem" }}>
-                Stimme wird verbunden …
+                {t("ask.connecting")}
               </p>
             ) : voiceBundle ? (
               <VoiceConsole
@@ -291,15 +310,15 @@ export default function LernenPage() {
                 guard={guard}
                 tts={voiceBundle.tts}
                 answer={voiceBundle.answer}
-                makeAnswer={(history) => createServerAnswerFn(undefined, history)}
+                makeAnswer={(history) => createServerAnswerFn(undefined, history, appLocale)}
                 mode={voiceBundle.mode}
-                sampleQueries={OVERVIEW_QUERIES}
+                sampleQueries={overviewQueries}
               />
             ) : (
               <VoiceConsole
                 rag={rag}
                 guard={guard}
-                sampleQueries={OVERVIEW_QUERIES}
+                sampleQueries={overviewQueries}
               />
             )}
           </div>
@@ -309,7 +328,7 @@ export default function LernenPage() {
         <section>
           <div className="cc-card cc-card--dark">
             <p className="cc-kicker" style={{ color: "var(--cc-yellow)" }}>
-              <span style={{ color: "var(--cc-paper)" }}>Bereit?</span>
+              <span style={{ color: "var(--cc-paper)" }}>{t("cta.kicker")}</span>
             </p>
             <h2
               style={{
@@ -319,10 +338,10 @@ export default function LernenPage() {
                 maxWidth: "22ch",
               }}
             >
-              Lern den Schwalbenschwanz — Schritt für Schritt am 3D-Werkstück.
+              {t("cta.title")}
             </h2>
             <Link href="/werkstatt" className="cc-btn cc-btn--primary">
-              Geführte Lektion starten →
+              {t("cta.button")}
             </Link>
           </div>
         </section>
@@ -333,6 +352,7 @@ export default function LernenPage() {
 }
 
 function ArtCard({ art }: { art: Zinkenart }) {
+  const t = useTranslations("learn");
   return (
     <article className="cc-art-card" data-active={art.playable ? "true" : undefined}>
       <div
@@ -343,7 +363,7 @@ function ArtCard({ art }: { art: Zinkenart }) {
           gap: "0.5rem",
         }}
       >
-        <span className="cc-order-num">SCHRITT {art.order}</span>
+        <span className="cc-order-num">{t("artCard.step", { order: art.order })}</span>
         <DiffDots level={art.schwierigkeit} />
       </div>
       <h3
@@ -371,7 +391,8 @@ function ArtCard({ art }: { art: Zinkenart }) {
         {art.was}
       </p>
       <p style={{ margin: 0, fontSize: "0.82rem", lineHeight: 1.5 }}>
-        <strong>Wann:</strong> <span className="cc-muted">{art.wann}</span>
+        <strong>{t("artCard.when")}</strong>{" "}
+        <span className="cc-muted">{art.wann}</span>
       </p>
       <p
         style={{
@@ -384,15 +405,15 @@ function ArtCard({ art }: { art: Zinkenart }) {
           color: "var(--cc-ink)",
         }}
       >
-        Der Meister: „{art.voiceIntro}“
+        {t("artCard.master", { text: art.voiceIntro })}
       </p>
       <div style={{ marginTop: "auto", paddingTop: "0.6rem" }}>
         {art.playable && art.href ? (
           <Link href={art.href} className="cc-btn cc-btn--primary cc-btn--sm">
-            Diesen lernen →
+            {t("artCard.learnCta")}
           </Link>
         ) : (
-          <span className="cc-badge">In Vorbereitung · Stimme erklärt schon</span>
+          <span className="cc-badge">{t("artCard.preparing")}</span>
         )}
       </div>
     </article>

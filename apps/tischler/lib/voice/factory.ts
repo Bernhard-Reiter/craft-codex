@@ -38,6 +38,8 @@ export interface ServerBundleConfig {
   health: ServerVoiceHealth;
   /** Pre-cached TTS manifest → cache-first vor dem Server-Roundtrip. */
   ttsCacheManifest?: TTSCacheManifest;
+  /** UI-Sprache → steuert Answer-Prompt, STT-Hint, TTS-Regie. Default "de". */
+  locale?: "de" | "en";
 }
 
 /**
@@ -51,7 +53,8 @@ export interface ServerBundleConfig {
 export function createServerVoiceProviders(
   config: ServerBundleConfig,
 ): VoiceProviderBundle {
-  const serverTts = new ServerTTSProvider();
+  const locale = config.locale ?? "de";
+  const serverTts = new ServerTTSProvider(undefined, locale);
   const tts: ITTSProvider = config.health.tts
     ? config.ttsCacheManifest
       ? new CachedTTSProvider({ upstream: serverTts, manifest: config.ttsCacheManifest })
@@ -65,8 +68,10 @@ export function createServerVoiceProviders(
 
   return {
     mode: "server",
-    stt: config.health.stt ? new ServerSTTProvider() : mockSttFromText("Frage stellen"),
+    stt: config.health.stt
+      ? new ServerSTTProvider(undefined, locale)
+      : mockSttFromText(locale === "en" ? "Ask a question" : "Frage stellen"),
     tts,
-    answer: createServerAnswerFn(),
+    answer: createServerAnswerFn(undefined, undefined, locale),
   };
 }

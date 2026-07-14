@@ -11,21 +11,27 @@ import { ElevenLabsTTSProvider } from "../../../../lib/voice/elevenlabs-tts";
 import { GeminiTTSProvider } from "../../../../lib/voice/gemini-tts";
 import { OpenAITTSProvider } from "../../../../lib/voice/openai-tts";
 import { jsonError, rateLimited, ttsProvider } from "../_lib/server-voice";
+import {
+  DEFAULT_VOICE_LOCALE,
+  getTtsInstructions,
+  parseVoiceLocale,
+  type VoiceLocale,
+} from "../../../../lib/voice/voice-locale";
 
 export const dynamic = "force-dynamic";
 
 const MAX_TEXT_CHARS = 800;
 
-function buildProvider(): ITTSProvider | null {
+function buildProvider(locale: VoiceLocale = DEFAULT_VOICE_LOCALE): ITTSProvider | null {
   switch (ttsProvider()) {
     case "openai":
       return new OpenAITTSProvider({
         apiKey: process.env.OPENAI_API_KEY ?? "",
         ...(process.env.OPENAI_TTS_VOICE ? { defaultVoice: process.env.OPENAI_TTS_VOICE } : {}),
         ...(process.env.OPENAI_TTS_MODEL ? { model: process.env.OPENAI_TTS_MODEL } : {}),
-        ...(process.env.OPENAI_TTS_INSTRUCTIONS
-          ? { instructions: process.env.OPENAI_TTS_INSTRUCTIONS }
-          : {}),
+        // Env-Override gewinnt; sonst locale-passende Meister-Regie.
+        instructions:
+          process.env.OPENAI_TTS_INSTRUCTIONS ?? getTtsInstructions(locale),
       });
     case "gemini":
       return new GeminiTTSProvider({
@@ -49,18 +55,21 @@ export async function POST(req: Request): Promise<Response> {
   const limited = rateLimited(req);
   if (limited) return limited;
 
-  const tts = buildProvider();
-  if (!tts) return jsonError(503, "tts_unavailable");
-
-  let body: { text?: unknown };
+  let body: { text?: unknown; locale?: unknown };
   try {
-    body = (await req.json()) as { text?: unknown };
+    body = (await req.json()) as { text?: unknown; locale?: unknown };
   } catch {
     return jsonError(400, "invalid_json");
   }
   const text = typeof body.text === "string" ? body.text.trim() : "";
   if (!text) return jsonError(400, "text_required");
   if (text.length > MAX_TEXT_CHARS) return jsonError(400, "text_too_long");
+
+  const locale = parseVoiceLocale(body.locale);
+  if (locale === null) return jsonError(400, "invalid_locale");
+
+  const tts = buildProvider(locale);
+  if (!tts) return jsonError(503, "tts_unavailable");
 
   try {
     const chunks: Uint8Array[] = [];

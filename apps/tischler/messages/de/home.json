@@ -1,0 +1,41 @@
+{
+  "kicker": "Offener Wissenspool fürs Handwerk",
+  "h1": "Handwerk. <mark>Hologramm.</mark> Meisterwissen.",
+  "intro": "Craft Codex bringt das Wissen der Meister dorthin, wo gearbeitet wird: als parametrisches 3D-Werkstück, als Stimme, die Fachfragen beantwortet, und als Hologramm im Raum. Offline-fest gebaut — für Werkstätten, nicht für Schönwetter-WLAN.",
+  "ctaOverview": "Überblick starten",
+  "ctaWorkshop": "Werkstatt öffnen",
+  "ctaXr": "XR-Demo",
+  "piecesTitle": "Werkstücke",
+  "pieces": [
+    {
+      "num": "00",
+      "title": "Zinken verstehen",
+      "body": "Von ganz vorne: Was ist ein Zinken, wofür ist er gut, welche Arten gibt es? Erst verstehen — dann anreißen. Mit Lernpfad und der Stimme des Meisters.",
+      "cta": "Überblick starten"
+    },
+    {
+      "num": "01",
+      "title": "Schwalbenschwanz",
+      "body": "Die Königsdisziplin der Eckverbindung — parametrisch in 3D. Pins, Winkel und Brettmaße live ziehen, alle fünf Lernschritte vom Anreißen bis zum Prüfen.",
+      "cta": "Werkstatt öffnen"
+    },
+    {
+      "num": "02",
+      "title": "Stimme des Meisters",
+      "body": "Fragen stellen wie am Hobel nebenan: Antworten aus dem Fachkorpus mit Quellen aus offiziellen Regelwerken — gesprochen, auch komplett ohne Netz.",
+      "cta": "Stimme testen"
+    },
+    {
+      "num": "03",
+      "title": "Hologramm (WebXR)",
+      "body": "Dasselbe Werkstück immersiv: Quest 3 oder Galaxy XR aufsetzen, das Brett schwebt auf Tischhöhe im Raum — Lernschritte per Handgriff wechseln.",
+      "cta": "XR starten"
+    }
+  ],
+  "vision": {
+    "kicker": "Die Vision",
+    "title": "Kein Produkt. Ein <hl>Universum</hl> aus Handwerkswissen.",
+    "body": "Schüler, Lehrer und Meister bauen es gemeinsam — Cody verwandelt ihre Worte in lebendige Werkzeuge. Generation für Generation.",
+    "cta": "Das Craft Codex Universum →"
+  }
+}

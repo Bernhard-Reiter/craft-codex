@@ -1,0 +1,38 @@
+{
+  "eyebrow": "Teacher view",
+  "h1": "The master <hl>sees everything.</hl>",
+  "lead": "Craft Codex doesn't replace the teacher. It shows him in real time where every single apprentice stands — and who needs him right now.",
+  "needYou": "{count, plural, one {# apprentice needs} other {# apprentices need}} you",
+  "classKicker": "Class 1b · Dovetail",
+  "stepLabel": "Step: {step}",
+  "status": {
+    "laeuft": "working",
+    "braucht-meister": "needs the master",
+    "fertig": "done"
+  },
+  "students": [
+    {
+      "name": "Sarah B.",
+      "step": "Checking",
+      "hint": "0.1 mm gap — very clean"
+    },
+    {
+      "name": "Lena M.",
+      "step": "Fitting"
+    },
+    {
+      "name": "Tobias K.",
+      "step": "Chopping",
+      "hint": "asked 3× about “end-grain tearout”"
+    },
+    {
+      "name": "David R.",
+      "step": "Laying out"
+    },
+    {
+      "name": "Mehmet Y.",
+      "step": "Sawing"
+    }
+  ],
+  "note": "<strong>The AI takes over the repetition — the master takes the correction.</strong> The patient, endlessly repeated part is the tool's job; that leaves more time for what only a human can do. Learning progress is visible at any time and can be exported for the grant's final report."
+}

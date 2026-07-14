@@ -16,6 +16,17 @@ import { useXRVoice } from "../lib/voice/use-xr-voice";
  * holt erst auf Wunsch das Detail-Panel (Maße/Formel/Werkzeug). Alles Weitere
  * erscheint kontextuell, nicht dauerhaft.
  */
+/**
+ * Übersetzte UI-Strings — das Ornament rendert INNERHALB des R3F-Canvas,
+ * useTranslations darf hier nicht aufgerufen werden. Die Seite baut das Objekt.
+ */
+export interface XROrnamentLabels {
+  /** Vorformatiert, z.B. "Schritt 3/7". */
+  step: string;
+  tafel: string;
+  master: string;
+}
+
 export function XROrnament({
   index,
   total,
@@ -30,6 +41,7 @@ export function XROrnament({
   rag,
   guard,
   tts,
+  labels,
   position = [0, 0, 0],
 }: {
   index: number;
@@ -46,6 +58,8 @@ export function XROrnament({
   rag: IRAGProvider;
   guard: ITopicGuard;
   tts?: ITTSProvider;
+  /** Übersetzte Strings — von der Seite (ausserhalb des Canvas) gereicht. */
+  labels: XROrnamentLabels;
   position?: [number, number, number];
 }) {
   const { status, ask } = useXRVoice({ rag, guard, tts });
@@ -70,7 +84,7 @@ export function XROrnament({
             <ChevronLeft width={20} height={20} />
           </Button>
           <Container flexDirection="column" alignItems="center" minWidth={86}>
-            <Text fontSize={16} color="#f4f1e8">{`Schritt ${index + 1}/${total}`}</Text>
+            <Text fontSize={16} color="#f4f1e8">{asciiFold(labels.step)}</Text>
             <Text fontSize={12} color="#9fc7b0">{asciiFold(label)}</Text>
           </Container>
           <Button variant="icon" size="md" selected={!atEnd} disabled={atEnd} onClick={onNext}>
@@ -83,7 +97,7 @@ export function XROrnament({
           <Button variant="pill" size="md" selected={tafelOffen} onClick={onTafel}>
             <Container flexDirection="row" alignItems="center" gap={6}>
               <PanelTop width={16} height={16} />
-              <Text fontSize={15}>Tafel</Text>
+              <Text fontSize={15}>{asciiFold(labels.tafel)}</Text>
             </Container>
           </Button>
 
@@ -91,7 +105,7 @@ export function XROrnament({
           <Button variant="pill" size="md" disabled={busy} onClick={() => ask(meisterFrage)}>
             <Container flexDirection="row" alignItems="center" gap={6}>
               <Mic width={16} height={16} />
-              <Text fontSize={15}>{busy ? "..." : "Meister"}</Text>
+              <Text fontSize={15}>{busy ? "..." : asciiFold(labels.master)}</Text>
             </Container>
           </Button>
 

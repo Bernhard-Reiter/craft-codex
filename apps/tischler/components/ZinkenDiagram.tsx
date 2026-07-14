@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * ZinkenDiagram — robustes 2D-SVG der Schwalbenschwanz-Verbindung mit einem
@@ -55,6 +56,7 @@ export function ZinkenDiagram({
 }: {
   showLabels?: boolean;
 }) {
+  const t = useTranslations("workshop.diagram");
   // 100 = zusammengefügt (Ziel zeigen), 0 = ganz auseinander
   const [join, setJoin] = useState(100);
   const labelId = useId();
@@ -68,9 +70,7 @@ export function ZinkenDiagram({
         aria-labelledby={labelId}
         style={{ width: "100%", maxWidth: 560, display: "block" }}
       >
-        <title id={labelId}>
-          Schwalbenschwanz-Verbindung — oberes und unteres Brett verzahnen sich
-        </title>
+        <title id={labelId}>{t("svgTitle")}</title>
 
         {/* OBERES BRETT (gelb) — Körper + Zinken, fährt nach oben beim Trennen */}
         <g transform={`translate(0 ${-gap})`}>
@@ -126,10 +126,10 @@ export function ZinkenDiagram({
             letterSpacing="0.12em"
           >
             <text x="8" y="20">
-              ZINKEN ▸ oberes Brett
+              {t("labelTop")}
             </text>
             <text x="8" y={H - 8}>
-              SCHWALBEN ▸ unteres Brett
+              {t("labelBottom")}
             </text>
           </g>
         )}
@@ -149,7 +149,7 @@ export function ZinkenDiagram({
           onClick={() => setJoin(0)}
           aria-pressed={join === 0}
         >
-          ◀ Auseinander
+          {t("apart")}
         </button>
         <input
           type="range"
@@ -158,7 +158,7 @@ export function ZinkenDiagram({
           value={join}
           onChange={(e) => setJoin(Number(e.target.value))}
           className="cc-range"
-          aria-label="Verbindung auseinanderziehen oder zusammenfügen"
+          aria-label={t("rangeLabel")}
           style={{ flex: 1, minWidth: 120 }}
         />
         <button
@@ -167,15 +167,15 @@ export function ZinkenDiagram({
           onClick={() => setJoin(100)}
           aria-pressed={join === 100}
         >
-          Zusammenfügen ▶
+          {t("join")}
         </button>
       </div>
       <p className="cc-mono cc-muted" style={{ margin: 0 }}>
         {join === 100
-          ? "▸ Verriegelt: die keilförmigen Zinken halten ohne Leim."
+          ? t("stateLocked")
           : join === 0
-            ? "▸ Getrennt: jeder Zinken greift in die Lücke des anderen Bretts."
-            : "▸ Schieb die Bretter zusammen …"}
+            ? t("stateApart")
+            : t("stateHint")}
       </p>
     </div>
   );

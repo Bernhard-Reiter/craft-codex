@@ -1,0 +1,80 @@
+{
+  "eyebrow": "The vision · built together",
+  "h1": "The Craft Codex <hl>Universe</hl>.",
+  "lead": "Cody, students and teachers build it together — generation after generation.",
+  "notProduct": {
+    "kicker": "Not a product. A universe.",
+    "lead": "Craft Codex is not a finished tool you buy. It is a living, growing universe of craft knowledge — and it belongs to everyone who builds it.",
+    "sub": "It starts small: with the dovetails in the cabinetmaker's shop. But every trade is its own world in this universe — metalworking, electrical work, mechanical engineering, every craft and every technical discipline. The universe keeps expanding, world by world, master by master, generation by generation."
+  },
+  "why": {
+    "kicker": "The why",
+    "title": "With every master who goes, a <hl>lifetime of knowledge</hl> dies.",
+    "body": "Until now, that loss had no way back. Not anymore: the old master's knowledge can be captured, checked and passed on — not as a dead textbook, but as a patient digital master who never tires and answers in the apprentice's own language. The craft isn't preserved like a museum piece. It lives on and grows into the AI age."
+  },
+  "how": {
+    "kicker": "How it gets built — the community is the master builder",
+    "title": "No one person builds it. Cody turns the community's words into<hl> living tools</hl>.",
+    "roles": [
+      {
+        "who": "The master",
+        "what": "is the source. His knowledge, his eye, his feel for the material — that is the raw stock."
+      },
+      {
+        "who": "The teacher",
+        "what": "guides and organizes. He turns experience into curriculum."
+      },
+      {
+        "who": "The student",
+        "what": "builds. He describes the craft in his own words, and Cody shapes them into an interactive tool — voice, VR, right at the workpiece."
+      },
+      {
+        "who": "Cody",
+        "what": "is the invisible engine. He replaces no one. He is the loom the community weaves on — you never see him, you only see what takes shape."
+      }
+    ],
+    "note1": "<strong>Building is the curriculum.</strong> As students expand the universe, they learn a new discipline — applied AI: they learn the craft, and they learn to build the AI for it.",
+    "note2": "Before a tool teaches anyone, a master signs it off. The digital master <strong>invents nothing</strong> — every answer stands on verified knowledge from a real source."
+  },
+  "flywheel": {
+    "kicker": "The flywheel",
+    "chain": "more students build → more master knowledge gets captured → better tools → more trades → more students who see the craft as a future again → and they build even more.",
+    "body": "No single person is the bottleneck. Cody scales the building, the community scales the knowledge — from the cabinetmaker to the metalworker, without any one person having to build every tool alone."
+  },
+  "benefits": {
+    "kicker": "What everyone gets",
+    "items": [
+      {
+        "who": "The master",
+        "what": "his life's work isn't lost — it carries on. And the machine takes over the endlessly repeated work: time back for what only a human can do."
+      },
+      {
+        "who": "The teacher",
+        "what": "a new curriculum, and students who can do something that didn't exist before."
+      },
+      {
+        "who": "The student",
+        "what": "learns from a patient master around the clock — and learns to build AI at the same time. Whoever masters the craft and the AI to go with it is irreplaceable."
+      },
+      {
+        "who": "The region",
+        "what": "becomes the pioneer of a new discipline and keeps its young people in the valley instead of losing them."
+      },
+      {
+        "who": "Europe",
+        "what": "a craft knowledge commons that stays open. The output of this layer is free. Made in Europe, and it stays in Europe."
+      }
+    ]
+  },
+  "engine": {
+    "kicker": "Cody — the invisible engine",
+    "body": "Cody himself stays hidden. Nobody sees him — the community only sees what takes shape: the growing universe. The engine is the secret, the output is the gift. That way the universe can be generously open without ever giving away what it was woven with."
+  },
+  "horizon": {
+    "kicker": "The horizon",
+    "body": "In ten, in twenty years, the universe carries the collected knowledge of countless masters from every trade — continuously expanded by each new generation, freely available, taught by tireless digital masters. And alongside it, the irreplaceable remains: the hand, the eye, the judgment of a human being.",
+    "punch": "The old master's knowledge no longer dies with him. It lives on — and every generation builds it bigger.",
+    "tagline": "That is the Craft Codex universe.",
+    "cta": "Where it begins: the dovetails →"
+  }
+}

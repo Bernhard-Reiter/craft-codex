@@ -1,15 +1,16 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { DovetailStep } from "@craft-codex/core";
 
 // "Überblick" = Schritt 0 (mit •), die fünf Handschritte tragen 1–5.
-const STEPS: Array<{ id: DovetailStep; label: string; mark: string }> = [
-  { id: "ueberblick", label: "Überblick", mark: "•" },
-  { id: "anreissen", label: "Anreißen", mark: "1" },
-  { id: "saegen", label: "Sägen", mark: "2" },
-  { id: "stemmen", label: "Stemmen", mark: "3" },
-  { id: "passen", label: "Passen", mark: "4" },
-  { id: "pruefen", label: "Prüfen", mark: "5" },
+const STEPS: Array<{ id: DovetailStep; mark: string }> = [
+  { id: "ueberblick", mark: "•" },
+  { id: "anreissen", mark: "1" },
+  { id: "saegen", mark: "2" },
+  { id: "stemmen", mark: "3" },
+  { id: "passen", mark: "4" },
+  { id: "pruefen", mark: "5" },
 ];
 
 interface ModeBarProps {
@@ -18,8 +19,9 @@ interface ModeBarProps {
 }
 
 export function ModeBar({ active, onChange }: ModeBarProps) {
+  const t = useTranslations("dovetail.modeBar");
   return (
-    <div role="group" className="cc-tabbar" aria-label="Lernschritte">
+    <div role="group" className="cc-tabbar" aria-label={t("aria")}>
       {STEPS.map((s) => {
         const isActive = s.id === active;
         return (
@@ -33,7 +35,7 @@ export function ModeBar({ active, onChange }: ModeBarProps) {
             <span className="cc-tab-step" aria-hidden="true">
               {s.mark}
             </span>
-            {s.label}
+            {t(`steps.${s.id}`)}
           </button>
         );
       })}

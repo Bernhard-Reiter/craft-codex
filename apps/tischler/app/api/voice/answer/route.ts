@@ -1,7 +1,8 @@
 /**
  * POST /api/voice/answer — RAG-grounded answer, server-side.
- * Body: { question: string }
+ * Body: { question: string, locale?: "de" | "en" }
  * 200:  { text: string, mode: "claude" | "template" }
+ * 400:  { error: "invalid_locale" } bei unbekannter Locale
  *
  * Works WITHOUT any API key (template synthesizer over the local corpus) —
  * the offline demo never loses the answer brain. With ANTHROPIC_API_KEY the
@@ -15,6 +16,7 @@ import {
   serverAnswerFn,
 } from "../_lib/server-voice";
 import type { DialogTurn } from "../../../../lib/voice/gemini-answer";
+import { parseVoiceLocale } from "../../../../lib/voice/voice-locale";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +38,13 @@ export async function POST(req: Request): Promise<Response> {
   const limited = rateLimited(req);
   if (limited) return limited;
 
-  let body: { question?: unknown; history?: unknown };
+  let body: { question?: unknown; history?: unknown; locale?: unknown };
   try {
-    body = (await req.json()) as { question?: unknown; history?: unknown };
+    body = (await req.json()) as {
+      question?: unknown;
+      history?: unknown;
+      locale?: unknown;
+    };
   } catch {
     return jsonError(400, "invalid_json");
   }
@@ -46,7 +52,10 @@ export async function POST(req: Request): Promise<Response> {
   if (!question) return jsonError(400, "question_required");
   if (question.length > MAX_QUESTION_CHARS) return jsonError(400, "question_too_long");
 
-  const { fn, mode } = serverAnswerFn(sanitizeHistory(body.history));
+  const locale = parseVoiceLocale(body.locale);
+  if (locale === null) return jsonError(400, "invalid_locale");
+
+  const { fn, mode } = serverAnswerFn(sanitizeHistory(body.history), locale);
   try {
     const text = await collectAnswer(fn, question);
     return Response.json({ text, mode });

@@ -1,0 +1,54 @@
+{
+  "kicker": "Werkstück 01",
+  "title": "Schwalbenschwanz",
+  "subtitle": "Lernschritt und Brettmaße — live im 3D-Modell.",
+  "stepKicker": "Lernschritt",
+  "overview": {
+    "kicker": "Was du baust",
+    "body": "Zwei Bretter, die sich über Eck verzahnen. Die keilförmigen Zinken verriegeln sich — <strong>Formschluss</strong>, hält ohne Leim. Zieh sie auseinander:",
+    "start": "Los geht’s: Anreißen →",
+    "toOverview": "Zum Überblick"
+  },
+  "paramsKicker": "Brettmaße",
+  "askMaster": "Meister fragen",
+  "voiceConnecting": "Stimme wird verbunden …",
+  "stageAria": "3D-Werkstück",
+  "stageBadge": "Fertiges Werkstück · noch keine Anrisse",
+  "placement": {
+    "active": "Drag aktiv",
+    "start": "Brett positionieren"
+  },
+  "surfaceAria": "Master-Surface",
+  "modeBar": {
+    "aria": "Lernschritte",
+    "steps": {
+      "ueberblick": "Überblick",
+      "anreissen": "Anreißen",
+      "saegen": "Sägen",
+      "stemmen": "Stemmen",
+      "passen": "Passen",
+      "pruefen": "Prüfen"
+    }
+  },
+  "paramSliders": {
+    "pinCount": "Pin-Anzahl",
+    "ratio": "Schwalbenwinkel 1:N",
+    "thickness": "Brettstärke",
+    "width": "Brettbreite"
+  },
+  "surface": {
+    "aria": "Master-Surface Modes",
+    "empty": "Keine Modes registriert.",
+    "noneActive": "Kein Mode aktiv",
+    "pickHint": "Wähle einen Mode oben (Tafel / CAD / Video) um zu starten.",
+    "loading": "{label} wird geladen …"
+  },
+  "cad": {
+    "modelLabel": "Modell:",
+    "selectAria": "CAD-Modell auswählen",
+    "noModelOption": "— kein Modell —",
+    "noModelSelected": "Kein Modell ausgewählt",
+    "loadError": "Modell konnte nicht geladen werden"
+  },
+  "sceneFallback": "3D ist auf diesem Gerät nicht verfügbar — hier die Verbindung in 2D."
+}

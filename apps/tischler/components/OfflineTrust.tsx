@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 /**
  * OfflineTrust — der DSGVO-/Vertrauens-Satz für den Pitch.
  *
@@ -6,11 +8,10 @@
  * Datenschutz-Einwand, bevor er kommt.
  */
 export function OfflineTrust({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations("workshop.offlineTrust");
   return (
-    <span className="cc-trust" title="Läuft vollständig lokal — offline-fest gebaut">
-      {compact
-        ? "Läuft lokal · offline-fest"
-        : "Läuft lokal · kein Byte verlässt das Gerät"}
+    <span className="cc-trust" title={t("title")}>
+      {compact ? t("compact") : t("full")}
     </span>
   );
 }

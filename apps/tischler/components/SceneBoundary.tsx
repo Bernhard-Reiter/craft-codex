@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Component, type ReactNode } from "react";
 
 /**
@@ -37,6 +38,7 @@ export class SceneBoundary extends Component<Props, State> {
 
 /** Ruhiger 2D-Fallback für die Bühne, wenn kein 3D/WebGL verfügbar ist. */
 export function SceneFallback({ children }: { children?: ReactNode }) {
+  const t = useTranslations("dovetail");
   return (
     <div
       style={{
@@ -56,7 +58,7 @@ export function SceneFallback({ children }: { children?: ReactNode }) {
         className="cc-mono"
         style={{ margin: 0, opacity: 0.85, letterSpacing: "0.06em" }}
       >
-        3D ist auf diesem Gerät nicht verfügbar — hier die Verbindung in 2D.
+        {t("sceneFallback")}
       </p>
       <div style={{ width: "min(90%, 420px)", background: "var(--cc-paper)", borderRadius: "var(--cc-radius)", padding: "1rem" }}>
         {children}

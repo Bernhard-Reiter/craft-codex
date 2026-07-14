@@ -1,0 +1,88 @@
+{
+  "rail": {
+    "kicker": "Guided lesson",
+    "title": "Dovetail",
+    "sub": "The master leads — cut in with questions anytime.",
+    "kioskBadge": "Kiosk · auto",
+    "beatsLabel": "Lesson beats"
+  },
+  "beat": {
+    "master": "The master: “{text}”",
+    "speaking": "🔊 Speaking …",
+    "readAloud": "🔊 Read aloud",
+    "back": "◀ Back",
+    "counter": "Beat {current}/{total}",
+    "next": "Next ▶",
+    "startXr": "Start in XR ▶"
+  },
+  "ask": {
+    "kicker": "Ask the master",
+    "connecting": "Connecting the voice …"
+  },
+  "stage": {
+    "label": "Learning stage"
+  },
+  "xrHandoff": {
+    "title": "Your turn — the joint floats above your workbench.",
+    "body": "Put on the headset: a hologram guides you step by step through laying out, sawing and chopping — right on the real wood.",
+    "cta": "Start the XR guide →"
+  },
+  "offlineTrust": {
+    "title": "Runs fully on this device — built to be offline-proof",
+    "compact": "Runs locally · offline-proof",
+    "full": "Runs locally · not a byte leaves the device"
+  },
+  "diagram": {
+    "svgTitle": "Dovetail joint — the top and bottom boards interlock",
+    "labelTop": "PINS ▸ top board",
+    "labelBottom": "TAILS ▸ bottom board",
+    "apart": "◀ Pull apart",
+    "join": "Join ▶",
+    "rangeLabel": "Pull the joint apart or push it together",
+    "stateLocked": "▸ Locked: the wedge-shaped pins hold without glue.",
+    "stateApart": "▸ Apart: each pin fits into the gap in the other board.",
+    "stateHint": "▸ Slide the boards together …"
+  },
+  "voiceConsole": {
+    "defaultQueries": [
+      "How do I scribe with the marking gauge",
+      "Dovetail angle for hardwood",
+      "Sharpening a chisel",
+      "Which side of the line do I saw on",
+      "How do I check the fit"
+    ],
+    "trust": {
+      "official": "Official · RIS",
+      "wikipedia": "Wikipedia",
+      "default": "Verified trade knowledge"
+    },
+    "askButton": "Ask a question",
+    "fallbackQuestion": "Question",
+    "status": {
+      "listening": "Listening …",
+      "thinking": "Thinking …",
+      "speaking": "Speaking …"
+    },
+    "badge": {
+      "server": "Server",
+      "real": "Live",
+      "mock": "Mock"
+    },
+    "typedPlaceholder": "… or type a question (works offline too)",
+    "typedLabel": "Type a question",
+    "typedSubmit": "Ask",
+    "questionLabel": "Question:",
+    "sourceBadge": "📚 Source",
+    "audioPlayed": "🔊 Audio played",
+    "audioNone": "🔇 no audio (cache/server empty — text answer)",
+    "offlineFallback": "Offline fallback: local knowledge",
+    "dialogCount": "💬 Conversation: {count, plural, one {# question} other {# questions}}",
+    "newDialog": "new conversation",
+    "pipelineError": "Pipeline error"
+  },
+  "tafel": {
+    "canvasLabel": "Chalkboard drawing surface",
+    "clearLabel": "Clear the chalkboard",
+    "clear": "Clear"
+  }
+}
