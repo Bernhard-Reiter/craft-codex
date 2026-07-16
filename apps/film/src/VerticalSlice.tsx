@@ -1,7 +1,17 @@
 import { AbsoluteFill, useVideoConfig } from 'remotion';
 import { ThreeCanvas } from '@remotion/three';
-import { CameraRig, Dust, PanelField, DovetailMerge, FlashAndLive, C } from './three-scene';
-import { GatesConsole, LiveLabel, EndCards, Vignette } from './overlays';
+import {
+  CameraRig,
+  Dust,
+  PanelField,
+  DovetailMerge,
+  FlashAndLive,
+  BackgroundStructures,
+  ForegroundOccluders,
+  C,
+} from './three-scene';
+import { GatesConsole, LiveLabel, EndCards, Vignette, Grain, Letterbox } from './overlays';
+import { Effects } from './effects';
 
 export const FPS = 30;
 export const SLICE_DURATION = 750; // 25 s
@@ -24,15 +34,20 @@ export const VerticalSlice: React.FC = () => {
         <color attach="background" args={[C.bg]} />
         <fog attach="fog" args={[C.bg, 13, 34]} />
         <CameraRig />
+        <BackgroundStructures />
         <Dust />
         <PanelField />
         <DovetailMerge />
         <FlashAndLive />
+        <ForegroundOccluders />
+        <Effects />
       </ThreeCanvas>
       <GatesConsole />
       <LiveLabel />
       <Vignette />
+      <Grain />
       <EndCards />
+      <Letterbox />
     </AbsoluteFill>
   );
 };

@@ -1,4 +1,5 @@
-import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
+import { LOOK } from './look';
 
 const MONO = 'ui-monospace, "SF Mono", Menlo, monospace';
 const DISPLAY = '"Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", sans-serif';
@@ -54,13 +55,26 @@ export const GatesConsole: React.FC = () => {
   const r4: 'pending' | 'fail' | 'fixed' = fixed ? 'fixed' : failed ? 'fail' : 'pending';
 
   const border = failed ? col.red : fixed ? col.green : 'rgba(79,195,247,.55)';
-  const status = failed ? 'GESTOPPT' : fixed ? '312 / 312 ✓' : 'läuft…';
+  // Test-Zähler: rattert hoch, friert beim roten Test bei 311 ein, springt nach Fix auf 312
+  const count = fixed
+    ? 312
+    : Math.min(
+        311,
+        Math.floor(
+          interpolate(frame, [170, 276], [0, 311], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        ),
+      );
+  const status = failed ? 'GESTOPPT' : fixed ? '312 / 312 ✓' : `${count} / 312`;
   const statusColor = failed ? col.red : fixed ? col.green : col.muted;
+  const cursorOn = !failed && !fixed && Math.floor(frame / 15) % 2 === 0;
   const foot = failed
     ? 'ROT STOPPT ALLES.'
     : fixed
       ? 'ALLES GRÜN. NEUE LEHRE → ARCHIV.'
-      : '…';
+      : `prüfe${cursorOn ? ' ▌' : ''}`;
 
   const fixOp = fade(frame, 320, 335, 392, 408);
   const shake = failed && frame < 288 ? Math.sin(frame * 2.6) * 3 : 0;
@@ -155,7 +169,8 @@ export const LiveLabel: React.FC = () => {
     <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', opacity: op }}>
       <div
         style={{
-          marginTop: 430,
+          /* Safe-Area: bei 2.39:1-Letterbox endet das Bild bei y=942 — Label bleibt drin */
+          marginTop: 470,
           fontFamily: MONO,
           fontSize: 34,
           letterSpacing: '.5em',
@@ -211,12 +226,44 @@ export const EndCards: React.FC = () => {
   );
 };
 
-/* ── Vignette für Kino-Look ── */
-export const Vignette: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.42) 100%)',
-      pointerEvents: 'none',
-    }}
-  />
-);
+/* ── Vignette für Kino-Look (subtil — Sol: max ~0.45 Außenabdunklung) ── */
+export const Vignette: React.FC = () => {
+  if (!LOOK.vignette) return null;
+  return (
+    <AbsoluteFill
+      style={{
+        background: 'radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.42) 100%)',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+};
+
+/* ── Film-Grain: deterministisch via feTurbulence-Seed = Frame ── */
+export const Grain: React.FC = () => {
+  const frame = useCurrentFrame();
+  if (!LOOK.grain) return null;
+  return (
+    <AbsoluteFill style={{ pointerEvents: 'none', opacity: LOOK.grainOpacity, mixBlendMode: 'soft-light' }}>
+      <svg width="100%" height="100%">
+        <filter id="film-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={frame} stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#film-grain)" />
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+/* ── Letterbox 2.39:1 — oberster Layer, nichts blüht in die Balken ── */
+export const Letterbox: React.FC = () => {
+  if (!LOOK.letterbox) return null;
+  const bar: React.CSSProperties = { position: 'absolute', left: 0, right: 0, height: 138, background: '#000' };
+  return (
+    <AbsoluteFill style={{ pointerEvents: 'none' }}>
+      <div style={{ ...bar, top: 0 }} />
+      <div style={{ ...bar, bottom: 0 }} />
+    </AbsoluteFill>
+  );
+};

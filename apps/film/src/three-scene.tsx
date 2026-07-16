@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { noise1d } from './noise';
+import { LOOK } from './look';
 
 export const C = {
   bg: '#070E19',
@@ -18,23 +20,87 @@ const rnd = (i: number, salt = 1) => {
   return x - Math.floor(x);
 };
 
-/* ── Kamera: ein Flug, keine Schnitte ── */
+/* ── Kamera: ein Flug, keine Schnitte — mit Gewicht ── */
 export const CameraRig: React.FC = () => {
   const frame = useCurrentFrame();
   const { camera } = useThree();
+  const t = frame / 30;
+
   const z = interpolate(frame, [0, 165, 460, 560, 750], [26, 8, 7.2, 12, 12.6], {
     easing: Easing.inOut(Easing.cubic),
     extrapolateRight: 'clamp',
   });
+  // Overshoot: die Kamera "setzt sich" nach der Ankunft (gedämpfte Schwingung)
+  const settle =
+    frame > 165 && frame < 260
+      ? Math.exp(-(frame - 165) / 20) * Math.sin((frame - 165) / 4.5) * 0.14
+      : 0;
   const sway = interpolate(frame, [0, 165], [1, 0.35], { extrapolateRight: 'clamp' });
   const x = Math.sin(frame / 90) * 0.7 * sway;
-  const y = interpolate(frame, [0, 165], [1.4, 0.25], {
-    easing: Easing.out(Easing.cubic),
-    extrapolateRight: 'clamp',
-  }) + Math.sin(frame / 130) * 0.12;
-  camera.position.set(x, y, z);
-  camera.lookAt(0, 0, 0);
+  const y =
+    interpolate(frame, [0, 165], [1.4, 0.25], {
+      easing: Easing.out(Easing.cubic),
+      extrapolateRight: 'clamp',
+    }) + Math.sin(frame / 130) * 0.12;
+
+  // Kohärenter Micro-Shake (seeded Noise, fractional-frame-fähig)
+  const s = LOOK.camNoiseSpeed;
+  const nx = noise1d(t * s * 0.7, 1) * LOOK.camPosNoise;
+  const ny = noise1d(t * s * 0.65, 2) * LOOK.camPosNoise * 0.7;
+  const tx = noise1d(t * s * 1.1, 3) * LOOK.camTargetNoise;
+  const ty = noise1d(t * s * 0.9, 4) * LOOK.camTargetNoise * 0.6;
+
+  camera.position.set(x + nx, y + ny, z + settle);
+  camera.lookAt(tx, ty, 0);
   return null;
+};
+
+/* ── Hintergrund-Zone: ferne, kontrastarme Strukturen ── */
+export const BackgroundStructures: React.FC = () => {
+  const cols = useMemo(
+    () =>
+      Array.from({ length: 9 }, (_, i) => ({
+        x: (rnd(i, 7) - 0.5) * 44,
+        y: (rnd(i, 8) - 0.5) * 4,
+        z: -10 - rnd(i, 9) * 14,
+        h: 6 + rnd(i, 10) * 10,
+      })),
+    [],
+  );
+  return (
+    <group>
+      {/* Vertikale Datenleisten am Horizont */}
+      {cols.map((c, i) => (
+        <mesh key={i} position={[c.x, c.y, c.z]}>
+          <planeGeometry args={[0.1, c.h]} />
+          <meshBasicMaterial color={C.cyan} transparent opacity={0.07} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+      {/* Grid-Fragment als Boden-Andeutung */}
+      <gridHelper args={[70, 46, '#123049', '#0C1F33']} position={[0, -5.5, -8]} />
+    </group>
+  );
+};
+
+/* ── Vordergrund-Zone: dunkle Occluder verkaufen die Fahrt ── */
+export const ForegroundOccluders: React.FC = () => {
+  const frame = useCurrentFrame();
+  if (frame > 470) return null;
+  const occ = [
+    { x0: -9, y: 2.6, z: 23.5, w: 7, h: 4.5, drift: 0.012 },
+    { x0: 10, y: -2.9, z: 21, w: 8, h: 5, drift: -0.014 },
+    { x0: -11, y: -1.4, z: 17.5, w: 6.5, h: 4, drift: 0.009 },
+  ];
+  return (
+    <group>
+      {occ.map((o, i) => (
+        <mesh key={i} position={[o.x0 + frame * o.drift, o.y, o.z]}>
+          <planeGeometry args={[o.w, o.h]} />
+          <meshBasicMaterial color="#040A12" transparent opacity={0.88} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+    </group>
+  );
 };
 
 /* ── Schwebender Staub ── */
@@ -175,7 +241,7 @@ const DovetailHalf: React.FC<{ shape: THREE.Shape; color: string; fill: string }
   return (
     <group>
       <mesh geometry={geo}>
-        <meshBasicMaterial color={fill} transparent opacity={0.8} />
+        <meshBasicMaterial color={fill} transparent opacity={0.42} />
       </mesh>
       <lineSegments>
         <edgesGeometry args={[geo]} />
