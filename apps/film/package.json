@@ -1,0 +1,28 @@
+{
+  "name": "@craft-codex/film",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Inside Cody — cinematic vertical slice rendered with Remotion + React Three Fiber",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render VerticalSlice out/vertical-slice.mp4 --codec h264",
+    "still": "remotion still VerticalSlice",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-three/fiber": "8.17.10",
+    "@react-three/postprocessing": "2.16.3",
+    "@remotion/cli": "4.0.246",
+    "@remotion/three": "4.0.246",
+    "postprocessing": "6.36.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.246",
+    "three": "0.171.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/three": "0.171.0",
+    "typescript": "5.7.2"
+  }
+}
