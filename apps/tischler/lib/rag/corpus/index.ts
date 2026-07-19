@@ -5,6 +5,8 @@
  *  1. Handwerk:   paraphrased craft knowledge + Wikipedia (dovetail-corpus)
  *  2. Recht:      official regulations from RIS (ris-corpus, generated)
  *  3. Didaktik:   Barlieb material (lands here after the 2026-06-13 session)
+ *  4. Community:  approved open-commons contributions, exported via
+ *                 scripts/export-contributions.mjs (community-corpus, S1: DE)
  */
 
 import type { RAGDocument } from "@craft-codex/core";
@@ -15,6 +17,7 @@ import { getZinkenKonstruktionCorpusEn } from "./dovetail-konstruktion-corpus.en
 import { getDovetailCorpus } from "./dovetail-corpus";
 import { getDovetailCorpusEn } from "./dovetail-corpus.en";
 import { getRisCorpus } from "./ris-corpus";
+import { getCommunityCorpus } from "./community-corpus";
 
 export type CorpusLocale = "de" | "en";
 
@@ -29,6 +32,7 @@ export function getDemoCorpus(locale: CorpusLocale = "de"): RAGDocument[] {
       ...getZinkenKonstruktionCorpusEn(),
       ...getDovetailCorpusEn(),
       ...getRisCorpus(),
+      ...getCommunityCorpus(locale),
     ];
   }
   return [
@@ -36,6 +40,7 @@ export function getDemoCorpus(locale: CorpusLocale = "de"): RAGDocument[] {
     ...getZinkenKonstruktionCorpus(),
     ...getDovetailCorpus(),
     ...getRisCorpus(),
+    ...getCommunityCorpus(locale),
   ];
 }
 
@@ -44,4 +49,5 @@ export {
   getZinkenKonstruktionCorpus,
   getDovetailCorpus,
   getRisCorpus,
+  getCommunityCorpus,
 };
