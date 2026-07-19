@@ -59,6 +59,32 @@ describe("contributionContentSchema", () => {
     });
     expect(res.success).toBe(false);
   });
+
+  it("rejects javascript:/data: source urls (stored-XSS guard for the Meister UI)", () => {
+    for (const url of [
+      // eslint-disable-next-line no-script-url
+      "javascript:alert(document.cookie)",
+      "data:text/html,<script>alert(1)</script>",
+      "vbscript:msgbox(1)",
+      "file:///etc/passwd",
+    ]) {
+      const res = contributionContentSchema.safeParse({
+        ...validContent,
+        sources: [{ citation: "Fachbuch Holzverbindungen", url }],
+      });
+      expect(res.success, `should reject ${url}`).toBe(false);
+    }
+  });
+
+  it("accepts http and https source urls", () => {
+    for (const url of ["https://example.org/holz", "http://ris.bka.gv.at/x"]) {
+      const res = contributionContentSchema.safeParse({
+        ...validContent,
+        sources: [{ citation: "Fachbuch Holzverbindungen", url }],
+      });
+      expect(res.success, `should accept ${url}`).toBe(true);
+    }
+  });
 });
 
 describe("contributionSubmitSchema", () => {

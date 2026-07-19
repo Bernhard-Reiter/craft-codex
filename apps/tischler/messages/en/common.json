@@ -12,7 +12,8 @@
       "lesson": "Lesson",
       "teacher": "Teacher",
       "freeBuild": "Free build",
-      "xr": "XR"
+      "xr": "XR",
+      "contribute": "Contribute"
     },
     "navAria": "Main navigation",
     "languageToggle": "Switch language"
