@@ -221,17 +221,19 @@ function showDiff(nextCorpus, nextManifest) {
       [MANIFEST_PATH, "manifest.json"],
     ]) {
       const currentPath = existsSync(current) ? current : "/dev/null";
-      const res = execFileSync(
-        "git",
-        ["diff", "--no-index", "--", currentPath, join(nextDir, name)],
-        { cwd: REPO_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-      ).trim();
-      if (res) console.log(res);
+      try {
+        const res = execFileSync(
+          "git",
+          ["diff", "--no-index", "--", currentPath, join(nextDir, name)],
+          { cwd: REPO_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+        ).trim();
+        if (res) console.log(res);
+      } catch (err) {
+        // git diff --no-index exits 1 when files differ — that IS the diff.
+        if (err.stdout) console.log(err.stdout.toString().trim());
+        else throw err;
+      }
     }
-  } catch (err) {
-    // git diff --no-index exits 1 when files differ — that IS the diff.
-    if (err.stdout) console.log(err.stdout.toString().trim());
-    else throw err;
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
