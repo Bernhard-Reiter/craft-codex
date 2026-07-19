@@ -1,0 +1,61 @@
+{
+  "kicker": "Wissen beitragen",
+  "title": "Dein Wissen für den offenen Pool",
+  "intro": "Teile dein Handwerkswissen mit der Community. Ein Meister prüft jeden Beitrag, bevor er veröffentlicht wird — nichts geht ungeprüft raus.",
+  "loading": "Lade …",
+  "unconfigured": "Der Beitrags-Dienst ist in dieser Umgebung nicht konfiguriert. Die restliche App läuft ganz normal weiter.",
+  "login": {
+    "title": "Anmelden per E-Mail-Link",
+    "hint": "Kein Passwort nötig: Du bekommst einen Anmelde-Link per E-Mail. Ein Klick, und du bist drin.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "du@beispiel.at",
+    "send": "Link senden",
+    "sending": "Sende …",
+    "sent": "Link verschickt — schau in dein Postfach und klicke auf den Anmelde-Link. Danach landest du wieder hier.",
+    "error": "Der Link konnte nicht verschickt werden. Prüfe die Adresse und versuch es noch einmal."
+  },
+  "form": {
+    "signedInAs": "Angemeldet als {email}",
+    "signOut": "Abmelden",
+    "titleLabel": "Titel",
+    "bodyLabel": "Dein Wissen",
+    "bodyPlaceholder": "Beschreib dein Wissen so, wie du es einem Lehrling erklären würdest …",
+    "bodyHint": "Markdown ist erlaubt (Überschriften, Listen, Fettdruck).",
+    "topicLabel": "Thema",
+    "topics": {
+      "allgemein": "Allgemein",
+      "holzverbindungen": "Holzverbindungen",
+      "zinken": "Zinken & Schwalbenschwanz",
+      "oberflaeche": "Oberfläche & Finish",
+      "werkzeuge": "Werkzeuge & Maschinen",
+      "holzkunde": "Holzkunde & Material",
+      "sicherheit": "Arbeitssicherheit"
+    },
+    "sourcesLabel": "Quellen",
+    "sourcesHint": "Mindestens eine Quelle: Buch, Norm, Meisterkurs, eigene Werkstattpraxis — Hauptsache nachvollziehbar.",
+    "citationLabel": "Quellenangabe",
+    "citationPlaceholder": "z. B. Fachkunde Holztechnik, 24. Auflage",
+    "urlLabel": "Link (optional)",
+    "urlPlaceholder": "https:// (optional)",
+    "pageLabel": "Seite (optional)",
+    "pagePlaceholder": "Seite",
+    "addSource": "+ Weitere Quelle",
+    "removeSource": "Quelle entfernen",
+    "licenseLabel": "Ich gebe meinen Beitrag unter CC BY-SA 4.0 frei.",
+    "licenseText": "Du gibst dein Wissen unter CC BY-SA 4.0 frei — es bleibt offen für alle.",
+    "submit": "Beitrag einreichen",
+    "submitting": "Reiche ein …"
+  },
+  "thanks": {
+    "title": "Danke für deinen Beitrag!",
+    "body": "Dein Wissen ist eingegangen. Ein Meister schaut es durch — nach der Freigabe erscheint es im offenen Wissenspool.",
+    "idLabel": "Beitrags-ID",
+    "statusLabel": "Status",
+    "again": "Weiteren Beitrag einreichen"
+  },
+  "errors": {
+    "auth": "Deine Anmeldung ist abgelaufen. Bitte melde dich neu an.",
+    "validation": "Bitte prüfe deine Eingaben — ein Feld ist unvollständig oder ungültig.",
+    "server": "Der Beitrag konnte gerade nicht gespeichert werden. Bitte versuch es später noch einmal."
+  }
+}

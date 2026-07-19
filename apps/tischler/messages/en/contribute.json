@@ -1,0 +1,61 @@
+{
+  "kicker": "Contribute knowledge",
+  "title": "Your knowledge for the open pool",
+  "intro": "Share your craft knowledge with the community. A master reviews every contribution before it is published — nothing goes out unchecked.",
+  "loading": "Loading …",
+  "unconfigured": "The contribution service is not configured in this environment. The rest of the app keeps working as usual.",
+  "login": {
+    "title": "Sign in with an email link",
+    "hint": "No password needed: you'll get a sign-in link by email. One click and you're in.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "send": "Send link",
+    "sending": "Sending …",
+    "sent": "Link sent — check your inbox and click the sign-in link. You'll land right back here.",
+    "error": "The link could not be sent. Check the address and try again."
+  },
+  "form": {
+    "signedInAs": "Signed in as {email}",
+    "signOut": "Sign out",
+    "titleLabel": "Title",
+    "bodyLabel": "Your knowledge",
+    "bodyPlaceholder": "Describe your knowledge the way you would explain it to an apprentice …",
+    "bodyHint": "Markdown is allowed (headings, lists, bold).",
+    "topicLabel": "Topic",
+    "topics": {
+      "allgemein": "General",
+      "holzverbindungen": "Wood joints",
+      "zinken": "Pins & dovetails",
+      "oberflaeche": "Surface & finish",
+      "werkzeuge": "Tools & machines",
+      "holzkunde": "Wood science & material",
+      "sicherheit": "Workplace safety"
+    },
+    "sourcesLabel": "Sources",
+    "sourcesHint": "At least one source: book, standard, master class, your own workshop practice — as long as it's traceable.",
+    "citationLabel": "Citation",
+    "citationPlaceholder": "e.g. Fachkunde Holztechnik, 24th edition",
+    "urlLabel": "Link (optional)",
+    "urlPlaceholder": "https:// (optional)",
+    "pageLabel": "Page (optional)",
+    "pagePlaceholder": "Page",
+    "addSource": "+ Add another source",
+    "removeSource": "Remove source",
+    "licenseLabel": "I release my contribution under CC BY-SA 4.0.",
+    "licenseText": "You release your knowledge under CC BY-SA 4.0 — it stays open for everyone.",
+    "submit": "Submit contribution",
+    "submitting": "Submitting …"
+  },
+  "thanks": {
+    "title": "Thank you for your contribution!",
+    "body": "Your knowledge has been received. A master will review it — once approved, it appears in the open knowledge pool.",
+    "idLabel": "Contribution ID",
+    "statusLabel": "Status",
+    "again": "Submit another contribution"
+  },
+  "errors": {
+    "auth": "Your sign-in has expired. Please sign in again.",
+    "validation": "Please check your input — a field is incomplete or invalid.",
+    "server": "The contribution could not be saved right now. Please try again later."
+  }
+}

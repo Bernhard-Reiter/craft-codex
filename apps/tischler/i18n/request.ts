@@ -13,6 +13,7 @@ const NAMESPACES = [
   "dovetail",
   "voice",
   "xr",
+  "contribute",
 ] as const;
 
 async function loadMessages(locale: string) {

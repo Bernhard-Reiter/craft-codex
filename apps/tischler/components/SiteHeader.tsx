@@ -13,6 +13,7 @@ const LINKS: Array<{ href: string; key: string }> = [
   { href: "/cockpit", key: "teacher" },
   { href: "/dovetail", key: "freeBuild" },
   { href: "/dovetail/xr", key: "xr" },
+  { href: "/beitragen", key: "contribute" },
 ];
 
 export function SiteHeader() {
