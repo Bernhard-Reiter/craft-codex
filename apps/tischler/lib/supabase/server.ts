@@ -15,6 +15,16 @@ function assertServer(): void {
   }
 }
 
+/**
+ * All server-side Supabase calls get a hard upper bound — a hung request must
+ * never block a server action / dynamic render indefinitely (review finding).
+ */
+const REQUEST_TIMEOUT_MS = 15_000;
+
+function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  return fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+}
+
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -33,6 +43,7 @@ export function getServiceClient(): SupabaseClient {
   const url = requireEnv("NEXT_PUBLIC_CRAFT_SUPABASE_URL");
   const key = requireEnv("CRAFT_SUPABASE_SERVICE_ROLE_KEY");
   return createClient(url, key, {
+    global: { fetch: fetchWithTimeout },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
@@ -48,7 +59,10 @@ export function getUserScopedClient(accessToken: string): SupabaseClient {
   const url = requireEnv("NEXT_PUBLIC_CRAFT_SUPABASE_URL");
   const anonKey = requireEnv("NEXT_PUBLIC_CRAFT_SUPABASE_ANON_KEY");
   return createClient(url, anonKey, {
-    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    global: {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      fetch: fetchWithTimeout,
+    },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

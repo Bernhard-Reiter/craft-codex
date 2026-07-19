@@ -12,10 +12,28 @@ import { z } from "zod";
  *     curation exists. Do not add the field before that slice.
  */
 
+/**
+ * Only http(s) URLs are acceptable as sources. Zod's `.url()` alone accepts
+ * `javascript:`/`data:` URIs (URL-constructor semantics) — rendered as a link
+ * in the privileged Meister review UI that would be stored XSS.
+ */
+export function isHttpUrl(value: string): boolean {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 /** One cited source for a contribution (citation required, url/page optional). */
 export const contributionSourceSchema = z.object({
   citation: z.string().trim().min(3, "citation too short"),
-  url: z.string().url().optional(),
+  url: z
+    .string()
+    .url()
+    .refine(isHttpUrl, "only http(s) URLs are allowed")
+    .optional(),
   page: z.number().int().positive().optional(),
 });
 

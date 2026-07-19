@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isHttpUrl } from "../../../../lib/contributions/schema";
 import { getContribution, reviewConfigFromEnv } from "../../../../lib/admin/review";
 import {
   approveAction,
@@ -110,9 +111,15 @@ export default async function ContributionDetailPage({
               {s.url ? (
                 <>
                   {" — "}
-                  <a href={s.url} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
-                    {s.url}
-                  </a>
+                  {/* Defense in depth: content is untrusted user input — link
+                      only http(s), otherwise render as inert text. */}
+                  {isHttpUrl(s.url) ? (
+                    <a href={s.url} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
+                      {s.url}
+                    </a>
+                  ) : (
+                    <span className="cc-muted">{s.url} (Link blockiert — keine http/https-URL)</span>
+                  )}
                 </>
               ) : null}
             </li>
