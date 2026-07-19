@@ -174,6 +174,120 @@ describe.skipIf(!LIVE)("craft_transition state machine (live DB)", () => {
   });
 });
 
+describe.skipIf(!LIVE)("INSERT hardening as the real authenticated path (0002)", () => {
+  const email = `it-harden-${Date.now()}@craft-codex.local`;
+  const password = `IT-${Math.random().toString(36).slice(2)}-x9!`;
+  let userId = "";
+  let userJwt = "";
+
+  async function userRest(
+    method: string,
+    path: string,
+    jsonBody?: unknown,
+  ): Promise<RestResult> {
+    const res = await fetch(`${URL_}/rest/v1/${path}`, {
+      method,
+      headers: {
+        apikey: ANON_KEY,
+        Authorization: `Bearer ${userJwt}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: jsonBody === undefined ? undefined : JSON.stringify(jsonBody),
+    });
+    const text = await res.text();
+    let body: unknown = text;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      /* keep raw text */
+    }
+    return { status: res.status, body };
+  }
+
+  function basePayload(): Record<string, unknown> {
+    return {
+      author_id: userId,
+      content: {
+        title: "hardening-test contribution",
+        body_md: "Temporary row created by the 0002 hardening suite",
+        topic: "test",
+        sources: [{ citation: "integration test" }],
+      },
+      license_type: "CC-BY-SA-4.0",
+      license_accepted: true,
+      license_accepted_at: new Date().toISOString(),
+      terms_version: "2026-07",
+      author_email: email,
+    };
+  }
+
+  it("bootstraps a real confirmed user and signs in", async () => {
+    const created = await fetch(`${URL_}/auth/v1/admin/users`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, email_confirm: true }),
+    });
+    const createdBody = (await created.json()) as { id?: string };
+    expect(created.status, JSON.stringify(createdBody)).toBeLessThan(300);
+    userId = createdBody.id ?? "";
+    expect(userId).toBeTruthy();
+
+    const login = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: ANON_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const loginBody = (await login.json()) as { access_token?: string };
+    expect(login.status, JSON.stringify(loginBody)).toBe(200);
+    userJwt = loginBody.access_token ?? "";
+    expect(userJwt).toBeTruthy();
+  });
+
+  it("allows a pristine authenticated INSERT (positive real path)", async () => {
+    const r = await userRest("POST", "craft_contributions", basePayload());
+    expect(r.status, errorMessage(r.body)).toBe(201);
+    const row = (r.body as Array<{ id: string; status: string }>)[0]!;
+    createdIds.push(row.id);
+    expect(row.status).toBe("submitted");
+  });
+
+  it("rejects INSERT with pre-seeded approved_revision (blocker fix proof)", async () => {
+    const r = await userRest("POST", "craft_contributions", {
+      ...basePayload(),
+      approved_revision: 1,
+    });
+    expect(r.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it("rejects INSERT with pre-seeded publish fields or non-initial revision", async () => {
+    const published = await userRest("POST", "craft_contributions", {
+      ...basePayload(),
+      published_slug: "sneaky-slug",
+    });
+    expect(published.status).toBeGreaterThanOrEqual(400);
+
+    const rev2 = await userRest("POST", "craft_contributions", {
+      ...basePayload(),
+      revision: 2,
+    });
+    expect(rev2.status).toBeGreaterThanOrEqual(400);
+  });
+
+  afterAll(async () => {
+    if (!LIVE || !userId) return;
+    await rest(SERVICE_KEY, "DELETE", `craft_contributions?author_id=eq.${userId}`);
+    await fetch(`${URL_}/auth/v1/admin/users/${userId}`, {
+      method: "DELETE",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
+    });
+  });
+});
+
 describe.skipIf(!LIVE)("RLS as the real path (anon key)", () => {
   it("anon SELECT returns 0 rows although rows exist", async () => {
     // Ensure at least one row exists (service role):
