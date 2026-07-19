@@ -2,8 +2,16 @@
   "schemaVersion": 1,
   "locale": "de",
   "license": "CC-BY-SA-4.0",
-  "exportedCount": 0,
-  "corpusSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
-  "docs": [],
-  "contribution_ids": []
+  "exportedCount": 1,
+  "corpusSha256": "d77d49f58c577c990dcd33759e562fd82cab1a3060b3d53dfd82d1f27aa5d739",
+  "docs": [
+    {
+      "id": "anreissen-anreissen-mit-dem-streichmass-schneiden-statt-zeichnen-06105cc1",
+      "contribution_id": "ff15e7b5-bc3d-43de-9427-07e2cc0a8113",
+      "sha256": "fd64876874fcb762fd8ae15776f7d627a530193f91728ab880dbba8ef91af027"
+    }
+  ],
+  "contribution_ids": [
+    "ff15e7b5-bc3d-43de-9427-07e2cc0a8113"
+  ]
 }
