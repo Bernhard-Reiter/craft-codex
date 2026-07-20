@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { checkBearerAuth } from "./bearer-auth";
 
+// Offensichtliches Dummy-Token (Zaehlmuster, kein echtes Secret): gitleaks:allow
 const TOKEN = "ccapi_0123456789abcdef0123456789abcdef0123456789abcdef";
 
 describe("checkBearerAuth", () => {
