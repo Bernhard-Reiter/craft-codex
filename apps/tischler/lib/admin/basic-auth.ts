@@ -1,3 +1,5 @@
+import { constantTimeEqual, sha256 } from "../security/timing-safe";
+
 /**
  * HTTP Basic Auth fuer /admin/* — pure Funktion, ohne Next-Kontext,
  * damit sie in der Edge-Middleware laeuft UND als Unit testbar ist.
@@ -5,24 +7,10 @@
  * Fail-closed: fehlen CRAFT_ADMIN_USER oder CRAFT_ADMIN_PASS, ist die
  * Antwort IMMER "nicht autorisiert" — nie ein offenes Admin-UI.
  *
- * Timing-safe: verglichen werden SHA-256-Digests (fixe Laenge) mit
- * konstantzeitigem XOR-Vergleich — kein Early-Exit auf Zeichenebene.
+ * Timing-safe via lib/security/timing-safe: SHA-256-Digests (fixe Laenge)
+ * mit konstantzeitigem XOR-Vergleich — kein Early-Exit auf Zeichenebene.
  * Web Crypto (crypto.subtle) ist in Edge-Runtime und Node >= 20 vorhanden.
  */
-
-function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false; // Digests: immer 32 Bytes
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= (a[i] as number) ^ (b[i] as number);
-  }
-  return diff === 0;
-}
-
-async function sha256(text: string): Promise<Uint8Array> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return new Uint8Array(digest);
-}
 
 /**
  * Prueft einen `Authorization: Basic …`-Header gegen die erwarteten
