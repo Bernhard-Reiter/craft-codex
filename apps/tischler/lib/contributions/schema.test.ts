@@ -62,7 +62,6 @@ describe("contributionContentSchema", () => {
 
   it("rejects javascript:/data: source urls (stored-XSS guard for the Meister UI)", () => {
     for (const url of [
-      // eslint-disable-next-line no-script-url
       "javascript:alert(document.cookie)",
       "data:text/html,<script>alert(1)</script>",
       "vbscript:msgbox(1)",

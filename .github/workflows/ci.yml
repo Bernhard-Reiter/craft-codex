@@ -66,8 +66,10 @@ jobs:
       - name: i18n parity (DE ↔ EN message keys)
         run: pnpm --filter @craft-codex/tischler i18n:check
 
-      - name: Lint (@craft-codex/tischler)
-        run: pnpm --filter @craft-codex/tischler lint
+      # Beide Pakete, nicht nur tischler: packages/core war hier nie enthalten,
+      # sein Lint lief also weder lokal noch in der CI. `pnpm lint` == `pnpm -r lint`.
+      - name: Lint (alle Pakete)
+        run: pnpm lint
 
       - name: Build (@craft-codex/tischler)
         run: pnpm --filter @craft-codex/tischler build

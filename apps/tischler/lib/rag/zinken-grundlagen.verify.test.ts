@@ -37,7 +37,6 @@ describe("Zinken-Grundlagen — Laien-Einstiegsfragen retrieval", () => {
     it(`"${q}" → liefert einen passenden Grundlagen-Treffer`, async () => {
       const hits = await rag.query(q, { topK: 4, minScore: 0.02 });
       const ids = hits.map((h) => h.id);
-      // eslint-disable-next-line no-console
       console.log(`Q: ${q}\n   → ${ids.join(", ")}`);
       expect(ids.some((id) => accept.includes(id))).toBe(true);
     });
