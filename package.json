@@ -14,7 +14,7 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm --filter @craft-codex/tischler lint",
+    "lint": "pnpm -r lint",
     "boundary-check": "pnpm --filter @craft-codex/core boundary-check"
   },
   "devDependencies": {

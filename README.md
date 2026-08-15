@@ -38,7 +38,14 @@ The repo is organised by **Gewerk** (trade). Each trade ships as its own app sha
 │   │   │   ├── /                Landing — workpiece selector
 │   │   │   ├── /dovetail        Schwalbenschwanz workpiece (5 learning steps)
 │   │   │   ├── /dovetail/xr     Immersive WebXR session
-│   │   │   └── /voice           Voice pipeline test
+│   │   │   ├── /werkstatt       Workshop overview
+│   │   │   ├── /lernen          Learning hub
+│   │   │   ├── /universum       Trade universe
+│   │   │   ├── /cockpit         Session cockpit
+│   │   │   ├── /voice           Voice pipeline test
+│   │   │   ├── /beitragen       Community contribution form (magic-link auth)
+│   │   │   ├── /admin/contributions   Master review UI
+│   │   │   └── /api             Voice proxy + contributions REST API v1
 │   │   ├── components/          R3F scene + UI building blocks
 │   │   ├── lib/                 Provider implementations
 │   │   └── scripts/             TTS-cache builder for offline demos
@@ -87,8 +94,10 @@ Override per environment: `PORT=3200 pnpm --filter @craft-codex/tischler dev`.
 |---|---|---|
 | **B** | Skeleton — geometry, scene, sliders, mode stubs, RAG stub, WebXR detection | ✅ |
 | **C** | Real modes (Tafel/CAD/Video), Mode switcher, RAG corpus (41 docs), Voice foundation with mocks, full WebXR session | ✅ |
-| **D** | Real voice providers (Whisper / Claude SSE / ElevenLabs), MicRecorder + AudioWorklet, TTS-cache for backup, voice factory with mode-badge | ✅ (dormant — needs API keys + server-side proxy) |
-| **E** | Server-side API routes for voice (`/api/voice/{stt,tts,answer}`), multi-tenant auth, live-call mode | ⏭️ |
+| **D** | Real voice providers (Whisper / Claude SSE / ElevenLabs), MicRecorder + AudioWorklet, TTS-cache for backup, voice factory with mode-badge | ✅ (dormant — needs API keys) |
+| **E** | Server-side API routes for voice (`/api/voice/{stt,tts,answer,health}`) | ✅ |
+| **F** | Community contribution platform — `/beitragen` form + magic-link auth, master review UI (`/admin`), versioned REST API v1 (Bearer auth + idempotency), deterministic corpus export with SHA-256 manifest | ✅ |
+| — | Live-call mode (LiveKit / WebRTC) | ⏭️ (roadmap) |
 
 ## Tech stack
 
@@ -108,13 +117,17 @@ Override per environment: `PORT=3200 pnpm --filter @craft-codex/tischler dev`.
 
 ## Knowledge base
 
-The voice pipeline answers from a **41-document RAG corpus** covering all five learning steps of the dovetail joint (anreissen, saegen, stemmen, passen, pruefen) plus tool knowledge, wood knowledge, and safety. Sources include:
+The voice pipeline answers from a **~350-document RAG corpus** (268 DE + 81 EN + community contributions) covering all five learning steps of the dovetail joint (anreissen, saegen, stemmen, passen, pruefen) plus joinery fundamentals, construction knowledge, tool knowledge, wood knowledge, and safety:
 
-- Wikipedia DE (CC-BY-SA 4.0, full-text chunks)
-- Lehrplan-AT vocational ordinance (official document)
-- Paraphrased domain knowledge from standard works (Spannagel, Klausz, Pollak) — original works are copyrighted
+| Corpus | Docs | Source |
+|---|---|---|
+| `ris-corpus.ts` | 187 | **Official Austrian vocational training ordinance** (Tischlerei-Ausbildungsordnung, BGBl. II Nr. 312/2022), harvested paragraph-by-paragraph from the RIS OGD API — amtliches Werk gem. §7 UrhG, cited with source |
+| `dovetail-corpus.ts` (+ `.en`) | 53 + 53 | Dovetail domain knowledge — Wikipedia DE (CC-BY-SA 4.0) + paraphrased standard works (Spannagel, Klausz, Pollak) |
+| `zinken-grundlagen-corpus.ts` (+ `.en`) | 18 + 18 | Joinery fundamentals |
+| `dovetail-konstruktion-corpus.ts` (+ `.en`) | 10 + 10 | Construction knowledge |
+| `community/` | 1+ | Approved community contributions (CC-BY-SA 4.0), deterministic export with SHA-256 manifest |
 
-See `apps/tischler/lib/rag/corpus/dovetail-corpus.ts` for full attribution + topic coverage.
+See the corpus files under `apps/tischler/lib/rag/corpus/` for full attribution + topic coverage. Austrian legal sources are never translated (see Languages above).
 
 ## Voice modes
 
@@ -136,7 +149,7 @@ const providers = createVoiceProviders({
 // providers.mode === "real" if all three keys, otherwise "mock"
 ```
 
-⚠️ **Security:** In a browser bundle, API keys are exposed to the client. Use the real-mode pipeline only behind a server-side proxy (e.g. Next.js API routes calling the providers from the server). Phase E will add those routes.
+⚠️ **Security:** In a browser bundle, API keys are exposed to the client. Use the real-mode pipeline only behind the server-side proxy routes (`apps/tischler/app/api/voice/{stt,tts,answer,health}` — built in Phase E, keys stay on the server). CI greps the source for `NEXT_PUBLIC_*` key names of six known providers (Anthropic, OpenAI, ElevenLabs, Groq, Gemini, Google) — a source-level guard against the most likely slip, not a bundle scan.
 
 ## Open-Core
 
@@ -163,14 +176,15 @@ pnpm boundary-check  # enforces open-core boundary
 pnpm build           # production build
 ```
 
-Currently ~220 unit tests across the workspace (geometry, CSG, providers, RAG, voice factory).
+Currently ~430 tests across the workspace (geometry, CSG, providers, RAG, voice factory, contribution state machine + API integration, timing-safe auth, golden-master corpus export).
 
 ## Roadmap
 
-- **Q2 2026** Phase E — server-side voice proxy + auth integration
-- **Q3 2026** Tafel mode: real-time AI-generated SVG diagrams; image-tracking on real boards
-- **Q4 2026** Live-call mode (LiveKit / WebRTC); ArUco / OpenCV.js fallback tracking
-- **2027+** Additional trades — `apps/metallbearbeitung`, `apps/elektro`, `apps/kfz` — reusing the same core engine
+- ~~**Q2 2026** Phase E — server-side voice proxy~~ ✅ shipped (plus contribution platform, Phase F)
+- **Next** Second workpiece in `apps/tischler` (Fingerzinken / Zapfen) — the route table is built for it, core packages stay untouched
+- Tafel mode: real-time AI-generated SVG diagrams; image-tracking on real boards
+- Live-call mode (LiveKit / WebRTC); ArUco / OpenCV.js fallback tracking
+- Additional trades — `apps/maurer`, `apps/elektro`, `apps/kfz` — reusing the same core engine
 
 ## Contributing
 
