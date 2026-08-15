@@ -41,6 +41,7 @@ The repo is organised by **Gewerk** (trade). Each trade ships as its own app sha
 │   │   │   ├── /werkstatt       Workshop overview
 │   │   │   ├── /lernen          Learning hub
 │   │   │   ├── /universum       Trade universe
+│   │   │   ├── /cockpit         Session cockpit
 │   │   │   ├── /voice           Voice pipeline test
 │   │   │   ├── /beitragen       Community contribution form (magic-link auth)
 │   │   │   ├── /admin/contributions   Master review UI
@@ -148,7 +149,7 @@ const providers = createVoiceProviders({
 // providers.mode === "real" if all three keys, otherwise "mock"
 ```
 
-⚠️ **Security:** In a browser bundle, API keys are exposed to the client. Use the real-mode pipeline only behind the server-side proxy routes (`apps/tischler/app/api/voice/{stt,tts,answer,health}` — built in Phase E, keys stay on the server). CI enforces that no `NEXT_PUBLIC_*_API_KEY` ever reaches the bundle.
+⚠️ **Security:** In a browser bundle, API keys are exposed to the client. Use the real-mode pipeline only behind the server-side proxy routes (`apps/tischler/app/api/voice/{stt,tts,answer,health}` — built in Phase E, keys stay on the server). CI greps the source for `NEXT_PUBLIC_*` key names of six known providers (Anthropic, OpenAI, ElevenLabs, Groq, Gemini, Google) — a source-level guard against the most likely slip, not a bundle scan.
 
 ## Open-Core
 

@@ -35,13 +35,21 @@ export default [
     },
     plugins: { '@typescript-eslint': tsPlugin },
     rules: {
+      // BEIDE Teile von `plugin:@typescript-eslint/recommended` — der alte
+      // `extends`-Eintrag zog nicht nur die 23 Plugin-Regeln, sondern auch
+      // den `eslint-recommended`-Override. Nur `.recommended.rules` zu
+      // spreaden ergäbe eine ANDERE Regelmenge als vorher, in beide
+      // Richtungen falsch (im Review nachgemessen):
+      //   – zu streng: `no-redeclare` & Co. wären wieder an und melden
+      //     gültiges TypeScript falsch (Overloads, declaration merging),
+      //   – zu lasch: `no-var`, `prefer-const`, `prefer-rest-params`,
+      //     `prefer-spread` fielen ersatzlos weg.
+      // Die Reihenfolge zählt: erst die Basis-Abschaltungen, dann die
+      // Plugin-Regeln. `no-undef` kommt aus diesem Block (war also auch in
+      // der alten Config aus — der `env`/`globals`-Teil dort war toter
+      // Ballast, deshalb braucht es hier kein `globals`-Paket).
+      ...tsPlugin.configs['eslint-recommended'].overrides[0].rules,
       ...tsPlugin.configs.recommended.rules,
-      // Die alte Config zählte Browser-/Node-/Worker-Globals per `env` auf,
-      // damit `no-undef` sie kennt. Statt dafür das `globals`-Paket neu
-      // hereinzuholen: `no-undef` aus — für TypeScript-Dateien empfiehlt
-      // typescript-eslint das ausdrücklich, weil der Compiler unbekannte
-      // Namen ohnehin schärfer meldet (und `pnpm typecheck` läuft in der CI).
-      'no-undef': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', args: 'none' },

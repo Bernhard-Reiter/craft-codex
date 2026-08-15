@@ -19,6 +19,16 @@
  * nur über `FlatCompat` in das neue Format gehoben. Kein Regelwerk-Umbau in
  * derselben Änderung — sonst wäre nicht mehr unterscheidbar, ob ein neuer
  * Befund vom scharfen Wächter oder von einer neuen Regel stammt.
+ *
+ * ⚠️ WAS DIESE DATEI NICHT LEISTET — nachgemessen, damit es niemand falsch
+ * liest: Repariert ist die ANWENDUNG der Regeln, nicht ihr Umfang. Genau die
+ * Sabotage-Datei oben (`any` + unbenutzte Variable) kommt hier weiterhin
+ * durch, weil `next/core-web-vitals` weder `@typescript-eslint/no-unused-vars`
+ * noch `no-explicit-any` setzt — die App hat also weiter KEINE
+ * TS-Hygiene-Regeln, anders als `packages/core`, wo beide greifen. Scharf ist
+ * der Wächter hier für Next-, React- und a11y-Regeln (belegt: `<img>` ohne
+ * alt → Exit 1, vorher Exit 0). Das Nachziehen der TS-Regeln ist ein eigener
+ * Schnitt → Issue #36.
  */
 
 import { dirname } from 'node:path';
