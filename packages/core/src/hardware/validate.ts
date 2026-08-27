@@ -48,6 +48,20 @@ export function validateLayout(
     });
   }
 
+  // Verriegelung: ein Bohrbild mit offenen fachlichen Fragen darf nicht als
+  // geprüft gelten. Sonst könnte eine unsichere Ableitung stillschweigend in
+  // den Zustand rutschen, in dem Bohrpunkte gerendert werden.
+  if (layout.status === "geprueft") {
+    for (const p of layout.points.filter((q) => q.offen)) {
+      issues.push({
+        rule: "layout.offenTrotzGeprueft",
+        message:
+          `Bohrbild "${layout.id}" ist als "geprueft" markiert, aber Bohrung ` +
+          `"${p.id}" hat eine offene Frage: ${p.offen}`,
+      });
+    }
+  }
+
   // — Bohrungen ————————————————————————————————————————————————————————————
   for (const p of layout.points) {
     if (pointIds.has(p.id)) {
@@ -132,6 +146,26 @@ export function assertValidLayout(
 }
 
 /**
+ * Darf der Renderer die Bohrpunkte dieses Bohrbilds zeigen?
+ *
+ * Nur bei geprüftem Bohrbild. Im Entwurf zeigt die Ansicht ausschließlich die
+ * Maßketten: ein Punkt im Headset sieht verbindlich aus, ein Maß lädt zum
+ * Nachmessen ein — und genau das soll im ungeprüften Zustand passieren.
+ */
+export function mayRenderDrillPoints(layout: HardwareLayout): boolean {
+  return layout.status === "geprueft" && validateLayout(layout).length === 0;
+}
+
+/** Die offenen fachlichen Fragen eines Bohrbilds, für die Anzeige. */
+export function openQuestions(
+  layout: HardwareLayout,
+): { pointId: string; frage: string }[] {
+  return layout.points
+    .filter((p) => p.offen)
+    .map((p) => ({ pointId: p.id, frage: p.offen as string }));
+}
+
+/**
  * Spiegelt ein Bohrbild auf die Gegen-Anschlagsrichtung.
  *
  * Gespiegelt wird ausschließlich die x-Achse an der Flächenmitte. Durchmesser,
@@ -154,6 +188,9 @@ export function mirrorLayout(layout: HardwareLayout): HardwareLayout {
     id: `${layout.id}--gespiegelt`,
     anschlag: layout.anschlag === "links" ? "rechts" : "links",
     label: `${layout.label} (gespiegelt)`,
+    // Eine gespiegelte Ableitung ist nicht geprüft, auch wenn das Original es
+    // war: geprüft wurde die eine Richtung, an einem realen Werkstück.
+    status: "entwurf",
     points: mirroredPoints,
     chains: [],
   };

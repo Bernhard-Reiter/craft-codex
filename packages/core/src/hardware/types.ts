@@ -31,16 +31,28 @@ export type Anschlag = "links" | "rechts";
  */
 export type FrameId = string;
 
+/**
+ * Kante, von der aus `y` gemessen wird.
+ *
+ * Beschlag-Bohrbilder bemaßen die oberen Bohrungen ab Oberkante und die
+ * unteren ab Unterkante — die Türhöhe ist variabel, die Abstände zu den
+ * Kanten sind es nicht. Ein einziger Ursprung für alle Bohrungen wäre bei
+ * jeder abweichenden Türhöhe falsch.
+ */
+export type YRef = "oberkante" | "unterkante";
+
 /** Eine Bohrung auf einer Bezugsfläche. */
 export interface DrillPoint {
   /** Eindeutig innerhalb des Layouts. */
   id: string;
   /** Bezugsfläche, in der x/y gelten. */
   frame: FrameId;
-  /** Abstand vom Frame-Ursprung entlang +x, in mm. */
+  /** Abstand von der linken Kante entlang +x, in mm. */
   x: number;
-  /** Abstand vom Frame-Ursprung entlang +y, in mm. */
+  /** Abstand von der in `yRef` genannten Kante, in mm (immer positiv). */
   y: number;
+  /** Kante, ab der `y` gemessen wird. */
+  yRef: YRef;
   /** Bohrerdurchmesser in mm. */
   diameter: number;
   /** Bohrtiefe in mm. Durchgangsbohrung = Werkstückdicke. */
@@ -49,6 +61,15 @@ export interface DrillPoint {
   tool: string;
   /** Schritt der WorkflowDefinition, in dem diese Bohrung sichtbar ist. */
   stepId: string;
+  /**
+   * Offene fachliche Frage zu dieser Bohrung, im Klartext.
+   *
+   * Gesetzt, solange ein Maß aus der Vorlage nicht zweifelsfrei zugeordnet
+   * werden konnte. Ein Layout mit auch nur einer offenen Bohrung kann den
+   * Status "geprueft" nicht erreichen — siehe validateLayout(). Damit kann
+   * eine unsichere Ableitung nicht versehentlich als gesichert durchgehen.
+   */
+  offen?: string;
 }
 
 /**
@@ -108,9 +129,25 @@ export interface LayoutSource {
   crosscheck?: string;
 }
 
+/**
+ * Prüfstand eines Bohrbilds.
+ *
+ * "entwurf"   Aus der Herstellervorlage abgeleitet, fachlich NICHT bestätigt.
+ *             Der Renderer zeigt in diesem Zustand die Maßketten zum
+ *             Nachmessen, aber KEINE Bohrpunkte — ein Punkt im Headset sieht
+ *             verbindlich aus, ein Maß lädt zum Prüfen ein.
+ * "geprueft"  Von einem Fachkundigen gegen Vorlage und reales Werkstück
+ *             geprüft. Erst dann dürfen Bohrpunkte gerendert werden.
+ *
+ * Der Übergang ist eine menschliche Entscheidung, kein Rechenergebnis.
+ */
+export type LayoutStatus = "entwurf" | "geprueft";
+
 /** Das vollständige Bohrbild eines Beschlags für eine Anschlagsrichtung. */
 export interface HardwareLayout {
   id: string;
+  /** Prüfstand — steuert, ob Bohrpunkte gerendert werden dürfen. */
+  status: LayoutStatus;
   /** Anzeigename inklusive Produktvariante. */
   label: string;
   /** Artikelbezeichnung des Herstellers, z. B. "Hawa Combino 65/80 H FS ul". */

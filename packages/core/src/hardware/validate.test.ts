@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { validateLayout, assertValidLayout, mirrorLayout } from "./validate.js";
+import {
+  validateLayout,
+  assertValidLayout,
+  mirrorLayout,
+  mayRenderDrillPoints,
+  openQuestions,
+} from "./validate.js";
 import type { HardwareLayout, DrillPoint } from "./types.js";
 
 const punkt = (over: Partial<DrillPoint> = {}): DrillPoint => ({
@@ -7,6 +13,7 @@ const punkt = (over: Partial<DrillPoint> = {}): DrillPoint => ({
   frame: "door.faceA.topLeft",
   x: 100,
   y: 200,
+  yRef: "oberkante",
   diameter: 3,
   depth: 3,
   tool: "Ø 3 Holzbohrer",
@@ -16,6 +23,7 @@ const punkt = (over: Partial<DrillPoint> = {}): DrillPoint => ({
 
 const layout = (over: Partial<HardwareLayout> = {}): HardwareLayout => ({
   id: "test-layout",
+  status: "geprueft",
   label: "Testbeschlag",
   article: "Test 123",
   anschlag: "links",
@@ -152,6 +160,41 @@ describe("validateLayout — Maßketten", () => {
   });
 });
 
+describe("Prüfstand und offene Fragen", () => {
+  const mitOffenerFrage = layout({
+    status: "entwurf",
+    points: [punkt({ id: "A", offen: "Höhenmaß fehlt in der Vorlage" })],
+  });
+
+  it("erlaubt offene Fragen im Entwurf", () => {
+    expect(validateLayout(mitOffenerFrage)).toEqual([]);
+  });
+
+  it("verriegelt: geprueft trotz offener Frage ist ein Fehler", () => {
+    const issues = validateLayout({ ...mitOffenerFrage, status: "geprueft" });
+    expect(issues.map((i) => i.rule)).toContain("layout.offenTrotzGeprueft");
+    expect(issues[0]?.message).toContain("Höhenmaß fehlt");
+  });
+
+  it("rendert im Entwurf keine Bohrpunkte", () => {
+    expect(mayRenderDrillPoints(mitOffenerFrage)).toBe(false);
+  });
+
+  it("rendert Bohrpunkte nur bei geprüftem und fehlerfreiem Bohrbild", () => {
+    expect(mayRenderDrillPoints(layout())).toBe(true);
+  });
+
+  it("rendert keine Bohrpunkte, wenn geprueft aber fehlerhaft", () => {
+    expect(mayRenderDrillPoints(layout({ points: [punkt({ depth: 0 })] }))).toBe(false);
+  });
+
+  it("listet die offenen Fragen für die Anzeige auf", () => {
+    expect(openQuestions(mitOffenerFrage)).toEqual([
+      { pointId: "A", frage: "Höhenmaß fehlt in der Vorlage" },
+    ]);
+  });
+});
+
 describe("assertValidLayout", () => {
   it("wirft mit lesbarer Meldung", () => {
     expect(() => assertValidLayout(layout({ points: [punkt({ depth: 0 })] })))
@@ -202,6 +245,18 @@ describe("mirrorLayout", () => {
   it("ist selbstinvers in den Koordinaten", () => {
     const zurueck = mirrorLayout(mirrorLayout(original));
     expect(zurueck.points.map((p) => p.x)).toEqual(original.points.map((p) => p.x));
+  });
+
+  it("setzt den Prüfstand auf Entwurf zurück", () => {
+    const geprueft = layout({ status: "geprueft", faceWidth: 600, points: [punkt()] });
+    expect(mirrorLayout(geprueft).status).toBe("entwurf");
+  });
+
+  it("lässt die Bezugskante von y unverändert", () => {
+    const m = mirrorLayout(
+      layout({ points: [punkt({ yRef: "unterkante" })] }),
+    );
+    expect(m.points[0]?.yRef).toBe("unterkante");
   });
 
   it("verwirft die Maßketten, statt sie falsch zu beschriften", () => {
