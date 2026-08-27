@@ -92,10 +92,12 @@ export function BeschlagARRegistration({
     ];
   }, [faceWidthMm, faceHeightMm]);
 
-  // Trigger erfasst die aktuelle Spitzenposition (Welt).
+  // GRIFF-Taste (squeeze) erfasst die Spitzenposition — bewusst NICHT der
+  // Trigger: der bedient die schwebende Tafel, und ein Menü-Klick darf nie
+  // gleichzeitig eine Ecke erfassen.
   useXRInputSourceEvent(
     "all",
-    "select",
+    "squeeze",
     () => {
       const tip = tipRef.current;
       if (!tip) return;
@@ -150,7 +152,7 @@ export function BeschlagARRegistration({
       ))}
 
       {/* Anweisung. */}
-      <Billboard position={[0, 1.0, -0.6]}>
+      <Billboard position={[0, 0.86, -0.6]}>
         <Text
           fontSize={0.02}
           color="#ffed00"
@@ -159,7 +161,7 @@ export function BeschlagARRegistration({
           maxWidth={0.7}
         >
           {probeSpace
-            ? `Türblatt ausrichten · Kreuz auf die Ecke, Trigger drücken\n${PROMPTS[promptIndex]}`
+            ? `Kreuz auf die Ecke, dann GRIFF-Taste (seitlich) drücken\n${PROMPTS[promptIndex]}`
             : "Ausrichten braucht einen Controller"}
         </Text>
       </Billboard>

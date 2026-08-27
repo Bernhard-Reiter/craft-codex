@@ -3,22 +3,26 @@
 /**
  * Beschlagmontage in AR — Quest-3-Passthrough mit 3-Punkt-Registrierung.
  *
- * Ablauf: AR starten → drei Ecken der Beschlagfläche mit der Controller-
- * Spitze antippen → Maßketten und Schrittführung liegen auf dem echten
- * Türblatt. Danach: Trigger auf die Tafel-Knöpfe für Weiter/Zurück.
+ * Bedienkonzept (nach erstem Quest-Test, 27.08.):
+ * - Die Menütafel SCHWEBT immer aufrecht vor dem Nutzer (Billboard) und ist
+ *   von Sitzungsbeginn an bedienbar — sie hängt bewusst NICHT am registrierten
+ *   Türblatt: liegt das Werkstück waagrecht auf der Bank, läge eine dort
+ *   verankerte Tafel flach und unlesbar mit drauf.
+ * - TRIGGER bedient die Tafel. GRIFF-Taste erfasst die Ecken beim Ausrichten.
+ *   Getrennte Tasten, damit ein Menü-Klick nie zugleich einen Punkt erfasst.
+ * - Nach dem Ausrichten liegen die Maßketten am echten Türblatt; die Tafel
+ *   bleibt schwebend.
  *
  * Sicherungen (aus dem Architektur-Review):
- * - Bohrpunkte bleiben verriegelt, solange das Bohrbild auf "entwurf" steht —
- *   dieselbe mayRenderDrillPoints()-Entscheidung wie am Desktop.
- * - Der RMS-Restfehler der Registrierung wird angezeigt; über 10 mm wird er
- *   rot und die Tafel fordert zum Neu-Ausrichten auf.
- * - Session-Ende oder "Neu ausrichten" verwirft die Transformation sofort —
- *   Inhalte erscheinen nie an einer alten Weltposition.
- * - Hinweis "Werkstück nicht bewegen": die Registrierung kennt nur die Welt.
+ * - Bohrpunkte bleiben verriegelt, solange das Bohrbild auf "entwurf" steht.
+ * - RMS-Restfehler wird angezeigt; über 10 mm rot + Aufforderung neu
+ *   auszurichten.
+ * - Session-Ende oder Neu-ausrichten verwirft die Transformation sofort.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { Billboard } from "@react-three/drei";
 import { XR, createXRStore, useXR } from "@react-three/xr";
 import { Root, Container, Text } from "@react-three/uikit";
 import {
@@ -41,6 +45,9 @@ const TUER_HOEHE = 2000;
 /** RMS-Grenze in Metern, ab der die Registrierung als grob gilt. */
 const RMS_WARN_M = 0.01;
 
+/** Startpose der schwebenden Tafel: vor dem Nutzer, auf Augen-/Arbeitshöhe. */
+const TAFEL_POS: [number, number, number] = [0, 1.2, -0.75];
+
 /** Meldet dem Parent, wenn die XR-Session endet (Transformation verwerfen). */
 function SessionWatcher({ onEnded }: { onEnded: () => void }) {
   const session = useXR((s) => s.session);
@@ -60,21 +67,25 @@ function TafelKnopf({
   label,
   onClick,
   disabled = false,
+  ton = "gelb",
 }: {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  ton?: "gelb" | "dunkel";
 }) {
+  const bg = disabled ? "#3a3a40" : ton === "gelb" ? "#ffed00" : "#2c2c33";
+  const fg = disabled ? "#9a9aa2" : ton === "gelb" ? "#14140f" : "#e8e8ea";
   return (
     <Container
-      backgroundColor={disabled ? "#3a3a40" : "#ffed00"}
+      backgroundColor={bg}
       backgroundOpacity={disabled ? 0.4 : 0.95}
       borderRadius={6}
       paddingX={12}
-      paddingY={6}
+      paddingY={7}
       onClick={disabled ? undefined : onClick}
     >
-      <Text fontSize={11} color={disabled ? "#9a9aa2" : "#14140f"}>
+      <Text fontSize={11} color={fg}>
         {label}
       </Text>
     </Container>
@@ -84,7 +95,7 @@ function TafelKnopf({
 export default function BeschlagXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [reg, setReg] = useState<BeschlagRegistration | null>(null);
-  const [ausrichten, setAusrichten] = useState(true);
+  const [ausrichten, setAusrichten] = useState(false);
   const [index, setIndex] = useState(0);
 
   const store = useMemo(
@@ -114,6 +125,9 @@ export default function BeschlagXRPage() {
 
   const enterAR = async () => {
     try {
+      // Ausrichten startet aktiv: wer AR öffnet, will zuerst ausrichten —
+      // die Tafel ist trotzdem sofort bedienbar (Trigger ≠ Griff-Taste).
+      setAusrichten(true);
       const session = await store.enterAR();
       if (!session) {
         console.warn("[XR] enterAR returned no session — denied or unsupported");
@@ -138,6 +152,11 @@ export default function BeschlagXRPage() {
         <p>
           {layout.article} · Anschlag {layout.anschlag} · Quelle{" "}
           {layout.source.document} S. {layout.source.page}
+        </p>
+        <p className="bedienung">
+          Bedienung im Headset: <strong>Trigger</strong> = Menütafel ·{" "}
+          <strong>Griff-Taste</strong> (seitlich) = Ecke erfassen beim
+          Ausrichten.
         </p>
         {!bohrpunkteFrei && (
           <p className="hinweis">
@@ -166,9 +185,89 @@ export default function BeschlagXRPage() {
       <div className="buehne" aria-hidden>
         <Canvas camera={{ position: [0, 0, 2.9], fov: 45 }}>
           <XR store={store}>
-            <SessionWatcher onEnded={verwerfen} />
+            <SessionWatcher onEnded={() => setReg(null)} />
             <ambientLight intensity={0.8} />
             <directionalLight position={[1, 2, 3]} intensity={1.0} />
+
+            {/* ─── Schwebende Menütafel: immer da, immer aufrecht ─── */}
+            <Billboard position={TAFEL_POS}>
+              <Root
+                pixelSize={0.0016}
+                anchorX="center"
+                anchorY="center"
+                flexDirection="column"
+              >
+                <Container
+                  backgroundColor="#14140f"
+                  backgroundOpacity={0.85}
+                  borderRadius={10}
+                  padding={14}
+                  flexDirection="column"
+                  gap={8}
+                  width={250}
+                >
+                  <Text fontSize={9} color="#9a9aa2">
+                    {`Schritt ${index + 1} von ${steps.length}`}
+                  </Text>
+                  <Text fontSize={14} color="#ffffff" fontWeight="bold">
+                    {schritt?.label ?? ""}
+                  </Text>
+                  {schritt && schritt.tools.length > 0 && (
+                    <Text fontSize={10} color="#ffed00">
+                      {`Werkzeug: ${schritt.tools.join(" · ")}`}
+                    </Text>
+                  )}
+                  {schritt?.instructions.map((z, i) => (
+                    <Text key={i} fontSize={10} color="#e8e8ea">
+                      {`${i + 1}. ${z}`}
+                    </Text>
+                  ))}
+
+                  <Container flexDirection="row" gap={8} marginTop={4}>
+                    <TafelKnopf
+                      label="← Zurück"
+                      disabled={index === 0}
+                      onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                    />
+                    <TafelKnopf
+                      label="Weiter →"
+                      disabled={index === steps.length - 1}
+                      onClick={() =>
+                        setIndex((i) => Math.min(steps.length - 1, i + 1))
+                      }
+                    />
+                  </Container>
+
+                  <Container flexDirection="row" gap={8}>
+                    {ausrichten ? (
+                      <TafelKnopf
+                        label="Ausrichten abbrechen"
+                        ton="dunkel"
+                        onClick={() => setAusrichten(false)}
+                      />
+                    ) : (
+                      <TafelKnopf
+                        label={reg ? "Neu ausrichten" : "Türblatt ausrichten"}
+                        onClick={verwerfen}
+                      />
+                    )}
+                  </Container>
+
+                  {ausrichten && (
+                    <Text fontSize={9} color="#ffed00">
+                      Ausrichten läuft: Kreuz auf die Ecke, GRIFF-Taste drücken
+                    </Text>
+                  )}
+                  <Text fontSize={9} color={reg ? (rmsGrob ? "#ff6b5e" : "#4ade80") : "#9a9aa2"}>
+                    {reg
+                      ? rmsGrob
+                        ? `Ausrichtung grob: ±${rmsMm!.toFixed(1)} mm — bitte neu ausrichten`
+                        : `Ausgerichtet: ±${rmsMm!.toFixed(1)} mm · Werkstück nicht bewegen`
+                      : "Noch nicht ausgerichtet — Maße erscheinen nach dem Ausrichten am Türblatt"}
+                  </Text>
+                </Container>
+              </Root>
+            </Billboard>
 
             {ausrichten && (
               <BeschlagARRegistration
@@ -181,6 +280,7 @@ export default function BeschlagXRPage() {
               />
             )}
 
+            {/* ─── Maßketten am registrierten Türblatt ─── */}
             {reg && !ausrichten && (
               <group position={reg.position} quaternion={reg.quaternion}>
                 <BeschlagScene
@@ -188,77 +288,6 @@ export default function BeschlagXRPage() {
                   faceHeight={TUER_HOEHE}
                   activeStepId={schritt?.id}
                 />
-
-                {/* Tafel: hängt links neben dem Türblatt am registrierten Frame */}
-                <group
-                  position={[
-                    (-TUER_BREITE / 2 - 220) * 0.001,
-                    0,
-                    0.02,
-                  ]}
-                >
-                  <Root
-                    pixelSize={0.0016}
-                    anchorX="center"
-                    anchorY="center"
-                    flexDirection="column"
-                    gap={8}
-                  >
-                    <Container
-                      backgroundColor="#14140f"
-                      backgroundOpacity={0.82}
-                      borderRadius={10}
-                      padding={14}
-                      flexDirection="column"
-                      gap={8}
-                      width={240}
-                    >
-                      <Text fontSize={9} color="#9a9aa2">
-                        {`Schritt ${index + 1} von ${steps.length} · Werkstück nicht bewegen`}
-                      </Text>
-                      <Text fontSize={14} color="#ffffff" fontWeight="bold">
-                        {schritt?.label ?? ""}
-                      </Text>
-                      {schritt && schritt.tools.length > 0 && (
-                        <Text fontSize={10} color="#ffed00">
-                          {`Werkzeug: ${schritt.tools.join(" · ")}`}
-                        </Text>
-                      )}
-                      {schritt?.instructions.map((z, i) => (
-                        <Text key={i} fontSize={10} color="#e8e8ea">
-                          {`${i + 1}. ${z}`}
-                        </Text>
-                      ))}
-                      <Container flexDirection="row" gap={8} marginTop={4}>
-                        <TafelKnopf
-                          label="← Zurück"
-                          disabled={index === 0}
-                          onClick={() => setIndex((i) => Math.max(0, i - 1))}
-                        />
-                        <TafelKnopf
-                          label="Weiter →"
-                          disabled={index === steps.length - 1}
-                          onClick={() =>
-                            setIndex((i) => Math.min(steps.length - 1, i + 1))
-                          }
-                        />
-                      </Container>
-                      <Container flexDirection="row" gap={8}>
-                        <TafelKnopf label="Neu ausrichten" onClick={verwerfen} />
-                      </Container>
-                      <Text
-                        fontSize={9}
-                        color={rmsGrob ? "#ff6b5e" : "#4ade80"}
-                      >
-                        {rmsMm !== null
-                          ? rmsGrob
-                            ? `Ausrichtung grob: ±${rmsMm.toFixed(1)} mm — bitte neu ausrichten`
-                            : `Ausrichtung: ±${rmsMm.toFixed(1)} mm`
-                          : ""}
-                      </Text>
-                    </Container>
-                  </Root>
-                </group>
               </group>
             )}
           </XR>
@@ -279,6 +308,9 @@ export default function BeschlagXRPage() {
           margin: 0 0 0.6rem;
           font-size: 0.9rem;
           opacity: 0.75;
+        }
+        .bedienung {
+          opacity: 0.9;
         }
         .hinweis {
           border-left: 3px solid #8a6a1f;
