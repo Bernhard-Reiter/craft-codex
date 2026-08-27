@@ -3,11 +3,9 @@
 /**
  * Beschlagmontage — geführte Anleitung mit Bohrbild.
  *
- * Erster Durchstich: Hawa Combino 65/80 H FS ul. Die Ansicht läuft am Desktop
- * (Orbit-Vorschau); die XR-Registrierung auf das reale Türblatt ist der
- * nächste Schritt und bewusst noch nicht hier verdrahtet — ungetestete
- * XR-Pfade in einer Ansicht, die Bohrungen anleitet, wären das falsche
- * Versprechen.
+ * Erster Durchstich: Hawa Combino 65/80 H FS ul. Diese Ansicht ist die
+ * Desktop-Orbit-Vorschau; die AR-Ansicht mit 3-Punkt-Registrierung auf das
+ * reale Türblatt liegt unter /beschlag/xr.
  *
  * Texte vorerst deutsch fest verdrahtet; i18n folgt, wenn der Ablauf steht.
  */
@@ -22,6 +20,7 @@ import {
   mayRenderDrillPoints,
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../components/BeschlagScene";
+import { Link } from "../../../i18n/navigation";
 import { HAWA_COMBINO_WORKFLOW } from "../../../lib/beschlag/hawa-combino-workflow";
 
 const TUER_BREITE = 600;
@@ -52,6 +51,9 @@ export default function BeschlagPage() {
           Anleitung {layout.source.document} · Seite {layout.source.page} ·
           Anschlag {layout.anschlag}
           {layout.source.crosscheck ? ` · gegengeprüft: ${layout.source.crosscheck}` : ""}
+        </p>
+        <p className="arlink">
+          <Link href="/beschlag/xr">🥽 In AR öffnen (Quest 3)</Link>
         </p>
       </header>
 
@@ -171,6 +173,10 @@ export default function BeschlagPage() {
           margin: 0 0 0.35rem;
           font-size: 1.6rem;
           line-height: 1.2;
+        }
+        .arlink {
+          margin: 0.5rem 0 0;
+          font-size: 0.95rem;
         }
         .herkunft {
           margin: 0;

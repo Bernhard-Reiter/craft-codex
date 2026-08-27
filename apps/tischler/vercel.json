@@ -33,6 +33,24 @@
       ]
     },
     {
+      "source": "/beschlag/xr",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "xr-spatial-tracking=(self), camera=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/:locale/beschlag/xr",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "xr-spatial-tracking=(self), camera=(self)"
+        }
+      ]
+    },
+    {
       "source": "/voice",
       "headers": [
         {
