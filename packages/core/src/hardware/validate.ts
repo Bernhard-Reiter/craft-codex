@@ -146,6 +146,20 @@ export function assertValidLayout(
 }
 
 /**
+ * Rechnet die Höhe einer Bohrung auf ein einheitliches System um:
+ * Abstand von der OBERKANTE, für ein Werkstück der Höhe `faceHeight`.
+ *
+ * Bohrungen sind je nach Lage ab Ober- oder Unterkante bemaßt (siehe YRef).
+ * Der Renderer braucht einen gemeinsamen Ursprung — diese Umrechnung ist die
+ * einzige Stelle, an der die beiden Bezüge zusammenkommen. Sie liegt bewusst
+ * im Core und nicht im Renderer: ein Vorzeichenfehler hier verschiebt
+ * Bohrungen um die halbe Türhöhe, und das soll ein Test abfangen, kein Auge.
+ */
+export function resolveDrillY(point: DrillPoint, faceHeight: number): number {
+  return point.yRef === "oberkante" ? point.y : faceHeight - point.y;
+}
+
+/**
  * Darf der Renderer die Bohrpunkte dieses Bohrbilds zeigen?
  *
  * Nur bei geprüftem Bohrbild. Im Entwurf zeigt die Ansicht ausschließlich die

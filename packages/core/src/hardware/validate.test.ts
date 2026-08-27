@@ -5,6 +5,7 @@ import {
   mirrorLayout,
   mayRenderDrillPoints,
   openQuestions,
+  resolveDrillY,
 } from "./validate.js";
 import type { HardwareLayout, DrillPoint } from "./types.js";
 
@@ -192,6 +193,31 @@ describe("Prüfstand und offene Fragen", () => {
     expect(openQuestions(mitOffenerFrage)).toEqual([
       { pointId: "A", frage: "Höhenmaß fehlt in der Vorlage" },
     ]);
+  });
+});
+
+describe("resolveDrillY — zwei Bezugskanten auf ein System", () => {
+  const H = 2000; // Türblatthöhe
+
+  it("lässt ein Maß ab Oberkante unverändert", () => {
+    expect(resolveDrillY(punkt({ y: 19, yRef: "oberkante" }), H)).toBe(19);
+  });
+
+  it("dreht ein Maß ab Unterkante um", () => {
+    expect(resolveDrillY(punkt({ y: 104, yRef: "unterkante" }), H)).toBe(1896);
+  });
+
+  it("verschiebt untere Bohrungen mit der Türhöhe, obere nicht", () => {
+    const oben = punkt({ y: 19, yRef: "oberkante" });
+    const unten = punkt({ y: 104, yRef: "unterkante" });
+    expect(resolveDrillY(oben, 2000)).toBe(resolveDrillY(oben, 2400));
+    expect(resolveDrillY(unten, 2400) - resolveDrillY(unten, 2000)).toBe(400);
+  });
+
+  it("liefert bei einer Bohrung auf halber Höhe für beide Bezüge dasselbe", () => {
+    expect(resolveDrillY(punkt({ y: 1000, yRef: "oberkante" }), H)).toBe(
+      resolveDrillY(punkt({ y: 1000, yRef: "unterkante" }), H),
+    );
   });
 });
 
