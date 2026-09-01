@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Root, Container, Text } from "@react-three/uikit";
-import { Card, Button, Slider, TabBar, TabBarItem } from "@react-three/uikit-apfel";
+import { Container, Text } from "@react-three/uikit";
+import { Panel, Button, Slider } from "@react-three/uikit-horizon";
 import { PencilRuler, Hammer, Crosshair } from "@react-three/uikit-lucide";
 import type {
   DovetailStep,
@@ -158,23 +158,24 @@ export function XRToolbar({
 
   return (
     <group position={position}>
-      <Root pixelSize={0.001} anchorX="center" anchorY="center">
-        <Card flexDirection="column" width={560} padding={20} gap={8} borderRadius={28}>
+      <Container pixelSize={0.001} anchorX="center" anchorY="center">
+        <Panel flexDirection="column" width={560} padding={20} gap={8} borderRadius={28}>
           {/* 1) Modus + Zentrieren */}
           <Container flexDirection="row" gap={10} alignItems="center">
-            <TabBar
-              flexGrow={1}
-              value={anreissModus ? "anreissen" : "hand"}
-              onValueChange={(v) => onModus(v === "anreissen")}
-            >
-              <TabBarItem value="anreissen" icon={<PencilRuler />}>
-                <Text>{asciiFold(labels.tabAnreissen)}</Text>
-              </TabBarItem>
-              <TabBarItem value="hand" icon={<Hammer />}>
-                <Text>{asciiFold(labels.tabHand)}</Text>
-              </TabBarItem>
-            </TabBar>
-            <Button variant="icon" size="md" onClick={onZentrieren}>
+            {/* Modus-Umschalter: zwei Buttons statt apfel-TabBar (horizon hat keine) */}
+            <Container flexDirection="row" gap={8} flexGrow={1}>
+              <Button variant={anreissModus ? "primary" : "secondary"} size="sm" flexGrow={1}
+                onClick={() => onModus(true)}>
+                <PencilRuler width={16} height={16} />
+                <Text fontSize={14}>{asciiFold(labels.tabAnreissen)}</Text>
+              </Button>
+              <Button variant={anreissModus ? "secondary" : "primary"} size="sm" flexGrow={1}
+                onClick={() => onModus(false)}>
+                <Hammer width={16} height={16} />
+                <Text fontSize={14}>{asciiFold(labels.tabHand)}</Text>
+              </Button>
+            </Container>
+            <Button variant="secondary" size="sm" icon onClick={onZentrieren}>
               <Crosshair width={20} height={20} />
             </Button>
           </Container>
@@ -194,11 +195,11 @@ export function XRToolbar({
               {/* 2c) Teilungsebene: Lehrbuch (Mittellinie) vs. praxisnah (Stirn) */}
               <Container flexDirection="row" gap={8} alignItems="center">
                 <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.teilung)}</Text>
-                <Button variant="rect" flexGrow={1} selected={teilung === "stirn"}
+                <Button variant={teilung === "stirn" ? "primary" : "secondary"} flexGrow={1} 
                   onClick={() => onTeilung("stirn")}>
                   <Text fontSize={14}>{asciiFold(labels.stirnkante)}</Text>
                 </Button>
-                <Button variant="rect" flexGrow={1} selected={teilung === "mittellinie"}
+                <Button variant={teilung === "mittellinie" ? "primary" : "secondary"} flexGrow={1} 
                   onClick={() => onTeilung("mittellinie")}>
                   <Text fontSize={14}>{asciiFold(labels.mittellinie)}</Text>
                 </Button>
@@ -207,11 +208,11 @@ export function XRToolbar({
               {/* 2d) Variante: Standard vs. Randzinkenverstaerkung */}
               <Container flexDirection="row" gap={8} alignItems="center">
                 <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.variante)}</Text>
-                <Button variant="rect" flexGrow={1} selected={variante === "standard"}
+                <Button variant={variante === "standard" ? "primary" : "secondary"} flexGrow={1} 
                   onClick={() => onVariante("standard")}>
                   <Text fontSize={14}>{asciiFold(labels.standard)}</Text>
                 </Button>
-                <Button variant="rect" flexGrow={1} selected={variante === "rzv"}
+                <Button variant={variante === "rzv" ? "primary" : "secondary"} flexGrow={1} 
                   onClick={() => onVariante("rzv")}>
                   <Text fontSize={14}>{asciiFold(labels.rzv)}</Text>
                 </Button>
@@ -238,14 +239,14 @@ export function XRToolbar({
 
               {/* 4a) Schritt-Navigation + Tafel */}
               <Container flexDirection="row" gap={10} marginTop={8}>
-                <Button variant="rect" flexGrow={1} disabled={atStart}
+                <Button variant="secondary" flexGrow={1} disabled={atStart}
                   onClick={() => !atStart && onIndex(index - 1)}>
                   <Text fontSize={16}>{asciiFold(labels.back)}</Text>
                 </Button>
-                <Button variant="rect" selected={tafelOffen} onClick={onTafel}>
+                <Button variant={tafelOffen ? "primary" : "secondary"}  onClick={onTafel}>
                   <Text fontSize={16}>{asciiFold(labels.tafel)}</Text>
                 </Button>
-                <Button variant="rect" flexGrow={1} selected={!atEnd} disabled={atEnd}
+                <Button variant={!atEnd ? "primary" : "secondary"} flexGrow={1}  disabled={atEnd}
                   onClick={() => !atEnd && onIndex(index + 1)}>
                   <Text fontSize={16}>{asciiFold(atEnd ? labels.done : labels.next)}</Text>
                 </Button>
@@ -257,7 +258,7 @@ export function XRToolbar({
               <Text fontSize={15} color="#9fc7b0">{asciiFold(labels.handTitle)}</Text>
               <Container flexDirection="row" gap={8}>
                 {HAND_STEPS.map((s, i) => (
-                  <Button key={s} variant="rect" flexGrow={1} selected={s === step}
+                  <Button key={s} variant={s === step ? "primary" : "secondary"} flexGrow={1} 
                     onClick={() => onStep(s)}>
                     <Container flexDirection="column" alignItems="center">
                       <Text fontSize={17}>{String(i + 1)}</Text>
@@ -274,14 +275,14 @@ export function XRToolbar({
           {/* 4c) Brett ausrichten (Zweitpfad zum Hand-Greifen) */}
           <Container flexDirection="row" gap={8} alignItems="center">
             <Text fontSize={13} width={66} color="#cdd6e4">{asciiFold(labels.board)}</Text>
-            <Button variant="rect" flexGrow={1} onClick={onLotrecht}>
+            <Button variant="secondary" flexGrow={1} onClick={onLotrecht}>
               <Text fontSize={14}>{asciiFold(labels.plumb)}</Text>
             </Button>
-            <Button variant="rect" onClick={() => onNudgeHeight(1)}><Text fontSize={14}>{asciiFold(labels.up)}</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeHeight(-1)}><Text fontSize={14}>{asciiFold(labels.down)}</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeDepth(1)}><Text fontSize={14}>{asciiFold(labels.near)}</Text></Button>
-            <Button variant="rect" onClick={() => onNudgeDepth(-1)}><Text fontSize={14}>{asciiFold(labels.far)}</Text></Button>
-            <Button variant="rect" selected onClick={onReset}><Text fontSize={14}>{asciiFold(labels.reset)}</Text></Button>
+            <Button variant="secondary" onClick={() => onNudgeHeight(1)}><Text fontSize={14}>{asciiFold(labels.up)}</Text></Button>
+            <Button variant="secondary" onClick={() => onNudgeHeight(-1)}><Text fontSize={14}>{asciiFold(labels.down)}</Text></Button>
+            <Button variant="secondary" onClick={() => onNudgeDepth(1)}><Text fontSize={14}>{asciiFold(labels.near)}</Text></Button>
+            <Button variant="secondary" onClick={() => onNudgeDepth(-1)}><Text fontSize={14}>{asciiFold(labels.far)}</Text></Button>
+            <Button variant="primary" onClick={onReset}><Text fontSize={14}>{asciiFold(labels.reset)}</Text></Button>
           </Container>
 
           <Divider />
@@ -290,7 +291,7 @@ export function XRToolbar({
           <Text fontSize={16} color="#ffed00">{asciiFold(labels.askMaster)}</Text>
           <Container flexDirection="row" gap={8} flexWrap="wrap">
             {questions.map((q) => (
-              <Button key={q} variant="rect" flexGrow={1} disabled={busy} onClick={() => ask(q)}>
+              <Button key={q} variant="secondary" flexGrow={1} disabled={busy} onClick={() => ask(q)}>
                 <Text fontSize={14}>{shorten(q)}</Text>
               </Button>
             ))}
@@ -304,8 +305,8 @@ export function XRToolbar({
           {audioPlayed === false && !busy && response && (
             <Text fontSize={11} color="#9a9a9a">{asciiFold(labels.noAudio)}</Text>
           )}
-        </Card>
-      </Root>
+        </Panel>
+      </Container>
     </group>
   );
 }

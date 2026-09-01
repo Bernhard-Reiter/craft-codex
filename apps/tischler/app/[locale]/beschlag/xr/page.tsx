@@ -22,15 +22,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Billboard } from "@react-three/drei";
 import { XR, createXRStore, useXR } from "@react-three/xr";
-import { Root, Container, Text } from "@react-three/uikit";
 import {
   WorkflowController,
   buildHawaCombinoLayout,
   mayRenderDrillPoints,
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../../components/BeschlagScene";
+import { BeschlagXRTafel } from "../../../../components/BeschlagXRTafel";
 import {
   BeschlagARRegistration,
   type BeschlagRegistration,
@@ -62,41 +61,12 @@ function SessionWatcher({ onEnded }: { onEnded: () => void }) {
   return null;
 }
 
-/** Ein Tafel-Knopf: uikit-Container mit Trigger-Klick. */
-function TafelKnopf({
-  label,
-  onClick,
-  disabled = false,
-  ton = "gelb",
-}: {
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-  ton?: "gelb" | "dunkel";
-}) {
-  const bg = disabled ? "#3a3a40" : ton === "gelb" ? "#ffed00" : "#2c2c33";
-  const fg = disabled ? "#9a9aa2" : ton === "gelb" ? "#14140f" : "#e8e8ea";
-  return (
-    <Container
-      backgroundColor={bg}
-      backgroundOpacity={disabled ? 0.4 : 0.95}
-      borderRadius={6}
-      paddingX={12}
-      paddingY={7}
-      onClick={disabled ? undefined : onClick}
-    >
-      <Text fontSize={11} color={fg}>
-        {label}
-      </Text>
-    </Container>
-  );
-}
-
 export default function BeschlagXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [reg, setReg] = useState<BeschlagRegistration | null>(null);
   const [ausrichten, setAusrichten] = useState(false);
   const [index, setIndex] = useState(0);
+  const [erledigt, setErledigt] = useState<Record<string, boolean>>({});
 
   const store = useMemo(
     () => createXRStore({ emulate: false, offerSession: false }),
@@ -189,85 +159,22 @@ export default function BeschlagXRPage() {
             <ambientLight intensity={0.8} />
             <directionalLight position={[1, 2, 3]} intensity={1.0} />
 
-            {/* ─── Schwebende Menütafel: immer da, immer aufrecht ─── */}
-            <Billboard position={TAFEL_POS}>
-              <Root
-                pixelSize={0.0016}
-                anchorX="center"
-                anchorY="center"
-                flexDirection="column"
-              >
-                <Container
-                  backgroundColor="#14140f"
-                  backgroundOpacity={0.85}
-                  borderRadius={10}
-                  padding={14}
-                  flexDirection="column"
-                  gap={8}
-                  width={250}
-                >
-                  <Text fontSize={9} color="#9a9aa2">
-                    {`Schritt ${index + 1} von ${steps.length}`}
-                  </Text>
-                  <Text fontSize={14} color="#ffffff" fontWeight="bold">
-                    {schritt?.label ?? ""}
-                  </Text>
-                  {schritt && schritt.tools.length > 0 && (
-                    <Text fontSize={10} color="#ffed00">
-                      {`Werkzeug: ${schritt.tools.join(" · ")}`}
-                    </Text>
-                  )}
-                  {schritt?.instructions.map((z, i) => (
-                    <Text key={i} fontSize={10} color="#e8e8ea">
-                      {`${i + 1}. ${z}`}
-                    </Text>
-                  ))}
-
-                  <Container flexDirection="row" gap={8} marginTop={4}>
-                    <TafelKnopf
-                      label="← Zurück"
-                      disabled={index === 0}
-                      onClick={() => setIndex((i) => Math.max(0, i - 1))}
-                    />
-                    <TafelKnopf
-                      label="Weiter →"
-                      disabled={index === steps.length - 1}
-                      onClick={() =>
-                        setIndex((i) => Math.min(steps.length - 1, i + 1))
-                      }
-                    />
-                  </Container>
-
-                  <Container flexDirection="row" gap={8}>
-                    {ausrichten ? (
-                      <TafelKnopf
-                        label="Ausrichten abbrechen"
-                        ton="dunkel"
-                        onClick={() => setAusrichten(false)}
-                      />
-                    ) : (
-                      <TafelKnopf
-                        label={reg ? "Neu ausrichten" : "Türblatt ausrichten"}
-                        onClick={verwerfen}
-                      />
-                    )}
-                  </Container>
-
-                  {ausrichten && (
-                    <Text fontSize={9} color="#ffed00">
-                      Ausrichten läuft: Kreuz auf die Ecke, GRIFF-Taste drücken
-                    </Text>
-                  )}
-                  <Text fontSize={9} color={reg ? (rmsGrob ? "#ff6b5e" : "#4ade80") : "#9a9aa2"}>
-                    {reg
-                      ? rmsGrob
-                        ? `Ausrichtung grob: ±${rmsMm!.toFixed(1)} mm — bitte neu ausrichten`
-                        : `Ausgerichtet: ±${rmsMm!.toFixed(1)} mm · Werkstück nicht bewegen`
-                      : "Noch nicht ausgerichtet — Maße erscheinen nach dem Ausrichten am Türblatt"}
-                  </Text>
-                </Container>
-              </Root>
-            </Billboard>
+            {/* ─── Menütafel: Meta horizon-Kit (RLDS-Glasfenster) ─── */}
+            <BeschlagXRTafel
+              schritt={schritt}
+              index={index}
+              gesamt={steps.length}
+              ausrichten={ausrichten}
+              rmsMm={rmsMm}
+              rmsGrob={rmsGrob}
+              erledigt={erledigt}
+              onErledigt={(id, wert) => setErledigt((st) => ({ ...st, [id]: wert }))}
+              onZurueck={() => setIndex((i) => Math.max(0, i - 1))}
+              onWeiter={() => setIndex((i) => Math.min(steps.length - 1, i + 1))}
+              onAusrichtenStart={verwerfen}
+              onAusrichtenAbbruch={() => setAusrichten(false)}
+              position={TAFEL_POS}
+            />
 
             {ausrichten && (
               <BeschlagARRegistration

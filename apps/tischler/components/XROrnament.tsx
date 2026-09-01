@@ -1,7 +1,7 @@
 "use client";
 
-import { Root, Container, Text } from "@react-three/uikit";
-import { Card, Button } from "@react-three/uikit-apfel";
+import { Container, Text } from "@react-three/uikit";
+import { Panel, Button } from "@react-three/uikit-horizon";
 import { ChevronLeft, ChevronRight, Mic, PanelTop, Settings2 } from "@react-three/uikit-lucide";
 import type { IRAGProvider, ITopicGuard, ITTSProvider } from "@craft-codex/core";
 import { useXRVoice } from "../lib/voice/use-xr-voice";
@@ -69,9 +69,9 @@ export function XROrnament({
 
   return (
     <group position={position}>
-      <Root pixelSize={0.001} anchorX="center" anchorY="center">
+      <Container pixelSize={0.001} anchorX="center" anchorY="center">
         {/* Horizontale Glas-Capsule (visionOS-Toolbar-Ornament), grosse Rundung. */}
-        <Card
+        <Panel
           flexDirection="row"
           alignItems="center"
           gap={10}
@@ -80,21 +80,21 @@ export function XROrnament({
           borderRadius={36}
         >
           {/* Lektion-Fluss */}
-          <Button variant="icon" size="md" disabled={atStart} onClick={onPrev}>
+          <Button variant="secondary" size="sm" icon disabled={atStart} onClick={onPrev}>
             <ChevronLeft width={20} height={20} />
           </Button>
           <Container flexDirection="column" alignItems="center" minWidth={86}>
             <Text fontSize={16} color="#f4f1e8">{asciiFold(labels.step)}</Text>
             <Text fontSize={12} color="#9fc7b0">{asciiFold(label)}</Text>
           </Container>
-          <Button variant="icon" size="md" selected={!atEnd} disabled={atEnd} onClick={onNext}>
+          <Button variant={!atEnd ? "primary" : "secondary"} size="sm" icon disabled={atEnd} onClick={onNext}>
             <ChevronRight width={20} height={20} />
           </Button>
 
           <Divider />
 
           {/* Schneller Tafel-Zugriff (Bernhards Wunsch) */}
-          <Button variant="pill" size="md" selected={tafelOffen} onClick={onTafel}>
+          <Button variant={tafelOffen ? "primary" : "secondary"} size="sm" onClick={onTafel}>
             <Container flexDirection="row" alignItems="center" gap={6}>
               <PanelTop width={16} height={16} />
               <Text fontSize={15}>{asciiFold(labels.tafel)}</Text>
@@ -102,7 +102,7 @@ export function XROrnament({
           </Button>
 
           {/* Ein-Tap Meister (spricht die Kernfrage des Schritts) */}
-          <Button variant="pill" size="md" disabled={busy} onClick={() => ask(meisterFrage)}>
+          <Button variant="primary" size="sm" disabled={busy} onClick={() => ask(meisterFrage)}>
             <Container flexDirection="row" alignItems="center" gap={6}>
               <Mic width={16} height={16} />
               <Text fontSize={15}>{busy ? "..." : asciiFold(labels.master)}</Text>
@@ -112,11 +112,11 @@ export function XROrnament({
           <Divider />
 
           {/* Mehr… holt das Detail-Panel erst auf Wunsch */}
-          <Button variant="icon" size="md" selected={panelOffen} onClick={onMehr}>
+          <Button variant={panelOffen ? "primary" : "secondary"} size="sm" icon onClick={onMehr}>
             <Settings2 width={18} height={18} />
           </Button>
-        </Card>
-      </Root>
+        </Panel>
+      </Container>
     </group>
   );
 }
