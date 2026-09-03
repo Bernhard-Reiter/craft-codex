@@ -896,3 +896,66 @@ body.cc-kiosk .cc-workbench {
   align-self: flex-start;
   letter-spacing: 0.08em;
 }
+
+/* ── Materialwissen am Werkstück (Durchstich M5-06) ─────────────────────────────────────
+   Ruhig und gross genug für die Werkstatt: eine Karte, die man mit Leim an den Fingern
+   lesen kann. Die Ampel ist die wichtigste Farbe auf dem Schirm — sie sagt, ob eine Zahl
+   belegt ist oder nur angenommen. */
+.werkstoff { max-width: 68rem; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+.werkstoff .kopf h1 { margin: 0 0 0.25rem; font-size: 1.6rem; }
+.werkstoff .herkunft { margin: 0; color: #64748b; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.werkstoff .hinweis-klein { margin: 0.25rem 0 0; color: #94a3b8; font-size: 0.85rem; }
+
+.werkstoff .teile { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0; align-items: flex-end; }
+.werkstoff .teil {
+  position: relative; border: 2px solid #cbd5e1; border-radius: 6px; background: #f8fafc;
+  cursor: pointer; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; gap: 0.25rem; transition: border-color 0.15s, background 0.15s;
+}
+.werkstoff .teil:hover { border-color: #94a3b8; background: #f1f5f9; }
+.werkstoff .teil.aktiv { border-color: #0f172a; background: #e2e8f0; }
+.werkstoff .teilname { font-weight: 600; }
+.werkstoff .teilmass { color: #64748b; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+
+.werkstoff .ampel { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: #475569; white-space: nowrap; }
+.werkstoff .punkt { width: 0.7rem; height: 0.7rem; border-radius: 50%; display: inline-block; }
+
+.werkstoff .karte { border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; background: #fff; }
+.werkstoff .kartenkopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; }
+.werkstoff .kartenkopf h2 { margin: 0; font-size: 1.25rem; }
+.werkstoff .aufbau { margin: 0.2rem 0 0; color: #64748b; font-size: 0.85rem; }
+
+.werkstoff .kennzahlen { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 1rem 0 1.5rem; }
+.werkstoff .kennzahlen dt { color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.werkstoff .kennzahlen dd { margin: 0.1rem 0 0; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+
+.werkstoff .gruppe { margin-bottom: 1.5rem; }
+.werkstoff .gruppe h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin: 0 0 0.5rem; }
+.werkstoff .zeile { border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 0.9rem; margin-bottom: 0.6rem; }
+.werkstoff .zeile > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.werkstoff .zeile .rolle { color: #94a3b8; font-size: 0.8rem; }
+.werkstoff .hersteller { margin: 0.35rem 0 0; color: #475569; font-size: 0.9rem; }
+.werkstoff .zeile details { margin-top: 0.5rem; }
+.werkstoff .zeile summary { cursor: pointer; color: #475569; font-size: 0.9rem; }
+.werkstoff .schritte { margin: 0.4rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+.werkstoff .schritte .werkzeug { color: #64748b; }
+.werkstoff .schritte .hinweis { color: #64748b; font-size: 0.85rem; }
+.werkstoff .sicherheit { margin: 0.5rem 0 0; font-size: 0.9rem; color: #b45309; }
+.werkstoff .verweise { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+.werkstoff .verweise .seite, .werkstoff .verweise .hash { color: #64748b; }
+.werkstoff .luecken { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.85rem; color: #b45309; list-style: none; }
+.werkstoff .verbrauch { list-style: none; margin: 0; padding: 0; font-size: 0.9rem; }
+.werkstoff .verbrauch li { display: flex; gap: 1rem; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; }
+.werkstoff .verbrauch .menge { margin-left: auto; font-variant-numeric: tabular-nums; }
+.werkstoff .fuss { border-top: 1px solid #e2e8f0; padding-top: 0.75rem; color: #64748b; font-size: 0.8rem; }
+.werkstoff .hash-zeile { font-variant-numeric: tabular-nums; }
+.werkstoff .fehler { color: #b91c1c; font-weight: 600; }
+
+@media (prefers-color-scheme: dark) {
+  .werkstoff .teil { background: #1e293b; border-color: #334155; }
+  .werkstoff .teil:hover { background: #263449; }
+  .werkstoff .teil.aktiv { background: #334155; border-color: #94a3b8; }
+  .werkstoff .karte { background: #0f172a; border-color: #1e293b; }
+  .werkstoff .zeile { border-color: #1e293b; }
+  .werkstoff .verbrauch li { border-color: #1e293b; }
+}

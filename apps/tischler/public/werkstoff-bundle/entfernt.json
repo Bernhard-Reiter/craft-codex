@@ -1,0 +1,7 @@
+{
+  "felder": [
+    "preise"
+  ],
+  "hinweis": "Die Hashes in katalogstand.json gehoeren zu den ORIGINALdateien im Datenpaket, nicht zu diesen bereinigten Kopien.",
+  "warum": "Betriebsdaten (Lieferantenpreise) gehoeren in den Tenant, nicht in den Katalog und nicht auf die Baustelle"
+}
