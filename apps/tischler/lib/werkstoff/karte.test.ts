@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  arbeitsfolge,  gruppiere,
+  arbeitsfolge,
+  ladeDatengrenze,  gruppiere,
   luecken,
   rolleLesbar,
   schwaechste,
@@ -236,5 +237,40 @@ describe("die Dicke ist eine Spanne, keine Zahl", () => {
       expect(a.grund.length).toBeGreaterThan(10);
       expect(a.rolle).toMatch(/klarlack/);
     }
+  });
+});
+
+describe("ladeDatengrenze", () => {
+  const bundle = join(__dirname, "../../public/werkstoff-bundle");
+  const stub = (aenderung?: (roh: string) => string | null) =>
+    vi.fn(async (url: string) => {
+      const pfad = join(bundle, url.replace("/werkstoff-bundle/", ""));
+      if (!existsSync(pfad)) return { ok: false, status: 404 } as Response;
+      const inhalt = aenderung ? aenderung(readFileSync(pfad, "utf8")) : readFileSync(pfad, "utf8");
+      if (inhalt === null) return { ok: false, status: 404 } as Response;
+      return { ok: true, status: 200, json: async () => JSON.parse(inhalt) } as Response;
+    });
+
+  it("liest die Grenzaussage aus dem echten Bundle", async () => {
+    vi.stubGlobal("fetch", stub());
+    const g = await ladeDatengrenze();
+    expect(g).not.toBeNull();
+    // Beide Sätze, nicht nur einer: der eine sagt WAS entfernt wurde, der andere WIE WEIT die
+    // Zusage reicht. Ohne den zweiten hält jemand die Grenze für dichter, als sie ist.
+    expect(g!.warum).toMatch(/Betriebsdaten|Lieferantenpreise/i);
+    expect(g!.grenze).toMatch(/Feldname/i);
+    expect(g!.grenze).toMatch(/Freitext|Wert/i);
+    vi.unstubAllGlobals();
+  });
+
+  it("schweigt lieber, als einen unbelegten Satz anzuzeigen", async () => {
+    // Fehlende Datei: kein Fehler, aber auch keine Beruhigung.
+    vi.stubGlobal("fetch", stub(() => null));
+    expect(await ladeDatengrenze()).toBeNull();
+    // Halbe Datei (nur `warum`, keine Grenze): genauso — eine Zusage ohne ihre Reichweite ist
+    // schlimmer als keine, weil sie für mehr gehalten wird.
+    vi.stubGlobal("fetch", stub((roh) => JSON.stringify({ warum: JSON.parse(roh).warum })));
+    expect(await ladeDatengrenze()).toBeNull();
+    vi.unstubAllGlobals();
   });
 });

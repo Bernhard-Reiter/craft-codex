@@ -993,3 +993,12 @@ body.cc-kiosk .cc-workbench {
   line-height: 1.35;
   opacity: 0.9;
 }
+
+/* Die Grenzaussage: leiser als die Werte, aber dauerhaft sichtbar. Sie sagt dem Handwerker,
+   dass hier bewusst etwas fehlt — der Unterschied zwischen einer Luecke und einer Entscheidung. */
+.werkstoff-panel .datengrenze {
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed currentColor;
+  border-color: color-mix(in srgb, currentColor 25%, transparent);
+}

@@ -260,11 +260,45 @@ export interface Bundlestand {
   dateien: number;
 }
 
+/**
+ * Was aus den Herstellerdaten bewusst entfernt wurde — und wie weit diese Zusage reicht.
+ *
+ * `entfernt.json` liegt seit dem ersten Bundle daneben, und **niemand hat sie je gelesen**: sie
+ * war der Beleg für den, der das Bundle als Datei prüft, nicht für den, der am Werkstück steht
+ * (Beobachtung Cody #2 an craft#43). Dabei ist der Unterschied für den Handwerker wesentlich:
+ * »hier steht kein Wert« kann heißen »fehlt« oder »gehört hier nicht hin«. Das erste ist eine
+ * Lücke, das zweite eine Entscheidung — und nur eine davon muss er nachfragen.
+ */
+export interface Datengrenze {
+  warum: string;
+  grenze: string;
+}
+
 export async function ladeKatalogstand(basis = "/werkstoff-bundle"): Promise<Bundlestand> {
   const r = await fetch(`${basis}/katalogstand.json`);
   if (!r.ok) throw new Error(`Katalogstand nicht lesbar (${r.status})`);
   const d = await r.json();
   return { stand: d.stand, sha256: d.sha256, dateien: (d.dateien ?? []).length };
+}
+
+/**
+ * Fehlt die Datei oder ein Feld, gibt es `null` — dann steht im Panel nichts statt eines
+ * beruhigenden Satzes, den niemand geprüft hat. Eine Zusage, die man nicht belegen kann,
+ * gehört nicht auf ein Werkstattblatt.
+ */
+export async function ladeDatengrenze(
+  basis = "/werkstoff-bundle",
+): Promise<Datengrenze | null> {
+  try {
+    const r = await fetch(`${basis}/entfernt.json`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return typeof d?.warum === "string" && typeof d?.grenze === "string"
+      ? { warum: d.warum, grenze: d.grenze }
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function ladeKarte(werkstueckId: string, basis = "/werkstoff-bundle"): Promise<Materialkarte> {

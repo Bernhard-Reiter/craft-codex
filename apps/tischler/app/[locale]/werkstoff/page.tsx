@@ -21,11 +21,13 @@ import {
   arbeitsfolge,
   gruppiere,
   ladeKarte,
+  ladeDatengrenze,
   ladeKatalogstand,
   luecken,
   rolleLesbar,
   verweise,
   type Bundlestand,
+  type Datengrenze,
   type Komponentenzeile,
   type Materialkarte,
 } from "../../../lib/werkstoff/karte";
@@ -121,10 +123,14 @@ export default function WerkstoffPage() {
   const [gewaehlt, setGewaehlt] = useState<string | null>(null);
   const [karte, setKarte] = useState<Materialkarte | null>(null);
   const [stand, setStand] = useState<Bundlestand | null>(null);
+  const [grenze, setGrenze] = useState<Datengrenze | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
 
   useEffect(() => {
     ladeKatalogstand().then(setStand).catch((e) => setFehler(String(e.message ?? e)));
+    // Fehlt die Grenzaussage, bleibt es still — kein Fehler, aber auch kein Satz, den
+    // niemand belegen kann.
+    ladeDatengrenze().then(setGrenze);
   }, []);
 
   useEffect(() => {
@@ -319,6 +325,13 @@ export default function WerkstoffPage() {
               Manifest im Auftrag gefunden und mit der Karte abgeglichen. Ob der Hash zum Inhalt
               des Manifests passt, prüft dieses Gerät nicht.
             </p>
+            {/* »Hier steht kein Wert« kann zweierlei heißen: fehlt, oder gehört hier nicht hin.
+                Nur das erste muss der Handwerker nachfragen — also muss das zweite dastehen. */}
+            {grenze && (
+              <p className="hash-zeile hash-fussnote datengrenze">
+                {grenze.warum}. {grenze.grenze}
+              </p>
+            )}
           </footer>
         </section>
       )}
