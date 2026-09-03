@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  gruppiere,
+  arbeitsfolge,  gruppiere,
   luecken,
   rolleLesbar,
   schwaechste,
@@ -123,6 +123,42 @@ describe("ladeKarte", () => {
     vi.unstubAllGlobals();
   });
 
+  it("lässt »leer gegen leer« nicht als Übereinstimmung durchgehen", async () => {
+    // Der Fail-Open, der in genau dem Code saß, der die Lücke schließen sollte: fehlt der Hash
+    // auf BEIDEN Seiten, ist `undefined !== undefined` falsch — kein Wurf, Karte geliefert.
+    // Zwei leere Zeichenketten genauso. »Leer« heißt hier Messfehler, nicht gleich.
+    for (const leer of [undefined, ""] as const) {
+      vi.stubGlobal(
+        "fetch",
+        stub((_url, roh) => {
+          const o = JSON.parse(roh);
+          if (leer === undefined) delete o.resolve_manifest_sha256;
+          else o.resolve_manifest_sha256 = leer;
+          return JSON.stringify(o);
+        }),
+      );
+      await expect(ladeKarte("boden-562x555")).rejects.toThrow(
+        /ohne gültigen Manifest-Hash/,
+      );
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("verlangt den Werkstückbezug im Manifest, nicht nur denselben Hash", async () => {
+    // Ohne diese Prüfung hinge der Bezug allein daran, dass zwei Dateien denselben Hash tragen —
+    // ein Manifest unter falschem Dateinamen käme durch.
+    vi.stubGlobal(
+      "fetch",
+      stub((url, roh) =>
+        url.includes("/manifeste/")
+          ? JSON.stringify({ ...JSON.parse(roh), werkstueck: { id: "ein-anderes" } })
+          : roh,
+      ),
+    );
+    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/Manifest gehört zu ein-anderes/);
+    vi.unstubAllGlobals();
+  });
+
   it("lehnt ab, wenn Karte und Manifest nicht zusammengehören", async () => {
     vi.stubGlobal(
       "fetch",
@@ -134,5 +170,71 @@ describe("ladeKarte", () => {
     );
     await expect(ladeKarte("boden-562x555")).rejects.toThrow(/gehören nicht zusammen/);
     vi.unstubAllGlobals();
+  });
+});
+
+describe("arbeitsfolge", () => {
+  // Sie stand in jeder Karte und wurde nie angezeigt — dabei ist sie der Teil, für den der
+  // Handwerker das Panel aufmacht. Geprüft an der ECHTEN Karte, nicht an erfundenen Schritten.
+  const schritte = arbeitsfolge(KARTE);
+
+  it("gibt alle Schritte in der richtigen Reihenfolge", () => {
+    expect(schritte.length).toBe(8);
+    expect(schritte.map((s) => s.nr)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it("nennt die Schritte, wie sie in der Werkstatt heißen", () => {
+    expect(schritte.map((s) => s.titel)).toEqual([
+      "Furnieren",
+      "Kante anleimen",
+      "Schleifen",
+      "Lack auftragen",
+      "Trocknen",
+      "Zwischenschliff",
+      "Lack auftragen",
+      "Trocknen",
+    ]);
+  });
+
+  it("trägt die Werte mit Einheit, die am Werkstück gebraucht werden", () => {
+    // `?.` wäre hier falsch: fehlt der Schritt, soll der Test scheitern, nicht schweigen.
+    const furnieren = schritte[0]!.werte;
+    expect(furnieren).toContainEqual({ was: "Leimauftrag", wert: "120 g/m²" });
+    const lack = schritte[3]!.werte;
+    expect(lack).toContainEqual({ was: "Auftragsmenge", wert: "100 g/m²" });
+    expect(lack).toContainEqual({ was: "Glanzgrad", wert: "10 GU" });
+  });
+
+  it("rechnet Minuten in etwas um, das jemand lesen kann", () => {
+    // 2880 min sagt keinem etwas. 2 Tage schon — und danach wird die Werkstatt geplant.
+    const trocknen = schritte[4]!.werte;
+    expect(trocknen).toContainEqual({ was: "Endhärte nach", wert: "2 Tage" });
+    expect(trocknen).toContainEqual({ was: "Schleifbar nach", wert: "2 h" });
+    expect(trocknen).toContainEqual({ was: "Stapelbar nach", wert: "12 h" });
+  });
+
+  it("wirft nichts weg, was in der Karte steht", () => {
+    const ausKarte = KARTE.arbeitsfolge.reduce(
+      (n, s) => n + Object.keys(s.parameter ?? {}).length,
+      0,
+    );
+    const angezeigt = schritte.reduce((n, s) => n + s.werte.length, 0);
+    expect(angezeigt).toBe(ausKarte);
+  });
+});
+
+describe("die Dicke ist eine Spanne, keine Zahl", () => {
+  it("die echte Karte nennt Minimum, Maximum und was NICHT drinsteckt", () => {
+    // Nach dieser Zahl werden Nut und Band ausgelegt. Die beiden ADLER-Klarlackschichten sind
+    // nicht addiert (Trockenschichtdicke nicht hinterlegt) — das muss am Wert stehen.
+    expect(KARTE.dicke_mm.nominal).toBe(20.8);
+    expect(KARTE.dicke_mm.minimum).toBe(20.1);
+    expect(KARTE.dicke_mm.maximum).toBe(21.5);
+    expect(KARTE.dicke_mm.freigabe).toBe("annahme");
+    expect(KARTE.dicke_mm.ausgeschlossen).toHaveLength(2);
+    for (const a of KARTE.dicke_mm.ausgeschlossen!) {
+      expect(a.grund.length).toBeGreaterThan(10);
+      expect(a.rolle).toMatch(/klarlack/);
+    }
   });
 });

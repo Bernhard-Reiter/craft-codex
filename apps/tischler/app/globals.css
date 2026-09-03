@@ -967,3 +967,29 @@ body.cc-kiosk .cc-workbench {
   font-style: italic;
   opacity: 0.85;
 }
+
+/* Arbeitsfolge: die Schritte sind das, wofuer das Panel aufgemacht wird — nummeriert, mit den
+   Werten als Paare darunter. Lesbar auf Armlaenge, nicht am Schreibtisch. */
+.werkstoff-panel .arbeitsfolge ol { margin: 0; padding-left: 1.4rem; }
+.werkstoff-panel .arbeitsfolge li { margin-bottom: 0.9rem; }
+.werkstoff-panel .schritt-titel { font-weight: 600; }
+.werkstoff-panel .schritt-werte {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem 0.6rem;
+  margin: 0.3rem 0 0;
+  font-size: 0.95em;
+}
+.werkstoff-panel .schritt-werte > div { display: contents; }
+.werkstoff-panel .schritt-werte dt { opacity: 0.75; }
+.werkstoff-panel .schritt-werte dd { margin: 0; font-variant-numeric: tabular-nums; }
+.werkstoff-panel .schritt-neben { margin: 0.2rem 0 0; font-size: 0.9em; opacity: 0.8; }
+.werkstoff-panel .schritt-sicherheit { font-weight: 600; opacity: 1; }
+/* Die Spanne gehoert an die Zahl, nicht in eine Fussnote — nach ihr wird die Nut ausgelegt. */
+.werkstoff-panel .spanne { opacity: 0.7; font-size: 0.9em; }
+.werkstoff-panel .nicht-enthalten {
+  margin: 0.2rem 0 0;
+  font-size: 0.85em;
+  line-height: 1.35;
+  opacity: 0.9;
+}

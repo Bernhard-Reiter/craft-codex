@@ -57,7 +57,15 @@ export interface Materialkarte {
   resolve_manifest_sha256: string;
   karte_sha256: string;
   freigabe: Freigabe;
-  dicke_mm: { nominal: number; minimum?: number; maximum?: number; freigabe: Freigabe };
+  dicke_mm: {
+    nominal: number;
+    minimum?: number;
+    maximum?: number;
+    freigabe: Freigabe;
+    /** Schichten, die NICHT in der Summe stecken — mit Grund. Ohne sie liest sich die Zahl
+     *  vollständiger, als sie ist, und nach ihr werden Nut und Band ausgelegt. */
+    ausgeschlossen?: Array<{ komponente: string; rolle: string; grund: string }>;
+  };
   gewicht_kg_m2: { wert: number; freigabe: Freigabe };
   brand: { status: string; klasse?: string | null };
   komponenten: Komponentenzeile[];
@@ -138,6 +146,110 @@ export function verweise(z: Komponentenzeile): Unterlage[] {
 }
 
 /** Lücken dieser Zeile, damit am Stück steht, was fehlt (nicht nur, was da ist). */
+/** Ein Arbeitsschritt, wie ihn der Handwerker liest: Nummer, was zu tun ist, und die Werte. */
+export interface Arbeitsschritt {
+  nr: number;
+  titel: string;
+  werte: Array<{ was: string; wert: string }>;
+  werkzeuge: string[];
+  sicherheit: string[];
+}
+
+const SCHRITT_TITEL: Record<string, string> = {
+  furnieren: "Furnieren",
+  kante: "Kante anleimen",
+  schleifen: "Schleifen",
+  zwischenschliff: "Zwischenschliff",
+  auftragen: "Lack auftragen",
+  trocknen: "Trocknen",
+  pressen: "Pressen",
+  zuschnitt: "Zuschnitt",
+};
+
+/** Parameternamen, wie sie in der Werkstatt heißen — nicht wie sie im JSON stehen. */
+const WERT_TITEL: Record<string, string> = {
+  auftrag_g_m2: "Leimauftrag",
+  auftragsmenge_g_m2: "Auftragsmenge",
+  beanspruchungsgruppe: "Beanspruchung",
+  dicke_mm: "Dicke",
+  endhaerte_min: "Endhärte nach",
+  glanzgrad: "Glanzgrad",
+  holzfeuchte_prozent: "Holzfeuchte",
+  kantenart: "Kantenart",
+  kleber: "Kleber",
+  korn: "Korn",
+  korn_max: "Korn (max.)",
+  presszeit_min: "Presszeit",
+  pressdruck_n_cm2: "Pressdruck",
+  schleifbar_min: "Schleifbar nach",
+  stapelbar_min: "Stapelbar nach",
+  temperatur_c: "Temperatur",
+  vor: "Vor dem Schritt",
+};
+
+/** Minuten menschlich: 2880 min sagt keinem etwas, 2 Tage schon. */
+function dauer(minuten: number): string {
+  if (minuten < 60) return `${minuten} min`;
+  if (minuten < 60 * 24) {
+    const h = minuten / 60;
+    return `${Number.isInteger(h) ? h : h.toFixed(1)} h`;
+  }
+  const t = minuten / (60 * 24);
+  return `${Number.isInteger(t) ? t : t.toFixed(1)} Tage`;
+}
+
+function wertText(name: string, wert: unknown): string {
+  // Die Zeiten kommen als Zeichenkette mit Einheit ("2880 min"), nicht als Zahl — das
+  // Datenpaket trägt Wert und Einheit zusammen. Beide Formen umrechnen: 2880 min liest
+  // niemand als zwei Tage, und danach wird die Werkstatt geplant.
+  if (name.endsWith("_min")) {
+    if (typeof wert === "number") return dauer(wert);
+    const m = typeof wert === "string" && wert.match(/^\s*(\d+(?:[.,]\d+)?)\s*min\s*$/i);
+    if (m && m[1]) return dauer(Number(m[1].replace(",", ".")));
+  }
+  if (typeof wert === "number") {
+    const einheit = name.endsWith("_g_m2")
+      ? " g/m²"
+      : name.endsWith("_mm")
+        ? " mm"
+        : name.endsWith("_c")
+          ? " °C"
+          : name.endsWith("_prozent")
+            ? " %"
+            : name.endsWith("_n_cm2")
+              ? " N/cm²"
+              : "";
+    return `${wert}${einheit}`;
+  }
+  if (wert && typeof wert === "object") {
+    return Object.entries(wert as Record<string, unknown>)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ");
+  }
+  return String(wert);
+}
+
+/**
+ * Die Arbeitsfolge lesbar machen. Sie stand bisher in jeder Karte und wurde nie angezeigt —
+ * dabei ist sie der Teil, für den der Handwerker das Panel aufmacht: Leimauftrag, Presszeit,
+ * Korn, Trocknungszeiten. Ohne sie zeigt die Karte, WORAUS das Teil besteht, aber nicht, WIE
+ * es gebaut wird (Review craft#42, Runde 2).
+ */
+export function arbeitsfolge(k: Materialkarte): Arbeitsschritt[] {
+  return [...(k.arbeitsfolge ?? [])]
+    .sort((a, b) => a.nr - b.nr)
+    .map((s) => ({
+      nr: s.nr,
+      titel: SCHRITT_TITEL[s.typ] ?? s.typ.replace(/_/g, " "),
+      werte: Object.entries(s.parameter ?? {})
+        .filter(([, v]) => v !== null && v !== undefined)
+        .map(([name, v]) => ({ was: WERT_TITEL[name] ?? name.replace(/_/g, " "), wert: wertText(name, v) }))
+        .sort((a, b) => a.was.localeCompare(b.was, "de")),
+      werkzeuge: s.werkzeuge ?? [],
+      sicherheit: s.sicherheit ?? [],
+    }));
+}
+
 export function luecken(karte: Materialkarte, z: Komponentenzeile): Luecke[] {
   return (karte.unterlagen_ohne_verweis ?? []).filter((l) => l.rolle === z.rolle);
 }
@@ -179,11 +291,35 @@ export async function ladeKarte(werkstueckId: string, basis = "/werkstoff-bundle
         "unbelegte Werte werden nicht angezeigt",
     );
   }
-  const manifest = (await m.json()) as { resolve_manifest_sha256?: string };
+  const manifest = (await m.json()) as {
+    resolve_manifest_sha256?: string;
+    werkstueck?: { id?: string };
+  };
+  // Erst die Form, dann die Gleichheit. Ein Vergleich allein war fail-open: fehlt das Feld auf
+  // BEIDEN Seiten, ist `undefined !== undefined` falsch — und die Karte käme durch, obwohl
+  // nichts belegt wurde. »Leer« heißt hier Messfehler, nicht gleich (Review craft#42, Runde 2).
+  const HEX64 = /^[0-9a-f]{64}$/;
+  for (const [wo, wert] of [
+    ["Karte", k.resolve_manifest_sha256],
+    ["Manifest", manifest.resolve_manifest_sha256],
+  ] as const) {
+    if (!HEX64.test(wert ?? "")) {
+      throw new Error(
+        `${wo} für ${werkstueckId} ohne gültigen Manifest-Hash — ohne ihn ist nichts belegt`,
+      );
+    }
+  }
   if (manifest.resolve_manifest_sha256 !== k.resolve_manifest_sha256) {
     throw new Error(
       `Karte und Manifest gehören nicht zusammen (Karte ${k.resolve_manifest_sha256?.slice(0, 12)}…, ` +
         `Manifest ${manifest.resolve_manifest_sha256?.slice(0, 12)}…)`,
+    );
+  }
+  // Und der Werkstückbezug direkt, nicht nur über den Hash: sonst hinge er allein daran, dass
+  // zwei Dateien denselben Hash tragen — ein Manifest unter falschem Dateinamen käme durch.
+  if (manifest.werkstueck?.id !== werkstueckId) {
+    throw new Error(
+      `Manifest gehört zu ${manifest.werkstueck?.id ?? "keinem Werkstück"}, angefragt war ${werkstueckId}`,
     );
   }
   return k;

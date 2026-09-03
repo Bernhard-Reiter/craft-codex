@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AMPEL,
   AMPEL_TEXT,
+  arbeitsfolge,
   gruppiere,
   ladeKarte,
   ladeKatalogstand,
@@ -146,6 +147,7 @@ export default function WerkstoffPage() {
   }, [gewaehlt]);
 
   const gruppen = useMemo(() => (karte ? gruppiere(karte.komponenten) : []), [karte]);
+  const schritte = useMemo(() => (karte ? arbeitsfolge(karte) : []), [karte]);
   const massstab = 0.28;
 
   return (
@@ -197,7 +199,27 @@ export default function WerkstoffPage() {
           <dl className="kennzahlen">
             <div>
               <dt>Dicke</dt>
-              <dd>{karte.dicke_mm.nominal} mm</dd>
+              <dd>
+                {karte.dicke_mm.nominal} mm
+                {karte.dicke_mm.minimum !== undefined &&
+                  karte.dicke_mm.maximum !== undefined && (
+                    <span className="spanne">
+                      {" "}
+                      ({karte.dicke_mm.minimum}–{karte.dicke_mm.maximum})
+                    </span>
+                  )}
+              </dd>
+              {/* Nach dieser Zahl werden Nut und Band ausgelegt. Wenn Schichten fehlen, muss
+                  das DANEBEN stehen, nicht in einer Fußnote — sonst rechnet der Handwerker mit
+                  einer Summe, die keine ist (Review craft#42). */}
+              {(karte.dicke_mm.ausgeschlossen?.length ?? 0) > 0 && (
+                <p className="nicht-enthalten">
+                  Nicht enthalten:{" "}
+                  {karte.dicke_mm.ausgeschlossen!
+                    .map((a) => `${rolleLesbar(a.rolle)} (${a.grund})`)
+                    .join(" · ")}
+                </p>
+              )}
             </div>
             <div>
               <dt>Fläche</dt>
@@ -249,6 +271,37 @@ export default function WerkstoffPage() {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {schritte.length > 0 && (
+            <div className="gruppe arbeitsfolge">
+              <h3>Arbeitsfolge</h3>
+              <ol>
+                {schritte.map((s) => (
+                  <li key={s.nr}>
+                    <span className="schritt-titel">{s.titel}</span>
+                    {s.werte.length > 0 && (
+                      <dl className="schritt-werte">
+                        {s.werte.map((w) => (
+                          <div key={w.was}>
+                            <dt>{w.was}</dt>
+                            <dd>{w.wert}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                    {s.werkzeuge.length > 0 && (
+                      <p className="schritt-neben">Werkzeug: {s.werkzeuge.join(", ")}</p>
+                    )}
+                    {s.sicherheit.length > 0 && (
+                      <p className="schritt-neben schritt-sicherheit">
+                        Sicherheit: {s.sicherheit.join(", ")}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
 
