@@ -1,5 +1,9 @@
 # Dependencies
 node_modules/
+# Ohne Slash auch Symlinks: ein Worktree-Helfer wie apps/*/node_modules -> ~/craft-codex/...
+# ist KEIN Verzeichnis, rutschte an der Regel oben vorbei und landete im Commit — in CI dann
+# ENOENT beim Verlinken (craft#42, 03.09.).
+node_modules
 .pnpm-store/
 
 # Build artifacts

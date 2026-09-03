@@ -1,0 +1,17 @@
+{
+  "bezeichnung": "2× ADLER G10 Klarlack (1× Grund + Zwischenschliff + 1× Deck, gleiches Produkt) — Produktwahl offen: Legnopur (Standard) / Antiscratch / Bluefin Unistar",
+  "id": "adler-g10-2x-klarlack",
+  "revision": 1,
+  "schema": "werkstoff/system.schema.json",
+  "schichten": [
+    {
+      "anzahl": 2,
+      "komponente": {
+        "id": "adler-aduro-legnopur-g10",
+        "revision": 1
+      },
+      "rolle": "klarlack",
+      "verfahren": "spritzen"
+    }
+  ]
+}

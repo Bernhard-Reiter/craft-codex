@@ -1,0 +1,103 @@
+{
+  "art": "klebstoff",
+  "auftrag_beidseitig": false,
+  "auftragsmenge": {
+    "bemerkung": "ca. 120 g/m² einseitig auf Trägerplatte; bei saugfähigen/rauen Flächen erhöhen",
+    "einheit": "g/m2",
+    "freigabe": "belegt",
+    "wert": 120
+  },
+  "beanspruchungsgruppe": "D3 (EN 204) / DIN 68705 Kat. IF",
+  "bezeichnung": "Ponal Pressal Hydro (Harnstoffharz-Heißpressleim, D3) — Furnierverleimung, Heißpresse",
+  "eigenschaften": {
+    "eiche_hinweis": {
+      "freigabe": "belegt",
+      "wert": "Geringer Leimdurchschlag bei 120 g/m²; neutrale Leimflotte"
+    },
+    "holzfeuchte_max_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "holzfeuchte_min_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 6
+    }
+  },
+  "hersteller": "Henkel (Ponal)",
+  "id": "ponal-pressal-hydro-uf",
+  "mischung": {
+    "pulver_zu_wasser": {
+      "freigabe": "belegt",
+      "wert": "3 RT : 1 RT (≈ 220 g : 100 g)"
+    }
+  },
+  "offene_zeit_min": {
+    "bemerkung": "Einlege-/Schließzeit ≤ 2 min",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 15
+  },
+  "pressdruck_n_cm2": {
+    "bemerkung": "0,2–0,5 N/mm², so hoch wie möglich",
+    "einheit": "N/cm2",
+    "freigabe": "belegt",
+    "wert": 30
+  },
+  "presstemperatur_c": {
+    "einheit": "°C",
+    "freigabe": "belegt",
+    "wert": 85
+  },
+  "presszeit_min": {
+    "bemerkung": "85 °C → 6 min; 95 °C → 4 min (Grundzeit + 1 min je mm Furnierdicke bis zur innersten Fuge)",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 6
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Ponal Pressal Hydro — Technisches Merkblatt (Henkel)",
+    "seite": "S. 1–2"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "Harnstoffharz: Formaldehyd — SDB beschaffen, Absaugung an der Presse"
+    ]
+  },
+  "topfzeit_h": {
+    "bemerkung": "bei 20 °C; 3 h bei 30 °C",
+    "einheit": "h",
+    "freigabe": "belegt",
+    "wert": 12
+  },
+  "typ": "uf",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Ponal Pressal Hydro — Technisches Merkblatt (Henkel)",
+      "typ": "datenblatt"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Pulver anrühren, Topfzeit beachten"
+      ],
+      "schritt": "pressen",
+      "werkzeuge": [
+        "Heißpresse 85–95 °C",
+        "Leimauftragswalze"
+      ]
+    },
+    {
+      "hinweise": [
+        "Pulver trocken lagern"
+      ],
+      "schritt": "lagern"
+    }
+  ]
+}

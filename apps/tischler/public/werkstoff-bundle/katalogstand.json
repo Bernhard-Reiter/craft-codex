@@ -1,0 +1,86 @@
+{
+  "dateien": [
+    {
+      "pfad": "aufbauten/eiche-furniert-p2-19-g10.json",
+      "sha256": "22b53e108519da3fb2bc64027456d51c17528ed1ac4afee9f1898016687004c4"
+    },
+    {
+      "pfad": "belaege/furnier-eiche-0-9-gemessert.json",
+      "sha256": "a3d0a609cf4f6b6f34e30adeffc6be3e79538388f3fdc20a2f51614672d2080c"
+    },
+    {
+      "pfad": "beschichtungen/adler-aduro-antiscratch-g10.json",
+      "sha256": "a1d2b2f93e49ef12c3bd2b923ed9e18a1b72d3133dc95f1f169e036abbc4f07e"
+    },
+    {
+      "pfad": "beschichtungen/adler-aduro-legnopur-g10.json",
+      "sha256": "a20a99226ee875b23753ad4cd0c40f5c6aa2bf5a64f3d1f85d32fbcf33c234c3"
+    },
+    {
+      "pfad": "beschichtungen/adler-bluefin-unistar-g10.json",
+      "sha256": "4e63fe1cffd46efbeaf6b6dedb8a248b8029cb333ff8cfde1c7eedd6ad4dd7c7"
+    },
+    {
+      "pfad": "kanten/hranipex-starkfurnierkante-2-0.json",
+      "sha256": "bb5fccbafb0af5258743b5d5a075904d0e4be08386fb9d5a32f38bfd78f4d5da"
+    },
+    {
+      "pfad": "kanten/massivholz-anleimer-eiche-5x24-eigen.json",
+      "sha256": "40e1b1e931954a2be0988528397803f9510a7fe5ccec1caea51e9c86c3568279"
+    },
+    {
+      "pfad": "kanten/ostermann-furnierkante-eiche-1-0.json",
+      "sha256": "5f17e6554a16e19f9a4e00834a695b3282a5e83cf8f4c309ed922f1b941e1fe0"
+    },
+    {
+      "pfad": "kanten/rehau-raukantex-wood-duennfurnier-1-0.json",
+      "sha256": "c97165af67a1697845cdc2713399fe94eee7ed01ac6c3cc61631bba8a5dedb3e"
+    },
+    {
+      "pfad": "klebstoffe/jowacoll-103-10-pvac.json",
+      "sha256": "3db411f1faecb179b68e6e750fabb27ad765fc2559c32dc5e6f242e0f3d82058"
+    },
+    {
+      "pfad": "klebstoffe/jowatherm-280-30-eva.json",
+      "sha256": "823e9c9fd3d3107af64298ef021b688b3ad675ea1f8dcb4f96b82acea8e35c72"
+    },
+    {
+      "pfad": "klebstoffe/kleiberit-303-0-pvac.json",
+      "sha256": "fa36c5399d89818343caa7daa82f55199ec55030f7107b958efdd8b6c0aad6dd"
+    },
+    {
+      "pfad": "klebstoffe/kleiberit-774-4-eva.json",
+      "sha256": "7ebe0a11c067ffcaa06c60561e8e571118ce7c5c796783d5ce8ed8dda9b34ec2"
+    },
+    {
+      "pfad": "klebstoffe/ponal-flaechenleim-pvac.json",
+      "sha256": "7637f6afa0d08ad54c915c88af5922cc2ca206f1788c98f15e1b9ee757c27b43"
+    },
+    {
+      "pfad": "klebstoffe/ponal-pressal-hydro-uf.json",
+      "sha256": "642c3c05c1cd56bc06c3fdf0b287164e3f50f3de98426866a20fc0c4da98828f"
+    },
+    {
+      "pfad": "systeme/adler-g10-2x-klarlack.json",
+      "sha256": "29f28166549c55ddc699cffc284b03c6b2f2e15a1f5a60d7c414c57f070c1e8d"
+    },
+    {
+      "pfad": "systeme/beispiel-mdf-farbig-6-schichten.json",
+      "sha256": "ded5a15edb929fa045fa1bd7681a65a67e141d1b749707beef66e3896ff2950e"
+    },
+    {
+      "pfad": "traeger/egger-spanplatte-p2-19.json",
+      "sha256": "57f96eb0a55a447cbacc9aad592db9f04bb5e8242af917e00a0d75e0b8a727b6"
+    },
+    {
+      "pfad": "werkstuecke/boden-562x555.json",
+      "sha256": "f7047b295c6c8baa3f520d1c27c1ed555004a7e83a8162cfebef05e66383bc00"
+    },
+    {
+      "pfad": "werkstuecke/seite-links-890x555.json",
+      "sha256": "bd3939be76a7fb535098a34cd0bacc83ca5c2ff62095920e824c791fbb23df49"
+    }
+  ],
+  "sha256": "74f7b7a2f11a27df7cb18e345856b8cf1d93599850164b5d8ce6c9e56fde83c8",
+  "stand": "2026-09-03"
+}

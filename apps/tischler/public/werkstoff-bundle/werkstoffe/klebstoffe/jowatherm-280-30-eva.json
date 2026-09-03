@@ -1,0 +1,80 @@
+{
+  "art": "klebstoff",
+  "auftragsmenge": {
+    "begruendung": "Mittelwert aus »Echtholzkanten 200–300 g/m²« (Ostermann-Verarbeitungshinweise); Jowat beziffert den Walzenauftrag nicht — Betriebswert bis zur Messung an der Maschine",
+    "bemerkung": "Echtholzkanten 200–300 g/m² (Ostermann: mehr Eigenspannung → mehr Leimauftrag); Jowat beziffert nicht",
+    "einheit": "g/m2",
+    "freigabe": "annahme",
+    "wert": 250
+  },
+  "bezeichnung": "Jowatherm 280.30 (EVA-Schmelzkleber, ungefüllt, Nullfuge) — Kantenanleimen stationär",
+  "dichte_kg_m3": {
+    "bemerkung": "~1,0 g/cm³",
+    "einheit": "kg/m3",
+    "freigabe": "belegt",
+    "wert": 1000
+  },
+  "eigenschaften": {
+    "erweichungspunkt_c": {
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 90
+    },
+    "kantenmaterial": {
+      "freigabe": "belegt",
+      "wert": "Kunststoff, HPL, CPL, Papier, Massivholz, Furnier"
+    },
+    "lieferform": {
+      "freigabe": "belegt",
+      "wert": "Granulat"
+    },
+    "viskositaet_mpas_200c": {
+      "bemerkung": "mPa·s ist keine Einheit der geschlossenen Liste — Text",
+      "freigabe": "belegt",
+      "wert": "50.000 mPa·s bei 200 °C"
+    }
+  },
+  "hersteller": "Jowat",
+  "id": "jowatherm-280-30-eva",
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Jowat Produktinformation Jowatherm 280.30"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "heißer Schmelzkleber: Verbrennungsgefahr; SDB Jowat beschaffen"
+    ]
+  },
+  "typ": "eva_schmelz",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Jowat TDS Jowatherm 280.30/31 (Kante, Stand 12/25)",
+      "seiten": "S. 1–3",
+      "sha256": "68aafb838580eb574888ffa160f3d38e0b3d495b80241ae1d06b55a5399be45c",
+      "stand": "2025-12-01",
+      "typ": "datenblatt",
+      "url": "https://d3files.jowat-cloud.com/technical-data-sheets-v2/280.30/31/TD28030-28031-Kante_German.PDF"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "erste Andruckrolle regelmäßig prüfen",
+        "Kante und Platte im Raumklima konditionieren"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Kantenanleimmaschine / BAZ (Durchlauf, Stationär, Softforming)"
+      ]
+    }
+  ],
+  "verarbeitungstemperatur_c": {
+    "bemerkung": "180–200 °C (Jowat); EVA stationär 190–210 °C (Ostermann), eher höher als zu niedrig",
+    "einheit": "°C",
+    "freigabe": "belegt",
+    "wert": 190
+  }
+}

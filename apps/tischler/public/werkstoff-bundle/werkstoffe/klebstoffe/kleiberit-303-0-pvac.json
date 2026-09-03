@@ -1,0 +1,123 @@
+{
+  "art": "klebstoff",
+  "artikelnr": "303.0",
+  "auftrag_beidseitig": false,
+  "auftragsmenge": {
+    "begruendung": "Mittelwert aus »Fläche/Furnier 100–130 g/m²« (TDS 303.0 S. 2); Massivholz 150–200 g/m² — Betriebswert bis zur Messung",
+    "bemerkung": "Fläche/Furnier 100–130 g/m² (S. 2); Massivholz 150–200 g/m²",
+    "einheit": "g/m2",
+    "freigabe": "annahme",
+    "wert": 115
+  },
+  "beanspruchungsgruppe": "D3 (EN 204); D4 mit Härter; WATT 91 geprüft (EN 14257)",
+  "bezeichnung": "KLEIBERIT 303.0 PVAc-Dispersionsleim D3 (D4 mit 5 % Härter 303.5 ME) — Flächen-/Furnier-/Massivholzverleimung",
+  "dichte_kg_m3": {
+    "bemerkung": "1,10 g/cm³ (S. 1)",
+    "einheit": "kg/m3",
+    "freigabe": "belegt",
+    "wert": 1100
+  },
+  "eigenschaften": {
+    "eiche_hinweis": {
+      "freigabe": "belegt",
+      "wert": "Gerbstoffhaltige Hölzer (Eiche) + Eisenkontakt → Verfärbung; V4A-Walzen (TDS 300.0 S. 2)"
+    },
+    "holzfeuchte_max_prozent": {
+      "bemerkung": "Innenbereich (S. 1)",
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "holzfeuchte_min_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 8
+    },
+    "lagerdauer": {
+      "bemerkung": "Gebinde 0,5/4,5/10/28 kg",
+      "freigabe": "belegt",
+      "wert": "1 Jahr"
+    },
+    "viskositaet": {
+      "bemerkung": "mPa·s ist keine Einheit der geschlossenen Liste — Text",
+      "freigabe": "belegt",
+      "wert": "12.000 ±2.000 mPa·s bei 20 °C; pH ca. 3"
+    },
+    "weisspunkt_c": {
+      "bemerkung": "Weißpunkt +5 °C; nicht unter +10 °C verarbeiten",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 5
+    }
+  },
+  "hersteller": "Kleiberit",
+  "id": "kleiberit-303-0-pvac",
+  "offene_zeit_min": {
+    "bemerkung": "6–10 min bei 20 °C (S. 2)",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 6
+  },
+  "pressdruck_n_cm2": {
+    "bemerkung": "Lamellen 0,7–1 N/mm² (S. 2); Fläche entsprechend Werkstoff niedriger",
+    "einheit": "N/cm2",
+    "freigabe": "belegt",
+    "wert": 70
+  },
+  "presszeit_min": {
+    "bemerkung": "Fläche/HPL 15–20 min @20 °C, ca. 5 min @50 °C, 1–2 min @80 °C (S. 2)",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 15
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "KLEIBERIT TDS 303.0 (Stand 08.05.2026)",
+    "seite": "S. 1–2",
+    "stand": "2026-05-08",
+    "url": "https://pim.kleiberit.com/Datenblaetter/303-0-00/technical/de/dbd3030_KSE.pdf"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "PVAc-Dispersion: nicht kennzeichnungspflichtig (Kleiberit); SDB unter pim.kleiberit.com/…/safety/de/"
+    ]
+  },
+  "topfzeit_h": {
+    "bemerkung": "2K-Ansatz mit Härter 303.5 ME (20:1), ca. 24 h",
+    "einheit": "h",
+    "freigabe": "belegt",
+    "wert": 24
+  },
+  "typ": "pvac",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "KLEIBERIT TDS 303.0",
+      "seiten": "S. 1–2",
+      "sha256": "35874a6449a873c57ce68b9a069897fb37c5804fde11e84691590d4397c38ab8",
+      "typ": "datenblatt",
+      "url": "https://pim.kleiberit.com/Datenblaetter/303-0-00/technical/de/dbd3030_KSE.pdf"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "einseitig auftragen",
+        "Endfestigkeit nach 7 Tagen (EN 204 D3)"
+      ],
+      "schritt": "pressen",
+      "werkzeuge": [
+        "Leimauftragswalze (V4A bei Eiche)",
+        "Furnierpresse kalt/warm ≤ 80 °C"
+      ]
+    },
+    {
+      "hinweise": [
+        "frostfrei, 1 Jahr"
+      ],
+      "schritt": "lagern"
+    }
+  ]
+}

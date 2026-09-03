@@ -1,0 +1,134 @@
+{
+  "art": "kante",
+  "artikelnr": "070.4200",
+  "bezeichnung": "Ostermann Furnierkante Eiche europäisch, geschliffen K180, 1,0 × 24 mm (Art. 070.4200)",
+  "brandverhalten": {
+    "klasse": {
+      "begruendung": "Ostermann: 'leicht entflammbar nach EN 13501 (DIN 4102 B3)' — keine formale Euroclass angegeben",
+      "freigabe": "annahme",
+      "wert": "E"
+    },
+    "nachweistyp": "einzelbaustoff"
+  },
+  "breite": {
+    "begruendung": "passend zu 19 + 2×0,9 ≈ 21 mm Plattendicke; Standardbreiten 16–100",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 24
+  },
+  "dicke": {
+    "begruendung": "Kantenart und Dicke offen (Furnierkante 0,5/1/2/3 oder Massivholz-Anleimer) — Bernhard",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 1.0
+  },
+  "eigenschaften": {
+    "emission": {
+      "freigabe": "belegt",
+      "wert": "E05, formaldehydfreie Rohstoffe"
+    },
+    "holzfeuchte_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "radius_min_mm": {
+      "bemerkung": "Faustformel Radius ≈ Dicke × 25",
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 25
+    },
+    "toleranz_breite_mm": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.5
+    },
+    "toleranz_dicke_mm": {
+      "bemerkung": "Starkfurnier 0,8–3,0 mm ±0,20",
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.2
+    }
+  },
+  "hersteller": "Ostermann",
+  "id": "ostermann-furnierkante-eiche-1-0",
+  "kleber": {
+    "auftrag_g_m2": {
+      "begruendung": "Mittelwert aus »Echtholzkanten 200–300 g/m²« (Ostermann); Betriebswert bis zur Messung",
+      "bemerkung": "Echtholzkanten 200–300 g/m² (mehr Eigenspannung)",
+      "einheit": "g/m2",
+      "freigabe": "annahme",
+      "wert": 250
+    },
+    "temperatur_c": {
+      "bemerkung": "EVA stationär 190–210 °C (Ostermann); Jowatherm 280.30 180–200 °C",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 200
+    }
+  },
+  "kleber_typ": "EVA-Schmelzkleber (stationär)",
+  "klebstoff": {
+    "id": "jowatherm-280-30-eva",
+    "revision": 1
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Ostermann Technisches Merkblatt Furnierkanten (01/2020)",
+    "stand": "2020-01-01",
+    "url": "https://web.ostermann.eu/mamdata/PDF_Daten/Technische_Merkblaetter/Kanten/Echtholz/Furnierkante_DE_ipdf_dase.pdf"
+  },
+  "revision": 1,
+  "schema": "werkstoff/kante.schema.json",
+  "sichtbarkeit": "sichtbar",
+  "typ": "furnierkante",
+  "ueberstand": {
+    "begruendung": "Zuschnittzugabe je Kantenende — Zahlenwert in keiner Quelle belegt",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 2
+  },
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Ostermann TM Furnierkanten",
+      "seiten": "S. 1–2",
+      "sha256": "50860b11af6ba61b68d593991c01b5a9ce148dda628a20acf292036eb4d2f250",
+      "typ": "datenblatt",
+      "url": "https://web.ostermann.eu/mamdata/PDF_Daten/Technische_Merkblaetter/Kanten/Echtholz/Furnierkante_DE_ipdf_dase.pdf"
+    },
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Kleiberit Infoblatt Kantenverklebung",
+      "seiten": "S. 1–4",
+      "sha256": "45597e449c7307a5c900d6399d0466bf6c983d24176c64ac7af51d79c42834fb",
+      "typ": "verarbeitungsrichtlinie",
+      "url": "https://legacy.kleiberit.com/fileadmin/Content_new/Infoblaetter/deutsch/Kantenverklebung_D.pdf"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Kante wie Trägerplatte im Raumklima konditionieren (EGGER)",
+        "Rückseite Primer — verbessert Verankerung, verhindert Austritt von Holzinhaltsstoffen"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Kantenanleimmaschine / BAZ (EVA 190–210 °C)",
+        "Kappsäge, Bündigfräser, Ziehklinge, Schwabbelscheibe"
+      ]
+    },
+    {
+      "hinweise": [
+        "vollflächig waagerecht, 20 °C, 50–60 % rF, kein UV"
+      ],
+      "schritt": "lagern"
+    },
+    {
+      "hinweise": [
+        "lackierfähig geschliffen K180 — kann sofort lackiert werden"
+      ],
+      "schritt": "schleifen"
+    }
+  ]
+}

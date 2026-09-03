@@ -1,0 +1,22 @@
+{
+  "anzahl": 2,
+  "aufbau": {
+    "id": "eiche-furniert-p2-19-g10",
+    "revision": 1
+  },
+  "bezeichnung": "Seite links (Bernhards Korpus 890 × 555)",
+  "faserrichtung": "laengs",
+  "id": "seite-links-890x555",
+  "kanten": {
+    "vorne": {
+      "id": "ostermann-furnierkante-eiche-1-0",
+      "revision": 1
+    }
+  },
+  "kontur": {
+    "breite": 555,
+    "laenge": 890,
+    "typ": "rechteck"
+  },
+  "schema": "werkstoff/werkstueck.schema.json"
+}

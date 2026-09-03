@@ -1,0 +1,120 @@
+{
+  "art": "kante",
+  "bezeichnung": "REHAU RAUKANTEX wood Dünnfurnierkante 1 mm (einlagig, keilverzinkt), Vorderseite Korn 180",
+  "breite": {
+    "begruendung": "Breite je Auftrag; TI nennt Toleranz ±0,5 mm, keine Standardbreite",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 24
+  },
+  "dicke": {
+    "bemerkung": "Dünnfurnier 1 mm; Toleranz ±0,1 mm (S. 03)",
+    "einheit": "mm",
+    "freigabe": "belegt",
+    "wert": 1.0
+  },
+  "eigenschaften": {
+    "emission": {
+      "freigabe": "belegt",
+      "wert": "formaldehydfrei, erfüllt E05 (TI S. 04)"
+    },
+    "lagenkleber": {
+      "freigabe": "belegt",
+      "wert": "PVAc-Dispersion D3 (mehrlagige Starkfurnier-Variante)"
+    },
+    "restfeuchte_prozent": {
+      "bemerkung": "ca. 10 %; unter 7 % Bruchgefahr",
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "rollenlaenge_m": {
+      "bemerkung": "Standardrolle 50 m, Innenkern 400 mm",
+      "einheit": "m",
+      "freigabe": "belegt",
+      "wert": 50
+    },
+    "schliff_rueckseite": {
+      "einheit": "korn",
+      "freigabe": "belegt",
+      "wert": 40
+    },
+    "schliff_vorne": {
+      "einheit": "korn",
+      "freigabe": "belegt",
+      "wert": 180
+    },
+    "toleranz_breite_mm": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.5
+    },
+    "toleranz_dicke_mm": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.1
+    }
+  },
+  "hersteller": "REHAU",
+  "id": "rehau-raukantex-wood-duennfurnier-1-0",
+  "kleber": {
+    "temperatur_c": {
+      "bemerkung": "EVA 200–210 °C (Kleiberit 774.4); Eignung je Kleber laut REHAU »mit Maschinenhersteller abstimmen«",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 205
+    }
+  },
+  "kleber_typ": "EVA/PUR/PA/PO/Dispersion (TI S. 04)",
+  "klebstoff": {
+    "id": "kleiberit-774-4-eva",
+    "revision": 1
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "REHAU Technische Information RAUKANTEX wood (09.07.2026)",
+    "seite": "S. 03–04",
+    "stand": "2026-07-09",
+    "url": "https://interior.rehau.com/downloads/1335338/raukantex-wood.pdf"
+  },
+  "revision": 1,
+  "schema": "werkstoff/kante.schema.json",
+  "sichtbarkeit": "sichtbar",
+  "typ": "furnierkante",
+  "ueberstand": {
+    "begruendung": "Zuschnittzugabe je Kantenende — kein Zahlenwert in der TI",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 2
+  },
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "REHAU TI RAUKANTEX wood",
+      "fingerabdruck_offen": "curl-Abruf 403 (Bot-/Referrer-Sperre des Herstellers) — im Browser erreichbar; Fingerabdruck nachziehen, sobald der Hersteller einen stabilen Abruf freigibt",
+      "seiten": "gesamtes Dokument",
+      "typ": "datenblatt",
+      "url": "https://interior.rehau.com/downloads/1335338/raukantex-wood.pdf"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Radiengängigkeit durch Versuche ermitteln",
+        "Varianten PREGLUED / PLUS (Nullfuge) verfügbar"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Kantenanleimmaschine",
+        "Kappmesser bis 3 mm Kantenstärke",
+        "Bündigfräser, Ziehklinge"
+      ]
+    },
+    {
+      "hinweise": [
+        "20 °C, 50–60 % rF; unter 7 % Holzfeuchte Bruchgefahr"
+      ],
+      "schritt": "lagern"
+    }
+  ]
+}

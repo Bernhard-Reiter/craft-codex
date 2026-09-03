@@ -1,0 +1,144 @@
+{
+  "art": "traeger",
+  "artikelnr": null,
+  "bezeichnung": "EGGER Spanplatte roh E1E05 TSCA P2 CE (Eurospan), 19 mm",
+  "brandverhalten": {
+    "dok_ref": "EGGER TD-181 / Brandverhalten-Merkblatt",
+    "klasse": {
+      "bemerkung": "EGGER-Produktseite und Brand-Merkblatt: Euroclass D-s2,d0 gemäß EN 13986 Tab. 8 (≥ 9 mm, Rohdichte ≥ 600 kg/m³) — ohne zusätzliche Brandprüfung",
+      "freigabe": "belegt",
+      "wert": "D-s2,d0"
+    },
+    "nachweistyp": "einzelbaustoff"
+  },
+  "dicke": {
+    "begruendung": "Dicke im Auftrag nicht genannt; 19 mm = Handelsdicke (Frischeis) und übliche Korpusplatte im Betrieb — Bernhard bestätigen",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 19
+  },
+  "eigenschaften": {
+    "abhebefestigkeit_n_mm2": {
+      "bemerkung": "EN 311, > 8 mm",
+      "einheit": "N/mm2",
+      "freigabe": "belegt",
+      "wert": 0.95
+    },
+    "biege_e_modul_n_mm2": {
+      "einheit": "N/mm2",
+      "freigabe": "belegt",
+      "wert": 1600
+    },
+    "biegefestigkeit_n_mm2": {
+      "bemerkung": "Dickenklasse >13–20 mm, EN 310",
+      "einheit": "N/mm2",
+      "freigabe": "belegt",
+      "wert": 11
+    },
+    "flaechengewicht_kg_m2": {
+      "begruendung": "aus Frischeis-Plattengewicht 75,982 kg je 2800×2070 berechnet",
+      "einheit": "kg/m2",
+      "freigabe": "annahme",
+      "wert": 13.11
+    },
+    "formaldehydklasse": {
+      "bemerkung": "TD-181 S. 2, Fußnote **",
+      "freigabe": "belegt",
+      "wert": "E1E05 / TSCA / CARB2"
+    },
+    "plattenfeuchte_max_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 13
+    },
+    "plattenfeuchte_min_prozent": {
+      "bemerkung": "EN 322, bei Auslieferung",
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 4
+    },
+    "querzugfestigkeit_n_mm2": {
+      "bemerkung": "EN 319",
+      "einheit": "N/mm2",
+      "freigabe": "belegt",
+      "wert": 0.35
+    },
+    "toleranz_laenge_breite_mm": {
+      "bemerkung": "EN 324-1, ±",
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 5
+    }
+  },
+  "format_mm": "2800 x 2070",
+  "hersteller": "EGGER",
+  "id": "egger-spanplatte-p2-19",
+  "norm": "EN 312 P2",
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "EGGER Technisches Datenblatt TD-181 (E1E05 TSCA P2 CE), Rev. 08.04.2026",
+    "seite": "S. 1",
+    "stand": "2026-04-08",
+    "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
+  },
+  "revision": 1,
+  "rohdichte": {
+    "begruendung": "TD-181 sagt 'werkspezifisch' (±10 %); 690 aus Frischeis-Plattengewicht 75,982 kg / (2,8 × 2,07 m² × 0,019 m) berechnet",
+    "einheit": "kg/m3",
+    "freigabe": "annahme",
+    "wert": 690
+  },
+  "schema": "werkstoff/traeger.schema.json",
+  "toleranz_dicke": {
+    "minus": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.3
+    },
+    "plus": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.3
+    }
+  },
+  "typ": "spanplatte",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "EGGER TD-181 Technisches Datenblatt E1E05 TSCA P2 CE",
+      "seiten": "S. 1–2",
+      "sha256": "1b0d66099daba0c8159b0100bb5a5cd5015cb5d0240ebc2bf266fb4ff12d82e0",
+      "stand": "2026-04-08",
+      "typ": "datenblatt",
+      "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
+    },
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "EGGER Verarbeitungshinweise Dekorative Platten und Trägerplatten",
+      "seiten": "S. 1–20",
+      "sha256": "e9fdcbea5e943a199f94178d89ffa83d20224b1cf25758fd229b6c8fe195a574",
+      "typ": "verarbeitungsrichtlinie",
+      "url": "https://binary.egger.link/pis/4a389dc5-b778-426f-ada5-03d2c6e7eee3/Verarbeitungshinweise_Dekorative_Platten_und_Traegerplatten_Deutsch"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Platten wie Kantenmaterial im Raumklima konditionieren (EGGER Verarbeitungshinweise S. 10)"
+      ],
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "EGGER Verarbeitungshinweise Dekorative Platten und Trägerplatten",
+        "url": "https://binary.egger.link/pis/4a389dc5-b778-426f-ada5-03d2c6e7eee3/Verarbeitungshinweise_Dekorative_Platten_und_Traegerplatten_Deutsch"
+      },
+      "schritt": "lagern"
+    },
+    {
+      "hinweise": [
+        "EGGER-Werkzeugempfehlung ist ein separates PDF — noch nicht beschafft (Bernhards Kundenkonto)"
+      ],
+      "schritt": "saegen",
+      "werkzeuge": []
+    }
+  ]
+}

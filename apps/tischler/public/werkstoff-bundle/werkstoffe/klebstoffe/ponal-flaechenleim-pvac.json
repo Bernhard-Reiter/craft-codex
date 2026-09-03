@@ -1,0 +1,100 @@
+{
+  "art": "klebstoff",
+  "auftrag_beidseitig": false,
+  "auftragsmenge": {
+    "begruendung": "Untergrenze aus »120–150 g/m² je nach Saugfähigkeit« (Ponal TM) — Betriebswert bis zur Messung",
+    "bemerkung": "120–150 g/m² je nach Saugfähigkeit; höherer Auftrag = längere Presszeit + Durchschlaggefahr",
+    "einheit": "g/m2",
+    "freigabe": "annahme",
+    "wert": 120
+  },
+  "beanspruchungsgruppe": "D1/D2 (EN 204)",
+  "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
+  "eigenschaften": {
+    "eiche_hinweis": {
+      "freigabe": "belegt",
+      "wert": "Bei inhaltsstoffreichen Hölzern (insbesondere Eiche) Probefurnierung; sonst Ponal Pressal empfohlen"
+    },
+    "endfestigkeit_h": {
+      "einheit": "h",
+      "freigabe": "belegt",
+      "wert": 12
+    },
+    "holzfeuchte_max_prozent": {
+      "bemerkung": "höhere Feuchte verlängert Abbindezeit, erhöht Rissrisiko",
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 12
+    },
+    "holzfeuchte_min_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 8
+    }
+  },
+  "hersteller": "Henkel (Ponal)",
+  "id": "ponal-flaechenleim-pvac",
+  "offene_zeit_min": {
+    "bemerkung": "max. 15 min bei 20 °C",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 15
+  },
+  "pressdruck_n_cm2": {
+    "bemerkung": "mind. 0,2 N/mm²; HPL 0,2–0,5 N/mm²",
+    "einheit": "N/cm2",
+    "freigabe": "belegt",
+    "wert": 20
+  },
+  "presstemperatur_c": {
+    "bemerkung": "nicht über 60 °C — Leimdurchschlag",
+    "einheit": "°C",
+    "freigabe": "belegt",
+    "wert": 60
+  },
+  "presszeit_min": {
+    "bemerkung": "Furnier: 20 min bei RT / 10 min bei 40 °C / 6 min bei 50 °C / 4 min bei 60 °C",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 4
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Ponal Flächenleim — Technisches Merkblatt (Henkel)",
+    "seite": "S. 1–2"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "Sicherheitsdatenblatt Henkel — beschaffen (nicht recherchiert)"
+    ]
+  },
+  "typ": "pvac",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Ponal Flächenleim — Technisches Merkblatt (Henkel)",
+      "typ": "datenblatt"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "einseitig auf die Trägerplatte auftragen",
+        "Einlege-/Schließzeit kurz halten"
+      ],
+      "schritt": "pressen",
+      "werkzeuge": [
+        "Leimauftragswalze (kein blankes Metall bei Eiche — Blauverfärbung)",
+        "Kaltpresse / Furnierpresse ≤ 60 °C"
+      ]
+    },
+    {
+      "hinweise": [
+        "frostfrei lagern (Dispersionsleim)"
+      ],
+      "schritt": "lagern"
+    }
+  ]
+}
