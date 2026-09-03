@@ -1,0 +1,104 @@
+{
+  "art": "klebstoff",
+  "artikelnr": "103.10",
+  "auftrag_beidseitig": false,
+  "auftragsmenge": {
+    "bemerkung": "ca. 175 ±25 g/m², ein- oder zweiseitig (S. 1)",
+    "einheit": "g/m2",
+    "freigabe": "belegt",
+    "wert": 175
+  },
+  "beanspruchungsgruppe": "D3 (EN 204/205); D4 mit Vernetzer 195.40",
+  "bezeichnung": "Jowacoll 103.10 PVAc-Dispersion D3 (D4 mit 5 % Vernetzer 195.40) — Flächen- und Furnierverleimung",
+  "dichte_kg_m3": {
+    "bemerkung": "1,08 g/cm³; Viskosität 11.000 ±2.000 mPa·s; pH 2,8; Feststoff 50 %",
+    "einheit": "kg/m3",
+    "freigabe": "belegt",
+    "wert": 1080
+  },
+  "eigenschaften": {
+    "eiche_hinweis": {
+      "freigabe": "belegt",
+      "wert": "Eisen/Gerbsäure-Reaktion → V4A-Auftragsgeräte (TDS S. 2)"
+    },
+    "holzfeuchte_max_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "holzfeuchte_min_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 6
+    },
+    "mindestverarbeitungstemperatur_c": {
+      "bemerkung": "MVT 15 °C (MFT ca. 7 °C)",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 15
+    }
+  },
+  "hersteller": "Jowat",
+  "id": "jowacoll-103-10-pvac",
+  "offene_zeit_min": {
+    "bemerkung": "ca. 6 ±2 min",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 6
+  },
+  "pressdruck_n_cm2": {
+    "bemerkung": "> 0,5 N/mm²",
+    "einheit": "N/cm2",
+    "freigabe": "belegt",
+    "wert": 50
+  },
+  "presszeit_min": {
+    "bemerkung": "Mindestpresszeit ca. 15 min @RT, 4 min @50 °C, 1,5 min @90 °C",
+    "einheit": "min",
+    "freigabe": "belegt",
+    "wert": 15
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Jowat TDS 103.10 (Stand 08/2020)",
+    "seite": "S. 1–2",
+    "stand": "2020-08-01",
+    "url": "https://d3files.jowat-cloud.com/technical-data-sheets-v2/103.10/TD10310_German.PDF"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "PVAc-Dispersion; SDB über jowat.shop"
+    ]
+  },
+  "topfzeit_h": {
+    "bemerkung": "2K max. 5 h",
+    "einheit": "h",
+    "freigabe": "belegt",
+    "wert": 5
+  },
+  "typ": "pvac",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Jowat TDS 103.10",
+      "fingerabdruck_offen": "curl-Abruf 403 (Bot-/Referrer-Sperre des Herstellers) — im Browser erreichbar; Fingerabdruck nachziehen, sobald der Hersteller einen stabilen Abruf freigibt",
+      "seiten": "gesamtes Dokument",
+      "typ": "datenblatt",
+      "url": "https://d3files.jowat-cloud.com/technical-data-sheets-v2/103.10/TD10310_German.PDF"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Werte bei 150 g/m², 6–10 % Holzfeuchte"
+      ],
+      "schritt": "pressen",
+      "werkzeuge": [
+        "Leimauftragswalze V4A",
+        "Furnier-/Flächenpresse"
+      ]
+    }
+  ]
+}

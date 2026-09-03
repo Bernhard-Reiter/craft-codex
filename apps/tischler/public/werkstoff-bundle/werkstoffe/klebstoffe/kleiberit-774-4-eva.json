@@ -1,0 +1,102 @@
+{
+  "art": "klebstoff",
+  "artikelnr": "774.4",
+  "auftrag_beidseitig": false,
+  "auftragsmenge": {
+    "begruendung": "Mittelwert aus »Kantenvorbeschichtung 80–100 g/m²« (TDS 774.4 S. 1); für den Walzenauftrag auf der Schmalfläche nennt das TDS keinen Zahlenwert (»leicht ausperlen«) — Betriebswert bis zur Messung",
+    "bemerkung": "Kantenvorbeschichtung 80–100 g/m² (S. 1); Walzenauftrag auf der Schmalfläche laut TDS nur »so einstellen, dass Klebstoff leicht ausperlt« — kein Zahlenwert",
+    "einheit": "g/m2",
+    "freigabe": "annahme",
+    "wert": 90
+  },
+  "bezeichnung": "KLEIBERIT 774.4 EVA-Schmelzklebstoff — Kantenanleimung (Massiv-/Furnierkanten) und Kantenvorbeschichtung",
+  "dichte_kg_m3": {
+    "bemerkung": "1,42 g/cm³",
+    "einheit": "kg/m3",
+    "freigabe": "belegt",
+    "wert": 1420
+  },
+  "eigenschaften": {
+    "erweichungspunkt_c": {
+      "bemerkung": "105 ±5 °C",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 105
+    },
+    "holzfeuchte_max_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 10
+    },
+    "holzfeuchte_min_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 8
+    },
+    "lagerdauer": {
+      "bemerkung": "Sack 25 kg",
+      "freigabe": "belegt",
+      "wert": "2 Jahre"
+    },
+    "raumtemperatur_min_c": {
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "wert": 18
+    },
+    "reiniger": {
+      "freigabe": "belegt",
+      "wert": "KLEIBERIT 827.0"
+    },
+    "vorschub": {
+      "bemerkung": "m/min ist keine Einheit der geschlossenen Liste — Text (TDS S. 1)",
+      "freigabe": "belegt",
+      "wert": "15–50 m/min"
+    }
+  },
+  "hersteller": "Kleiberit",
+  "id": "kleiberit-774-4-eva",
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "KLEIBERIT TDS 774.4",
+    "seite": "S. 1–2",
+    "url": "https://pim.kleiberit.com/Datenblaetter/774-4-00/technical/de/dbd7744_KSE.pdf"
+  },
+  "revision": 1,
+  "schema": "werkstoff/klebstoff.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "GHS: nicht kennzeichnungspflichtig (TDS)",
+      "Schmelzklebstoff heiß — Verbrennungsgefahr"
+    ]
+  },
+  "typ": "eva_schmelz",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "KLEIBERIT TDS 774.4",
+      "seiten": "S. 1–2",
+      "sha256": "0111645c0584252fe8128e30dda04650103d92527ac5c64d203918dce9ff29c2",
+      "typ": "datenblatt",
+      "url": "https://pim.kleiberit.com/Datenblaetter/774-4-00/technical/de/dbd7744_KSE.pdf"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Raumtemperatur ≥ 18 °C",
+        "Holzfeuchte 8–10 %"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Kantenanleimmaschine mit Leimwalze (200–210 °C)",
+        "Kappmesser, Bündigfräser"
+      ]
+    }
+  ],
+  "verarbeitungstemperatur_c": {
+    "bemerkung": "Auftragstemperatur 200–210 °C (S. 1)",
+    "einheit": "°C",
+    "freigabe": "belegt",
+    "wert": 205
+  }
+}

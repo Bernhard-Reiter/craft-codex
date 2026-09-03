@@ -1,0 +1,159 @@
+{
+  "art": "belag",
+  "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
+  "dicke": {
+    "autor": "Bernhard Reiter",
+    "bemerkung": "Auftrag 02.09. 07:55 (Spanplatte + Furnier Eiche 0,9 + 2x ADLER G10 + Kante)",
+    "datum": "2026-09-02",
+    "einheit": "mm",
+    "freigabe": "meister",
+    "wert": 0.9
+  },
+  "hersteller": null,
+  "id": "furnier-eiche-0-9-gemessert",
+  "klebstoff": {
+    "id": "ponal-flaechenleim-pvac",
+    "revision": 1
+  },
+  "leim": "Arbeitsannahme PVAc (Ponal Flächenleim, Kaltpresse) — Alternative UF/Pressal (Heißpresse): Bernhard entscheidet",
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "IFN 'Furnier im Innenausbau' (Initiative Furnier + Natur) / ÜK-Unterlage Furnieren",
+    "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+  },
+  "revision": 1,
+  "rohdichte": {
+    "begruendung": "Rohdichte Eiche nicht recherchiert; Literaturbereich 650–700 kg/m³",
+    "einheit": "kg/m3",
+    "freigabe": "annahme",
+    "wert": 690
+  },
+  "schema": "werkstoff/belag.schema.json",
+  "schleifen": {
+    "durchschleifgefahr_ab_korn": {
+      "begruendung": "Werkstatterfahrung bei 0,9 mm; kein Herstellerwert",
+      "einheit": "korn",
+      "freigabe": "annahme",
+      "wert": 240
+    },
+    "korn_max": {
+      "bemerkung": "K150–180 für lösemittelbasierte Lacke, K180–220 für wässrige; ADLER-TMB: Laubholz 150–180",
+      "einheit": "korn",
+      "freigabe": "belegt",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "ADLER TMB Aduro Antiscratch 2517 S. 3 (Untergrundvorbereitung Laubholz)"
+      },
+      "wert": 180
+    }
+  },
+  "toleranz_dicke": {
+    "minus": {
+      "begruendung": "keine normative Furnierdickentoleranz gefunden; Ostermann nennt für Starkfurnier-Kanten ±0,2 mm — vom Furnierlieferanten bestätigen",
+      "einheit": "mm",
+      "freigabe": "annahme",
+      "wert": 0.2
+    },
+    "plus": {
+      "begruendung": "siehe minus",
+      "einheit": "mm",
+      "freigabe": "annahme",
+      "wert": 0.2
+    }
+  },
+  "typ": "furnier",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "IFN — Furnier im Innenausbau (Verarbeitung)",
+      "seiten": "S. 1–62",
+      "sha256": "3ab3f0fd735dae1a5a5b543e503f93b73f41effb273d08b65948f54b7be6578c",
+      "typ": "verarbeitungsrichtlinie",
+      "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "kühl, nicht in geheizten Räumen, möglichst wenig Tageslicht (ÜK4 S. 9)",
+        "Gegenzug: Rückseite gleiche Dicke (ÜK4 S. 9)"
+      ],
+      "parameter": {
+        "rf_max_prozent": {
+          "einheit": "%",
+          "freigabe": "belegt",
+          "wert": 70
+        },
+        "rf_min_prozent": {
+          "einheit": "%",
+          "freigabe": "belegt",
+          "wert": 60
+        }
+      },
+      "schritt": "lagern"
+    },
+    {
+      "hinweise": [
+        "Eiche: Probefurnierung mit PVAc (Ponal); sonst Pressal (UF)",
+        "max. 24 h zwischen Schliff und Lack"
+      ],
+      "schritt": "pressen",
+      "werkzeuge": [
+        "Furnierpresse (Kalt- oder Heißpresse)",
+        "Leimauftragswalze — Eiche + blankes Metall = Blauverfärbung (Gerbsäure)"
+      ]
+    }
+  ],
+  "verklebung": {
+    "auftrag_g_m2": {
+      "einheit": "g/m2",
+      "freigabe": "belegt",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ponal Pressal Hydro (UF) TM S. 1 / Ponal Flächenleim (PVAc) TM S. 1: 120 bzw. 120–150 g/m²"
+      },
+      "wert": 120
+    },
+    "holzfeuchte_max_prozent": {
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 12
+    },
+    "holzfeuchte_min_prozent": {
+      "bemerkung": "PVAc 8–12 %; Furnier selbst 7–8 % beim Verpressen (ÜK)",
+      "einheit": "%",
+      "freigabe": "belegt",
+      "wert": 8
+    },
+    "pressdruck_n_cm2": {
+      "bemerkung": "0,2–0,5 N/mm² = 20–50 N/cm² (Ponal); Schulwert 2–3 kg/cm²",
+      "einheit": "N/cm2",
+      "freigabe": "belegt",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ponal Pressal Hydro TM S. 2"
+      },
+      "wert": 30
+    },
+    "presstemperatur_c": {
+      "bemerkung": "PVAc: 60 °C → 4 min, nie über 60 °C (Leimdurchschlag); UF: 85 °C → 6 min",
+      "einheit": "°C",
+      "freigabe": "belegt",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ponal Flächenleim TM S. 2 / Pressal Hydro TM S. 2"
+      },
+      "wert": 60
+    },
+    "presszeit_min": {
+      "bemerkung": "PVAc bei 60 °C; 20 min bei Raumtemperatur",
+      "einheit": "min",
+      "freigabe": "belegt",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ponal Flächenleim TM S. 2"
+      },
+      "wert": 4
+    }
+  }
+}

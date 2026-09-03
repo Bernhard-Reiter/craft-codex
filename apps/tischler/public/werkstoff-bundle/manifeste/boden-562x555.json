@@ -1,0 +1,414 @@
+{
+  "aufbau": {
+    "bezeichnung": "EGGER Spanplatte P2 19 + Furnier Eiche 0,9 beidseitig + 2× ADLER G10 beidseitig + Furnierkante Eiche vorne",
+    "id": "eiche-furniert-p2-19-g10",
+    "revision": 1
+  },
+  "ergebnisse": {
+    "ausgeschlossen": [
+      {
+        "grund": "Trockenschichtdicke nicht hinterlegt — nicht addiert",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/oben/1-klarlack"
+      },
+      {
+        "grund": "Trockenschichtdicke nicht hinterlegt — nicht addiert",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/unten/1-klarlack"
+      },
+      {
+        "grund": "Trockenmasse der Beschichtung nicht hinterlegt — nicht addiert",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche"
+      },
+      {
+        "grund": "Kante ist je lfm — braucht das Werkstück (siehe verbrauch)",
+        "komponente": "ostermann-furnierkante-eiche-1-0",
+        "rolle": "kante/vorne"
+      }
+    ],
+    "dicke_mm": {
+      "freigabe": "annahme",
+      "max": 21.5,
+      "min": 20.1,
+      "nominal": 20.8
+    },
+    "flaeche_m2": 0.6238,
+    "gewicht_kg_m2": {
+      "freigabe": "annahme",
+      "wert": 14.352
+    },
+    "verbrauch": [
+      {
+        "einheit": "m2",
+        "freigabe": "belegt",
+        "komponente": "egger-spanplatte-p2-19",
+        "rolle": "traeger",
+        "wert": 0.6238
+      },
+      {
+        "einheit": "m2",
+        "freigabe": "belegt",
+        "komponente": "furnier-eiche-0-9-gemessert",
+        "rolle": "belag/oben",
+        "wert": 0.6238
+      },
+      {
+        "einheit": "g",
+        "freigabe": "annahme",
+        "komponente": "ponal-flaechenleim-pvac",
+        "rolle": "leim/oben",
+        "wert": 74.9
+      },
+      {
+        "einheit": "m2",
+        "freigabe": "belegt",
+        "komponente": "furnier-eiche-0-9-gemessert",
+        "rolle": "belag/unten",
+        "wert": 0.6238
+      },
+      {
+        "einheit": "g",
+        "freigabe": "annahme",
+        "komponente": "ponal-flaechenleim-pvac",
+        "rolle": "leim/unten",
+        "wert": 74.9
+      },
+      {
+        "einheit": "g",
+        "freigabe": "belegt",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/oben/1-klarlack/netto",
+        "wert": 124.8
+      },
+      {
+        "einheit": "g",
+        "freigabe": "annahme",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/oben/1-klarlack/brutto",
+        "wert": 191.9
+      },
+      {
+        "einheit": "g",
+        "freigabe": "belegt",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/unten/1-klarlack/netto",
+        "wert": 124.8
+      },
+      {
+        "einheit": "g",
+        "freigabe": "annahme",
+        "komponente": "adler-aduro-legnopur-g10",
+        "rolle": "oberflaeche/unten/1-klarlack/brutto",
+        "wert": 191.9
+      },
+      {
+        "einheit": "lfm",
+        "freigabe": "annahme",
+        "komponente": "ostermann-furnierkante-eiche-1-0",
+        "rolle": "kante/vorne",
+        "wert": 1.132
+      },
+      {
+        "einheit": "g",
+        "freigabe": "annahme",
+        "komponente": "jowatherm-280-30-eva",
+        "rolle": "kleber/vorne",
+        "wert": 6.8
+      }
+    ]
+  },
+  "formelversion": "werkstoff-ableitung/1",
+  "komponenten": [
+    {
+      "art": "traeger",
+      "bezeichnung": "EGGER Spanplatte roh E1E05 TSCA P2 CE (Eurospan), 19 mm",
+      "dicke": {
+        "begruendung": "Dicke im Auftrag nicht genannt; 19 mm = Handelsdicke (Frischeis) und übliche Korpusplatte im Betrieb — Bernhard bestätigen",
+        "einheit": "mm",
+        "freigabe": "annahme",
+        "wert": 19
+      },
+      "id": "egger-spanplatte-p2-19",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "EGGER Technisches Datenblatt TD-181 (E1E05 TSCA P2 CE), Rev. 08.04.2026",
+        "seite": "S. 1",
+        "stand": "2026-04-08",
+        "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
+      },
+      "revision": 1,
+      "rohdichte": {
+        "begruendung": "TD-181 sagt 'werkspezifisch' (±10 %); 690 aus Frischeis-Plattengewicht 75,982 kg / (2,8 × 2,07 m² × 0,019 m) berechnet",
+        "einheit": "kg/m3",
+        "freigabe": "annahme",
+        "wert": 690
+      },
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "EGGER TD-181 Technisches Datenblatt E1E05 TSCA P2 CE",
+          "seiten": "S. 1–2",
+          "sha256": "1b0d66099daba0c8159b0100bb5a5cd5015cb5d0240ebc2bf266fb4ff12d82e0",
+          "stand": "2026-04-08",
+          "typ": "datenblatt",
+          "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
+        },
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "EGGER Verarbeitungshinweise Dekorative Platten und Trägerplatten",
+          "seiten": "S. 1–20",
+          "sha256": "e9fdcbea5e943a199f94178d89ffa83d20224b1cf25758fd229b6c8fe195a574",
+          "typ": "verarbeitungsrichtlinie",
+          "url": "https://binary.egger.link/pis/4a389dc5-b778-426f-ada5-03d2c6e7eee3/Verarbeitungshinweise_Dekorative_Platten_und_Traegerplatten_Deutsch"
+        }
+      ]
+    },
+    {
+      "art": "belag",
+      "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
+      "dicke": {
+        "autor": "Bernhard Reiter",
+        "bemerkung": "Auftrag 02.09. 07:55 (Spanplatte + Furnier Eiche 0,9 + 2x ADLER G10 + Kante)",
+        "datum": "2026-09-02",
+        "einheit": "mm",
+        "freigabe": "meister",
+        "wert": 0.9
+      },
+      "id": "furnier-eiche-0-9-gemessert",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "IFN 'Furnier im Innenausbau' (Initiative Furnier + Natur) / ÜK-Unterlage Furnieren",
+        "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+      },
+      "revision": 1,
+      "rohdichte": {
+        "begruendung": "Rohdichte Eiche nicht recherchiert; Literaturbereich 650–700 kg/m³",
+        "einheit": "kg/m3",
+        "freigabe": "annahme",
+        "wert": 690
+      },
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "IFN — Furnier im Innenausbau (Verarbeitung)",
+          "seiten": "S. 1–62",
+          "sha256": "3ab3f0fd735dae1a5a5b543e503f93b73f41effb273d08b65948f54b7be6578c",
+          "typ": "verarbeitungsrichtlinie",
+          "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+        }
+      ]
+    },
+    {
+      "art": "belag",
+      "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
+      "dicke": {
+        "autor": "Bernhard Reiter",
+        "bemerkung": "Auftrag 02.09. 07:55 (Spanplatte + Furnier Eiche 0,9 + 2x ADLER G10 + Kante)",
+        "datum": "2026-09-02",
+        "einheit": "mm",
+        "freigabe": "meister",
+        "wert": 0.9
+      },
+      "id": "furnier-eiche-0-9-gemessert",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "IFN 'Furnier im Innenausbau' (Initiative Furnier + Natur) / ÜK-Unterlage Furnieren",
+        "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+      },
+      "revision": 1,
+      "rohdichte": {
+        "begruendung": "Rohdichte Eiche nicht recherchiert; Literaturbereich 650–700 kg/m³",
+        "einheit": "kg/m3",
+        "freigabe": "annahme",
+        "wert": 690
+      },
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "IFN — Furnier im Innenausbau (Verarbeitung)",
+          "seiten": "S. 1–62",
+          "sha256": "3ab3f0fd735dae1a5a5b543e503f93b73f41effb273d08b65948f54b7be6578c",
+          "typ": "verarbeitungsrichtlinie",
+          "url": "https://tu-dresden.de/ing/maschinenwesen/int/ressourcen/dateien/holztechnik-und-faserwerkstofftechnik/download/wissenschaftliche-publikationen/Furnier.pdf"
+        }
+      ]
+    },
+    {
+      "art": "klebstoff",
+      "auftragsmenge": {
+        "begruendung": "Untergrenze aus »120–150 g/m² je nach Saugfähigkeit« (Ponal TM) — Betriebswert bis zur Messung",
+        "bemerkung": "120–150 g/m² je nach Saugfähigkeit; höherer Auftrag = längere Presszeit + Durchschlaggefahr",
+        "einheit": "g/m2",
+        "freigabe": "annahme",
+        "wert": 120
+      },
+      "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
+      "id": "ponal-flaechenleim-pvac",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ponal Flächenleim — Technisches Merkblatt (Henkel)",
+        "seite": "S. 1–2"
+      },
+      "revision": 1,
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "Ponal Flächenleim — Technisches Merkblatt (Henkel)",
+          "typ": "datenblatt"
+        }
+      ]
+    },
+    {
+      "art": "klebstoff",
+      "auftragsmenge": {
+        "begruendung": "Mittelwert aus »Echtholzkanten 200–300 g/m²« (Ostermann-Verarbeitungshinweise); Jowat beziffert den Walzenauftrag nicht — Betriebswert bis zur Messung an der Maschine",
+        "bemerkung": "Echtholzkanten 200–300 g/m² (Ostermann: mehr Eigenspannung → mehr Leimauftrag); Jowat beziffert nicht",
+        "einheit": "g/m2",
+        "freigabe": "annahme",
+        "wert": 250
+      },
+      "bezeichnung": "Jowatherm 280.30 (EVA-Schmelzkleber, ungefüllt, Nullfuge) — Kantenanleimen stationär",
+      "id": "jowatherm-280-30-eva",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Jowat Produktinformation Jowatherm 280.30"
+      },
+      "revision": 1,
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "Jowat TDS Jowatherm 280.30/31 (Kante, Stand 12/25)",
+          "seiten": "S. 1–3",
+          "sha256": "68aafb838580eb574888ffa160f3d38e0b3d495b80241ae1d06b55a5399be45c",
+          "stand": "2025-12-01",
+          "typ": "datenblatt",
+          "url": "https://d3files.jowat-cloud.com/technical-data-sheets-v2/280.30/31/TD28030-28031-Kante_German.PDF"
+        }
+      ]
+    },
+    {
+      "art": "beschichtung",
+      "auftragsmenge": {
+        "bemerkung": "TMB: 100–150 g/m² je Schicht, max. 450 g/m² gesamt",
+        "einheit": "g/m2",
+        "freigabe": "belegt",
+        "wert": 100
+      },
+      "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
+      "id": "adler-aduro-legnopur-g10",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "ADLER Technisches Merkblatt 2513 (ADLER Aduro Legnopur G10, 2K-PUR-Klarlack)",
+        "url": "https://www.adler-lacke.com/Canto/tmb/aduro-legnopur_tmb_2513_de.pdf"
+      },
+      "revision": 1,
+      "uebertragung": {
+        "spritzen": {
+          "begruendung": "Übertragungsgrad Becherpistole ~65 % (Erfahrungswert); Airless/Airmix höher — Betriebsmessung",
+          "einheit": "1",
+          "freigabe": "annahme",
+          "wert": 0.65
+        }
+      },
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "ADLER TMB 2513 ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
+          "seiten": "S. 1–4",
+          "sha256": "3802082c34744eb165c12d8df2a6d01afca051fc6930961a6b2401edf7152dcc",
+          "typ": "datenblatt",
+          "url": "https://www.adler-lacke.com/Canto/tmb/aduro-legnopur_tmb_2513_de.pdf"
+        },
+        {
+          "dokument": "ADLER Sicherheitsdatenblatt 2513 (nur mit Kundenkonto)",
+          "fingerabdruck_offen": "URL führt auf eine Übersichtsseite, nicht auf das Dokument — das Dokument selbst gibt es nur mit Kundenkonto (ADLER); Fingerabdruck erst mit dem echten Dokument",
+          "seiten": "gesamtes Dokument",
+          "typ": "sdb",
+          "url": "https://www.adler-lacke.com/at/produkte"
+        },
+        {
+          "dokument": "ADLER Arbeitsrichtlinie ARL 131 (PUR-Möbellacke) — auf Anfrage",
+          "fingerabdruck_offen": "URL führt auf eine Übersichtsseite, nicht auf das Dokument — das Dokument selbst gibt es nur mit Kundenkonto (ADLER); Fingerabdruck erst mit dem echten Dokument",
+          "seiten": "gesamtes Dokument",
+          "typ": "verarbeitungsrichtlinie",
+          "url": "https://www.adler-lacke.com/de/service-ratgeber/arbeitsrichtlinien"
+        }
+      ],
+      "zwischenschliff_korn": {
+        "bemerkung": "TMB: Zwischenschliff K240–320",
+        "einheit": "korn",
+        "freigabe": "belegt",
+        "wert": 320
+      }
+    },
+    {
+      "art": "kante",
+      "bezeichnung": "Ostermann Furnierkante Eiche europäisch, geschliffen K180, 1,0 × 24 mm (Art. 070.4200)",
+      "dicke": {
+        "begruendung": "Kantenart und Dicke offen (Furnierkante 0,5/1/2/3 oder Massivholz-Anleimer) — Bernhard",
+        "einheit": "mm",
+        "freigabe": "annahme",
+        "wert": 1.0
+      },
+      "id": "ostermann-furnierkante-eiche-1-0",
+      "quelle": {
+        "abgerufen": "2026-09-02",
+        "dokument": "Ostermann Technisches Merkblatt Furnierkanten (01/2020)",
+        "stand": "2020-01-01",
+        "url": "https://web.ostermann.eu/mamdata/PDF_Daten/Technische_Merkblaetter/Kanten/Echtholz/Furnierkante_DE_ipdf_dase.pdf"
+      },
+      "revision": 1,
+      "ueberstand": {
+        "begruendung": "Zuschnittzugabe je Kantenende — Zahlenwert in keiner Quelle belegt",
+        "einheit": "mm",
+        "freigabe": "annahme",
+        "wert": 2
+      },
+      "unterlagen": [
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "Ostermann TM Furnierkanten",
+          "seiten": "S. 1–2",
+          "sha256": "50860b11af6ba61b68d593991c01b5a9ce148dda628a20acf292036eb4d2f250",
+          "typ": "datenblatt",
+          "url": "https://web.ostermann.eu/mamdata/PDF_Daten/Technische_Merkblaetter/Kanten/Echtholz/Furnierkante_DE_ipdf_dase.pdf"
+        },
+        {
+          "abgerufen": "2026-09-02",
+          "dokument": "Kleiberit Infoblatt Kantenverklebung",
+          "seiten": "S. 1–4",
+          "sha256": "45597e449c7307a5c900d6399d0466bf6c983d24176c64ac7af51d79c42834fb",
+          "typ": "verarbeitungsrichtlinie",
+          "url": "https://legacy.kleiberit.com/fileadmin/Content_new/Infoblaetter/deutsch/Kantenverklebung_D.pdf"
+        }
+      ]
+    }
+  ],
+  "resolve_manifest_sha256": "2539300205de77f8ecec3f5a40d525829039f7309c53d9002b0ea34784fabc49",
+  "systeme": {
+    "oben": {
+      "id": "adler-g10-2x-klarlack",
+      "revision": 1
+    },
+    "unten": {
+      "id": "adler-g10-2x-klarlack",
+      "revision": 1
+    }
+  },
+  "werkstueck": {
+    "anzahl": 2,
+    "aufbau": {
+      "id": "eiche-furniert-p2-19-g10",
+      "revision": 1
+    },
+    "bezeichnung": "Boden (Korpus 600 breit, Seiten 19)",
+    "faserrichtung": "laengs",
+    "id": "boden-562x555",
+    "kontur": {
+      "breite": 555.0,
+      "laenge": 562.0,
+      "typ": "rechteck"
+    }
+  }
+}

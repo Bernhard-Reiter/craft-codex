@@ -258,6 +258,14 @@ export default function WerkstoffPage() {
               Karte {karte.karte_sha256.slice(0, 12)}… · Werte eingefroren auf{" "}
               {karte.resolve_manifest_sha256.slice(0, 12)}…
             </p>
+            {/* Was die Zahl bedeutet, gehört daneben. Ein Hash ohne Aussage darüber, WAS an ihm
+                geprüft wurde, liest sich wie ein Siegel — und ist keins. Hier stimmt bewiesen:
+                Karte und Manifest im Bundle gehören zusammen. Nicht bewiesen: dass der Hash zum
+                Inhalt passt (dafür müsste JS Pythons Zahlendarstellung treffen). */}
+            <p className="hash-zeile hash-fussnote">
+              Manifest im Auftrag gefunden und mit der Karte abgeglichen. Ob der Hash zum Inhalt
+              des Manifests passt, prüft dieses Gerät nicht.
+            </p>
           </footer>
         </section>
       )}

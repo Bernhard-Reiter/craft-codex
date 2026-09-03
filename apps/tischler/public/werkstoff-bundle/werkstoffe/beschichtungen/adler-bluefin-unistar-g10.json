@@ -1,0 +1,144 @@
+{
+  "art": "beschichtung",
+  "artikelnr": "",
+  "auftragsmenge": {
+    "bemerkung": "TMB: 80–120 g/m² je Schicht, max. 450 g/m² gesamt",
+    "einheit": "g/m2",
+    "freigabe": "belegt",
+    "wert": 80
+  },
+  "bezeichnung": "ADLER Bluefin Unistar G10, Wasserlack (nennt Eiche als Untergrund)",
+  "glanzgrad": {
+    "autor": "Bernhard Reiter",
+    "bemerkung": "Auftrag 02.09. 07:55 (Spanplatte + Furnier Eiche 0,9 + 2x ADLER G10 + Kante) — ADLER-Skala 'G10 stumpfmatt'; Messwinkel in keinem TMB genannt (ISO 2813: 60°, matt 85°)",
+    "datum": "2026-09-02",
+    "einheit": "GU",
+    "freigabe": "meister",
+    "wert": 10
+  },
+  "hersteller": "ADLER-Werk Lackfabrik, Schwaz",
+  "id": "adler-bluefin-unistar-g10",
+  "mischung": {
+    "haerter": {
+      "freigabe": "belegt",
+      "wert": "1K; optional 100:4 Aqua-Crosslinker 8481"
+    },
+    "topfzeit_h": {
+      "einheit": "h",
+      "freigabe": "belegt",
+      "wert": 72
+    }
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "ADLER Technisches Merkblatt 2965 (ADLER Bluefin Unistar G10, Wasserlack (nennt Eiche als Untergrund))",
+    "url": "https://www.adler-lacke.com/Canto/tmb/bluefin-unistar_tmb_2965_de.pdf"
+  },
+  "revision": 1,
+  "schema": "werkstoff/beschichtung.schema.json",
+  "sicherheit": {
+    "hinweise": [
+      "Sicherheitsdatenblatt auf adler-lacke.com nur eingeloggt — beschaffen"
+    ],
+    "schutz": [
+      "Atemschutz A2/P2",
+      "nur gewerbliche Verarbeitung"
+    ]
+  },
+  "trocknung": {
+    "endhaerte_min": {
+      "bemerkung": "48 h Endhärte",
+      "einheit": "min",
+      "freigabe": "belegt",
+      "wert": 2880
+    },
+    "schleifbar_min": {
+      "bemerkung": "schleif-/überlackierbar 2 h bei 23 °C / 50 % rF",
+      "einheit": "min",
+      "freigabe": "belegt",
+      "wert": 120
+    },
+    "stapelbar_min": {
+      "einheit": "min",
+      "freigabe": "belegt",
+      "wert": 720
+    }
+  },
+  "typ": "lack",
+  "uebertragung": {
+    "spritzen": {
+      "begruendung": "Übertragungsgrad Becherpistole ~65 % (Erfahrungswert); Airless/Airmix höher — Betriebsmessung",
+      "einheit": "1",
+      "freigabe": "annahme",
+      "wert": 0.65
+    }
+  },
+  "untergrund": {
+    "holzfeuchte_max": {
+      "begruendung": "siehe min",
+      "einheit": "%",
+      "freigabe": "annahme",
+      "wert": 12
+    },
+    "holzfeuchte_min": {
+      "begruendung": "TMB nennt Untergrundschliff K150–180, keine Holzfeuchte — aus Furnier-/PVAc-Regel übernommen",
+      "einheit": "%",
+      "freigabe": "annahme",
+      "wert": 8
+    },
+    "korn_vorschliff_max": {
+      "einheit": "korn",
+      "freigabe": "belegt",
+      "wert": 180
+    }
+  },
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "ADLER TMB 2965 ADLER Bluefin Unistar G10, Wasserlack (nennt Eiche als Untergrund)",
+      "seiten": "S. 1–5",
+      "sha256": "293c69d292970355565b63fd3047873cc10b55b5e8a22d2f78c581e3d2999697",
+      "typ": "datenblatt",
+      "url": "https://www.adler-lacke.com/Canto/tmb/bluefin-unistar_tmb_2965_de.pdf"
+    },
+    {
+      "dokument": "ADLER Sicherheitsdatenblatt 2965 (nur mit Kundenkonto)",
+      "fingerabdruck_offen": "URL führt auf eine Übersichtsseite, nicht auf das Dokument — das Dokument selbst gibt es nur mit Kundenkonto (ADLER); Fingerabdruck erst mit dem echten Dokument",
+      "seiten": "gesamtes Dokument",
+      "typ": "sdb",
+      "url": "https://www.adler-lacke.com/at/produkte"
+    },
+    {
+      "dokument": "ADLER Arbeitsrichtlinie ARL 131 (PUR-Möbellacke) — auf Anfrage",
+      "fingerabdruck_offen": "URL führt auf eine Übersichtsseite, nicht auf das Dokument — das Dokument selbst gibt es nur mit Kundenkonto (ADLER); Fingerabdruck erst mit dem echten Dokument",
+      "seiten": "gesamtes Dokument",
+      "typ": "verarbeitungsrichtlinie",
+      "url": "https://www.adler-lacke.com/de/service-ratgeber/arbeitsrichtlinien"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Verarbeitungstemperatur ≥ +10 °C (Aduro) bzw. ≥ +15 °C (Bluefin)",
+        "hohe Luftfeuchte verlängert die Trocknung"
+      ],
+      "schritt": "spritzen",
+      "werkzeuge": [
+        "Becherpistole Düse 1,8 mm, 2–3 bar",
+        "Airless Düse 0,23–0,33 mm, 100–120 bar"
+      ]
+    },
+    {
+      "hinweise": [
+        "≥ 1 Jahr, frostfrei, < 30 °C"
+      ],
+      "schritt": "lagern"
+    }
+  ],
+  "zwischenschliff_korn": {
+    "bemerkung": "TMB: Zwischenschliff K240–320",
+    "einheit": "korn",
+    "freigabe": "belegt",
+    "wert": 320
+  }
+}

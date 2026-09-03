@@ -1,0 +1,15 @@
+{
+  "anzahl": 2,
+  "aufbau": {
+    "id": "eiche-furniert-p2-19-g10",
+    "revision": 1
+  },
+  "bezeichnung": "Boden (Korpus 600 breit, Seiten 19)",
+  "id": "boden-562x555",
+  "kontur": {
+    "breite": 555,
+    "laenge": 562,
+    "typ": "rechteck"
+  },
+  "schema": "werkstoff/werkstueck.schema.json"
+}

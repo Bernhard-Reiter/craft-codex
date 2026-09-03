@@ -1,0 +1,78 @@
+{
+  "art": "kante",
+  "bezeichnung": "Massivholz-Anleimer Eiche 5 × 24 mm, Eigenproduktion aus 27-mm-Bohle (kammertrocken)",
+  "breite": {
+    "autor": "Bernhard Reiter",
+    "bemerkung": "aus 27-mm-Bohle auf 24 mm gehobelt",
+    "datum": "2026-09-02",
+    "einheit": "mm",
+    "freigabe": "meister",
+    "wert": 24
+  },
+  "dicke": {
+    "autor": "Bernhard Reiter",
+    "bemerkung": "üblicher Anleimer-Querschnitt; je Auftrag",
+    "datum": "2026-09-02",
+    "einheit": "mm",
+    "freigabe": "meister",
+    "wert": 5
+  },
+  "eigenschaften": {
+    "rohware_dicke_mm": {
+      "bemerkung": "JAF Eiche Schnittholz 27/33/52/60/65 mm, 200–500 cm, PEFC/FSC",
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 27
+    }
+  },
+  "hersteller": "Eigenproduktion (Rohware: Eiche Schnittholz 27 mm, z. B. JAF Frischeis)",
+  "id": "massivholz-anleimer-eiche-5x24-eigen",
+  "kleber_typ": "PVAc D3 (Kaltpresse/Zwingen)",
+  "klebstoff": {
+    "id": "kleiberit-303-0-pvac",
+    "revision": 1
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Bernhard 02.09.2026 (Kante offen oder Eigenproduktion; Massivholz immer m³ + Maße + lfm) · JAF Schnittholz-Kategorie",
+    "url": "https://www.frischeis.at/shop/wertholz/schnittholz~c14692554"
+  },
+  "revision": 1,
+  "schema": "werkstoff/kante.schema.json",
+  "sichtbarkeit": "sichtbar",
+  "typ": "massivholz",
+  "ueberstand": {
+    "begruendung": "Anleimer wird länger geschnitten und bündig gekappt — Betriebswert",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 10
+  },
+  "unterlagen": [],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Anleimer vor dem Furnieren anleimen (überfurniert) oder danach (sichtbar)",
+        "Holzfeuchte 8–10 % wie Platte",
+        "Eiche-Preis €/m³: kein offener Beleg (Waldverband/LK ohne Laubholz) — Tenant-Wert"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Formatkreissäge",
+        "Abricht-/Dickenhobel",
+        "Kaltpresse oder Zwingen"
+      ]
+    },
+    {
+      "hinweise": [
+        "bündig fräsen, K120 → K180"
+      ],
+      "schritt": "schleifen"
+    }
+  ],
+  "verschnitt_prozent": {
+    "begruendung": "Besäumen, Hobelzugabe (27→24 mm), Ausschuss — Betriebswert, kein Beleg",
+    "einheit": "%",
+    "freigabe": "annahme",
+    "wert": 35
+  }
+}

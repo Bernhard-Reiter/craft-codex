@@ -1,0 +1,44 @@
+{
+  "belaege": [
+    {
+      "faserrichtung": "laengs",
+      "komponente": {
+        "id": "furnier-eiche-0-9-gemessert",
+        "revision": 1
+      },
+      "seite": "oben"
+    },
+    {
+      "faserrichtung": "laengs",
+      "komponente": {
+        "id": "furnier-eiche-0-9-gemessert",
+        "revision": 1
+      },
+      "seite": "unten"
+    }
+  ],
+  "bezeichnung": "EGGER Spanplatte P2 19 + Furnier Eiche 0,9 beidseitig + 2× ADLER G10 beidseitig + Furnierkante Eiche vorne",
+  "id": "eiche-furniert-p2-19-g10",
+  "kanten": {
+    "vorne": {
+      "id": "ostermann-furnierkante-eiche-1-0",
+      "revision": 1
+    }
+  },
+  "oberflaechen": {
+    "oben": {
+      "id": "adler-g10-2x-klarlack",
+      "revision": 1
+    },
+    "unten": {
+      "id": "adler-g10-2x-klarlack",
+      "revision": 1
+    }
+  },
+  "revision": 1,
+  "schema": "werkstoff/aufbau.schema.json",
+  "traeger": {
+    "id": "egger-spanplatte-p2-19",
+    "revision": 1
+  }
+}

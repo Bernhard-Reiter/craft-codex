@@ -163,5 +163,28 @@ export async function ladeKarte(werkstueckId: string, basis = "/werkstoff-bundle
   if (k.werkstueck?.id !== werkstueckId) {
     throw new Error(`Karte gehört zu ${k.werkstueck?.id}, angefragt war ${werkstueckId}`);
   }
+  // Das Resolve-Manifest muss im Bundle liegen UND denselben Hash tragen. Ohne diese Prüfung
+  // hieße "bekanntes Werkstück" nur: es steht in der Datei, die ich gerade gelesen habe — die
+  // Karte belegte sich selbst (Review craft#42).
+  //
+  // Was das beweist: Karte und Manifest im Bundle gehören zusammen, und beide sind da.
+  // Was es NICHT beweist: dass der Hash zum Inhalt des Manifests passt. Nachrechnen ginge nur,
+  // wenn JavaScript Pythons Zahlendarstellung exakt träfe — die Manifeste enthalten Werte wie
+  // `555.0`, die JS als `555` schreibt (gemessen, voai#1222). Erfundene Sicherheit wäre hier
+  // schlimmer als benannte Lücke.
+  const m = await fetch(`${basis}/manifeste/${encodeURIComponent(werkstueckId)}.json`);
+  if (!m.ok) {
+    throw new Error(
+      `Karte für ${werkstueckId} ohne Resolve-Manifest im Bundle (${m.status}) — ` +
+        "unbelegte Werte werden nicht angezeigt",
+    );
+  }
+  const manifest = (await m.json()) as { resolve_manifest_sha256?: string };
+  if (manifest.resolve_manifest_sha256 !== k.resolve_manifest_sha256) {
+    throw new Error(
+      `Karte und Manifest gehören nicht zusammen (Karte ${k.resolve_manifest_sha256?.slice(0, 12)}…, ` +
+        `Manifest ${manifest.resolve_manifest_sha256?.slice(0, 12)}…)`,
+    );
+  }
   return k;
 }

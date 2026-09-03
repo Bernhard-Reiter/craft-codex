@@ -959,3 +959,11 @@ body.cc-kiosk .cc-workbench {
   .werkstoff .zeile { border-color: #1e293b; }
   .werkstoff .verbrauch li { border-color: #1e293b; }
 }
+
+/* Der Fussnoten-Satz zum Hash: leiser als die Zahl darueber, aber lesbar — er sagt, was
+   geprueft wurde und was nicht. */
+.werkstoff-panel .hash-fussnote {
+  margin-top: 0.25rem;
+  font-style: italic;
+  opacity: 0.85;
+}

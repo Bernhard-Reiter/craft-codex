@@ -1,7 +1,6 @@
 {
-  "felder": [
-    "preise"
-  ],
+  "grenze": "Geprueft wird der Feldname, nicht der Wert: ein Lieferantenpreis im Freitext (»Listenpreis 12,50 EUR« in einer Bemerkung) kommt durch. Eine Freitextpruefung produziert Fehlalarme ohne Ende — die Grenze ist hier bewusst enger als der Wunsch.",
   "hinweis": "Die Hashes in katalogstand.json gehoeren zu den ORIGINALdateien im Datenpaket, nicht zu diesen bereinigten Kopien.",
+  "regel": "Feldname enthaelt preis, kondition, rabatt, marge, skonto, price, cost, discount, margin, msrp, wholesale oder ist ein Token nach dem Muster ^(ek|vk)\\d*$",
   "warum": "Betriebsdaten (Lieferantenpreise) gehoeren in den Tenant, nicht in den Katalog und nicht auf die Baustelle"
 }

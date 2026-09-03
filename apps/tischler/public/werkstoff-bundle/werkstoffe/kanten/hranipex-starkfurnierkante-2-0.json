@@ -1,0 +1,88 @@
+{
+  "art": "kante",
+  "bezeichnung": "Hranipex Starkfurnierkante 2 mm (21 Holzarten inkl. Zirbe, Lärche, Eiche), Breiten 23–42 mm, Rolle 50 m",
+  "breite": {
+    "begruendung": "Breiten 23–42 mm im Programm; Wahl je Plattendicke",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 24
+  },
+  "dicke": {
+    "bemerkung": "Starkfurnier 1 und 2 mm (Katalogseite)",
+    "einheit": "mm",
+    "freigabe": "belegt",
+    "wert": 2.0
+  },
+  "eigenschaften": {
+    "mindestbestellmenge_m": {
+      "bemerkung": "ab 1 m bestellbar",
+      "einheit": "m",
+      "freigabe": "belegt",
+      "wert": 1
+    },
+    "rollenlaenge_m": {
+      "bemerkung": "Starkfurnier 1–2 mm = 50 m (Katalog S. 715)",
+      "einheit": "m",
+      "freigabe": "belegt",
+      "wert": 50
+    },
+    "toleranz_dicke_mm": {
+      "begruendung": "Katalog verweist für Toleranzen auf den E-Shop — nicht abgerufen; REHAU-Wert als Größenordnung",
+      "einheit": "mm",
+      "freigabe": "annahme",
+      "wert": 0.2
+    }
+  },
+  "hersteller": "Hranipex (AT: Heidenreichstein)",
+  "id": "hranipex-starkfurnierkante-2-0",
+  "kleber_typ": "Schmelzkleber (EVA/PUR); auch vorbeleimt lieferbar",
+  "klebstoff": {
+    "id": "kleiberit-774-4-eva",
+    "revision": 1
+  },
+  "quelle": {
+    "abgerufen": "2026-09-02",
+    "dokument": "Hranipex Produktkatalog 2025 (S. 715) + Katalogseite Starkfurnierkanten",
+    "url": "https://www.hranipex.com/de/katalog/starkfurnierkanten-e0027/"
+  },
+  "revision": 1,
+  "schema": "werkstoff/kante.schema.json",
+  "sichtbarkeit": "sichtbar",
+  "typ": "furnierkante",
+  "ueberstand": {
+    "begruendung": "Zuschnittzugabe je Kantenende — kein Zahlenwert im Katalog",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "wert": 2
+  },
+  "unterlagen": [
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Hranipex Produktkatalog 2025",
+      "seiten": "S. 1–783",
+      "sha256": "6e9f19d9aee85553a7aaf2fdfca250ab8d7dbc684d58223b374e19510cef273c",
+      "typ": "datenblatt",
+      "url": "https://3brs1.fra1.cdn.digitaloceanspaces.com/hranipex/prod2/catalog/hranipex-product-catalogue-2025-ex-v-4-2026.pdf"
+    },
+    {
+      "abgerufen": "2026-09-02",
+      "dokument": "Hranipex REACH-Erklärung 25.02.2025",
+      "seiten": "S. 1",
+      "sha256": "fbcc663a2d8d1b5f3df17f919045820a7b6e8fd7969fd57528e7e8e6570fcf62",
+      "typ": "sonstiges",
+      "url": "https://3brs1.fra1.digitaloceanspaces.com/contember/hranipex/prod2/48042b5d-1e3a-4f73-984a-6f252460bcb7"
+    }
+  ],
+  "verarbeitung": [
+    {
+      "hinweise": [
+        "Beschichtungsservice mit Kleber ab 10 m (Katalog S. 717)"
+      ],
+      "schritt": "kanten",
+      "werkzeuge": [
+        "Kantenanleimmaschine",
+        "Bündigfräser, Ziehklinge"
+      ]
+    }
+  ]
+}

@@ -3,8 +3,8 @@
  * Die Fixture ist die ECHTE Karte aus dem Offline-Bundle (cody-cad M5-04), nicht erfunden:
  * genau das JSON, das auf der Baustelle im Auftragsordner liegt.
  */
-import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { describe, expect, it, vi } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   gruppiere,
@@ -13,6 +13,7 @@ import {
   schwaechste,
   verweise,
   type Materialkarte,
+  ladeKarte,
 } from "./karte";
 
 const KARTE = JSON.parse(
@@ -78,5 +79,60 @@ describe("Materialkarte aus dem Offline-Bundle", () => {
   it("schwaechste: leere Menge hat keine Freigabe", () => {
     expect(schwaechste([])).toBeUndefined();
     expect(schwaechste(["belegt", "annahme", "verifiziert"])).toBe("annahme");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ladeKarte war bis eben von KEINEM Test gedeckt — dieselbe Lücke wie bei den
+// strikten Schemata drüben: die Regel stand da, den Weg dorthin ging niemand.
+// Der Stub liest die ECHTEN Bundle-Dateien, damit hier nicht eine erfundene
+// Nutzlast geprüft wird, die es so nie gibt.
+// ---------------------------------------------------------------------------
+describe("ladeKarte", () => {
+  const bundle = join(__dirname, "../../public/werkstoff-bundle");
+
+  /** fetch über das Dateisystem — `aenderung` darf eine Antwort verbiegen. */
+  const stub = (aenderung?: (pfad: string, inhalt: string) => string | null) =>
+    vi.fn(async (url: string) => {
+      const pfad = join(bundle, url.replace("/werkstoff-bundle/", ""));
+      if (!existsSync(pfad)) return { ok: false, status: 404 } as Response;
+      const roh = readFileSync(pfad, "utf8");
+      const inhalt = aenderung ? aenderung(url, roh) : roh;
+      if (inhalt === null) return { ok: false, status: 404 } as Response;
+      return { ok: true, status: 200, json: async () => JSON.parse(inhalt) } as Response;
+    });
+
+  it("liefert die Karte, wenn Karte und Manifest zusammengehören", async () => {
+    vi.stubGlobal("fetch", stub());
+    const k = await ladeKarte("boden-562x555");
+    expect(k.werkstueck.id).toBe("boden-562x555");
+    vi.unstubAllGlobals();
+  });
+
+  it("zeigt lieber nichts als das falsche Material", async () => {
+    vi.stubGlobal("fetch", stub());
+    await expect(ladeKarte("gibt-es-nicht")).rejects.toThrow(/Keine Karte/);
+    vi.unstubAllGlobals();
+  });
+
+  it("verlangt das Resolve-Manifest im Bundle", async () => {
+    // Ohne Manifest hieße "bekanntes Werkstück" nur: es steht in der Datei, die ich
+    // gerade gelesen habe. Die Karte belegte sich selbst.
+    vi.stubGlobal("fetch", stub((url, roh) => (url.includes("/manifeste/") ? null : roh)));
+    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/ohne Resolve-Manifest/);
+    vi.unstubAllGlobals();
+  });
+
+  it("lehnt ab, wenn Karte und Manifest nicht zusammengehören", async () => {
+    vi.stubGlobal(
+      "fetch",
+      stub((url, roh) =>
+        url.includes("/manifeste/")
+          ? JSON.stringify({ ...JSON.parse(roh), resolve_manifest_sha256: "f".repeat(64) })
+          : roh,
+      ),
+    );
+    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/gehören nicht zusammen/);
+    vi.unstubAllGlobals();
   });
 });

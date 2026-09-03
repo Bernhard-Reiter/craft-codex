@@ -1,0 +1,44 @@
+{
+  "bezeichnung": "BEISPIEL (Bernhards Vision): Grundierung + Füller + Farblack ×2 + Klarlack ×2 — Produkte sind Platzhalter",
+  "id": "beispiel-mdf-farbig-6-schichten",
+  "revision": 1,
+  "schema": "werkstoff/system.schema.json",
+  "schichten": [
+    {
+      "anzahl": 1,
+      "komponente": {
+        "id": "adler-aduro-legnopur-g10",
+        "revision": 1
+      },
+      "rolle": "grundierung",
+      "verfahren": "spritzen"
+    },
+    {
+      "anzahl": 1,
+      "komponente": {
+        "id": "adler-aduro-legnopur-g10",
+        "revision": 1
+      },
+      "rolle": "fueller",
+      "verfahren": "spritzen"
+    },
+    {
+      "anzahl": 2,
+      "komponente": {
+        "id": "adler-aduro-antiscratch-g10",
+        "revision": 1
+      },
+      "rolle": "farblack",
+      "verfahren": "spritzen"
+    },
+    {
+      "anzahl": 2,
+      "komponente": {
+        "id": "adler-aduro-antiscratch-g10",
+        "revision": 1
+      },
+      "rolle": "klarlack",
+      "verfahren": "spritzen"
+    }
+  ]
+}
