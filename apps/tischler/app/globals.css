@@ -1002,3 +1002,9 @@ body.cc-kiosk .cc-workbench {
   border-top: 1px dashed currentColor;
   border-color: color-mix(in srgb, currentColor 25%, transparent);
 }
+
+/* Werkstoff: ein Brett ohne Karte — die benannte Lücke */
+.werkstoff .teil.luecke { border-style: dashed; color: #64748b; background: #f8fafc; }
+.werkstoff .luecke-hinweis { border: 1px dashed #94a3b8; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; background: #f8fafc; }
+.werkstoff .luecke-hinweis h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.werkstoff .luecke-hinweis p { margin: 0.25rem 0; }

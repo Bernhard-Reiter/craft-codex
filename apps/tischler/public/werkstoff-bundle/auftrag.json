@@ -1,5 +1,5 @@
 {
-  "buildplan_sha256": "dbaca54603baaf7b83e9dc0b23dcf7812148d8b20b53a6e4c38e137adc2938ef",
+  "buildplan_sha256": "49499816f78a60c40d35268e2fb68e92a67f3bbf480834f3189a063e18c17cf8",
   "moebel_id": "moebel_beispiel0001",
   "revision": 3,
   "teile": [
@@ -18,6 +18,14 @@
     {
       "schluessel": "teil:Se:rechts",
       "werkstueck_id": "teil_beispielse0rechts"
+    }
+  ],
+  "teile_ohne_karte": [
+    {
+      "aufbau": "rw-8@1",
+      "grund": "kein Aufbau rw-8@1 im Katalogstand 2026-09-03 — Material noch offen",
+      "schluessel": "teil:Rw",
+      "werkstueck_id": "teil_beispielrw000001"
     }
   ]
 }

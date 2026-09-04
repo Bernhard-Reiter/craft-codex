@@ -69,6 +69,20 @@ describe("Werkstoff-Panel: der Auftrag bestimmt, welche Bretter es gibt", () => 
     expect(text).toMatch(/moebel_beispiel0001/);
     expect(text).toMatch(/Revision 3/);
     expect(screen.getAllByRole("button", { name: /^(Bo|Se):/ })).toHaveLength(4);
+    // Die Rückwand steht als fünftes Brett da — als benannte Lücke, nicht weggeschnitten.
+    expect(screen.getByRole("button", { name: /^Rw/ })).toBeTruthy();
+  });
+
+  it("tippt der Handwerker auf die Rückwand, kommt keine Karte, sondern der Grund — Material noch offen", async () => {
+    vi.stubGlobal("fetch", stub());
+    render(<Werkstoffseite />);
+    const rw = await waitFor(() => screen.getByRole("button", { name: /^Rw/ }));
+    rw.click();
+    await waitFor(() => {
+      expect(document.body.textContent).toMatch(/Material noch offen/);
+    });
+    expect(document.body.textContent).toMatch(/rw-8@1/);
+    expect(document.querySelector(".karte")).toBeNull();
   });
 
   it("tippt der Handwerker auf »Se:links«, kommt die Karte des Plan-Teils, nicht eines Katalog-Bretts", async () => {

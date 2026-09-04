@@ -31,7 +31,14 @@ import {
   type Komponentenzeile,
   type Materialkarte,
 } from "../../../lib/werkstoff/karte";
-import { ladeAuftrag, schluesselKurz, type Auftrag } from "../../../lib/werkstoff/auftrag";
+import {
+  karteFuer,
+  ladeAuftrag,
+  luecke,
+  schluesselKurz,
+  type Auftrag,
+  type AuftragLuecke,
+} from "../../../lib/werkstoff/auftrag";
 
 function Ampel({ freigabe }: { freigabe: Materialkarte["freigabe"] }) {
   return (
@@ -121,6 +128,8 @@ export default function WerkstoffPage() {
   const [auftrag, setAuftrag] = useState<Auftrag | null>(null);
   const [auftragFehler, setAuftragFehler] = useState<string | null>(null);
   const [gewaehlt, setGewaehlt] = useState<string | null>(null);
+  // Ein angetipptes Brett ohne Karte: kein Fehler, sondern der Grund — Material noch offen.
+  const [lueckeGewaehlt, setLueckeGewaehlt] = useState<AuftragLuecke | null>(null);
   const [karte, setKarte] = useState<Materialkarte | null>(null);
   const [stand, setStand] = useState<Bundlestand | null>(null);
   const [grenze, setGrenze] = useState<Datengrenze | null>(null);
@@ -156,6 +165,31 @@ export default function WerkstoffPage() {
   }, [gewaehlt]);
 
   const gruppen = useMemo(() => (karte ? gruppiere(karte.komponenten) : []), [karte]);
+  // Ein Tap führt über den Schlüssel: zur Karte, wenn es eine gibt — sonst zur benannten Lücke.
+  const tippeTeil = (schluessel: string) => {
+    if (!auftrag) return;
+    const id = karteFuer(auftrag, schluessel);
+    if (id) {
+      setLueckeGewaehlt(null);
+      setGewaehlt(gewaehlt === id ? null : id);
+      return;
+    }
+    const l = auftrag.teile_ohne_karte.find((t) => t.schluessel === schluessel);
+    if (l) {
+      setGewaehlt(null);
+      setLueckeGewaehlt(lueckeGewaehlt?.schluessel === l.schluessel ? null : l);
+    }
+  };
+  const bretter = useMemo(
+    () =>
+      auftrag
+        ? [
+            ...auftrag.teile.map((t) => ({ ...t, luecke: undefined as AuftragLuecke | undefined })),
+            ...auftrag.teile_ohne_karte.map((t) => ({ ...t, luecke: t })),
+          ].sort((a, b) => a.schluessel.localeCompare(b.schluessel))
+        : [],
+    [auftrag],
+  );
   const schritte = useMemo(() => (karte ? arbeitsfolge(karte) : []), [karte]);
 
   return (
@@ -188,19 +222,37 @@ export default function WerkstoffPage() {
       </header>
 
       <section className="teile" aria-label="Werkstücke antippen">
-        {(auftrag?.teile ?? []).map((w) => (
-          <button
-            key={w.schluessel}
-            type="button"
-            className={`teil ${gewaehlt === w.werkstueck_id ? "aktiv" : ""}`}
-            onClick={() => setGewaehlt(gewaehlt === w.werkstueck_id ? null : w.werkstueck_id)}
-            aria-pressed={gewaehlt === w.werkstueck_id}
-          >
-            <span className="teilname">{schluesselKurz(w.schluessel)}</span>
-            <span className="teilmass">{w.werkstueck_id}</span>
-          </button>
-        ))}
+        {bretter.map((w) => {
+          const aktiv = w.luecke
+            ? lueckeGewaehlt?.schluessel === w.schluessel
+            : gewaehlt === w.werkstueck_id;
+          return (
+            <button
+              key={w.schluessel}
+              type="button"
+              className={`teil ${w.luecke ? "luecke" : ""} ${aktiv ? "aktiv" : ""}`}
+              onClick={() => tippeTeil(w.schluessel)}
+              aria-pressed={aktiv}
+            >
+              <span className="teilname">{schluesselKurz(w.schluessel)}</span>
+              <span className="teilmass">{w.luecke ? "Material noch offen" : w.werkstueck_id}</span>
+            </button>
+          );
+        })}
       </section>
+
+      {auftrag && lueckeGewaehlt && (
+        <section className="luecke-hinweis" aria-live="polite">
+          <h2>{schluesselKurz(lueckeGewaehlt.schluessel)} — Material noch offen</h2>
+          <p>
+            Aufbau {lueckeGewaehlt.aufbau}: {luecke(auftrag, lueckeGewaehlt.schluessel)?.grund}
+          </p>
+          <p className="hinweis-klein">
+            Der Plan verlangt dieses Brett, der Katalog kennt seinen Aufbau nicht. Welches Material
+            verbaut wird, entscheidet der Betrieb — nicht das Werkzeug.
+          </p>
+        </section>
+      )}
 
       {fehler && <p className="fehler">⚠ {fehler}</p>}
 

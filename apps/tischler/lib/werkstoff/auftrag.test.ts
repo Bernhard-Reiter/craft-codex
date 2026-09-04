@@ -10,7 +10,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { glbKnoten, karteFuer, ladeAuftrag, pruefeSzene, type Auftrag } from "./auftrag";
+import { glbKnoten, karteFuer, ladeAuftrag, luecke, pruefeSzene, type Auftrag } from "./auftrag";
 
 const BUNDLE = join(__dirname, "../../public/werkstoff-bundle");
 const MINI_GLB = join(__dirname, "fixtures/demo-mini.glb");
@@ -50,6 +50,35 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
       "teil:Se:rechts",
     ]);
     expect(a.teile.every((t) => /^teil_/.test(t.werkstueck_id))).toBe(true);
+    // Die Lücke wird getragen: die Rückwand hat keinen Katalog-Aufbau, und der Auftrag sagt es.
+    expect(a.teile_ohne_karte).toEqual([
+      {
+        schluessel: "teil:Rw",
+        werkstueck_id: "teil_beispielrw000001",
+        aufbau: "rw-8@1",
+        grund: "kein Aufbau rw-8@1 im Katalogstand 2026-09-03 — Material noch offen",
+      },
+    ]);
+  });
+
+  it("ein Bundle ohne das Feld teile_ohne_karte (älterer Stand) hat keine Lücke — kein Fehler", async () => {
+    vi.stubGlobal("fetch", verbiegen((a) => delete a.teile_ohne_karte));
+    expect((await ladeAuftrag()).teile_ohne_karte).toEqual([]);
+  });
+
+  it("die Lücke braucht Grund und Aufbau, und ein Schlüssel steht nie in beiden Listen", async () => {
+    type L = Array<{ schluessel: string; werkstueck_id: string; aufbau: string; grund: string }>;
+    const faelle: Array<[RegExp, (a: Record<string, unknown>) => void]> = [
+      [/grund/, (a) => ((a.teile_ohne_karte as L)[0]!.grund = "")],
+      [/grund/, (a) => delete (a.teile_ohne_karte as Partial<L[number]>[])[0]!.grund],
+      [/aufbau/, (a) => ((a.teile_ohne_karte as L)[0]!.aufbau = "")],
+      [/beiden Listen/, (a) => ((a.teile_ohne_karte as L)[0]!.schluessel = "teil:Bo:oben")],
+      [/doppelt/i, (a) => ((a.teile_ohne_karte as L)[0]!.werkstueck_id = "teil_beispielbo0oben")],
+    ];
+    for (const [grund, f] of faelle) {
+      vi.stubGlobal("fetch", verbiegen(f));
+      await expect(ladeAuftrag(), String(grund)).rejects.toThrow(grund);
+    }
   });
 
   it("fehlt der Auftrag, ist das ein Fehler — kein leeres Möbel", async () => {
@@ -78,11 +107,40 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
 
 describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
   const glb = () => new Uint8Array(readFileSync(MINI_GLB)).buffer;
+  const umbauenAllg = (f: (j: Record<string, unknown>) => void) => {
+    const b = new Uint8Array(glb());
+    const len = new DataView(b.buffer).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(b.subarray(20, 20 + len)));
+    f(j);
+    const txt = new TextEncoder().encode(JSON.stringify(j));
+    const pad = (4 - (txt.length % 4)) % 4;
+    const out = new Uint8Array(20 + txt.length + pad);
+    const dv = new DataView(out.buffer);
+    out.set([0x67, 0x6c, 0x54, 0x46], 0);
+    dv.setUint32(4, 2, true);
+    dv.setUint32(8, out.length, true);
+    dv.setUint32(12, txt.length + pad, true);
+    dv.setUint32(16, 0x4e4f534a, true);
+    out.set(txt, 20);
+    for (let i = 0; i < pad; i++) out[20 + txt.length + i] = 0x20;
+    return out.buffer;
+  };
 
-  it("liest Wurzel und Teile aus dem Fixture (Wurzel = Möbel, Kinder = Schlüssel)", () => {
+  it("liest Wurzel und Teile aus dem Fixture — die Wurzel ist die der Szene, nicht nodes[0]", () => {
     const k = glbKnoten(glb());
     expect(k.wurzel).toBe("moebel_beispiel0001");
-    expect([...k.teile].sort()).toEqual(["teil:Bo:oben", "teil:Bo:unten", "teil:Se:links", "teil:Se:rechts"]);
+    expect([...k.teile].sort()).toEqual([
+      "teil:Bo:oben",
+      "teil:Bo:unten",
+      "teil:Rw",
+      "teil:Se:links",
+      "teil:Se:rechts",
+    ]);
+    // Reihenfolge ≠ Identität: im Fixture steht das Möbel absichtlich nicht an Index 0.
+    const b = new Uint8Array(glb());
+    const len = new DataView(b.buffer).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(b.subarray(20, 20 + len))) as { scenes: Array<{ nodes: number[] }> };
+    expect(j.scenes[0]!.nodes[0]).not.toBe(0);
   });
 
   it("lehnt ab, was kein glTF-Binary ist", () => {
@@ -110,9 +168,29 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
       for (let i = 0; i < pad; i++) out[20 + txt.length + i] = 0x20;
       return out.buffer;
     };
+    type N = Array<{ name?: string; children?: number[] }>;
+    const wurzelIdx = (j: Record<string, unknown>) => (j.scenes as Array<{ nodes: number[] }>)[0]!.nodes[0]!;
     expect(() => glbKnoten(umbauen((j) => ((j.scenes as Array<{ nodes: number[] }>)[0]!.nodes = [0, 1])))).toThrow(/eine Wurzel/);
-    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as Array<{ name?: string }>)[0]!.name))).toThrow(/Wurzel.*Name/);
-    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as Array<{ name?: string }>)[2]!.name))).toThrow(/ohne Namen/);
+    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as N)[wurzelIdx(j)]!.name))).toThrow(/Wurzel.*Name/);
+    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as N)[0]!.name))).toThrow(/ohne Namen/);
+  });
+
+  it("doppelte Knotennamen sind ein Fehler — zwei Bretter mit einem Namen sind kein Vertrag", () => {
+    type N = Array<{ name?: string; children?: number[] }>;
+    const dup = umbauenAllg((j) => ((j.nodes as N)[0]!.name = (j.nodes as N)[1]!.name));
+    expect(() => glbKnoten(dup)).toThrow(/doppelt/);
+  });
+
+  it("genau zwei Ebenen: ein Kind mit eigenen Kindern ist ein Vertragsbruch, keine Gruppe", () => {
+    type N = Array<{ name?: string; children?: number[] }>;
+    const enkel = umbauenAllg((j) => ((j.nodes as N)[0]!.children = [1]));
+    expect(() => glbKnoten(enkel)).toThrow(/zwei Ebenen/);
+  });
+
+  it("ein Header, der über das Dateiende hinaus zeigt, ist ein Klartext-Fehler, kein RangeError", () => {
+    const b = new Uint8Array(glb());
+    new DataView(b.buffer).setUint32(12, 10_000_000, true);
+    expect(() => glbKnoten(b.buffer)).toThrow(/Header|Chunk/);
   });
 });
 
@@ -123,11 +201,34 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
     expect(pruefeSzene(AUFTRAG, knoten())).toEqual({ ok: true, fehler: [] });
   });
 
-  it("ein Knoten ohne Karte wird genannt — die Rückwand, die es im Katalog nicht gibt", () => {
+  it("die benannte Lücke ist erlaubt: teil:Rw hat keine Karte, aber einen Grund — kein Fehler", () => {
+    expect(pruefeSzene(AUFTRAG, knoten()).ok).toBe(true);
+    expect(luecke(AUFTRAG, "teil:Rw")).toEqual({
+      aufbau: "rw-8@1",
+      grund: "kein Aufbau rw-8@1 im Katalogstand 2026-09-03 — Material noch offen",
+    });
+    expect(luecke(AUFTRAG, "teil:Se:links")).toBeUndefined();
+  });
+
+  it("ein Knoten, der weder Karte noch benannte Lücke hat, wird genannt", () => {
     const k = knoten();
-    const r = pruefeSzene(AUFTRAG, { ...k, teile: [...k.teile, "teil:Rw"] });
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: [...k.teile, "teil:Xy"] });
     expect(r.ok).toBe(false);
-    expect(r.fehler.join("\n")).toMatch(/teil:Rw.*ohne Karte/);
+    expect(r.fehler.join("\n")).toMatch(/teil:Xy.*ohne Karte/);
+  });
+
+  it("fehlt die Lücke in der Szene, fehlt ein Brett — auch das wird genannt", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: k.teile.filter((t) => t !== "teil:Rw") });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Rw.*nicht in der Szene/);
+  });
+
+  it("doppelte Knoten in der Szene sind ein Fehler, kein Mengenvergleich (Review craft#47)", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: [...k.teile, "teil:Se:links"] });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Se:links.*doppelt/);
   });
 
   it("eine Karte ohne Knoten wird genannt — Material ohne Brett", () => {
@@ -148,7 +249,7 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
     const k = knoten();
     const r = pruefeSzene(AUFTRAG, {
       wurzel: "moebel_anderes0002",
-      teile: [...k.teile.filter((t) => t !== "teil:Se:rechts"), "teil:Rw"],
+      teile: [...k.teile.filter((t) => t !== "teil:Se:rechts"), "teil:Xy"],
     });
     expect(r.fehler).toHaveLength(3);
   });
