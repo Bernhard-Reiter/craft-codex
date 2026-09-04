@@ -61,6 +61,28 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
     ]);
   });
 
+  it("der Auftrag nennt sein Modell — Hash und Datei; ohne das Feld gibt es kein Modell", async () => {
+    vi.stubGlobal("fetch", stub());
+    const a = await ladeAuftrag();
+    expect(a.modell).toEqual({ glb_sha256: expect.stringMatching(/^[0-9a-f]{64}$/), datei: "modell.glb" });
+    vi.stubGlobal("fetch", verbiegen((x) => delete x.modell));
+    expect((await ladeAuftrag()).modell).toBeUndefined();
+    for (const [grund, f] of [
+      [/glb_sha256/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).glb_sha256 = "abc")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "")],
+      // R48-6: die Datei ist ein Name im Bundle, kein Pfad und keine Adresse
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "../../etc/passwd")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "/abs/modell.glb")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "https://x/modell.glb")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "modell.gltf")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "mod ell.glb")],
+      [/modell/, (x: Record<string, unknown>) => (x.modell = "modell.glb")],
+    ] as Array<[RegExp, (x: Record<string, unknown>) => void]>) {
+      vi.stubGlobal("fetch", verbiegen(f));
+      await expect(ladeAuftrag(), String(grund)).rejects.toThrow(grund);
+    }
+  });
+
   it("ein Bundle ohne das Feld teile_ohne_karte (älterer Stand) hat keine Lücke — kein Fehler", async () => {
     vi.stubGlobal("fetch", verbiegen((a) => delete a.teile_ohne_karte));
     expect((await ladeAuftrag()).teile_ohne_karte).toEqual([]);
@@ -280,17 +302,19 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
 
 
 describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
-  // Zwei Quellen: das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export, gröber tesselliert,
-  // im Repo — kommt von Cody #2 aus dem Referenzplan) und das lokale Erzeugnis modell.glb
-  // (nicht im Repo). Fehlt BEIDES, wird übersprungen — und zwar ausgeschrieben: auf CI ist das
-  // so lange der Fall, bis das Fixture-Modell im Repo liegt. Kein Test, der immer grün ist.
-  const QUELLEN = [
-    join(__dirname, "fixtures/referenz-korpus.glb"),
-    join(BUNDLE, "modell.glb"),
-  ].filter((p) => existsSync(p));
-  const grund = QUELLEN.length ? "" : "kein OCCT-Modell vorhanden (weder fixtures/referenz-korpus.glb noch modell.glb) — auf CI immer übersprungen, bis das Fixture im Repo liegt";
-  it.skipIf(!QUELLEN.length)(`ein echtes FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, kein Zirkel${grund ? " [" + grund + "]" : ""}`, () => {
-    for (const q of QUELLEN) {
+  // Das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export ohne Bohrungen, mit Nuten — im
+  // Repo, Erzeuger cody-cad#69/#70) ist seit d204bc8 auch das ausgelieferte modell.glb; beide
+  // liegen im Repo, byte-gleich (bundle.test.ts hält das). Das Fixture ist Pflicht und wird NIE
+  // übersprungen; fehlt es, sagt der Test das in Klartext statt mit ENOENT (Review craft#47/#48).
+  const FIXTURE = join(__dirname, "fixtures/referenz-korpus.glb");
+
+  it("das CI-Fixture referenz-korpus.glb liegt im Repo", () => {
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69, kein Erzeugnis").toBe(true);
+  });
+
+  it("ein echtes FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, kein Zirkel", () => {
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt").toBe(true);
+    for (const q of [FIXTURE]) {
       const buf = new Uint8Array(readFileSync(q)).buffer;
       const k = glbKnoten(buf);
       expect(k.wurzel, q).toBe(AUFTRAG.moebel_id);
@@ -298,17 +322,12 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
       expect(pruefeSzene(AUFTRAG, k), q).toEqual({ ok: true, fehler: [] });
     }
   });
-  // Ohne Pflicht wird dieser Fall sichtbar übersprungen — kein »expect(true)«, das immer grün ist.
-  it.skipIf(process.env.WERKSTOFF_MODELL_PFLICHT !== "1")(
-    "mit WERKSTOFF_MODELL_PFLICHT=1 ist das Fehlen eines OCCT-Modells rot, nicht übersprungen",
-    () => {
-      expect(QUELLEN.length, grund).toBeGreaterThan(0);
-    },
-  );
+
   it("das CI-Fixture referenz-korpus.glb ist ein FreeCAD-Erzeugnis mit Nuten, kein Zirkel aus auftrag.json", () => {
-    // Kommt aus cody-cad (Cody #2, 04.09.): Referenzplan @ 03040cb ohne die 104 Drillings, mit
-    // den 4 Nuten; FreeCAD 1.1.3, korpus_bauen → tessellate(0.1) → Import.export; 23.388 B.
-    const buf = new Uint8Array(readFileSync(join(__dirname, "fixtures/referenz-korpus.glb"))).buffer;
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69").toBe(true);
+    // Kommt aus cody-cad (Cody #2, 04.09., PR #69): Referenzplan @ 03040cb ohne die 104 Drillings,
+    // mit den 4 Nuten; FreeCAD 1.1.3, korpus_bauen → tessellate(0.1) → Import.export; 23.388 B.
+    const buf = new Uint8Array(readFileSync(FIXTURE)).buffer;
     const len = new DataView(buf).getUint32(12, true);
     const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, len))) as {
       asset: { generator?: string };
@@ -317,5 +336,17 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
     expect(j.asset.generator).toMatch(/Open CASCADE/); // echtes OCCT, nicht der Test-Erzeuger
     expect(j.meshes.length).toBe(5);
     expect(buf.byteLength).toBeLessThan(250_000);
+  });
+
+  it("das Fixture ist genau das Erzeugnis aus cody-cad#69 — der Hash ist gepinnt, nicht nur die Form", async () => {
+    // Review #69 (W1): fünf richtige Namen und dieselbe Bytezahl genügten, um das Fixture zu
+    // ersetzen — beide CIs blieben grün, das Protokoll behauptete weiter 418a… Der Pin bindet
+    // die Datei an die Attestation in cody-cad (tests/fixtures/freecad/… , glb_sha256).
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69").toBe(true);
+    const buf = new Uint8Array(readFileSync(FIXTURE)).buffer;
+    const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    expect(h).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
   });
 });

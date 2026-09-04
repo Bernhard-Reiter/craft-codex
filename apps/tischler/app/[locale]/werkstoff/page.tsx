@@ -39,6 +39,8 @@ import {
   type Auftrag,
   type AuftragLuecke,
 } from "../../../lib/werkstoff/auftrag";
+import { ladeSzene, type Szene } from "../../../lib/werkstoff/szene";
+import { WerkstoffSzene } from "../../../components/WerkstoffSzene";
 
 function Ampel({ freigabe }: { freigabe: Materialkarte["freigabe"] }) {
   return (
@@ -127,6 +129,10 @@ export default function WerkstoffPage() {
   // kein Brett und den Satz dazu; ein Katalog-Beispiel an seiner Stelle wäre das falsche Material.
   const [auftrag, setAuftrag] = useState<Auftrag | null>(null);
   const [auftragFehler, setAuftragFehler] = useState<string | null>(null);
+  // Die Szene wird erst gezeigt, wenn das Modell zum Auftrag passt (lib/werkstoff/szene.ts).
+  // `szene === undefined` heißt: noch nicht geprüft; `null`: kein Modell im Bundle.
+  const [szene, setSzene] = useState<Szene | null | undefined>(undefined);
+  const [szeneFehler, setSzeneFehler] = useState<string | null>(null);
   const [gewaehlt, setGewaehlt] = useState<string | null>(null);
   // Ein angetipptes Brett ohne Karte: kein Fehler, sondern der Grund — Material noch offen.
   const [lueckeGewaehlt, setLueckeGewaehlt] = useState<AuftragLuecke | null>(null);
@@ -144,6 +150,21 @@ export default function WerkstoffPage() {
       .then(setAuftrag)
       .catch((e) => setAuftragFehler(String(e.message ?? e)));
   }, []);
+
+  useEffect(() => {
+    if (!auftrag) return;
+    let abgebrochen = false;
+    ladeSzene(auftrag)
+      .then((s) => !abgebrochen && setSzene(s))
+      .catch((e) => {
+        if (abgebrochen) return;
+        setSzene(null); // nie ein Modell zeigen, das nicht zum Auftrag passt
+        setSzeneFehler(String(e.message ?? e));
+      });
+    return () => {
+      abgebrochen = true;
+    };
+  }, [auftrag]);
 
   useEffect(() => {
     if (!gewaehlt) {
@@ -190,6 +211,14 @@ export default function WerkstoffPage() {
         : [],
     [auftrag],
   );
+  // Für die Hervorhebung in der Szene: der Schlüssel des gewählten Bretts — Karte oder Lücke.
+  const gewaehltSchluessel = useMemo(
+    () =>
+      lueckeGewaehlt?.schluessel ??
+      auftrag?.teile.find((t) => t.werkstueck_id === gewaehlt)?.schluessel ??
+      null,
+    [auftrag, gewaehlt, lueckeGewaehlt],
+  );
   const schritte = useMemo(() => (karte ? arbeitsfolge(karte) : []), [karte]);
 
   return (
@@ -220,6 +249,19 @@ export default function WerkstoffPage() {
           </p>
         )}
       </header>
+
+      {szene && (
+        <WerkstoffSzene
+          url={szene.url}
+          gewaehlt={gewaehltSchluessel}
+          luecken={auftrag?.teile_ohne_karte.map((l) => l.schluessel) ?? []}
+          onTeil={tippeTeil}
+        />
+      )}
+      {szene === null && !szeneFehler && (
+        <p className="hinweis-klein">Kein 3D-Modell im Auftrag — Teile unten antippen.</p>
+      )}
+      {szeneFehler && <p className="fehler">⚠ {szeneFehler}</p>}
 
       <section className="teile" aria-label="Werkstücke antippen">
         {bretter.map((w) => {

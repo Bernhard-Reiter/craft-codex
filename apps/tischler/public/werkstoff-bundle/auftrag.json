@@ -1,5 +1,9 @@
 {
-  "buildplan_sha256": "49499816f78a60c40d35268e2fb68e92a67f3bbf480834f3189a063e18c17cf8",
+  "buildplan_sha256": "65cf8e3b758e7d686b90c5e0e1bea26822506b6cc9d6a659760ba3d054df1ce2",
+  "modell": {
+    "datei": "modell.glb",
+    "glb_sha256": "418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f"
+  },
   "moebel_id": "moebel_beispiel0001",
   "revision": 3,
   "teile": [

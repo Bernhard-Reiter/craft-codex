@@ -1008,3 +1008,15 @@ body.cc-kiosk .cc-workbench {
 .werkstoff .luecke-hinweis { border: 1px dashed #94a3b8; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; background: #f8fafc; }
 .werkstoff .luecke-hinweis h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
 .werkstoff .luecke-hinweis p { margin: 0.25rem 0; }
+/* Werkstoff: die Bildschirm-Szene des Möbels (WebGL-Canvas) */
+.werkstoff .szene {
+  height: 420px;
+  border: 1px solid #d9d4cb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f3f0ea;
+  margin-bottom: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  .werkstoff .szene { border-color: #3a3530; background: #1d1a16; }
+}
