@@ -55,6 +55,14 @@ export interface Auftrag {
    * keine Szene — die Wurzel unterscheidet Pläne nicht, der Hash schon.
    */
   modell?: AuftragModell;
+  /**
+   * Die getragene Lücke auf Plan-Ebene (R48b-6; voai#1226, cody-cad#73 `bauen --hinweis`):
+   * Klartext für die Zeile unter dem Plan-Hash, z. B. „Demo-Plan ohne Bohrbild". Auftragsebene,
+   * weil ein Feld im Plan den kanonischen Plan-Hash kippen würde. 1–5 Einträge, je 1–200 Zeichen
+   * nach trim; fehlt das Feld, gibt es keinen Hinweis (leer ist kein Zustand). React escaped —
+   * kein Markdown, keine Links.
+   */
+  hinweise?: string[];
 }
 
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -128,7 +136,20 @@ function pruefeAuftrag(d: unknown): Auftrag {
       throw new Error("modell ohne gültige datei — ein Dateiname im Bundle, endet auf .glb, kein Pfad");
     }
     modell = { glb_sha256: m.glb_sha256, datei: m.datei };
+  }  let hinweise: string[] | undefined;
+  if (o.hinweise !== undefined) {
+    if (!Array.isArray(o.hinweise)) throw new Error("hinweise ist keine Liste");
+    if (o.hinweise.length === 0) throw new Error("hinweise: leere Liste — das Feld weglassen statt leer tragen");
+    if (o.hinweise.length > 5) throw new Error(`hinweise: mehr als 5 Einträge (${o.hinweise.length})`);
+    hinweise = (o.hinweise as unknown[]).map((h) => {
+      if (typeof h !== "string") throw new Error("Hinweis ist kein Text");
+      const text = h.trim();
+      if (!text) throw new Error("leerer Hinweis — das Feld weglassen statt leer tragen");
+      if (text.length > 200) throw new Error(`Hinweis länger als 200 Zeichen (${text.length})`);
+      return text;
+    });
   }
+
   return {
     moebel_id: o.moebel_id,
     buildplan_sha256: o.buildplan_sha256,
@@ -136,6 +157,7 @@ function pruefeAuftrag(d: unknown): Auftrag {
     teile,
     teile_ohne_karte,
     ...(modell ? { modell } : {}),
+    ...(hinweise !== undefined ? { hinweise } : {}),
   };
 }
 
