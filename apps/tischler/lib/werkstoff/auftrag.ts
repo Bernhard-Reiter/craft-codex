@@ -167,8 +167,13 @@ export function glbKnoten(buf: ArrayBuffer): SzenenKnoten {
   // Der ganze Header, nicht nur das Magic (Review craft#47 Runde 2): Version, Gesamtlänge,
   // Chunk-Typ, Chunk-Länge in beide Richtungen — jede Lüge ist ein Klartext-Fehler, nie ein
   // RangeError oder SyntaxError aus der Tiefe.
+  // Länge VOR Magic: eine Datei unter 20 Bytes ist »zu kurz«, auch mit gültigem Magic — sonst
+  // sieht der Handwerker bei einem abgebrochenen Download die falsche Ursache (cody-cad#71, R68-3).
+  if (buf.byteLength < 20) {
+    throw new Error(`glTF-Binary zu kurz für einen Header (${buf.byteLength} Bytes, mindestens 20)`);
+  }
   const dv = new DataView(buf);
-  if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x46546c67) {
+  if (dv.getUint32(0, true) !== 0x46546c67) {
     throw new Error("Kein glTF-Binary (Magic »glTF« fehlt)");
   }
   const version = dv.getUint32(4, true);

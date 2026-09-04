@@ -132,6 +132,19 @@ describe("Werkstoff-Panel: der Auftrag bestimmt, welche Bretter es gibt", () => 
 });
 
 describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
+  it("Regelbetrieb: das ausgelieferte Bundle, unverändert — die Szene erscheint, mit der Lücke, ohne Fehlersatz", async () => {
+    // Der Weg des Menschen: Seite auf, Bundle so, wie es im Repo liegt. Kein verbogener Auftrag,
+    // kein eingesetztes Fixture — das ausgelieferte Paar (auftrag.json ↔ modell.glb) muss durch die
+    // Prüfung der Seite kommen. Gemessen war das (craft#48), gehalten hat es kein Test (R48b-5).
+    vi.stubGlobal("fetch", stub());
+    render(<Werkstoffseite />);
+    const szene = await waitFor(() => screen.getByTestId("szene"));
+    expect(szene.getAttribute("data-url")).toBe("/werkstoff-bundle/modell.glb");
+    expect(szene.getAttribute("data-luecken")).toBe("teil:Rw");
+    expect(document.body.textContent).not.toMatch(/⚠|anderes Erzeugnis|Kein 3D-Modell/);
+    expect(screen.getAllByRole("button", { name: /^(Bo|Se):/ })).toHaveLength(4);
+  });
+
   it("nennt der Auftrag kein Modell: Schaltflächen bleiben, und der Satz sagt es", async () => {
     vi.stubGlobal(
       "fetch",
@@ -156,7 +169,8 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
       "fetch",
       stub((url, roh) => (url.endsWith("modell.glb") ? roh : roh)),
     );
-    // Das echte Bundle trägt lokal ein Modell (nicht in git); der Test nimmt das Fixture.
+    // Das ausgelieferte Modell liegt im Repo (Regelbetrieb-Test oben). Hier nimmt der Test bewusst
+    // das Mini-Fixture und setzt dessen Hash in den Auftrag: der Zweig »Tap in der Szene → Karte«.
     const buf = new Uint8Array(readFileSync(join(__dirname, "../../../lib/werkstoff/fixtures/demo-mini.glb"))).buffer;
     const hash = createHash("sha256").update(new Uint8Array(buf)).digest("hex");
     const f = vi.mocked(globalThis.fetch);
