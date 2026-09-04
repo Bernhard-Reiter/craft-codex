@@ -37,3 +37,4 @@ public/tts-cache/*.wav
 # Generated TTS cache (key-generated audio — bundle ships it, git doesn't)
 apps/tischler/public/tts-cache/
 .vercel
+apps/tischler/public/werkstoff-bundle/modell.glb

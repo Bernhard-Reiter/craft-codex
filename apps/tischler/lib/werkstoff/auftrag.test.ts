@@ -1,0 +1,321 @@
+/**
+ * Der Auftrag im Bundle ist die Klammer zwischen Konstruktion und Karte: welches Möbel, welcher
+ * Plan, welche Revision — und welcher Knoten im 3D-Modell welche Karte trägt. Red-First: diese
+ * Datei stand, bevor `lib/werkstoff/auftrag.ts` existierte.
+ *
+ * Vertrag mit cody-cad (#66, Cody #2 04.09.): GLB-Knotennamen = `schluessel`, Wurzel = `moebel_id`.
+ * Der Loader prüft in BEIDE Richtungen — ein Knoten ohne Karte ist so falsch wie eine Karte
+ * ohne Knoten; das eine zeigt ein Brett ohne Material, das andere Material ohne Brett.
+ */
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { glbKnoten, karteFuer, ladeAuftrag, luecke, pruefeSzene, type Auftrag } from "./auftrag";
+
+const BUNDLE = join(__dirname, "../../public/werkstoff-bundle");
+const MINI_GLB = join(__dirname, "fixtures/demo-mini.glb");
+const AUFTRAG = JSON.parse(readFileSync(join(BUNDLE, "auftrag.json"), "utf8")) as Auftrag;
+
+function stub(aenderung?: (url: string, roh: string) => string | null) {
+  return vi.fn(async (url: string) => {
+    const pfad = join(BUNDLE, String(url).replace("/werkstoff-bundle/", ""));
+    if (!existsSync(pfad)) return { ok: false, status: 404 } as Response;
+    const roh = readFileSync(pfad, "utf8");
+    const inhalt = aenderung ? aenderung(String(url), roh) : roh;
+    if (inhalt === null) return { ok: false, status: 404 } as Response;
+    return { ok: true, status: 200, json: async () => JSON.parse(inhalt) } as Response;
+  });
+}
+const verbiegen = (f: (a: Record<string, unknown>) => void) =>
+  stub((url, roh) => {
+    if (!url.endsWith("auftrag.json")) return roh;
+    const o = JSON.parse(roh);
+    f(o);
+    return JSON.stringify(o);
+  });
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
+  it("liest Möbel, Plan-Hash, Revision und die vier Teile des Demo-Plans", async () => {
+    vi.stubGlobal("fetch", stub());
+    const a = await ladeAuftrag();
+    expect(a.moebel_id).toBe("moebel_beispiel0001");
+    expect(a.buildplan_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(a.revision).toBe(3);
+    expect(a.teile.map((t) => t.schluessel)).toEqual([
+      "teil:Bo:oben",
+      "teil:Bo:unten",
+      "teil:Se:links",
+      "teil:Se:rechts",
+    ]);
+    expect(a.teile.every((t) => /^teil_/.test(t.werkstueck_id))).toBe(true);
+    // Die Lücke wird getragen: die Rückwand hat keinen Katalog-Aufbau, und der Auftrag sagt es.
+    expect(a.teile_ohne_karte).toEqual([
+      {
+        schluessel: "teil:Rw",
+        werkstueck_id: "teil_beispielrw000001",
+        aufbau: "rw-8@1",
+        grund: "kein Aufbau rw-8@1 im Katalogstand 2026-09-03 — Material noch offen",
+      },
+    ]);
+  });
+
+  it("ein Bundle ohne das Feld teile_ohne_karte (älterer Stand) hat keine Lücke — kein Fehler", async () => {
+    vi.stubGlobal("fetch", verbiegen((a) => delete a.teile_ohne_karte));
+    expect((await ladeAuftrag()).teile_ohne_karte).toEqual([]);
+  });
+
+  it("die Lücke braucht Grund und Aufbau, und ein Schlüssel steht nie in beiden Listen", async () => {
+    type L = Array<{ schluessel: string; werkstueck_id: string; aufbau: string; grund: string }>;
+    const faelle: Array<[RegExp, (a: Record<string, unknown>) => void]> = [
+      [/grund/, (a) => ((a.teile_ohne_karte as L)[0]!.grund = "")],
+      [/grund/, (a) => delete (a.teile_ohne_karte as Partial<L[number]>[])[0]!.grund],
+      [/aufbau/, (a) => ((a.teile_ohne_karte as L)[0]!.aufbau = "")],
+      [/beiden Listen/, (a) => ((a.teile_ohne_karte as L)[0]!.schluessel = "teil:Bo:oben")],
+      // null ist kein »fehlendes Feld«: ein älteres Bundle lässt es weg, ein kaputtes schreibt null.
+      [/keine Liste/, (a) => (a.teile_ohne_karte = null)],
+      [/keine Liste/, (a) => (a.teile_ohne_karte = "teil:Rw")],
+      [/doppelt/i, (a) => ((a.teile_ohne_karte as L)[0]!.werkstueck_id = "teil_beispielbo0oben")],
+    ];
+    for (const [grund, f] of faelle) {
+      vi.stubGlobal("fetch", verbiegen(f));
+      await expect(ladeAuftrag(), String(grund)).rejects.toThrow(grund);
+    }
+  });
+
+  it("fehlt der Auftrag, ist das ein Fehler — kein leeres Möbel", async () => {
+    vi.stubGlobal("fetch", stub((url, roh) => (url.endsWith("auftrag.json") ? null : roh)));
+    await expect(ladeAuftrag()).rejects.toThrow(/Kein Auftrag/);
+  });
+
+  it("lehnt jeden verbogenen Auftrag ab — mit dem Grund", async () => {
+    const faelle: Array<[RegExp, (a: Record<string, unknown>) => void]> = [
+      [/teile/, (a) => (a.teile = [])],
+      [/doppelt/i, (a) => ((a.teile as Array<{ schluessel: string }>)[1]!.schluessel = "teil:Bo:oben")],
+      [/doppelt/i, (a) => ((a.teile as Array<{ werkstueck_id: string }>)[1]!.werkstueck_id = "teil_beispielbo0oben")],
+      [/revision/i, (a) => (a.revision = 0)],
+      [/revision/i, (a) => (a.revision = "3")],
+      [/moebel_id/, (a) => delete a.moebel_id],
+      [/buildplan_sha256/, (a) => (a.buildplan_sha256 = "abc")],
+      [/schluessel/, (a) => delete (a.teile as Array<{ schluessel?: string }>)[0]!.schluessel],
+      [/werkstueck_id/, (a) => ((a.teile as Array<{ werkstueck_id: string }>)[0]!.werkstueck_id = "")],
+    ];
+    for (const [grund, f] of faelle) {
+      vi.stubGlobal("fetch", verbiegen(f));
+      await expect(ladeAuftrag(), String(grund)).rejects.toThrow(grund);
+    }
+  });
+});
+
+describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
+  const glb = () => new Uint8Array(readFileSync(MINI_GLB)).buffer;
+  const umbauenAllg = (f: (j: Record<string, unknown>) => void) => {
+    const b = new Uint8Array(glb());
+    const len = new DataView(b.buffer).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(b.subarray(20, 20 + len)));
+    f(j);
+    const txt = new TextEncoder().encode(JSON.stringify(j));
+    const pad = (4 - (txt.length % 4)) % 4;
+    const out = new Uint8Array(20 + txt.length + pad);
+    const dv = new DataView(out.buffer);
+    out.set([0x67, 0x6c, 0x54, 0x46], 0);
+    dv.setUint32(4, 2, true);
+    dv.setUint32(8, out.length, true);
+    dv.setUint32(12, txt.length + pad, true);
+    dv.setUint32(16, 0x4e4f534a, true);
+    out.set(txt, 20);
+    for (let i = 0; i < pad; i++) out[20 + txt.length + i] = 0x20;
+    return out.buffer;
+  };
+
+  it("liest Wurzel und Teile aus dem Fixture — die Wurzel ist die der Szene, nicht nodes[0]", () => {
+    const k = glbKnoten(glb());
+    expect(k.wurzel).toBe("moebel_beispiel0001");
+    expect([...k.teile].sort()).toEqual([
+      "teil:Bo:oben",
+      "teil:Bo:unten",
+      "teil:Rw",
+      "teil:Se:links",
+      "teil:Se:rechts",
+    ]);
+    // Reihenfolge ≠ Identität: im Fixture steht das Möbel absichtlich nicht an Index 0.
+    const b = new Uint8Array(glb());
+    const len = new DataView(b.buffer).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(b.subarray(20, 20 + len))) as { scenes: Array<{ nodes: number[] }> };
+    expect(j.scenes[0]!.nodes[0]).not.toBe(0);
+  });
+
+  it("lehnt ab, was kein glTF-Binary ist", () => {
+    const kaputt = new Uint8Array(glb());
+    kaputt[0] = 0x58;
+    expect(() => glbKnoten(kaputt.buffer)).toThrow(/glTF/);
+  });
+
+  it("verlangt genau eine benannte Wurzel und benannte Kinder", () => {
+    const umbauen = (f: (j: Record<string, unknown>) => void) => {
+      const b = new Uint8Array(glb());
+      const len = new DataView(b.buffer).getUint32(12, true);
+      const j = JSON.parse(new TextDecoder().decode(b.subarray(20, 20 + len)));
+      f(j);
+      const txt = new TextEncoder().encode(JSON.stringify(j));
+      const pad = (4 - (txt.length % 4)) % 4;
+      const out = new Uint8Array(20 + txt.length + pad);
+      const dv = new DataView(out.buffer);
+      out.set([0x67, 0x6c, 0x54, 0x46], 0);
+      dv.setUint32(4, 2, true);
+      dv.setUint32(8, out.length, true);
+      dv.setUint32(12, txt.length + pad, true);
+      dv.setUint32(16, 0x4e4f534a, true);
+      out.set(txt, 20);
+      for (let i = 0; i < pad; i++) out[20 + txt.length + i] = 0x20;
+      return out.buffer;
+    };
+    type N = Array<{ name?: string; children?: number[] }>;
+    const wurzelIdx = (j: Record<string, unknown>) => (j.scenes as Array<{ nodes: number[] }>)[0]!.nodes[0]!;
+    expect(() => glbKnoten(umbauen((j) => ((j.scenes as Array<{ nodes: number[] }>)[0]!.nodes = [0, 1])))).toThrow(/eine Wurzel/);
+    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as N)[wurzelIdx(j)]!.name))).toThrow(/Wurzel.*Name/);
+    expect(() => glbKnoten(umbauen((j) => delete (j.nodes as N)[0]!.name))).toThrow(/ohne Namen/);
+  });
+
+  it("doppelte Knotennamen sind ein Fehler — zwei Bretter mit einem Namen sind kein Vertrag", () => {
+    type N = Array<{ name?: string; children?: number[] }>;
+    const dup = umbauenAllg((j) => ((j.nodes as N)[0]!.name = (j.nodes as N)[1]!.name));
+    expect(() => glbKnoten(dup)).toThrow(/doppelt/);
+  });
+
+  it("genau zwei Ebenen: ein Kind mit eigenen Kindern ist ein Vertragsbruch, keine Gruppe", () => {
+    type N = Array<{ name?: string; children?: number[] }>;
+    const enkel = umbauenAllg((j) => ((j.nodes as N)[0]!.children = [1]));
+    expect(() => glbKnoten(enkel)).toThrow(/zwei Ebenen/);
+  });
+
+  it.each([
+    ["Magic", 0, 0x58585858, /glTF/],
+    ["Version 1 statt 2", 4, 1, /Version/],
+    ["Gesamtlänge im Header ≠ Datei", 8, 12, /Gesamtl/],
+    ["JSON-Chunk länger als die Datei", 12, 10_000_000, /Datei hat nur/],
+    ["JSON-Chunk zu kurz (abgeschnittenes JSON)", 12, 8, /JSON-Chunk|unlesbar/],
+    ["Chunk-Typ nicht JSON", 16, 0x004e4942, /JSON-Chunk/],
+  ])("Header-Lüge »%s« ist ein Klartext-Fehler, kein RangeError/SyntaxError", (_name, offset, wert, muster) => {
+    const b = new Uint8Array(glb());
+    new DataView(b.buffer).setUint32(offset, wert, true);
+    let fehler: unknown;
+    try {
+      glbKnoten(b.buffer);
+    } catch (e) {
+      fehler = e;
+    }
+    expect(fehler).toBeInstanceOf(Error);
+    expect((fehler as Error).message).toMatch(muster);
+    expect((fehler as Error).name).not.toMatch(/RangeError|SyntaxError/);
+  });
+});
+
+describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richtungen", () => {
+  const knoten = () => glbKnoten(new Uint8Array(readFileSync(MINI_GLB)).buffer);
+
+  it("passt: Demo-Fixture gegen den Auftrag des Bundles", () => {
+    expect(pruefeSzene(AUFTRAG, knoten())).toEqual({ ok: true, fehler: [] });
+  });
+
+  it("die benannte Lücke ist erlaubt: teil:Rw hat keine Karte, aber einen Grund — kein Fehler", () => {
+    expect(pruefeSzene(AUFTRAG, knoten()).ok).toBe(true);
+    expect(luecke(AUFTRAG, "teil:Rw")).toEqual({
+      aufbau: "rw-8@1",
+      grund: "kein Aufbau rw-8@1 im Katalogstand 2026-09-03 — Material noch offen",
+    });
+    expect(luecke(AUFTRAG, "teil:Se:links")).toBeUndefined();
+  });
+
+  it("ein Knoten, der weder Karte noch benannte Lücke hat, wird genannt", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: [...k.teile, "teil:Xy"] });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Xy.*ohne Karte/);
+  });
+
+  it("fehlt die Lücke in der Szene, fehlt ein Brett — auch das wird genannt", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: k.teile.filter((t) => t !== "teil:Rw") });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Rw.*nicht in der Szene/);
+  });
+
+  it("doppelte Knoten in der Szene sind ein Fehler, kein Mengenvergleich (Review craft#47)", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: [...k.teile, "teil:Se:links"] });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Se:links.*doppelt/);
+  });
+
+  it("eine Karte ohne Knoten wird genannt — Material ohne Brett", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, { ...k, teile: k.teile.filter((t) => t !== "teil:Se:rechts") });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/teil:Se:rechts.*nicht in der Szene/);
+  });
+
+  it("die falsche Wurzel ist das falsche Möbel — beide Namen stehen im Fehler", () => {
+    const r = pruefeSzene(AUFTRAG, { ...knoten(), wurzel: "moebel_anderes0002" });
+    expect(r.ok).toBe(false);
+    expect(r.fehler.join("\n")).toMatch(/moebel_anderes0002/);
+    expect(r.fehler.join("\n")).toMatch(/moebel_beispiel0001/);
+  });
+
+  it("meldet ALLE Abweichungen, nicht nur die erste", () => {
+    const k = knoten();
+    const r = pruefeSzene(AUFTRAG, {
+      wurzel: "moebel_anderes0002",
+      teile: [...k.teile.filter((t) => t !== "teil:Se:rechts"), "teil:Xy"],
+    });
+    expect(r.fehler).toHaveLength(3);
+  });
+
+  it("karteFuer: Schlüssel → Karte, unbekannter Schlüssel → undefined (kein Raten)", () => {
+    expect(karteFuer(AUFTRAG, "teil:Se:links")).toBe("teil_beispielse0links");
+    expect(karteFuer(AUFTRAG, "teil:Rw")).toBeUndefined();
+  });
+});
+
+
+describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
+  // Zwei Quellen: das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export, gröber tesselliert,
+  // im Repo — kommt von Cody #2 aus dem Referenzplan) und das lokale Erzeugnis modell.glb
+  // (nicht im Repo). Fehlt BEIDES, wird übersprungen — und zwar ausgeschrieben: auf CI ist das
+  // so lange der Fall, bis das Fixture-Modell im Repo liegt. Kein Test, der immer grün ist.
+  const QUELLEN = [
+    join(__dirname, "fixtures/referenz-korpus.glb"),
+    join(BUNDLE, "modell.glb"),
+  ].filter((p) => existsSync(p));
+  const grund = QUELLEN.length ? "" : "kein OCCT-Modell vorhanden (weder fixtures/referenz-korpus.glb noch modell.glb) — auf CI immer übersprungen, bis das Fixture im Repo liegt";
+  it.skipIf(!QUELLEN.length)(`ein echtes FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, kein Zirkel${grund ? " [" + grund + "]" : ""}`, () => {
+    for (const q of QUELLEN) {
+      const buf = new Uint8Array(readFileSync(q)).buffer;
+      const k = glbKnoten(buf);
+      expect(k.wurzel, q).toBe(AUFTRAG.moebel_id);
+      expect(k.teile, q).toHaveLength(5);
+      expect(pruefeSzene(AUFTRAG, k), q).toEqual({ ok: true, fehler: [] });
+    }
+  });
+  // Ohne Pflicht wird dieser Fall sichtbar übersprungen — kein »expect(true)«, das immer grün ist.
+  it.skipIf(process.env.WERKSTOFF_MODELL_PFLICHT !== "1")(
+    "mit WERKSTOFF_MODELL_PFLICHT=1 ist das Fehlen eines OCCT-Modells rot, nicht übersprungen",
+    () => {
+      expect(QUELLEN.length, grund).toBeGreaterThan(0);
+    },
+  );
+  it("das CI-Fixture referenz-korpus.glb ist ein FreeCAD-Erzeugnis mit Nuten, kein Zirkel aus auftrag.json", () => {
+    // Kommt aus cody-cad (Cody #2, 04.09.): Referenzplan @ 03040cb ohne die 104 Drillings, mit
+    // den 4 Nuten; FreeCAD 1.1.3, korpus_bauen → tessellate(0.1) → Import.export; 23.388 B.
+    const buf = new Uint8Array(readFileSync(join(__dirname, "fixtures/referenz-korpus.glb"))).buffer;
+    const len = new DataView(buf).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, len))) as {
+      asset: { generator?: string };
+      meshes: unknown[];
+    };
+    expect(j.asset.generator).toMatch(/Open CASCADE/); // echtes OCCT, nicht der Test-Erzeuger
+    expect(j.meshes.length).toBe(5);
+    expect(buf.byteLength).toBeLessThan(250_000);
+  });
+});

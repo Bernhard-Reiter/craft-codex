@@ -31,11 +31,14 @@ import {
   type Komponentenzeile,
   type Materialkarte,
 } from "../../../lib/werkstoff/karte";
-
-const WERKSTUECKE = [
-  { id: "seite-links-890x555", kurz: "Seite links", laenge: 890, breite: 555 },
-  { id: "boden-562x555", kurz: "Boden", laenge: 562, breite: 555 },
-];
+import {
+  karteFuer,
+  ladeAuftrag,
+  luecke,
+  schluesselKurz,
+  type Auftrag,
+  type AuftragLuecke,
+} from "../../../lib/werkstoff/auftrag";
 
 function Ampel({ freigabe }: { freigabe: Materialkarte["freigabe"] }) {
   return (
@@ -120,7 +123,13 @@ function Zeile({ karte, z }: { karte: Materialkarte; z: Komponentenzeile }) {
 }
 
 export default function WerkstoffPage() {
+  // Der Auftrag bestimmt, welche Bretter es gibt — nicht eine Liste im Code. Fehlt er, gibt es
+  // kein Brett und den Satz dazu; ein Katalog-Beispiel an seiner Stelle wäre das falsche Material.
+  const [auftrag, setAuftrag] = useState<Auftrag | null>(null);
+  const [auftragFehler, setAuftragFehler] = useState<string | null>(null);
   const [gewaehlt, setGewaehlt] = useState<string | null>(null);
+  // Ein angetipptes Brett ohne Karte: kein Fehler, sondern der Grund — Material noch offen.
+  const [lueckeGewaehlt, setLueckeGewaehlt] = useState<AuftragLuecke | null>(null);
   const [karte, setKarte] = useState<Materialkarte | null>(null);
   const [stand, setStand] = useState<Bundlestand | null>(null);
   const [grenze, setGrenze] = useState<Datengrenze | null>(null);
@@ -131,6 +140,9 @@ export default function WerkstoffPage() {
     // Fehlt die Grenzaussage, bleibt es still — kein Fehler, aber auch kein Satz, den
     // niemand belegen kann.
     ladeDatengrenze().then(setGrenze);
+    ladeAuftrag()
+      .then(setAuftrag)
+      .catch((e) => setAuftragFehler(String(e.message ?? e)));
   }, []);
 
   useEffect(() => {
@@ -153,8 +165,32 @@ export default function WerkstoffPage() {
   }, [gewaehlt]);
 
   const gruppen = useMemo(() => (karte ? gruppiere(karte.komponenten) : []), [karte]);
+  // Ein Tap führt über den Schlüssel: zur Karte, wenn es eine gibt — sonst zur benannten Lücke.
+  const tippeTeil = (schluessel: string) => {
+    if (!auftrag) return;
+    const id = karteFuer(auftrag, schluessel);
+    if (id) {
+      setLueckeGewaehlt(null);
+      setGewaehlt(gewaehlt === id ? null : id);
+      return;
+    }
+    const l = auftrag.teile_ohne_karte.find((t) => t.schluessel === schluessel);
+    if (l) {
+      setGewaehlt(null);
+      setLueckeGewaehlt(lueckeGewaehlt?.schluessel === l.schluessel ? null : l);
+    }
+  };
+  const bretter = useMemo(
+    () =>
+      auftrag
+        ? [
+            ...auftrag.teile.map((t) => ({ ...t, luecke: undefined as AuftragLuecke | undefined })),
+            ...auftrag.teile_ohne_karte.map((t) => ({ ...t, luecke: t })),
+          ].sort((a, b) => a.schluessel.localeCompare(b.schluessel))
+        : [],
+    [auftrag],
+  );
   const schritte = useMemo(() => (karte ? arbeitsfolge(karte) : []), [karte]);
-  const massstab = 0.28;
 
   return (
     <main className="werkstoff">
@@ -165,6 +201,13 @@ export default function WerkstoffPage() {
             ? `Katalogstand ${stand.stand} · ${stand.dateien} Datendateien · ${stand.sha256.slice(0, 12)}…`
             : "Katalogstand wird gelesen …"}
         </p>
+        {auftrag && (
+          <p className="herkunft">
+            Möbel {auftrag.moebel_id} · Revision {auftrag.revision} · Plan{" "}
+            {auftrag.buildplan_sha256.slice(0, 12)}…
+          </p>
+        )}
+        {auftragFehler && <p className="fehler">⚠ Kein Auftrag im Bundle: {auftragFehler}</p>}
         <p className="hinweis-klein">
           Offline-Bundle aus dem Auftrag — Datenblätter sind verlinkt, nicht kopiert.
         </p>
@@ -179,22 +222,37 @@ export default function WerkstoffPage() {
       </header>
 
       <section className="teile" aria-label="Werkstücke antippen">
-        {WERKSTUECKE.map((w) => (
-          <button
-            key={w.id}
-            type="button"
-            className={`teil ${gewaehlt === w.id ? "aktiv" : ""}`}
-            style={{ width: w.laenge * massstab, height: w.breite * massstab }}
-            onClick={() => setGewaehlt(gewaehlt === w.id ? null : w.id)}
-            aria-pressed={gewaehlt === w.id}
-          >
-            <span className="teilname">{w.kurz}</span>
-            <span className="teilmass">
-              {w.laenge} × {w.breite}
-            </span>
-          </button>
-        ))}
+        {bretter.map((w) => {
+          const aktiv = w.luecke
+            ? lueckeGewaehlt?.schluessel === w.schluessel
+            : gewaehlt === w.werkstueck_id;
+          return (
+            <button
+              key={w.schluessel}
+              type="button"
+              className={`teil ${w.luecke ? "luecke" : ""} ${aktiv ? "aktiv" : ""}`}
+              onClick={() => tippeTeil(w.schluessel)}
+              aria-pressed={aktiv}
+            >
+              <span className="teilname">{schluesselKurz(w.schluessel)}</span>
+              <span className="teilmass">{w.luecke ? "Material noch offen" : w.werkstueck_id}</span>
+            </button>
+          );
+        })}
       </section>
+
+      {auftrag && lueckeGewaehlt && (
+        <section className="luecke-hinweis" aria-live="polite">
+          <h2>{schluesselKurz(lueckeGewaehlt.schluessel)} — Material noch offen</h2>
+          <p>
+            Aufbau {lueckeGewaehlt.aufbau}: {luecke(auftrag, lueckeGewaehlt.schluessel)?.grund}
+          </p>
+          <p className="hinweis-klein">
+            Der Plan verlangt dieses Brett, der Katalog kennt seinen Aufbau nicht. Welches Material
+            verbaut wird, entscheidet der Betrieb — nicht das Werkzeug.
+          </p>
+        </section>
+      )}
 
       {fehler && <p className="fehler">⚠ {fehler}</p>}
 
@@ -204,7 +262,8 @@ export default function WerkstoffPage() {
             <div>
               <h2>{karte.werkstueck.bezeichnung}</h2>
               <p className="aufbau">
-                Aufbau {karte.aufbau.bezeichnung} ({karte.aufbau.id}@{karte.aufbau.revision})
+                Teil {karte.werkstueck.id} · Aufbau {karte.aufbau.bezeichnung} ({karte.aufbau.id}@
+                {karte.aufbau.revision})
               </p>
             </div>
             <Ampel freigabe={karte.freigabe} />

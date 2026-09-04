@@ -339,7 +339,7 @@
     ],
     "wert": 14.352
   },
-  "karte_sha256": "7f863d472a15d7cf1a4676d6c1e934120aa115efa713e51b5ac03fd962b2cc2e",
+  "karte_sha256": "09d7fb7407987a229fce61d97146b8ff2dad2b316711b04029cd327ccaf61518",
   "karteversion": 1,
   "komponenten": [
     {
@@ -878,7 +878,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "2539300205de77f8ecec3f5a40d525829039f7309c53d9002b0ea34784fabc49",
+  "resolve_manifest_sha256": "7113369780cade95bc8252b687e072666321ac133f22d528498055612728e9a6",
   "schema": "werkstoff/karte.schema.json",
   "unterlagen_ohne_verweis": [
     {
@@ -926,7 +926,7 @@
   ],
   "verbrauch": {
     "ausgeschlossen": [],
-    "flaeche_m2": 0.6238,
+    "flaeche_m2": 0.494,
     "freigabe": "annahme",
     "positionen": [
       {
@@ -936,7 +936,7 @@
         "komponente": "egger-spanplatte-p2-19",
         "revision": 1,
         "rolle": "traeger",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
@@ -945,7 +945,7 @@
         "komponente": "furnier-eiche-0-9-gemessert",
         "revision": 1,
         "rolle": "belag/oben",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
@@ -954,7 +954,7 @@
         "komponente": "ponal-flaechenleim-pvac",
         "revision": 1,
         "rolle": "leim/oben",
-        "wert": 74.9
+        "wert": 59.3
       },
       {
         "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
@@ -963,7 +963,7 @@
         "komponente": "furnier-eiche-0-9-gemessert",
         "revision": 1,
         "rolle": "belag/unten",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
@@ -972,7 +972,7 @@
         "komponente": "ponal-flaechenleim-pvac",
         "revision": 1,
         "rolle": "leim/unten",
-        "wert": 74.9
+        "wert": 59.3
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -981,7 +981,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/oben/1-klarlack/netto",
-        "wert": 124.8
+        "wert": 98.8
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -990,7 +990,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/oben/1-klarlack/brutto",
-        "wert": 191.9
+        "wert": 152.0
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -999,7 +999,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/unten/1-klarlack/netto",
-        "wert": 124.8
+        "wert": 98.8
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -1008,7 +1008,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/unten/1-klarlack/brutto",
-        "wert": 191.9
+        "wert": 152.0
       },
       {
         "bezeichnung": "Ostermann Furnierkante Eiche europäisch, geschliffen K180, 1,0 × 24 mm (Art. 070.4200)",
@@ -1017,7 +1017,7 @@
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "revision": 1,
         "rolle": "kante/vorne",
-        "wert": 1.132
+        "wert": 0.894
       },
       {
         "bezeichnung": "Jowatherm 280.30 (EVA-Schmelzkleber, ungefüllt, Nullfuge) — Kantenanleimen stationär",
@@ -1026,22 +1026,22 @@
         "komponente": "jowatherm-280-30-eva",
         "revision": 1,
         "rolle": "kleber/vorne",
-        "wert": 6.8
+        "wert": 5.4
       }
     ],
-    "werkstueck": "boden-562x555"
+    "werkstueck": "teil_beispielse0rechts"
   },
   "videos": [],
   "werkstueck": {
-    "anzahl": 2,
-    "bezeichnung": "Boden (Korpus 600 breit, Seiten 19)",
+    "anzahl": 1,
+    "bezeichnung": "Seite Rechts",
     "faserrichtung": "laengs",
-    "flaeche_m2": 0.6238,
-    "id": "boden-562x555",
+    "flaeche_m2": 0.494,
+    "id": "teil_beispielse0rechts",
     "kanten": {},
     "kontur": {
       "breite": 555.0,
-      "laenge": 562.0,
+      "laenge": 890.0,
       "typ": "rechteck"
     }
   }
