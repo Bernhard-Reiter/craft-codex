@@ -61,6 +61,22 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
     ]);
   });
 
+  it("der Auftrag nennt sein Modell — Hash und Datei; ohne das Feld gibt es kein Modell", async () => {
+    vi.stubGlobal("fetch", stub());
+    const a = await ladeAuftrag();
+    expect(a.modell).toEqual({ glb_sha256: expect.stringMatching(/^[0-9a-f]{64}$/), datei: "modell.glb" });
+    vi.stubGlobal("fetch", verbiegen((x) => delete x.modell));
+    expect((await ladeAuftrag()).modell).toBeUndefined();
+    for (const [grund, f] of [
+      [/glb_sha256/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).glb_sha256 = "abc")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "")],
+      [/modell/, (x: Record<string, unknown>) => (x.modell = "modell.glb")],
+    ] as Array<[RegExp, (x: Record<string, unknown>) => void]>) {
+      vi.stubGlobal("fetch", verbiegen(f));
+      await expect(ladeAuftrag(), String(grund)).rejects.toThrow(grund);
+    }
+  });
+
   it("ein Bundle ohne das Feld teile_ohne_karte (älterer Stand) hat keine Lücke — kein Fehler", async () => {
     vi.stubGlobal("fetch", verbiegen((a) => delete a.teile_ohne_karte));
     expect((await ladeAuftrag()).teile_ohne_karte).toEqual([]);

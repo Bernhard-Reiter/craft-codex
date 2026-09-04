@@ -259,7 +259,7 @@ export default function WerkstoffPage() {
         />
       )}
       {szene === null && !szeneFehler && (
-        <p className="hinweis-klein">Kein 3D-Modell im Bundle — Teile unten antippen.</p>
+        <p className="hinweis-klein">Kein 3D-Modell im Auftrag — Teile unten antippen.</p>
       )}
       {szeneFehler && <p className="fehler">⚠ {szeneFehler}</p>}
 

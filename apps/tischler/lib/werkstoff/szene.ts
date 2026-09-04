@@ -13,12 +13,32 @@ export interface Szene {
   knoten: SzenenKnoten;
 }
 
+async function sha256Hex(buf: ArrayBuffer): Promise<string> {
+  const d = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(d))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function ladeSzene(auftrag: Auftrag, basis = "/werkstoff-bundle"): Promise<Szene | null> {
-  const url = `${basis}/modell.glb`;
+  // Nur ein Modell, das der Auftrag nennt — eine Datei, die zufällig im Bundle liegt, ist kein
+  // Beleg dafür, dass sie zu diesem Plan gehört.
+  if (!auftrag.modell) return null;
+  const url = `${basis}/${auftrag.modell.datei}`;
   const r = await fetch(url);
-  if (r.status === 404) return null;
+  if (r.status === 404) {
+    throw new Error(`Der Auftrag nennt ${auftrag.modell.datei}, aber die Datei fehlt im Bundle (404)`);
+  }
   if (!r.ok) throw new Error(`Modell nicht lesbar (${r.status})`);
-  const knoten = glbKnoten(await r.arrayBuffer());
+  const buf = await r.arrayBuffer();
+  const ist = await sha256Hex(buf);
+  if (ist !== auftrag.modell.glb_sha256) {
+    throw new Error(
+      `Modell trägt nicht den Hash aus dem Auftrag — Datei ${ist.slice(0, 12)}…, ` +
+        `Auftrag ${auftrag.modell.glb_sha256.slice(0, 12)}… — das ist ein anderes Erzeugnis`,
+    );
+  }
+  const knoten = glbKnoten(buf);
   const p = pruefeSzene(auftrag, knoten);
   if (!p.ok) throw new Error(`Modell passt nicht zum Auftrag — ${p.fehler.join(" · ")}`);
   return { url, knoten };

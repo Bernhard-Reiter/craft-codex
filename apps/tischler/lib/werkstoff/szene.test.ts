@@ -28,15 +28,35 @@ function stubModell(antwort: { status: number; buf?: ArrayBuffer }) {
 }
 afterEach(() => vi.unstubAllGlobals());
 
+/** Der Auftrag, dessen modell.glb_sha256 zum Mini-Fixture passt — so, wie cody-cad ihn schriebe. */
+async function auftragZu(buf: ArrayBuffer, auftrag: Auftrag = AUFTRAG): Promise<Auftrag> {
+  const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return { ...auftrag, modell: { glb_sha256: h, datei: "modell.glb" } };
+}
+
 describe("ladeSzene — das Modell muss zum Auftrag passen, bevor es gezeigt wird", () => {
-  it("kein Modell im Bundle → keine Szene, kein Fehler", async () => {
-    vi.stubGlobal("fetch", stubModell({ status: 404 }));
-    expect(await ladeSzene(AUFTRAG)).toBeNull();
+  it("der Auftrag nennt kein Modell → keine Szene, kein Fehler — auch wenn eine Datei da wäre", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
+    const { modell: _weg, ...ohne } = AUFTRAG;
+    expect(await ladeSzene(ohne as Auftrag)).toBeNull();
   });
 
-  it("Modell da und passend → URL und die geprüften Knoten", async () => {
+  it("der Auftrag nennt ein Modell, die Datei fehlt → Fehler (nicht »kein Modell«)", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 404 }));
+    await expect(ladeSzene(await auftragZu(MINI))).rejects.toThrow(/fehlt|nicht lesbar/);
+  });
+
+  it("die Datei trägt nicht den Hash aus dem Auftrag → Fehler nennt den Hash, keine Szene", async () => {
     vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
-    const s = await ladeSzene(AUFTRAG);
+    const falsch = { ...AUFTRAG, modell: { glb_sha256: "0".repeat(64), datei: "modell.glb" } };
+    await expect(ladeSzene(falsch)).rejects.toThrow(/Hash|sha256/i);
+  });
+
+  it("Modell da, Hash und Knoten passend → URL und die geprüften Knoten", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
+    const s = await ladeSzene(await auftragZu(MINI));
     expect(s?.url).toBe("/werkstoff-bundle/modell.glb");
     expect(s?.knoten.wurzel).toBe("moebel_beispiel0001");
     expect(s?.knoten.teile).toHaveLength(5); // vier mit Karte + die Rückwand als Lücke
@@ -44,13 +64,13 @@ describe("ladeSzene — das Modell muss zum Auftrag passen, bevor es gezeigt wir
 
   it("Modell mit einem Brett ohne Karte → Fehler nennt das Brett, keine Szene", async () => {
     vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
-    const fremd: Auftrag = { ...AUFTRAG, teile: AUFTRAG.teile.filter((t) => t.schluessel !== "teil:Bo:oben") };
+    const fremd = await auftragZu(MINI, { ...AUFTRAG, teile: AUFTRAG.teile.filter((t) => t.schluessel !== "teil:Bo:oben") });
     await expect(ladeSzene(fremd)).rejects.toThrow(/teil:Bo:oben/);
   });
 
   it("Server-Fehler ist ein Fehler, kein »kein Modell«", async () => {
     vi.stubGlobal("fetch", stubModell({ status: 500 }));
-    await expect(ladeSzene(AUFTRAG)).rejects.toThrow(/nicht lesbar/);
+    await expect(ladeSzene(await auftragZu(MINI))).rejects.toThrow(/nicht lesbar/);
   });
 });
 

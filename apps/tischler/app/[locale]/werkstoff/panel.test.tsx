@@ -131,8 +131,15 @@ describe("Werkstoff-Panel: der Auftrag bestimmt, welche Bretter es gibt", () => 
 });
 
 describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
-  it("ohne Modell im Bundle: Schaltflächen bleiben, und der Satz sagt, dass kein Modell da ist", async () => {
-    vi.stubGlobal("fetch", stub((url, roh) => (url.endsWith("modell.glb") ? null : roh)));
+  it("nennt der Auftrag kein Modell: Schaltflächen bleiben, und der Satz sagt es", async () => {
+    vi.stubGlobal(
+      "fetch",
+      stub((url, roh) => {
+        if (!url.endsWith("auftrag.json")) return roh;
+        const { modell: _weg, ...ohne } = JSON.parse(roh);
+        return JSON.stringify(ohne);
+      }),
+    );
     render(<Werkstoffseite />);
     await waitFor(() => {
       expect(screen.getAllByRole("button", { name: /^(Bo|Se):/ })).toHaveLength(4);
@@ -149,14 +156,16 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
       stub((url, roh) => (url.endsWith("modell.glb") ? roh : roh)),
     );
     // Das echte Bundle trägt lokal ein Modell (nicht in git); der Test nimmt das Fixture.
+    const buf = new Uint8Array(readFileSync(join(__dirname, "../../../lib/werkstoff/fixtures/demo-mini.glb"))).buffer;
+    const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
     const f = vi.mocked(globalThis.fetch);
     f.mockImplementation(async (url: string | URL | Request) => {
       const u = String(url);
-      if (u.endsWith("modell.glb")) {
-        const buf = new Uint8Array(readFileSync(join(__dirname, "../../../lib/werkstoff/fixtures/demo-mini.glb"))).buffer;
-        return { ok: true, status: 200, arrayBuffer: async () => buf } as unknown as Response;
-      }
-      return stub()(u);
+      if (u.endsWith("modell.glb")) return { ok: true, status: 200, arrayBuffer: async () => buf } as unknown as Response;
+      // Der Auftrag muss das Fixture-Modell nennen — mit dessen Hash, wie cody-cad es schriebe.
+      return stub((x, roh) => (x.endsWith("auftrag.json") ? JSON.stringify({ ...JSON.parse(roh), modell: { glb_sha256: hash, datei: "modell.glb" } }) : roh))(u);
     });
     render(<Werkstoffseite />);
     const szene = await waitFor(() => screen.getByTestId("szene"));
@@ -182,7 +191,35 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
     );
     render(<Werkstoffseite />);
     await waitFor(() => {
-      expect(document.body.textContent).toMatch(/teil:Se:rechts/);
+      expect(document.body.textContent).toMatch(/teil:Se:rechts|Hash/);
+    });
+    expect(screen.queryByTestId("szene")).toBeNull();
+  });
+});
+
+describe("Werkstoff-Panel: das Modell muss das sein, das der Auftrag nennt", () => {
+  it("nennt der Auftrag ein Modell, das im Bundle fehlt, ist das ein Fehler — kein stilles »kein Modell«", async () => {
+    vi.stubGlobal("fetch", stub((url, roh) => (url.endsWith("modell.glb") ? null : roh)));
+    render(<Werkstoffseite />);
+    await waitFor(() => {
+      expect(document.body.textContent).toMatch(/fehlt im Bundle/);
+    });
+    expect(screen.queryByTestId("szene")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Kein 3D-Modell/);
+  });
+
+  it("eine Datei mit anderem Hash wird nicht gezeigt — der Fehler nennt beide Hashes", async () => {
+    // Das echte auftrag.json nennt das FreeCAD-Modell; die Datei im Test ist das Mini-Fixture.
+    const buf = new Uint8Array(readFileSync(join(__dirname, "../../../lib/werkstoff/fixtures/demo-mini.glb"))).buffer;
+    vi.stubGlobal("fetch", stub());
+    vi.mocked(globalThis.fetch).mockImplementation(async (url: string | URL | Request) => {
+      const u = String(url);
+      if (u.endsWith("modell.glb")) return { ok: true, status: 200, arrayBuffer: async () => buf } as unknown as Response;
+      return stub()(u);
+    });
+    render(<Werkstoffseite />);
+    await waitFor(() => {
+      expect(document.body.textContent).toMatch(/nicht den Hash aus dem Auftrag/);
     });
     expect(screen.queryByTestId("szene")).toBeNull();
   });

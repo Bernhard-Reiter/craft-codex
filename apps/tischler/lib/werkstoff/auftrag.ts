@@ -26,6 +26,12 @@ export interface AuftragLuecke extends AuftragTeil {
   grund: string;
 }
 
+/** Das Modell, das zu diesem Auftrag gehört — Hash über die Datei, wie cody-cad ihn schrieb. */
+export interface AuftragModell {
+  glb_sha256: string;
+  datei: string;
+}
+
 export interface Auftrag {
   moebel_id: string;
   /**
@@ -43,6 +49,12 @@ export interface Auftrag {
   teile: AuftragTeil[];
   /** Teile ohne Karte, jedes mit Grund. Disjunkt zu `teile`; zusammen = Knoten des Modells. */
   teile_ohne_karte: AuftragLuecke[];
+  /**
+   * Die Bindung Plan → Modell (cody-cad `bauen --modell`, #68): der Loader lädt nur ein Modell,
+   * das der Auftrag nennt, und nur, wenn die Datei diesen Hash trägt. Fehlt das Feld, gibt es
+   * keine Szene — die Wurzel unterscheidet Pläne nicht, der Hash schon.
+   */
+  modell?: AuftragModell;
 }
 
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -103,12 +115,23 @@ function pruefeAuftrag(d: unknown): Auftrag {
       });
     }
   }
+  let modell: AuftragModell | undefined;
+  if (o.modell !== undefined) {
+    if (!o.modell || typeof o.modell !== "object") throw new Error("modell ist kein Objekt");
+    const m = o.modell as Record<string, unknown>;
+    if (typeof m.glb_sha256 !== "string" || !HEX64.test(m.glb_sha256)) {
+      throw new Error("modell ohne gültigen glb_sha256 (64 Hex-Zeichen)");
+    }
+    if (typeof m.datei !== "string" || !m.datei) throw new Error("modell ohne datei");
+    modell = { glb_sha256: m.glb_sha256, datei: m.datei };
+  }
   return {
     moebel_id: o.moebel_id,
     buildplan_sha256: o.buildplan_sha256,
     revision: o.revision,
     teile,
     teile_ohne_karte,
+    ...(modell ? { modell } : {}),
   };
 }
 
