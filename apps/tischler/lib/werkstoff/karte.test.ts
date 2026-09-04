@@ -255,11 +255,16 @@ describe("ladeDatengrenze", () => {
     vi.stubGlobal("fetch", stub());
     const g = await ladeDatengrenze();
     expect(g).not.toBeNull();
-    // Beide Sätze, nicht nur einer: der eine sagt WAS entfernt wurde, der andere WIE WEIT die
-    // Zusage reicht. Ohne den zweiten hält jemand die Grenze für dichter, als sie ist.
-    expect(g!.warum).toMatch(/Betriebsdaten|Lieferantenpreise/i);
-    expect(g!.grenze).toMatch(/Feldname/i);
-    expect(g!.grenze).toMatch(/Freitext|Wert/i);
+    // Geprüft wird die AUSSAGE, nicht der Wortlaut: der Satz darf umformuliert werden (und
+    // wurde es gerade — cody-cad#61 hat ihn aus der Entwicklersprache geholt), aber zwei Dinge
+    // müssen drinstehen, sonst ist er wertlos.
+    //
+    // 1. WAS bleibt draußen — irgendein Geldbegriff, den ein Handwerker kennt.
+    expect(g!.warum).toMatch(/preis|kondition|einkauf/i);
+    // 2. WIE WEIT die Zusage reicht. Ohne das hält jemand die Grenze für dichter, als sie ist —
+    //    und das ist der Satz, der bei einer Kürzung als Erstes verschwindet.
+    expect(g!.grenze).toMatch(/feldname/i);
+    expect(g!.grenze).toMatch(/inhalt|wert|freitext|bemerkung/i);
     vi.unstubAllGlobals();
   });
 
