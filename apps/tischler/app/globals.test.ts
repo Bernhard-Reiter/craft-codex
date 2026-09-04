@@ -46,12 +46,57 @@ describe("globals.css", () => {
     .map((p) => readFileSync(p, "utf8"))
     .join("\n");
 
+  /**
+   * Die im Markup gesetzten Klassennamen als MENGE — nicht als Fließtext.
+   *
+   * Vorher stand hier `markup.includes(name)`, also Substring-Suche: eine tote Klasse, die
+   * zufällig Teilstring einer lebenden ist (`hash-zeil` in `hash-zeile`), rutschte durch
+   * (gemessen von Cody #2 an craft#44). Der reale Fall lief andersherum und wurde gefangen —
+   * aber ein Wächter, der nur eine Richtung sieht, ist ein halber.
+   *
+   * Gesammelt werden ALLE Zeichenketten-Literale, nicht nur `className="…"`. Der erste Anlauf
+   * las nur className-Attribute und meldete danach vier Fehlalarme, weil Klassen auch anders
+   * gesetzt werden: `classList.add("cc-kiosk")`, `className={x ? "aktiv" : ""}`,
+   * Template-Strings. Ein Wächter, der nur die halben Wege kennt, erzeugt Rauschen — und
+   * Rauschen führt dazu, dass die Ausnahmeliste wächst statt der Wächter besser wird.
+   *
+   * Dass dabei Zeichenketten mitkommen, die keine Klassen sind, ist unschädlich: gemeldet wird
+   * nur, was NIRGENDS vorkommt.
+   */
+  function gesetzteKlassen(quelle: string) {
+    const genau = new Set<string>();
+    const praefixe: string[] = [];
+    for (const m of quelle.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)) {
+      const roh = m[1] ?? m[2] ?? m[3] ?? "";
+      const stuecke = roh.split(/\$\{[^}]*\}/);
+      stuecke.forEach((stueck, si) => {
+        const teile = stueck.split(/\s+/).filter(Boolean);
+        teile.forEach((x, i) => {
+          genau.add(x);
+          // Letztes Stück vor einem `${…}` ohne trennendes Leerzeichen = dynamisches Präfix,
+          // z. B. `cc-status-dot--${x}`.
+          if (si < stuecke.length - 1 && i === teile.length - 1 && !/\s$/.test(stueck))
+            praefixe.push(x);
+        });
+      });
+    }
+    return { genau, praefixe };
+  }
+
   it("jede Klasse im Stylesheet wird auch irgendwo gesetzt", () => {
-    const klassen = [...new Set(css.match(/\.[a-zA-Z][a-zA-Z0-9_-]*/g) ?? [])].map((k) =>
-      k.slice(1),
-    );
+    // Kommentare zuerst raus: ein Dateiname wie `craft-codex-pitch.html` in einer Anmerkung
+    // sieht sonst aus wie die Klasse `html`.
+    const ohneKommentare = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+    const klassen = [
+      ...new Set(ohneKommentare.match(/\.[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []),
+    ].map((k) => k.slice(1));
     expect(klassen.length).toBeGreaterThan(50); // sonst prüft der Test nichts
-    const tot = klassen.filter((k) => !markup.includes(k) && !(k in BEKANNT_UNBENUTZT));
+    const { genau, praefixe } = gesetzteKlassen(markup);
+    const benutzt = (k: string) =>
+      genau.has(k) ||
+      // Dynamisch zusammengesetzt: `cc-status-dot--${x}` deckt `cc-status-dot--on` ab.
+      praefixe.some((p) => p.length > 3 && k.startsWith(p) && k !== p);
+    const tot = klassen.filter((k) => !benutzt(k) && !(k in BEKANNT_UNBENUTZT));
     expect(
       tot,
       "Diese Klassen stehen im Stylesheet, aber kein Markup setzt sie — die Regeln darunter " +
