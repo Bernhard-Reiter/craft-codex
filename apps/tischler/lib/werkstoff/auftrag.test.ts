@@ -194,7 +194,7 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     ["Magic", 0, 0x58585858, /glTF/],
     ["Version 1 statt 2", 4, 1, /Version/],
     ["Gesamtlänge im Header ≠ Datei", 8, 12, /Gesamtl/],
-    ["JSON-Chunk länger als die Datei", 12, 10_000_000, /Header|Chunk/],
+    ["JSON-Chunk länger als die Datei", 12, 10_000_000, /Datei hat nur/],
     ["JSON-Chunk zu kurz (abgeschnittenes JSON)", 12, 8, /JSON-Chunk|unlesbar/],
     ["Chunk-Typ nicht JSON", 16, 0x004e4942, /JSON-Chunk/],
   ])("Header-Lüge »%s« ist ein Klartext-Fehler, kein RangeError/SyntaxError", (_name, offset, wert, muster) => {
@@ -279,20 +279,27 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
 });
 
 
-describe("die Naht gegen das echte Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
-  const MODELL = join(BUNDLE, "modell.glb");
-  const da = existsSync(MODELL);
-  // Nicht im Repo (Erzeugnis, Vertrag mit Cody #2); lokal liegt es — dann MUSS der Test laufen.
-  // Ohne Datei wird er übersprungen und sagt es; ein stiller Skip wäre ein grünes Loch.
-  it.skipIf(!da)("das attestierte FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, und kein Zirkel", () => {
-    const buf = new Uint8Array(readFileSync(MODELL)).buffer;
-    const k = glbKnoten(buf);
-    expect(k.wurzel).toBe(AUFTRAG.moebel_id);
-    expect(k.teile).toHaveLength(5);
-    expect(pruefeSzene(AUFTRAG, k)).toEqual({ ok: true, fehler: [] });
+describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
+  // Zwei Quellen: das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export, gröber tesselliert,
+  // im Repo — kommt von Cody #2 aus dem Referenzplan) und das lokale Erzeugnis modell.glb
+  // (nicht im Repo). Fehlt BEIDES, wird übersprungen — und zwar ausgeschrieben: auf CI ist das
+  // so lange der Fall, bis das Fixture-Modell im Repo liegt. Kein Test, der immer grün ist.
+  const QUELLEN = [
+    join(__dirname, "fixtures/referenz-korpus.glb"),
+    join(BUNDLE, "modell.glb"),
+  ].filter((p) => existsSync(p));
+  const grund = QUELLEN.length ? "" : "kein OCCT-Modell vorhanden (weder fixtures/referenz-korpus.glb noch modell.glb) — auf CI immer übersprungen, bis das Fixture im Repo liegt";
+  it.skipIf(!QUELLEN.length)(`ein echtes FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, kein Zirkel${grund ? " [" + grund + "]" : ""}`, () => {
+    for (const q of QUELLEN) {
+      const buf = new Uint8Array(readFileSync(q)).buffer;
+      const k = glbKnoten(buf);
+      expect(k.wurzel, q).toBe(AUFTRAG.moebel_id);
+      expect(k.teile, q).toHaveLength(5);
+      expect(pruefeSzene(AUFTRAG, k), q).toEqual({ ok: true, fehler: [] });
+    }
   });
-  it("sagt, wenn das echte Modell fehlt — damit der Skip oben kein stilles Loch ist", () => {
-    if (!da) console.warn("modell.glb liegt nicht im Bundle — Naht-Test gegen das echte Modell übersprungen");
-    expect(typeof da).toBe("boolean");
+  it("mit WERKSTOFF_MODELL_PFLICHT=1 ist das Fehlen eines OCCT-Modells rot, nicht übersprungen", () => {
+    if (process.env.WERKSTOFF_MODELL_PFLICHT === "1") expect(QUELLEN.length, grund).toBeGreaterThan(0);
+    else expect(QUELLEN.length >= 0).toBe(true); // ohne Pflicht: nur Auskunft, unten im Namen
   });
 });
