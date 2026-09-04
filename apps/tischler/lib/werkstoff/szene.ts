@@ -14,7 +14,11 @@ export interface Szene {
 }
 
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
-  const d = await crypto.subtle.digest("SHA-256", buf);
+  // Ohne WebCrypto kann das Gerät den Hash nicht rechnen — dann gibt es keine Szene, mit Satz,
+  // statt »Cannot read properties of undefined« (Review craft#48 R48-7).
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) throw new Error("Dieses Gerät kann den Hash nicht prüfen (kein WebCrypto) — keine Szene");
+  const d = await subtle.digest("SHA-256", buf);
   return Array.from(new Uint8Array(d))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
@@ -81,4 +85,28 @@ export function kameraAufBox(box: Box, fovGrad: number): Kamera {
   const laenge = Math.hypot(...richtung);
   const position = ziel.map((z, i) => z + (richtung[i]! / laenge) * abstand) as [number, number, number];
   return { position, ziel, nah: Math.max(abstand / 100, 0.01), fern: abstand + maxKante * 4 };
+}
+
+export interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+
+/**
+ * Die Färbelogik der Szene als reine Funktion (Review craft#48 R48-9 — die Komponente ist in
+ * jsdom nicht testbar, die Regel schon): eine Lücke ist grau, das gewählte Teil heller, alles
+ * andere behält seine Farbe; ein Mesh ohne Teil-Schlüssel wird nicht angefasst. Eine gewählte
+ * Lücke bleibt grau — nur heller.
+ */
+export function farbeFuerTeil(
+  teil: string | undefined,
+  gewaehlt: string | null,
+  luecken: readonly string[],
+  basis: RGB,
+): RGB {
+  if (!teil) return basis;
+  let f: RGB = luecken.includes(teil) ? { r: 0.62, g: 0.64, b: 0.66 } : basis;
+  if (teil === gewaehlt) f = { r: Math.min(1, f.r + 0.15), g: Math.min(1, f.g + 0.15), b: Math.min(1, f.b + 0.15) };
+  return f;
 }

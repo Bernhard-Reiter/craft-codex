@@ -122,7 +122,11 @@ function pruefeAuftrag(d: unknown): Auftrag {
     if (typeof m.glb_sha256 !== "string" || !HEX64.test(m.glb_sha256)) {
       throw new Error("modell ohne gültigen glb_sha256 (64 Hex-Zeichen)");
     }
-    if (typeof m.datei !== "string" || !m.datei) throw new Error("modell ohne datei");
+    // Ein Name im Bundle — kein Pfad, keine Adresse: `../` oder `https://` landete sonst wörtlich
+    // im fetch (Review craft#48 R48-6).
+    if (typeof m.datei !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]*\.glb$/.test(m.datei)) {
+      throw new Error("modell ohne gültige datei — ein Dateiname im Bundle, endet auf .glb, kein Pfad");
+    }
     modell = { glb_sha256: m.glb_sha256, datei: m.datei };
   }
   return {

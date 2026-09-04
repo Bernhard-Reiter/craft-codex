@@ -70,6 +70,12 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
     for (const [grund, f] of [
       [/glb_sha256/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).glb_sha256 = "abc")],
       [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "")],
+      // R48-6: die Datei ist ein Name im Bundle, kein Pfad und keine Adresse
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "../../etc/passwd")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "/abs/modell.glb")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "https://x/modell.glb")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "modell.gltf")],
+      [/datei/, (x: Record<string, unknown>) => ((x.modell as Record<string, unknown>).datei = "mod ell.glb")],
       [/modell/, (x: Record<string, unknown>) => (x.modell = "modell.glb")],
     ] as Array<[RegExp, (x: Record<string, unknown>) => void]>) {
       vi.stubGlobal("fetch", verbiegen(f));
@@ -329,6 +335,7 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
   );
 
   it("das CI-Fixture referenz-korpus.glb ist ein FreeCAD-Erzeugnis mit Nuten, kein Zirkel aus auftrag.json", () => {
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69").toBe(true);
     // Kommt aus cody-cad (Cody #2, 04.09., PR #69): Referenzplan @ 03040cb ohne die 104 Drillings,
     // mit den 4 Nuten; FreeCAD 1.1.3, korpus_bauen → tessellate(0.1) → Import.export; 23.388 B.
     const buf = new Uint8Array(readFileSync(FIXTURE)).buffer;

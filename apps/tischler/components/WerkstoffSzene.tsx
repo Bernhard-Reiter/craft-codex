@@ -14,7 +14,7 @@ import { Canvas, useLoader, useThree, type ThreeEvent } from "@react-three/fiber
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { kameraAufBox, schluesselAusObjekt, type Kamera } from "../lib/werkstoff/szene";
+import { farbeFuerTeil, kameraAufBox, schluesselAusObjekt, type Kamera } from "../lib/werkstoff/szene";
 
 interface Props {
   url: string;
@@ -52,7 +52,6 @@ function Moebel({ url, gewaehlt, luecken, onTeil, onKamera }: Props & { onKamera
   // Hervorhebung: das gewählte Teil heller, eine Lücke grau — alle anderen ihr eigenes Material.
   // Jedes Mesh bekommt sein eigenes Material (der Exporter teilt eines für alle Bretter).
   useEffect(() => {
-    const grau = new Set(luecken);
     szene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
@@ -65,9 +64,9 @@ function Moebel({ url, gewaehlt, luecken, onTeil, onKamera }: Props & { onKamera
         mesh.userData.basisFarbe = (mesh.material as THREE.MeshStandardMaterial).color.clone();
       }
       const mat = mesh.material as THREE.MeshStandardMaterial;
-      mat.color.copy(mesh.userData.basisFarbe as THREE.Color);
-      if (teil && grau.has(teil)) mat.color.setRGB(0.62, 0.64, 0.66);
-      if (teil && teil === gewaehlt) mat.color.offsetHSL(0, 0, 0.25);
+      const b = mesh.userData.basisFarbe as THREE.Color;
+      const f = farbeFuerTeil(teil, gewaehlt, luecken, { r: b.r, g: b.g, b: b.b });
+      mat.color.setRGB(f.r, f.g, f.b);
     });
   }, [szene, gewaehlt, luecken]);
 

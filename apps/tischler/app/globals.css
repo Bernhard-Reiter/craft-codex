@@ -1011,9 +1011,12 @@ body.cc-kiosk .cc-workbench {
 /* Werkstoff: die Bildschirm-Szene des Möbels (WebGL-Canvas) */
 .werkstoff .szene {
   height: 420px;
-  border: 1px solid var(--linie, #d9d4cb);
+  border: 1px solid #d9d4cb;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--flaeche-tief, #f3f0ea);
+  background: #f3f0ea;
   margin-bottom: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  .werkstoff .szene { border-color: #3a3530; background: #1d1a16; }
 }

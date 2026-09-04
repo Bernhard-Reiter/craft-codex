@@ -10,10 +10,11 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Auftrag } from "./auftrag";
-import { kameraAufBox, ladeSzene, schluesselAusObjekt } from "./szene";
+import { farbeFuerTeil, kameraAufBox, ladeSzene, schluesselAusObjekt } from "./szene";
 
 const BUNDLE = join(__dirname, "../../public/werkstoff-bundle");
 const MINI = new Uint8Array(readFileSync(join(__dirname, "fixtures/demo-mini.glb"))).buffer;
+const FIXTURE = new Uint8Array(readFileSync(join(__dirname, "fixtures/referenz-korpus.glb"))).buffer;
 const AUFTRAG = JSON.parse(readFileSync(join(BUNDLE, "auftrag.json"), "utf8")) as Auftrag;
 
 function stubModell(antwort: { status: number; buf?: ArrayBuffer }) {
@@ -107,5 +108,66 @@ describe("kameraAufBox — die Kamera rechnet, sie rät nicht", () => {
 
   it("eine leere Box ist ein Fehler — ein unsichtbares Möbel ist kein Möbel", () => {
     expect(() => kameraAufBox({ min: [0, 0, 0], max: [0, 0, 0] }, 45)).toThrow(/leer/);
+  });
+});
+
+describe("ladeSzene — Reihenfolge und Härte der Hash-Prüfung (Review craft#48 R48-4/5/7)", () => {
+  it("falscher Hash UND fehlendes Brett → die Meldung ist »anderes Erzeugnis«, nicht »ohne Karte« (Hash vor Knoten)", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
+    const falsch: Auftrag = {
+      ...AUFTRAG,
+      teile: AUFTRAG.teile.filter((t) => t.schluessel !== "teil:Bo:oben"),
+      modell: { glb_sha256: "0".repeat(64), datei: "modell.glb" },
+    };
+    const fehler = await ladeSzene(falsch).catch((e: Error) => e.message);
+    expect(fehler).toMatch(/anderes Erzeugnis/);
+    expect(fehler).not.toMatch(/ohne Karte/);
+  });
+
+  it("der Hash läuft über die ganze Datei — das 23-KB-Fixture mit seinem echten Hash geht durch, mit gekipptem letzten Zeichen nicht", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: FIXTURE }));
+    const gut = await auftragZu(FIXTURE);
+    expect(gut.modell?.glb_sha256).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
+    expect((await ladeSzene(gut))?.knoten.teile).toHaveLength(5);
+    const h = gut.modell!.glb_sha256;
+    const gekippt = { ...gut, modell: { ...gut.modell!, glb_sha256: h.slice(0, 63) + (h.endsWith("f") ? "0" : "f") } };
+    await expect(ladeSzene(gekippt)).rejects.toThrow(/anderes Erzeugnis/);
+  });
+
+  it("ohne crypto.subtle gibt es keine Szene — und der Satz sagt, warum", async () => {
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: MINI }));
+    const echt = globalThis.crypto;
+    vi.stubGlobal("crypto", { subtle: undefined });
+    try {
+      await expect(ladeSzene(await auftragZuMit(echt, MINI))).rejects.toThrow(/Hash.*(rechnen|prüfen)|kein Web ?Crypto/i);
+    } finally {
+      vi.stubGlobal("crypto", echt);
+    }
+  });
+});
+
+/** wie auftragZu, aber mit einem explizit übergebenen crypto (für den Stub-Test). */
+async function auftragZuMit(c: Crypto, buf: ArrayBuffer): Promise<Auftrag> {
+  const h = Array.from(new Uint8Array(await c.subtle.digest("SHA-256", buf)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return { ...AUFTRAG, modell: { glb_sha256: h, datei: "modell.glb" } };
+}
+
+describe("farbeFuerTeil — die Färbelogik der Szene als reine Funktion (Review craft#48 R48-9)", () => {
+  const basis = { r: 0.8, g: 0.7, b: 0.5 };
+  it("eine Lücke ist grau, das gewählte Teil heller, alle anderen behalten ihre Farbe", () => {
+    expect(farbeFuerTeil("teil:Rw", null, ["teil:Rw"], basis)).toEqual({ r: 0.62, g: 0.64, b: 0.66 });
+    const hell = farbeFuerTeil("teil:Se:links", "teil:Se:links", [], basis);
+    expect(hell.r).toBeGreaterThan(basis.r);
+    expect(farbeFuerTeil("teil:Se:links", "teil:Bo:oben", ["teil:Rw"], basis)).toEqual(basis);
+  });
+  it("eine gewählte Lücke ist grau UND heller — die Lücke bleibt als Lücke erkennbar", () => {
+    const f = farbeFuerTeil("teil:Rw", "teil:Rw", ["teil:Rw"], basis);
+    expect(f.r).toBeGreaterThan(0.62);
+    expect(Math.abs(f.r - f.g)).toBeLessThan(0.05); // grau bleibt grau
+  });
+  it("ein Mesh ohne Teil-Schlüssel wird nicht angefasst", () => {
+    expect(farbeFuerTeil(undefined, "teil:Rw", ["teil:Rw"], basis)).toEqual(basis);
   });
 });

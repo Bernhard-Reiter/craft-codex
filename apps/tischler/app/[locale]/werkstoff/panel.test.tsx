@@ -178,8 +178,9 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
     });
   });
 
-  it("ein Modell, das nicht zum Auftrag passt, wird nicht gezeigt — der Fehler nennt das Brett", async () => {
-    // Das Fixture hat vier Teile; der Auftrag wird um eins gekürzt → ein Brett ohne Karte.
+  it("Hash passt, aber ein Brett hat keine Karte → der Fehler nennt das Brett, nicht den Hash (Knoten-Zweig)", async () => {
+    // Das ausgelieferte Modell (Fixture, im Repo) passt zum Hash im Auftrag; der Auftrag wird um
+    // ein Teil gekürzt → im Modell steht ein Brett ohne Karte. Kein ODER: genau dieser Zweig.
     vi.stubGlobal(
       "fetch",
       stub((url, roh) => {
@@ -191,8 +192,9 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
     );
     render(<Werkstoffseite />);
     await waitFor(() => {
-      expect(document.body.textContent).toMatch(/teil:Se:rechts|Hash/);
+      expect(document.body.textContent).toMatch(/teil:Se:rechts/);
     });
+    expect(document.body.textContent).not.toMatch(/anderes Erzeugnis/);
     expect(screen.queryByTestId("szene")).toBeNull();
   });
 });
