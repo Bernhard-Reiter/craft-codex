@@ -341,4 +341,15 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
     expect(j.meshes.length).toBe(5);
     expect(buf.byteLength).toBeLessThan(250_000);
   });
+
+  it("das Fixture ist genau das Erzeugnis aus cody-cad#69 — der Hash ist gepinnt, nicht nur die Form", async () => {
+    // Review #69 (W1): fünf richtige Namen und dieselbe Bytezahl genügten, um das Fixture zu
+    // ersetzen — beide CIs blieben grün, das Protokoll behauptete weiter 418a… Der Pin bindet
+    // die Datei an die Attestation in cody-cad (tests/fixtures/freecad/… , glb_sha256).
+    const buf = new Uint8Array(readFileSync(FIXTURE)).buffer;
+    const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    expect(h).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
+  });
 });
