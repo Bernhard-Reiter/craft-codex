@@ -339,7 +339,7 @@
     ],
     "wert": 14.352
   },
-  "karte_sha256": "6be589ab4182b84dc6e340848520ed52ef2d6f2240055290834174f04b745a34",
+  "karte_sha256": "5935fc020b748d8222fb65aa6ef77edc58b3ceb05b4f6f17e102862b25d309d9",
   "karteversion": 1,
   "komponenten": [
     {
@@ -878,7 +878,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "803aa37c60bfdb9aed0f79ba309c42c59c5fea4a5a8f94edb3e7e02463d89dee",
+  "resolve_manifest_sha256": "bc29b2392ef8e7e67c9c30da8de8f1fa380828b1036a45579db8fa3ffbd3d3fe",
   "schema": "werkstoff/karte.schema.json",
   "unterlagen_ohne_verweis": [
     {
@@ -926,7 +926,7 @@
   ],
   "verbrauch": {
     "ausgeschlossen": [],
-    "flaeche_m2": 0.9879,
+    "flaeche_m2": 0.3119,
     "freigabe": "annahme",
     "positionen": [
       {
@@ -936,7 +936,7 @@
         "komponente": "egger-spanplatte-p2-19",
         "revision": 1,
         "rolle": "traeger",
-        "wert": 0.9879
+        "wert": 0.3119
       },
       {
         "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
@@ -945,7 +945,7 @@
         "komponente": "furnier-eiche-0-9-gemessert",
         "revision": 1,
         "rolle": "belag/oben",
-        "wert": 0.9879
+        "wert": 0.3119
       },
       {
         "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
@@ -954,7 +954,7 @@
         "komponente": "ponal-flaechenleim-pvac",
         "revision": 1,
         "rolle": "leim/oben",
-        "wert": 118.5
+        "wert": 37.4
       },
       {
         "bezeichnung": "Furnier Eiche europäisch, gemessert (Starkfurnier), 0,9 mm",
@@ -963,7 +963,7 @@
         "komponente": "furnier-eiche-0-9-gemessert",
         "revision": 1,
         "rolle": "belag/unten",
-        "wert": 0.9879
+        "wert": 0.3119
       },
       {
         "bezeichnung": "Ponal Flächenleim (PVAc-Dispersionsleim, D1/D2) — Furnier-/Flächenverleimung, Kaltpresse",
@@ -972,7 +972,7 @@
         "komponente": "ponal-flaechenleim-pvac",
         "revision": 1,
         "rolle": "leim/unten",
-        "wert": 118.5
+        "wert": 37.4
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -981,7 +981,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/oben/1-klarlack/netto",
-        "wert": 197.6
+        "wert": 62.4
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -990,7 +990,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/oben/1-klarlack/brutto",
-        "wert": 304.0
+        "wert": 96.0
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -999,7 +999,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/unten/1-klarlack/netto",
-        "wert": 197.6
+        "wert": 62.4
       },
       {
         "bezeichnung": "ADLER Aduro Legnopur G10, 2K-PUR-Klarlack",
@@ -1008,7 +1008,7 @@
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/unten/1-klarlack/brutto",
-        "wert": 304.0
+        "wert": 96.0
       },
       {
         "bezeichnung": "Ostermann Furnierkante Eiche europäisch, geschliffen K180, 1,0 × 24 mm (Art. 070.4200)",
@@ -1017,7 +1017,7 @@
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "revision": 1,
         "rolle": "kante/vorne",
-        "wert": 1.788
+        "wert": 0.566
       },
       {
         "bezeichnung": "Jowatherm 280.30 (EVA-Schmelzkleber, ungefüllt, Nullfuge) — Kantenanleimen stationär",
@@ -1026,27 +1026,22 @@
         "komponente": "jowatherm-280-30-eva",
         "revision": 1,
         "rolle": "kleber/vorne",
-        "wert": 10.7
+        "wert": 3.4
       }
     ],
-    "werkstueck": "seite-links-890x555"
+    "werkstueck": "teil_beispielbo0unten"
   },
   "videos": [],
   "werkstueck": {
-    "anzahl": 2,
-    "bezeichnung": "Seite links (Bernhards Korpus 890 × 555)",
+    "anzahl": 1,
+    "bezeichnung": "Boden Unten",
     "faserrichtung": "laengs",
-    "flaeche_m2": 0.9879,
-    "id": "seite-links-890x555",
-    "kanten": {
-      "vorne": {
-        "id": "ostermann-furnierkante-eiche-1-0",
-        "revision": 1
-      }
-    },
+    "flaeche_m2": 0.3119,
+    "id": "teil_beispielbo0unten",
+    "kanten": {},
     "kontur": {
       "breite": 555.0,
-      "laenge": 890.0,
+      "laenge": 562.0,
       "typ": "rechteck"
     }
   }

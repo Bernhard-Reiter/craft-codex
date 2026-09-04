@@ -1,0 +1,23 @@
+{
+  "buildplan_sha256": "dbaca54603baaf7b83e9dc0b23dcf7812148d8b20b53a6e4c38e137adc2938ef",
+  "moebel_id": "moebel_beispiel0001",
+  "revision": 3,
+  "teile": [
+    {
+      "schluessel": "teil:Bo:oben",
+      "werkstueck_id": "teil_beispielbo0oben"
+    },
+    {
+      "schluessel": "teil:Bo:unten",
+      "werkstueck_id": "teil_beispielbo0unten"
+    },
+    {
+      "schluessel": "teil:Se:links",
+      "werkstueck_id": "teil_beispielse0links"
+    },
+    {
+      "schluessel": "teil:Se:rechts",
+      "werkstueck_id": "teil_beispielse0rechts"
+    }
+  ]
+}

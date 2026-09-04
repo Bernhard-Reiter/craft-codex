@@ -57,3 +57,43 @@ describe("Werkstoff-Panel: die Grenzaussage am Werkstück", () => {
     expect(document.body.textContent ?? "").not.toMatch(/Feldname/i);
   });
 });
+
+describe("Werkstoff-Panel: der Auftrag bestimmt, welche Bretter es gibt", () => {
+  it("zeigt Möbel und Revision aus dem Auftrag — und die vier Teile des Plans als Schaltflächen", async () => {
+    vi.stubGlobal("fetch", stub());
+    render(<Werkstoffseite />);
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Se:links/ })).toBeTruthy();
+    });
+    const text = document.body.textContent ?? "";
+    expect(text).toMatch(/moebel_beispiel0001/);
+    expect(text).toMatch(/Revision 3/);
+    expect(screen.getAllByRole("button", { name: /^(Bo|Se):/ })).toHaveLength(4);
+  });
+
+  it("tippt der Handwerker auf »Se:links«, kommt die Karte des Plan-Teils, nicht eines Katalog-Bretts", async () => {
+    vi.stubGlobal("fetch", stub());
+    render(<Werkstoffseite />);
+    const knopf = await waitFor(() => screen.getByRole("button", { name: /Se:links/ }));
+    knopf.click();
+    await waitFor(() => {
+      expect(document.body.textContent).toMatch(/Teil teil_beispielse0links/);
+    });
+    // Die Bezeichnung kommt aus der Karte des Plan-Teils — der Test liest sie dort, statt sie
+    // zu raten; ein Katalog-Brett hieße anders.
+    const karte = JSON.parse(
+      readFileSync(join(BUNDLE, "karten/teil_beispielse0links.json"), "utf8"),
+    ) as { werkstueck: { bezeichnung: string } };
+    expect(karte.werkstueck.bezeichnung.length).toBeGreaterThan(0);
+    expect(document.body.textContent).toContain(karte.werkstueck.bezeichnung);
+  });
+
+  it("ohne Auftrag im Bundle: kein Brett, sondern der Satz, dass der Auftrag fehlt", async () => {
+    vi.stubGlobal("fetch", stub((url, roh) => (url.endsWith("auftrag.json") ? null : roh)));
+    render(<Werkstoffseite />);
+    await waitFor(() => {
+      expect(document.body.textContent).toMatch(/Kein Auftrag/);
+    });
+    expect(screen.queryAllByRole("button", { name: /^(Bo|Se):/ })).toHaveLength(0);
+  });
+});

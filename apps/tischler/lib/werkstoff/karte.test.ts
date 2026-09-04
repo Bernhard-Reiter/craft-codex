@@ -19,7 +19,7 @@ import {
 
 const KARTE = JSON.parse(
   readFileSync(
-    join(__dirname, "../../public/werkstoff-bundle/karten/seite-links-890x555.json"),
+    join(__dirname, "../../public/werkstoff-bundle/karten/teil_beispielse0links.json"),
     "utf8",
   ),
 ) as Materialkarte;
@@ -105,8 +105,8 @@ describe("ladeKarte", () => {
 
   it("liefert die Karte, wenn Karte und Manifest zusammengehören", async () => {
     vi.stubGlobal("fetch", stub());
-    const k = await ladeKarte("boden-562x555");
-    expect(k.werkstueck.id).toBe("boden-562x555");
+    const k = await ladeKarte("teil_beispielbo0unten");
+    expect(k.werkstueck.id).toBe("teil_beispielbo0unten");
     vi.unstubAllGlobals();
   });
 
@@ -120,7 +120,7 @@ describe("ladeKarte", () => {
     // Ohne Manifest hieße "bekanntes Werkstück" nur: es steht in der Datei, die ich
     // gerade gelesen habe. Die Karte belegte sich selbst.
     vi.stubGlobal("fetch", stub((url, roh) => (url.includes("/manifeste/") ? null : roh)));
-    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/ohne Resolve-Manifest/);
+    await expect(ladeKarte("teil_beispielbo0unten")).rejects.toThrow(/ohne Resolve-Manifest/);
     vi.unstubAllGlobals();
   });
 
@@ -138,7 +138,7 @@ describe("ladeKarte", () => {
           return JSON.stringify(o);
         }),
       );
-      await expect(ladeKarte("boden-562x555")).rejects.toThrow(
+      await expect(ladeKarte("teil_beispielbo0unten")).rejects.toThrow(
         /ohne gültigen Manifest-Hash/,
       );
       vi.unstubAllGlobals();
@@ -156,7 +156,7 @@ describe("ladeKarte", () => {
           : roh,
       ),
     );
-    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/Manifest gehört zu ein-anderes/);
+    await expect(ladeKarte("teil_beispielbo0unten")).rejects.toThrow(/Manifest gehört zu ein-anderes/);
     vi.unstubAllGlobals();
   });
 
@@ -169,7 +169,7 @@ describe("ladeKarte", () => {
           : roh,
       ),
     );
-    await expect(ladeKarte("boden-562x555")).rejects.toThrow(/gehören nicht zusammen/);
+    await expect(ladeKarte("teil_beispielbo0unten")).rejects.toThrow(/gehören nicht zusammen/);
     vi.unstubAllGlobals();
   });
 });

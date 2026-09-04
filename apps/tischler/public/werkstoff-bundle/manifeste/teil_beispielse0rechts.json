@@ -33,7 +33,7 @@
       "min": 20.1,
       "nominal": 20.8
     },
-    "flaeche_m2": 0.6238,
+    "flaeche_m2": 0.494,
     "gewicht_kg_m2": {
       "freigabe": "annahme",
       "wert": 14.352
@@ -44,77 +44,77 @@
         "freigabe": "belegt",
         "komponente": "egger-spanplatte-p2-19",
         "rolle": "traeger",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "einheit": "m2",
         "freigabe": "belegt",
         "komponente": "furnier-eiche-0-9-gemessert",
         "rolle": "belag/oben",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "einheit": "g",
         "freigabe": "annahme",
         "komponente": "ponal-flaechenleim-pvac",
         "rolle": "leim/oben",
-        "wert": 74.9
+        "wert": 59.3
       },
       {
         "einheit": "m2",
         "freigabe": "belegt",
         "komponente": "furnier-eiche-0-9-gemessert",
         "rolle": "belag/unten",
-        "wert": 0.6238
+        "wert": 0.494
       },
       {
         "einheit": "g",
         "freigabe": "annahme",
         "komponente": "ponal-flaechenleim-pvac",
         "rolle": "leim/unten",
-        "wert": 74.9
+        "wert": 59.3
       },
       {
         "einheit": "g",
         "freigabe": "belegt",
         "komponente": "adler-aduro-legnopur-g10",
         "rolle": "oberflaeche/oben/1-klarlack/netto",
-        "wert": 124.8
+        "wert": 98.8
       },
       {
         "einheit": "g",
         "freigabe": "annahme",
         "komponente": "adler-aduro-legnopur-g10",
         "rolle": "oberflaeche/oben/1-klarlack/brutto",
-        "wert": 191.9
+        "wert": 152.0
       },
       {
         "einheit": "g",
         "freigabe": "belegt",
         "komponente": "adler-aduro-legnopur-g10",
         "rolle": "oberflaeche/unten/1-klarlack/netto",
-        "wert": 124.8
+        "wert": 98.8
       },
       {
         "einheit": "g",
         "freigabe": "annahme",
         "komponente": "adler-aduro-legnopur-g10",
         "rolle": "oberflaeche/unten/1-klarlack/brutto",
-        "wert": 191.9
+        "wert": 152.0
       },
       {
         "einheit": "lfm",
         "freigabe": "annahme",
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "rolle": "kante/vorne",
-        "wert": 1.132
+        "wert": 0.894
       },
       {
         "einheit": "g",
         "freigabe": "annahme",
         "komponente": "jowatherm-280-30-eva",
         "rolle": "kleber/vorne",
-        "wert": 6.8
+        "wert": 5.4
       }
     ]
   },
@@ -385,7 +385,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "2539300205de77f8ecec3f5a40d525829039f7309c53d9002b0ea34784fabc49",
+  "resolve_manifest_sha256": "7113369780cade95bc8252b687e072666321ac133f22d528498055612728e9a6",
   "systeme": {
     "oben": {
       "id": "adler-g10-2x-klarlack",
@@ -397,17 +397,17 @@
     }
   },
   "werkstueck": {
-    "anzahl": 2,
+    "anzahl": 1,
     "aufbau": {
       "id": "eiche-furniert-p2-19-g10",
       "revision": 1
     },
-    "bezeichnung": "Boden (Korpus 600 breit, Seiten 19)",
+    "bezeichnung": "Seite Rechts",
     "faserrichtung": "laengs",
-    "id": "boden-562x555",
+    "id": "teil_beispielse0rechts",
     "kontur": {
       "breite": 555.0,
-      "laenge": 562.0,
+      "laenge": 890.0,
       "typ": "rechteck"
     }
   }

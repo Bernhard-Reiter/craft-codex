@@ -31,11 +31,7 @@ import {
   type Komponentenzeile,
   type Materialkarte,
 } from "../../../lib/werkstoff/karte";
-
-const WERKSTUECKE = [
-  { id: "seite-links-890x555", kurz: "Seite links", laenge: 890, breite: 555 },
-  { id: "boden-562x555", kurz: "Boden", laenge: 562, breite: 555 },
-];
+import { ladeAuftrag, schluesselKurz, type Auftrag } from "../../../lib/werkstoff/auftrag";
 
 function Ampel({ freigabe }: { freigabe: Materialkarte["freigabe"] }) {
   return (
@@ -120,6 +116,10 @@ function Zeile({ karte, z }: { karte: Materialkarte; z: Komponentenzeile }) {
 }
 
 export default function WerkstoffPage() {
+  // Der Auftrag bestimmt, welche Bretter es gibt — nicht eine Liste im Code. Fehlt er, gibt es
+  // kein Brett und den Satz dazu; ein Katalog-Beispiel an seiner Stelle wäre das falsche Material.
+  const [auftrag, setAuftrag] = useState<Auftrag | null>(null);
+  const [auftragFehler, setAuftragFehler] = useState<string | null>(null);
   const [gewaehlt, setGewaehlt] = useState<string | null>(null);
   const [karte, setKarte] = useState<Materialkarte | null>(null);
   const [stand, setStand] = useState<Bundlestand | null>(null);
@@ -131,6 +131,9 @@ export default function WerkstoffPage() {
     // Fehlt die Grenzaussage, bleibt es still — kein Fehler, aber auch kein Satz, den
     // niemand belegen kann.
     ladeDatengrenze().then(setGrenze);
+    ladeAuftrag()
+      .then(setAuftrag)
+      .catch((e) => setAuftragFehler(String(e.message ?? e)));
   }, []);
 
   useEffect(() => {
@@ -154,7 +157,6 @@ export default function WerkstoffPage() {
 
   const gruppen = useMemo(() => (karte ? gruppiere(karte.komponenten) : []), [karte]);
   const schritte = useMemo(() => (karte ? arbeitsfolge(karte) : []), [karte]);
-  const massstab = 0.28;
 
   return (
     <main className="werkstoff">
@@ -165,6 +167,13 @@ export default function WerkstoffPage() {
             ? `Katalogstand ${stand.stand} · ${stand.dateien} Datendateien · ${stand.sha256.slice(0, 12)}…`
             : "Katalogstand wird gelesen …"}
         </p>
+        {auftrag && (
+          <p className="herkunft">
+            Möbel {auftrag.moebel_id} · Revision {auftrag.revision} · Plan{" "}
+            {auftrag.buildplan_sha256.slice(0, 12)}…
+          </p>
+        )}
+        {auftragFehler && <p className="fehler">⚠ Kein Auftrag im Bundle: {auftragFehler}</p>}
         <p className="hinweis-klein">
           Offline-Bundle aus dem Auftrag — Datenblätter sind verlinkt, nicht kopiert.
         </p>
@@ -179,19 +188,16 @@ export default function WerkstoffPage() {
       </header>
 
       <section className="teile" aria-label="Werkstücke antippen">
-        {WERKSTUECKE.map((w) => (
+        {(auftrag?.teile ?? []).map((w) => (
           <button
-            key={w.id}
+            key={w.schluessel}
             type="button"
-            className={`teil ${gewaehlt === w.id ? "aktiv" : ""}`}
-            style={{ width: w.laenge * massstab, height: w.breite * massstab }}
-            onClick={() => setGewaehlt(gewaehlt === w.id ? null : w.id)}
-            aria-pressed={gewaehlt === w.id}
+            className={`teil ${gewaehlt === w.werkstueck_id ? "aktiv" : ""}`}
+            onClick={() => setGewaehlt(gewaehlt === w.werkstueck_id ? null : w.werkstueck_id)}
+            aria-pressed={gewaehlt === w.werkstueck_id}
           >
-            <span className="teilname">{w.kurz}</span>
-            <span className="teilmass">
-              {w.laenge} × {w.breite}
-            </span>
+            <span className="teilname">{schluesselKurz(w.schluessel)}</span>
+            <span className="teilmass">{w.werkstueck_id}</span>
           </button>
         ))}
       </section>
@@ -204,7 +210,8 @@ export default function WerkstoffPage() {
             <div>
               <h2>{karte.werkstueck.bezeichnung}</h2>
               <p className="aufbau">
-                Aufbau {karte.aufbau.bezeichnung} ({karte.aufbau.id}@{karte.aufbau.revision})
+                Teil {karte.werkstueck.id} · Aufbau {karte.aufbau.bezeichnung} ({karte.aufbau.id}@
+                {karte.aufbau.revision})
               </p>
             </div>
             <Ampel freigabe={karte.freigabe} />
