@@ -136,7 +136,8 @@ function pruefeAuftrag(d: unknown): Auftrag {
       throw new Error("modell ohne gültige datei — ein Dateiname im Bundle, endet auf .glb, kein Pfad");
     }
     modell = { glb_sha256: m.glb_sha256, datei: m.datei };
-  }  let hinweise: string[] | undefined;
+  }
+  let hinweise: string[] | undefined;
   if (o.hinweise !== undefined) {
     if (!Array.isArray(o.hinweise)) throw new Error("hinweise ist keine Liste");
     if (o.hinweise.length === 0) throw new Error("hinweise: leere Liste — das Feld weglassen statt leer tragen");

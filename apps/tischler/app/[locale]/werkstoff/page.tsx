@@ -237,9 +237,10 @@ export default function WerkstoffPage() {
           </p>
         )}
         {/* Die getragene Lücke auf Plan-Ebene (R48b-6): was dem Plan mit Absicht fehlt, steht hier —
-            unter dem Plan-Hash, nicht nur im Bundle. React escaped; kein Markdown, keine Links. */}
-        {auftrag?.hinweise?.map((h) => (
-          <p key={h} className="herkunft hinweis-plan">
+            unter dem Plan-Hash, nicht nur im Bundle. React escaped — der Loader prüft KEINE Zeichen,
+            der Wächter dafür ist panel.test.tsx. Schlüssel mit Index: zwei gleiche Hinweise sind erlaubt. */}
+        {auftrag?.hinweise?.map((h, i) => (
+          <p key={`${i}-${h}`} className="herkunft hinweis-plan">
             ⓘ {h}
           </p>
         ))}

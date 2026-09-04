@@ -152,6 +152,28 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
     expect(document.body.textContent).toMatch(/Demo-Plan ohne Bohrbild — 104 Bohrungen gefiltert \(cody-cad#70\)/);
   });
 
+  it("Hinweise sind Text, nie Markup: <img>/<a>/[x](…) landen als Zeichen auf dem Bildschirm — und zwei gleiche Hinweise sind zwei Zeilen ohne React-Klage", async () => {
+    // Die Zusage „der Leser escaped" hat sonst keinen Wächter (Review #50, Cody #2). Der Loader
+    // prüft KEINE Zeichen — voai#1226 und cody-cad#73 auch nicht. Hier entscheidet sich, ob ein
+    // Hinweis aus einem fremden Bundle Markup wird.
+    const boese = ["<img src=x onerror=alert(1)>", "[Klick](http://x) <a href=\"http://x\">a</a>", "<img src=x onerror=alert(1)>"];
+    const fehler = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      stub((url, roh) => (url.endsWith("auftrag.json") ? JSON.stringify({ ...JSON.parse(roh), hinweise: boese }) : roh)),
+    );
+    render(<Werkstoffseite />);
+    await waitFor(() => screen.getByTestId("szene"));
+    const zeilen = document.querySelectorAll(".hinweis-plan");
+    expect(zeilen).toHaveLength(3);
+    expect(document.querySelectorAll("img")).toHaveLength(0);
+    expect(document.querySelectorAll(".hinweis-plan a")).toHaveLength(0);
+    expect(zeilen[0]!.textContent).toContain("<img src=x onerror=alert(1)>");
+    expect(zeilen[1]!.textContent).toContain("[Klick](http://x)");
+    expect(fehler.mock.calls.flat().join(" ")).not.toMatch(/same key|gleiche.*key/i);
+    fehler.mockRestore();
+  });
+
   it("ohne Hinweise im Auftrag steht auch keine Hinweis-Zeile da — und ein kaputter Hinweis ist ein Auftragsfehler", async () => {
     vi.stubGlobal(
       "fetch",

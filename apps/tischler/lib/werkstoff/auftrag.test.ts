@@ -116,6 +116,9 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
     expect((await ladeAuftrag()).hinweise).toBeUndefined();
     vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = ["  mit Rand  ", "x".repeat(200)])));
     expect((await ladeAuftrag()).hinweise).toEqual(["mit Rand", "x".repeat(200)]);
+    // Die erlaubte Seite der Trennlinie: genau fünf Einträge mit genau 200 Zeichen kommen durch.
+    vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = Array(5).fill("y".repeat(200)))));
+    expect((await ladeAuftrag()).hinweise).toEqual(Array(5).fill("y".repeat(200)));
     for (const kaputt of [[], [""], ["   "], ["x".repeat(201)], Array(6).fill("h"), "Text", [1], null]) {
       vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = kaputt)));
       await expect(ladeAuftrag(), JSON.stringify(kaputt)).rejects.toThrow(/hinweis/i);
@@ -262,6 +265,8 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     ["3 Bytes ohne Magic (Länge vor Magic)", Uint8Array.from([0x78, 0x79, 0x7a]), /zu kurz.*3 Bytes, mindestens 20/],
     ["12 Bytes mit gültigem Magic", kopf(12), /zu kurz.*12 Bytes, mindestens 20/],
     ["19 Bytes mit gültigem Magic (eins unter der Linie)", kopf(19), /zu kurz.*19 Bytes, mindestens 20/],
+    // Länge vor Magic auch für 4–19 Bytes OHNE Magic — ein Magic-zuerst-Prüfer mit ≥4-Guard bliebe sonst grün.
+    ["12 Bytes ohne Magic", Uint8Array.from([0x4e, 0x4f, 0x50, 0x45, 0, 0, 0, 0, 0, 0, 0, 0]), /zu kurz.*12 Bytes, mindestens 20/],
   ])("»%s« ist »zu kurz«, nicht »Magic fehlt«", (_name, bytes, muster) => {
     let fehler: unknown;
     try {
