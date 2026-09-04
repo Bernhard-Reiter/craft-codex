@@ -20,13 +20,17 @@ pnpm --filter @craft-codex/core build
 
 echo "▸ Werkstoff-Bundle: das Modell im Auftrag muss die Datei im Bundle sein (sonst zeigt die Seite 404 statt Möbel) — VOR den Tests: eigenes Schloss, nicht das zweite an derselben Tür"
 WB="$ROOT/apps/tischler/public/werkstoff-bundle"
-if [ -f "$WB/auftrag.json" ] && grep -q '"modell"' "$WB/auftrag.json"; then
+# R49-1: die Vorbedingung darf nicht fail-open sein — ohne auftrag.json gibt es kein Möbel, also Abbruch.
+[ -f "$WB/auftrag.json" ] || { echo "✗ $WB/auftrag.json fehlt — kein Auftrag, kein Werkstoff-Bundle auf dem Stick"; exit 1; }
+if grep -q '"modell"' "$WB/auftrag.json"; then
   SOLL=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['modell']['glb_sha256'])" "$WB/auftrag.json")
   DATEI=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['modell']['datei'])" "$WB/auftrag.json")
   [ -f "$WB/$DATEI" ] || { echo "✗ auftrag.json nennt $DATEI, die Datei fehlt im Bundle"; exit 1; }
   IST=$(shasum -a 256 "$WB/$DATEI" | cut -d' ' -f1)
   [ "$IST" = "$SOLL" ] || { echo "✗ $DATEI hat Hash $IST, der Auftrag nennt $SOLL — anderes Erzeugnis"; exit 1; }
   echo "  ✓ $DATEI = $SOLL"
+else
+  echo "  ⚠ auftrag.json nennt kein Modell — die Seite zeigt Karten, aber keine Szene (gemeldet, kein Abbruch)"
 fi
 
 echo "▸ tests (Abbruch bei rot — kein kaputtes Bundle auf den Stick)"

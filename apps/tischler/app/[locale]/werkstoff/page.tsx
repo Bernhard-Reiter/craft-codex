@@ -236,6 +236,14 @@ export default function WerkstoffPage() {
             {auftrag.buildplan_sha256.slice(0, 12)}…
           </p>
         )}
+        {/* Die getragene Lücke auf Plan-Ebene (R48b-6): was dem Plan mit Absicht fehlt, steht hier —
+            unter dem Plan-Hash, nicht nur im Bundle. React escaped — der Loader prüft KEINE Zeichen,
+            der Wächter dafür ist panel.test.tsx. Schlüssel mit Index: zwei gleiche Hinweise sind erlaubt. */}
+        {auftrag?.hinweise?.map((h, i) => (
+          <p key={`${i}-${h}`} className="herkunft hinweis-plan">
+            ⓘ {h}
+          </p>
+        ))}
         {auftragFehler && <p className="fehler">⚠ Kein Auftrag im Bundle: {auftragFehler}</p>}
         <p className="hinweis-klein">
           Offline-Bundle aus dem Auftrag — Datenblätter sind verlinkt, nicht kopiert.

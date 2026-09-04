@@ -106,6 +106,25 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
     }
   });
 
+  it("hinweise: eine kurze Liste Klartext — getrimmt, optional, nie leer, nie ohne Grenze", async () => {
+    // Die getragene Lücke auf Plan-Ebene (R48b-6): »Demo-Plan ohne Bohrbild« stand nur im PR-Text.
+    // Auftragsebene, weil ein Feld im Plan den kanonischen Plan-Hash kippen würde. Grenzen wie in
+    // voai#1226 und cody-cad#73: 1–5 Einträge, je 1–200 Zeichen nach trim.
+    vi.stubGlobal("fetch", stub());
+    expect((await ladeAuftrag()).hinweise).toEqual(["Demo-Plan ohne Bohrbild — 104 Bohrungen gefiltert (cody-cad#70)"]);
+    vi.stubGlobal("fetch", verbiegen((a) => delete a.hinweise));
+    expect((await ladeAuftrag()).hinweise).toBeUndefined();
+    vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = ["  mit Rand  ", "x".repeat(200)])));
+    expect((await ladeAuftrag()).hinweise).toEqual(["mit Rand", "x".repeat(200)]);
+    // Die erlaubte Seite der Trennlinie: genau fünf Einträge mit genau 200 Zeichen kommen durch.
+    vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = Array(5).fill("y".repeat(200)))));
+    expect((await ladeAuftrag()).hinweise).toEqual(Array(5).fill("y".repeat(200)));
+    for (const kaputt of [[], [""], ["   "], ["x".repeat(201)], Array(6).fill("h"), "Text", [1], null]) {
+      vi.stubGlobal("fetch", verbiegen((a) => (a.hinweise = kaputt)));
+      await expect(ladeAuftrag(), JSON.stringify(kaputt)).rejects.toThrow(/hinweis/i);
+    }
+  });
+
   it("fehlt der Auftrag, ist das ein Fehler — kein leeres Möbel", async () => {
     vi.stubGlobal("fetch", stub((url, roh) => (url.endsWith("auftrag.json") ? null : roh)));
     await expect(ladeAuftrag()).rejects.toThrow(/Kein Auftrag/);
@@ -246,6 +265,8 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     ["3 Bytes ohne Magic (Länge vor Magic)", Uint8Array.from([0x78, 0x79, 0x7a]), /zu kurz.*3 Bytes, mindestens 20/],
     ["12 Bytes mit gültigem Magic", kopf(12), /zu kurz.*12 Bytes, mindestens 20/],
     ["19 Bytes mit gültigem Magic (eins unter der Linie)", kopf(19), /zu kurz.*19 Bytes, mindestens 20/],
+    // Länge vor Magic auch für 4–19 Bytes OHNE Magic — ein Magic-zuerst-Prüfer mit ≥4-Guard bliebe sonst grün.
+    ["12 Bytes ohne Magic", Uint8Array.from([0x4e, 0x4f, 0x50, 0x45, 0, 0, 0, 0, 0, 0, 0, 0]), /zu kurz.*12 Bytes, mindestens 20/],
   ])("»%s« ist »zu kurz«, nicht »Magic fehlt«", (_name, bytes, muster) => {
     let fehler: unknown;
     try {
@@ -257,6 +278,13 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     expect((fehler as Error).message).toMatch(muster);
     expect((fehler as Error).message).not.toMatch(/Magic/);
     expect((fehler as Error).name).not.toMatch(/RangeError/);
+  });
+
+  it("20 Bytes OHNE Magic sind »kein glTF-Binary«, nicht »zu kurz« — die andere Seite der Linie (R49-3)", () => {
+    const b = new Uint8Array(20);
+    b.set([0x4e, 0x4f, 0x50, 0x45]); // »NOPE«
+    expect(() => glbKnoten(b.buffer)).toThrow(/Magic/);
+    expect(() => glbKnoten(b.buffer)).not.toThrow(/zu kurz/);
   });
 
   it("20 Bytes — genau der Header mit leerem JSON-Chunk — sind nicht »zu kurz«: der Fehler ist der leere Chunk", () => {
