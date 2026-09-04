@@ -8,6 +8,7 @@
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import Werkstoffseite from "./page";
@@ -157,9 +158,7 @@ describe("Werkstoff-Panel: die Szene zeigt nur, was zum Auftrag passt", () => {
     );
     // Das echte Bundle trägt lokal ein Modell (nicht in git); der Test nimmt das Fixture.
     const buf = new Uint8Array(readFileSync(join(__dirname, "../../../lib/werkstoff/fixtures/demo-mini.glb"))).buffer;
-    const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+    const hash = createHash("sha256").update(new Uint8Array(buf)).digest("hex");
     const f = vi.mocked(globalThis.fetch);
     f.mockImplementation(async (url: string | URL | Request) => {
       const u = String(url);
