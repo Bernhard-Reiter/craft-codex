@@ -5,8 +5,8 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { XRSpace, useXRInputSourceState } from "@react-three/xr";
-import { Root, Container, Text } from "@react-three/uikit";
-import { Card, Button } from "@react-three/uikit-apfel";
+import { Container, Text } from "@react-three/uikit";
+import { Panel, Button } from "@react-three/uikit-horizon";
 import { PencilRuler, Hammer, Crosshair } from "@react-three/uikit-lucide";
 import {
   evaluateWristTrigger,
@@ -124,45 +124,41 @@ export function XRWristMenu({
         <XRSpace space={wristSpace}>
           <group position={[0, 0.06, 0]}>
             <Billboard follow>
-              <Root pixelSize={0.0006} anchorX="center" anchorY="center">
-                <Card flexDirection="column" padding={10} gap={6} borderRadius={18}>
+              <Container pixelSize={0.0006} anchorX="center" anchorY="center">
+                <Panel flexDirection="column" padding={10} gap={6} borderRadius={18}>
                   <Container flexDirection="row" gap={6}>
                     <Button
-                      variant="icon"
-                      size="sm"
-                      selected={anreissModus}
+                      variant={anreissModus ? "primary" : "secondary"} size="sm" icon
                       onClick={() => onModus(true)}
                     >
                       <PencilRuler width={16} height={16} />
                     </Button>
                     <Button
-                      variant="icon"
-                      size="sm"
-                      selected={!anreissModus}
+                      variant={!anreissModus ? "primary" : "secondary"} size="sm" icon
                       onClick={() => onModus(false)}
                     >
                       <Hammer width={16} height={16} />
                     </Button>
-                    <Button variant="icon" size="sm" onClick={onZentrieren}>
+                    <Button variant="secondary" size="sm" icon onClick={onZentrieren}>
                       <Crosshair width={16} height={16} />
                     </Button>
                   </Container>
                   <Container flexDirection="row" gap={6}>
-                    <Button variant="rect" onClick={onPrev}>
+                    <Button variant="secondary" onClick={onPrev}>
                       <Text fontSize={14}>{"<"}</Text>
                     </Button>
-                    <Button variant="rect" onClick={onNext}>
+                    <Button variant="secondary" onClick={onNext}>
                       <Text fontSize={14}>{">"}</Text>
                     </Button>
-                    <Button variant="rect" onClick={onTafel}>
+                    <Button variant="secondary" onClick={onTafel}>
                       <Text fontSize={13}>{labels.tafel}</Text>
                     </Button>
-                    <Button variant="rect" onClick={onLotrecht}>
+                    <Button variant="secondary" onClick={onLotrecht}>
                       <Text fontSize={13}>{labels.plumb}</Text>
                     </Button>
                   </Container>
-                </Card>
-              </Root>
+                </Panel>
+              </Container>
             </Billboard>
           </group>
         </XRSpace>
