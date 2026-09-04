@@ -29,11 +29,13 @@ export interface AuftragLuecke extends AuftragTeil {
 export interface Auftrag {
   moebel_id: string;
   /**
-   * Was das beweist: die Form (64 Hex) — und dass cody-cad den kanonischen Hash des Plans
-   * geschrieben hat, aus dem die Karten stammen. Was es NICHT beweist: dass das Modell in
-   * der Szene aus demselben Plan kommt. Referenz- und Demo-Plan trugen dieselbe `moebel_id`
-   * (Review craft#47, Cody #2) — die Wurzel unterscheidet Pläne nicht. Die Bindung Plan →
-   * Modell schließt erst `auftrag.modell.glb_sha256` (kommt mit `bauen --modell`).
+   * Was der Loader hier prüft: die Form (64 Hex) — sonst nichts. Dass es der kanonische Hash
+   * des Plans ist, aus dem die Karten stammen, garantiert cody-cad beim Erzeugen; hier wird es
+   * nicht nachgerechnet (dafür müsste JS Pythons Zahlendarstellung treffen, s. `karte.ts`).
+   * Was es NICHT beweist: dass das Modell in der Szene aus demselben Plan kommt. Referenz- und
+   * Demo-Plan trugen dieselbe `moebel_id` (Review craft#47, Cody #2) — die Wurzel unterscheidet
+   * Pläne nicht. Die Bindung Plan → Modell schließt erst `auftrag.modell.glb_sha256`
+   * (`bauen --modell`, cody-cad#68; Loader-Seite in #48).
    */
   buildplan_sha256: string;
   revision: number;
@@ -135,9 +137,18 @@ export interface SzenenKnoten {
  * keine Gruppe, sondern ein Vertragsbruch; Rekursion würde Gruppen als Teile lesen.
  */
 export function glbKnoten(buf: ArrayBuffer): SzenenKnoten {
+  // Der ganze Header, nicht nur das Magic (Review craft#47 Runde 2): Version, Gesamtlänge,
+  // Chunk-Typ, Chunk-Länge in beide Richtungen — jede Lüge ist ein Klartext-Fehler, nie ein
+  // RangeError oder SyntaxError aus der Tiefe.
   const dv = new DataView(buf);
   if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x46546c67) {
     throw new Error("Kein glTF-Binary (Magic »glTF« fehlt)");
+  }
+  const version = dv.getUint32(4, true);
+  if (version !== 2) throw new Error(`glTF-Version ${version} — der Vertrag gilt für Version 2`);
+  const gesamt = dv.getUint32(8, true);
+  if (gesamt !== buf.byteLength) {
+    throw new Error(`glTF-Header lügt: Gesamtlänge ${gesamt}, Datei hat ${buf.byteLength} Bytes`);
   }
   const jsonLen = dv.getUint32(12, true);
   if (dv.getUint32(16, true) !== 0x4e4f534a) throw new Error("glTF-Binary ohne JSON-Chunk");
@@ -146,11 +157,16 @@ export function glbKnoten(buf: ArrayBuffer): SzenenKnoten {
       `glTF-Header lügt: JSON-Chunk mit ${jsonLen} Bytes, Datei hat nur ${buf.byteLength}`,
     );
   }
-  const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jsonLen))) as {
+  let j: {
     scenes?: Array<{ nodes?: number[] }>;
     nodes?: Array<{ name?: string; children?: number[] }>;
     scene?: number;
   };
+  try {
+    j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jsonLen)));
+  } catch {
+    throw new Error(`glTF-JSON-Chunk unlesbar (${jsonLen} Bytes laut Header) — abgeschnitten oder kein JSON`);
+  }
   const nodes = j.nodes ?? [];
   const szene = j.scenes?.[j.scene ?? 0];
   const wurzeln = szene?.nodes ?? [];

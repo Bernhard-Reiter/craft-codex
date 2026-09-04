@@ -73,6 +73,9 @@ describe("ladeAuftrag — die Klammer aus dem Bundle", () => {
       [/grund/, (a) => delete (a.teile_ohne_karte as Partial<L[number]>[])[0]!.grund],
       [/aufbau/, (a) => ((a.teile_ohne_karte as L)[0]!.aufbau = "")],
       [/beiden Listen/, (a) => ((a.teile_ohne_karte as L)[0]!.schluessel = "teil:Bo:oben")],
+      // null ist kein »fehlendes Feld«: ein älteres Bundle lässt es weg, ein kaputtes schreibt null.
+      [/keine Liste/, (a) => (a.teile_ohne_karte = null)],
+      [/keine Liste/, (a) => (a.teile_ohne_karte = "teil:Rw")],
       [/doppelt/i, (a) => ((a.teile_ohne_karte as L)[0]!.werkstueck_id = "teil_beispielbo0oben")],
     ];
     for (const [grund, f] of faelle) {
@@ -187,10 +190,25 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     expect(() => glbKnoten(enkel)).toThrow(/zwei Ebenen/);
   });
 
-  it("ein Header, der über das Dateiende hinaus zeigt, ist ein Klartext-Fehler, kein RangeError", () => {
+  it.each([
+    ["Magic", 0, 0x58585858, /glTF/],
+    ["Version 1 statt 2", 4, 1, /Version/],
+    ["Gesamtlänge im Header ≠ Datei", 8, 12, /Gesamtl/],
+    ["JSON-Chunk länger als die Datei", 12, 10_000_000, /Header|Chunk/],
+    ["JSON-Chunk zu kurz (abgeschnittenes JSON)", 12, 8, /JSON-Chunk|unlesbar/],
+    ["Chunk-Typ nicht JSON", 16, 0x004e4942, /JSON-Chunk/],
+  ])("Header-Lüge »%s« ist ein Klartext-Fehler, kein RangeError/SyntaxError", (_name, offset, wert, muster) => {
     const b = new Uint8Array(glb());
-    new DataView(b.buffer).setUint32(12, 10_000_000, true);
-    expect(() => glbKnoten(b.buffer)).toThrow(/Header|Chunk/);
+    new DataView(b.buffer).setUint32(offset, wert, true);
+    let fehler: unknown;
+    try {
+      glbKnoten(b.buffer);
+    } catch (e) {
+      fehler = e;
+    }
+    expect(fehler).toBeInstanceOf(Error);
+    expect((fehler as Error).message).toMatch(muster);
+    expect((fehler as Error).name).not.toMatch(/RangeError|SyntaxError/);
   });
 });
 
@@ -257,5 +275,24 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
   it("karteFuer: Schlüssel → Karte, unbekannter Schlüssel → undefined (kein Raten)", () => {
     expect(karteFuer(AUFTRAG, "teil:Se:links")).toBe("teil_beispielse0links");
     expect(karteFuer(AUFTRAG, "teil:Rw")).toBeUndefined();
+  });
+});
+
+
+describe("die Naht gegen das echte Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
+  const MODELL = join(BUNDLE, "modell.glb");
+  const da = existsSync(MODELL);
+  // Nicht im Repo (Erzeugnis, Vertrag mit Cody #2); lokal liegt es — dann MUSS der Test laufen.
+  // Ohne Datei wird er übersprungen und sagt es; ein stiller Skip wäre ein grünes Loch.
+  it.skipIf(!da)("das attestierte FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, und kein Zirkel", () => {
+    const buf = new Uint8Array(readFileSync(MODELL)).buffer;
+    const k = glbKnoten(buf);
+    expect(k.wurzel).toBe(AUFTRAG.moebel_id);
+    expect(k.teile).toHaveLength(5);
+    expect(pruefeSzene(AUFTRAG, k)).toEqual({ ok: true, fehler: [] });
+  });
+  it("sagt, wenn das echte Modell fehlt — damit der Skip oben kein stilles Loch ist", () => {
+    if (!da) console.warn("modell.glb liegt nicht im Bundle — Naht-Test gegen das echte Modell übersprungen");
+    expect(typeof da).toBe("boolean");
   });
 });
