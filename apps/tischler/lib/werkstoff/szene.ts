@@ -29,6 +29,11 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
     .join("");
 }
 
+/** Anfang UND Ende — zwei Hashes, die sich nur im letzten Zeichen unterscheiden, sähen sonst gleich aus. */
+function kurz(h: string): string {
+  return `${h.slice(0, 12)}…${h.slice(-4)}`;
+}
+
 export async function ladeSzene(auftrag: Auftrag, basis = "/werkstoff-bundle"): Promise<Szene | null> {
   // Nur ein Modell, das der Auftrag nennt — eine Datei, die zufällig im Bundle liegt, ist kein
   // Beleg dafür, dass sie zu diesem Plan gehört.
@@ -43,8 +48,8 @@ export async function ladeSzene(auftrag: Auftrag, basis = "/werkstoff-bundle"): 
   const ist = await sha256Hex(buf);
   if (ist !== auftrag.modell.glb_sha256) {
     throw new Error(
-      `Modell trägt nicht den Hash aus dem Auftrag — Datei ${ist.slice(0, 12)}…, ` +
-        `Auftrag ${auftrag.modell.glb_sha256.slice(0, 12)}… — das ist ein anderes Erzeugnis`,
+      `Modell trägt nicht den Hash aus dem Auftrag — Datei ${kurz(ist)}, ` +
+        `Auftrag ${kurz(auftrag.modell.glb_sha256)} — das ist ein anderes Erzeugnis`,
     );
   }
   const knoten = glbKnoten(buf);

@@ -302,12 +302,11 @@ describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richt
 
 
 describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture, das aus dem Auftrag erzeugt wurde", () => {
-  // Zwei Quellen: das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export ohne Bohrungen, mit
-  // Nuten — im Repo, Erzeuger cody-cad#69) und das lokale Erzeugnis modell.glb (mit Bohrungen,
-  // nicht im Repo). Das Fixture ist Pflicht und wird NIE übersprungen; fehlt es, sagt der Test
-  // das in Klartext statt mit einem ENOENT aus der Tiefe (Review craft#47 Runde 4).
+  // Das CI-Fixture referenz-korpus.glb (echter FreeCAD-Export ohne Bohrungen, mit Nuten — im
+  // Repo, Erzeuger cody-cad#69/#70) ist seit d204bc8 auch das ausgelieferte modell.glb; beide
+  // liegen im Repo, byte-gleich (bundle.test.ts hält das). Das Fixture ist Pflicht und wird NIE
+  // übersprungen; fehlt es, sagt der Test das in Klartext statt mit ENOENT (Review craft#47/#48).
   const FIXTURE = join(__dirname, "fixtures/referenz-korpus.glb");
-  const ERZEUGNIS = join(BUNDLE, "modell.glb");
 
   it("das CI-Fixture referenz-korpus.glb liegt im Repo", () => {
     expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69, kein Erzeugnis").toBe(true);
@@ -315,8 +314,7 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
 
   it("ein echtes FreeCAD-GLB (5 Knoten) passt zu auftrag.json — Knoten, Wurzel, kein Zirkel", () => {
     expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt").toBe(true);
-    const quellen = [FIXTURE, ...(existsSync(ERZEUGNIS) ? [ERZEUGNIS] : [])];
-    for (const q of quellen) {
+    for (const q of [FIXTURE]) {
       const buf = new Uint8Array(readFileSync(q)).buffer;
       const k = glbKnoten(buf);
       expect(k.wurzel, q).toBe(AUFTRAG.moebel_id);
@@ -324,15 +322,6 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
       expect(pruefeSzene(AUFTRAG, k), q).toEqual({ ok: true, fehler: [] });
     }
   });
-
-  // Das Erzeugnis (mit Bohrungen) ist nur lokal — mit WERKSTOFF_MODELL_PFLICHT=1 ist sein Fehlen
-  // rot; ohne Pflicht wird dieser Fall SICHTBAR übersprungen, nicht still grün.
-  it.skipIf(process.env.WERKSTOFF_MODELL_PFLICHT !== "1")(
-    "mit WERKSTOFF_MODELL_PFLICHT=1 muss auch das Erzeugnis modell.glb da sein",
-    () => {
-      expect(existsSync(ERZEUGNIS), "public/werkstoff-bundle/modell.glb fehlt (Erzeugnis, nicht im Repo)").toBe(true);
-    },
-  );
 
   it("das CI-Fixture referenz-korpus.glb ist ein FreeCAD-Erzeugnis mit Nuten, kein Zirkel aus auftrag.json", () => {
     expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69").toBe(true);
@@ -353,6 +342,7 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
     // Review #69 (W1): fünf richtige Namen und dieselbe Bytezahl genügten, um das Fixture zu
     // ersetzen — beide CIs blieben grün, das Protokoll behauptete weiter 418a… Der Pin bindet
     // die Datei an die Attestation in cody-cad (tests/fixtures/freecad/… , glb_sha256).
+    expect(existsSync(FIXTURE), "fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69").toBe(true);
     const buf = new Uint8Array(readFileSync(FIXTURE)).buffer;
     const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
       .map((b) => b.toString(16).padStart(2, "0"))

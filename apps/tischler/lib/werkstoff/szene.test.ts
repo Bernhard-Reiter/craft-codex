@@ -7,14 +7,19 @@
  * Brett, zu dem eine fremde Karte gehört, und der Handwerker merkt es nicht.
  */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Auftrag } from "./auftrag";
 import { farbeFuerTeil, kameraAufBox, ladeSzene, schluesselAusObjekt } from "./szene";
 
 const BUNDLE = join(__dirname, "../../public/werkstoff-bundle");
 const MINI = new Uint8Array(readFileSync(join(__dirname, "fixtures/demo-mini.glb"))).buffer;
-const FIXTURE = new Uint8Array(readFileSync(join(__dirname, "fixtures/referenz-korpus.glb"))).buffer;
+const FIXTURE_PFAD = join(__dirname, "fixtures/referenz-korpus.glb");
+/** Erst im Test gelesen — fehlt die Datei, sagt es EIN Test in Klartext, statt dass die ganze Datei kollabiert. */
+function fixture(): ArrayBuffer {
+  if (!existsSync(FIXTURE_PFAD)) throw new Error("fixtures/referenz-korpus.glb fehlt — CI-Fixture aus cody-cad#69");
+  return new Uint8Array(readFileSync(FIXTURE_PFAD)).buffer;
+}
 const AUFTRAG = JSON.parse(readFileSync(join(BUNDLE, "auftrag.json"), "utf8")) as Auftrag;
 
 function stubModell(antwort: { status: number; buf?: ArrayBuffer }) {
@@ -125,8 +130,8 @@ describe("ladeSzene — Reihenfolge und Härte der Hash-Prüfung (Review craft#4
   });
 
   it("der Hash läuft über die ganze Datei — das 23-KB-Fixture mit seinem echten Hash geht durch, mit gekipptem letzten Zeichen nicht", async () => {
-    vi.stubGlobal("fetch", stubModell({ status: 200, buf: FIXTURE }));
-    const gut = await auftragZu(FIXTURE);
+    vi.stubGlobal("fetch", stubModell({ status: 200, buf: fixture() }));
+    const gut = await auftragZu(fixture());
     expect(gut.modell?.glb_sha256).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
     expect((await ladeSzene(gut))?.knoten.teile).toHaveLength(5);
     const h = gut.modell!.glb_sha256;
