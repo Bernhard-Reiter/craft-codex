@@ -298,8 +298,24 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
       expect(pruefeSzene(AUFTRAG, k), q).toEqual({ ok: true, fehler: [] });
     }
   });
-  it("mit WERKSTOFF_MODELL_PFLICHT=1 ist das Fehlen eines OCCT-Modells rot, nicht übersprungen", () => {
-    if (process.env.WERKSTOFF_MODELL_PFLICHT === "1") expect(QUELLEN.length, grund).toBeGreaterThan(0);
-    else expect(QUELLEN.length >= 0).toBe(true); // ohne Pflicht: nur Auskunft, unten im Namen
+  // Ohne Pflicht wird dieser Fall sichtbar übersprungen — kein »expect(true)«, das immer grün ist.
+  it.skipIf(process.env.WERKSTOFF_MODELL_PFLICHT !== "1")(
+    "mit WERKSTOFF_MODELL_PFLICHT=1 ist das Fehlen eines OCCT-Modells rot, nicht übersprungen",
+    () => {
+      expect(QUELLEN.length, grund).toBeGreaterThan(0);
+    },
+  );
+  it("das CI-Fixture referenz-korpus.glb ist ein FreeCAD-Erzeugnis mit Nuten, kein Zirkel aus auftrag.json", () => {
+    // Kommt aus cody-cad (Cody #2, 04.09.): Referenzplan @ 03040cb ohne die 104 Drillings, mit
+    // den 4 Nuten; FreeCAD 1.1.3, korpus_bauen → tessellate(0.1) → Import.export; 23.388 B.
+    const buf = new Uint8Array(readFileSync(join(__dirname, "fixtures/referenz-korpus.glb"))).buffer;
+    const len = new DataView(buf).getUint32(12, true);
+    const j = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, len))) as {
+      asset: { generator?: string };
+      meshes: unknown[];
+    };
+    expect(j.asset.generator).toMatch(/Open CASCADE/); // echtes OCCT, nicht der Test-Erzeuger
+    expect(j.meshes.length).toBe(5);
+    expect(buf.byteLength).toBeLessThan(250_000);
   });
 });
