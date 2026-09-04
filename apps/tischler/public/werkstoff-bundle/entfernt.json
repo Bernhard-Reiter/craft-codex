@@ -1,6 +1,6 @@
 {
   "auswertung": "Die Regeln werden der Reihe nach geprueft; die erste, die trifft, entscheidet. Ausnahmen (art=ausnahme) stehen deshalb vorn — wer die Liste umsortiert oder nach art gruppiert, hebt sie auf. Geprueft wird der Feldname in drei Formen: `muster_flach` und `enthalten_flach` auf dem kleingeschriebenen Namen ohne _ und -, `muster_token` auf den Wortteilen, getrennt an _, - und an der Grenze zwischen Abkuerzung und folgendem Wort. Trifft keine Regel, bleibt das Feld.",
-  "grenze": "Geprueft wird der Feldname, nicht der Wert: ein Lieferantenpreis im Freitext (»Listenpreis 12,50 EUR« in einer Bemerkung) kommt durch. Eine Freitextpruefung produziert Fehlalarme ohne Ende — die Grenze ist hier bewusst enger als der Wunsch.",
+  "grenze": "Geprüft wird der Feldname, nicht der Inhalt: steht ein Preis mitten in einer Bemerkung (»Listenpreis 12,50 EUR«), bleibt er stehen. So weit reicht die Zusage — und nicht weiter.",
   "hinweis": "Die Hashes in katalogstand.json gehoeren zu den ORIGINALdateien im Datenpaket, nicht zu diesen bereinigten Kopien.",
   "regel": "Bleibt: Fachwoerter, die ein Geldwort enthalten und trotzdem bleiben: Konditionierung ist der Feuchte-Angleich vor dem Verleimen. Geankert — freigestellt ist das Wort selbst, nicht jede Zusammensetzung damit (»konditionierung_preis« faellt). · Entfernt: EK/VK klein zusammengeschrieben mit folgendem Geldwort: eknetto, vk2brutto, ekliste. Nur mit dem Geldwort, damit das Fachfeld »ekg« bleibt. · Entfernt: Der Feldname traegt eines dieser Geldwoerter, deutsch oder englisch — als Teilwort, damit auch listenpreis, unitCost und msrp fallen. · Entfernt: EK/VK als eigenes Wort, auch mit Staffelziffer (EK2_Netto, ekPreis) — getrennt an _, - und an der Grenze zwischen Abkuerzung und folgendem Wort.",
   "regeln": [
@@ -41,5 +41,5 @@
       "warum": "EK/VK als eigenes Wort, auch mit Staffelziffer (EK2_Netto, ekPreis) — getrennt an _, - und an der Grenze zwischen Abkuerzung und folgendem Wort."
     }
   ],
-  "warum": "Betriebsdaten (Lieferantenpreise) gehoeren in den Tenant, nicht in den Katalog und nicht auf die Baustelle"
+  "warum": "Einkaufspreise und Konditionen bleiben im Betrieb: sie stehen nicht im Katalog und gehen nicht mit auf die Baustelle."
 }

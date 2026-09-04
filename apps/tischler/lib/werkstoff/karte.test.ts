@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  arbeitsfolge,  gruppiere,
+  arbeitsfolge,
+  ladeDatengrenze,  gruppiere,
   luecken,
   rolleLesbar,
   schwaechste,
@@ -236,5 +237,45 @@ describe("die Dicke ist eine Spanne, keine Zahl", () => {
       expect(a.grund.length).toBeGreaterThan(10);
       expect(a.rolle).toMatch(/klarlack/);
     }
+  });
+});
+
+describe("ladeDatengrenze", () => {
+  const bundle = join(__dirname, "../../public/werkstoff-bundle");
+  const stub = (aenderung?: (roh: string) => string | null) =>
+    vi.fn(async (url: string) => {
+      const pfad = join(bundle, url.replace("/werkstoff-bundle/", ""));
+      if (!existsSync(pfad)) return { ok: false, status: 404 } as Response;
+      const inhalt = aenderung ? aenderung(readFileSync(pfad, "utf8")) : readFileSync(pfad, "utf8");
+      if (inhalt === null) return { ok: false, status: 404 } as Response;
+      return { ok: true, status: 200, json: async () => JSON.parse(inhalt) } as Response;
+    });
+
+  it("liest die Grenzaussage aus dem echten Bundle", async () => {
+    vi.stubGlobal("fetch", stub());
+    const g = await ladeDatengrenze();
+    expect(g).not.toBeNull();
+    // Geprüft wird die AUSSAGE, nicht der Wortlaut: der Satz darf umformuliert werden (und
+    // wurde es gerade — cody-cad#61 hat ihn aus der Entwicklersprache geholt), aber zwei Dinge
+    // müssen drinstehen, sonst ist er wertlos.
+    //
+    // 1. WAS bleibt draußen — irgendein Geldbegriff, den ein Handwerker kennt.
+    expect(g!.warum).toMatch(/preis|kondition|einkauf/i);
+    // 2. WIE WEIT die Zusage reicht. Ohne das hält jemand die Grenze für dichter, als sie ist —
+    //    und das ist der Satz, der bei einer Kürzung als Erstes verschwindet.
+    expect(g!.grenze).toMatch(/feldname/i);
+    expect(g!.grenze).toMatch(/inhalt|wert|freitext|bemerkung/i);
+    vi.unstubAllGlobals();
+  });
+
+  it("schweigt lieber, als einen unbelegten Satz anzuzeigen", async () => {
+    // Fehlende Datei: kein Fehler, aber auch keine Beruhigung.
+    vi.stubGlobal("fetch", stub(() => null));
+    expect(await ladeDatengrenze()).toBeNull();
+    // Halbe Datei (nur `warum`, keine Grenze): genauso — eine Zusage ohne ihre Reichweite ist
+    // schlimmer als keine, weil sie für mehr gehalten wird.
+    vi.stubGlobal("fetch", stub((roh) => JSON.stringify({ warum: JSON.parse(roh).warum })));
+    expect(await ladeDatengrenze()).toBeNull();
+    vi.unstubAllGlobals();
   });
 });
