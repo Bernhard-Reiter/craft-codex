@@ -962,7 +962,7 @@ body.cc-kiosk .cc-workbench {
 
 /* Der Fussnoten-Satz zum Hash: leiser als die Zahl darueber, aber lesbar — er sagt, was
    geprueft wurde und was nicht. */
-.werkstoff-panel .hash-fussnote {
+.werkstoff .hash-fussnote {
   margin-top: 0.25rem;
   font-style: italic;
   opacity: 0.85;
@@ -970,24 +970,24 @@ body.cc-kiosk .cc-workbench {
 
 /* Arbeitsfolge: die Schritte sind das, wofuer das Panel aufgemacht wird — nummeriert, mit den
    Werten als Paare darunter. Lesbar auf Armlaenge, nicht am Schreibtisch. */
-.werkstoff-panel .arbeitsfolge ol { margin: 0; padding-left: 1.4rem; }
-.werkstoff-panel .arbeitsfolge li { margin-bottom: 0.9rem; }
-.werkstoff-panel .schritt-titel { font-weight: 600; }
-.werkstoff-panel .schritt-werte {
+.werkstoff .arbeitsfolge ol { margin: 0; padding-left: 1.4rem; }
+.werkstoff .arbeitsfolge li { margin-bottom: 0.9rem; }
+.werkstoff .schritt-titel { font-weight: 600; }
+.werkstoff .schritt-werte {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.1rem 0.6rem;
   margin: 0.3rem 0 0;
   font-size: 0.95em;
 }
-.werkstoff-panel .schritt-werte > div { display: contents; }
-.werkstoff-panel .schritt-werte dt { opacity: 0.75; }
-.werkstoff-panel .schritt-werte dd { margin: 0; font-variant-numeric: tabular-nums; }
-.werkstoff-panel .schritt-neben { margin: 0.2rem 0 0; font-size: 0.9em; opacity: 0.8; }
-.werkstoff-panel .schritt-sicherheit { font-weight: 600; opacity: 1; }
+.werkstoff .schritt-werte > div { display: contents; }
+.werkstoff .schritt-werte dt { opacity: 0.75; }
+.werkstoff .schritt-werte dd { margin: 0; font-variant-numeric: tabular-nums; }
+.werkstoff .schritt-neben { margin: 0.2rem 0 0; font-size: 0.9em; opacity: 0.8; }
+.werkstoff .schritt-sicherheit { font-weight: 600; opacity: 1; }
 /* Die Spanne gehoert an die Zahl, nicht in eine Fussnote — nach ihr wird die Nut ausgelegt. */
-.werkstoff-panel .spanne { opacity: 0.7; font-size: 0.9em; }
-.werkstoff-panel .nicht-enthalten {
+.werkstoff .spanne { opacity: 0.7; font-size: 0.9em; }
+.werkstoff .nicht-enthalten {
   margin: 0.2rem 0 0;
   font-size: 0.85em;
   line-height: 1.35;
@@ -996,7 +996,7 @@ body.cc-kiosk .cc-workbench {
 
 /* Die Grenzaussage: leiser als die Werte, aber dauerhaft sichtbar. Sie sagt dem Handwerker,
    dass hier bewusst etwas fehlt — der Unterschied zwischen einer Luecke und einer Entscheidung. */
-.werkstoff-panel .datengrenze {
+.werkstoff .kopf .datengrenze {
   margin-top: 0.5rem;
   padding-top: 0.4rem;
   border-top: 1px dashed currentColor;

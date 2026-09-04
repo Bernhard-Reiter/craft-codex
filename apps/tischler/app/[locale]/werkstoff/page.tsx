@@ -168,6 +168,14 @@ export default function WerkstoffPage() {
         <p className="hinweis-klein">
           Offline-Bundle aus dem Auftrag — Datenblätter sind verlinkt, nicht kopiert.
         </p>
+        {/* »Hier steht kein Wert« kann zweierlei heißen: fehlt, oder gehört hier nicht hin.
+            Nur das erste muss der Handwerker nachfragen — also muss das zweite dastehen. Und
+            zwar hier oben: die Grenze gilt für das ganze Bundle, nicht für eine Karte. */}
+        {grenze && (
+          <p className="hinweis-klein datengrenze">
+            {grenze.warum} {grenze.grenze}
+          </p>
+        )}
       </header>
 
       <section className="teile" aria-label="Werkstücke antippen">
@@ -325,13 +333,6 @@ export default function WerkstoffPage() {
               Manifest im Auftrag gefunden und mit der Karte abgeglichen. Ob der Hash zum Inhalt
               des Manifests passt, prüft dieses Gerät nicht.
             </p>
-            {/* »Hier steht kein Wert« kann zweierlei heißen: fehlt, oder gehört hier nicht hin.
-                Nur das erste muss der Handwerker nachfragen — also muss das zweite dastehen. */}
-            {grenze && (
-              <p className="hash-zeile hash-fussnote datengrenze">
-                {grenze.warum}. {grenze.grenze}
-              </p>
-            )}
           </footer>
         </section>
       )}

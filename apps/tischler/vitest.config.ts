@@ -15,7 +15,14 @@ export default defineConfig({
     // .test.tsx (Komponenten) laufen in jsdom; reine Logik-.test.ts in node.
     environmentMatchGlobs: [["**/*.test.tsx", "jsdom"]],
     globals: false,
-    include: ["lib/**/*.test.ts", "components/**/*.test.tsx", "app/**/*.test.ts"],
+    include: [
+      "lib/**/*.test.ts",
+      "components/**/*.test.tsx",
+      "app/**/*.test.ts",
+      // .tsx unter app/ fehlte: ein Komponententest in einem Routenordner lief NIE, und
+      // nichts hat es gemeldet — ein Test, den der Laeufer nicht findet, ist gruen.
+      "app/**/*.test.tsx",
+    ],
     passWithNoTests: false,
   },
 });
