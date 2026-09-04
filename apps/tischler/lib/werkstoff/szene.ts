@@ -18,7 +18,12 @@ async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   // statt »Cannot read properties of undefined« (Review craft#48 R48-7).
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) throw new Error("Dieses Gerät kann den Hash nicht prüfen (kein WebCrypto) — keine Szene");
-  const d = await subtle.digest("SHA-256", buf);
+  // Kopie im eigenen Realm: ein ArrayBuffer aus einem anderen Realm (jsdom unter Node 24 in der
+  // CI: »2nd argument is not instance of ArrayBuffer«) wird von digest abgelehnt — lokal lief
+  // es, auf dem Runner nicht. Die Kopie kostet einmal die Dateigröße und keine Annahme.
+  const bytes = new Uint8Array(buf.byteLength);
+  bytes.set(new Uint8Array(buf));
+  const d = await subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(d))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
