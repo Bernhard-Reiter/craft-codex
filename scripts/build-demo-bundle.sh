@@ -18,10 +18,7 @@ echo "▸ deps + engine build"
 pnpm install --prefer-offline
 pnpm --filter @craft-codex/core build
 
-echo "▸ tests (Abbruch bei rot — kein kaputtes Bundle auf den Stick)"
-pnpm test
-
-echo "▸ Werkstoff-Bundle: das Modell im Auftrag muss die Datei im Bundle sein (sonst zeigt die Seite 404 statt Möbel)"
+echo "▸ Werkstoff-Bundle: das Modell im Auftrag muss die Datei im Bundle sein (sonst zeigt die Seite 404 statt Möbel) — VOR den Tests: eigenes Schloss, nicht das zweite an derselben Tür"
 WB="$ROOT/apps/tischler/public/werkstoff-bundle"
 if [ -f "$WB/auftrag.json" ] && grep -q '"modell"' "$WB/auftrag.json"; then
   SOLL=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['modell']['glb_sha256'])" "$WB/auftrag.json")
@@ -31,6 +28,10 @@ if [ -f "$WB/auftrag.json" ] && grep -q '"modell"' "$WB/auftrag.json"; then
   [ "$IST" = "$SOLL" ] || { echo "✗ $DATEI hat Hash $IST, der Auftrag nennt $SOLL — anderes Erzeugnis"; exit 1; }
   echo "  ✓ $DATEI = $SOLL"
 fi
+
+echo "▸ tests (Abbruch bei rot — kein kaputtes Bundle auf den Stick)"
+pnpm test
+
 echo "▸ production build"
 (cd apps/tischler && pnpm build)
 

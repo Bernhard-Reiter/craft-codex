@@ -232,6 +232,43 @@ describe("glbKnoten — was das 3D-Modell an Namen trägt", () => {
     expect((fehler as Error).message).toMatch(muster);
     expect((fehler as Error).name).not.toMatch(/RangeError|SyntaxError/);
   });
+
+  // Die Trennlinie liegt bei 20 Bytes (der ganze Header). Darunter ist die Datei »zu kurz« — auch
+  // mit gültigem Magic; und die Länge wird VOR dem Magic geprüft, damit drei Bytes »xyz« nicht als
+  // »Magic fehlt« gemeldet werden. Parität zu cody-cad#71 (Länge vor Magic, Fälle 3/12/19/20).
+  const kopf = (n: number) => {
+    const b = new Uint8Array(n);
+    b.set([0x67, 0x6c, 0x54, 0x46].slice(0, Math.min(4, n))); // »glTF«
+    return b;
+  };
+  it.each([
+    ["0 Bytes", new Uint8Array(0), /zu kurz.*0 Bytes, mindestens 20/],
+    ["3 Bytes ohne Magic (Länge vor Magic)", Uint8Array.from([0x78, 0x79, 0x7a]), /zu kurz.*3 Bytes, mindestens 20/],
+    ["12 Bytes mit gültigem Magic", kopf(12), /zu kurz.*12 Bytes, mindestens 20/],
+    ["19 Bytes mit gültigem Magic (eins unter der Linie)", kopf(19), /zu kurz.*19 Bytes, mindestens 20/],
+  ])("»%s« ist »zu kurz«, nicht »Magic fehlt«", (_name, bytes, muster) => {
+    let fehler: unknown;
+    try {
+      glbKnoten(bytes.buffer);
+    } catch (e) {
+      fehler = e;
+    }
+    expect(fehler).toBeInstanceOf(Error);
+    expect((fehler as Error).message).toMatch(muster);
+    expect((fehler as Error).message).not.toMatch(/Magic/);
+    expect((fehler as Error).name).not.toMatch(/RangeError/);
+  });
+
+  it("20 Bytes — genau der Header mit leerem JSON-Chunk — sind nicht »zu kurz«: der Fehler ist der leere Chunk", () => {
+    const b = kopf(20);
+    const dv = new DataView(b.buffer);
+    dv.setUint32(4, 2, true);
+    dv.setUint32(8, 20, true);
+    dv.setUint32(12, 0, true);
+    dv.setUint32(16, 0x4e4f534a, true);
+    expect(() => glbKnoten(b.buffer)).toThrow(/unlesbar/);
+    expect(() => glbKnoten(b.buffer)).not.toThrow(/zu kurz/);
+  });
 });
 
 describe("pruefeSzene — Modell und Auftrag müssen sich decken, in beide Richtungen", () => {
