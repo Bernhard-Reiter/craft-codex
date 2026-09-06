@@ -75,6 +75,37 @@ const kanonischerHash = (o: unknown): string => {
 };
 
 const AUFTRAG_PIN = "e55a2f50a0c6421fbbb9c0ab1ebcde915d7dc9fbd42754d5d3131f457dca59d2";
+
+/**
+ * Byte-Pins über die ausgelieferten Dateien — die zweite Frage.
+ *
+ * `karte_sha256` im Test mit dem Pin zu vergleichen prüft nur die NOTE, die sich die Datei
+ * selbst gibt: wer einen Wert in der Karte ändert und das Feld stehen lässt, kommt durch
+ * (nachgestellt am 06.09.: Gewicht 14,352 → 14,353, Feld unangetastet, 8/8 grün).
+ *
+ * Nachrechnen wie beim Auftrag geht hier NICHT. `karte_sha256` ist der kanonische Hash der
+ * Karte, und die trägt 16 ganzzahlige Fliesskommazahlen je Datei (`"auftrag_g_m2": 120.0`).
+ * Python schreibt `120.0`, `JSON.stringify` schreibt `120` — dieselbe Karte, zwei Hashes. Der
+ * Kanonisierungs-Zeuge weiter unten fängt das nicht, weil der Auftrag keine solchen Zahlen hat.
+ *
+ * Also der Umweg über die Bytes: er beantwortet nicht »hat cody-cad das so gerechnet«
+ * (das tut der `karte_sha256`-Vergleich), sondern »ist es noch das, was ausgeliefert wurde«.
+ * Beim nächsten Regen werden diese Zahlen vom Erzeugnis abgelesen, nicht nachgezogen.
+ */
+const BYTE_PINS: Record<string, Record<string, string>> = {
+  karten: {
+    teil_beispielbo0oben: "6f9de347ef26464bd93a3f61423bfa39d5fe29a0b10012c3fc4d7be95dc4d187",
+    teil_beispielbo0unten: "09f29010a5e03b334e315e9370b2ad69006ea7b9e14875d2b16727527d3b1033",
+    teil_beispielse0links: "284b8c25aeb7b5acf5fbcf4d4bc775f54fb731ba51b1c181f6e76cd72504b643",
+    teil_beispielse0rechts: "adab94054fac79317cb0b61a78c4be45db3a5389eb9aa17262e28ec2f4e920eb",
+  },
+  manifeste: {
+    teil_beispielbo0oben: "053161405d1691a273f1edc1923830c6c91a4f0377c05d15c2001f7678f0ba19",
+    teil_beispielbo0unten: "a34282f7969de57da3ea81094312f37d8e78dbf760a3d4eddc1f2a5870d9dac3",
+    teil_beispielse0links: "971df70a85757872df4142f382844270c368a2a7f71fe3466034d2120e47f803",
+    teil_beispielse0rechts: "471efa1a1fdeef4049ffc70c580a93746d6e8bac72b7128579a1218abc0ee58a",
+  },
+};
 const FORMELVERSION = "werkstoff-ableitung/2";
 const KARTEN_PINS: Record<string, string> = {
   teil_beispielbo0oben: "f9c51cea0b096f2c9b35ee99d914eb98a33933df81edc15a212a0a357e8f4111",
@@ -106,6 +137,18 @@ describe("das Bundle stammt aus dem Erzeuger, den cody-cad pinnt", () => {
       expect(karte.karte_sha256, id).toBe(soll);
     }
     expect(Object.keys(KARTEN_PINS).sort()).toEqual(auftrag.teile.map((t) => t.werkstueck_id).sort());
+  });
+
+  it("Karten und Manifeste sind Byte für Byte die ausgelieferten — nicht nur ihrer eigenen Auskunft nach", () => {
+    for (const [ordner, pins] of Object.entries(BYTE_PINS)) {
+      for (const [id, soll] of Object.entries(pins)) {
+        const roh = readFileSync(join(BUNDLE, ordner, `${id}.json`));
+        expect(
+          createHash("sha256").update(roh).digest("hex"),
+          `${ordner}/${id}.json von Hand geändert? Bundle mit \`python -m werkzeuge.demo_bundle\` neu erzeugen`,
+        ).toBe(soll);
+      }
+    }
   });
 
   it("die Manifeste sind mit der Formelversion gerechnet, die dieses Bundle behauptet", () => {
