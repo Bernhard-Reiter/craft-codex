@@ -242,12 +242,14 @@
   "dicke_mm": {
     "ausgeschlossen": [
       {
+        "art": "fehlt",
         "grund": "Trockenschichtdicke nicht hinterlegt — nicht addiert",
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche/oben/1-klarlack"
       },
       {
+        "art": "fehlt",
         "grund": "Trockenschichtdicke nicht hinterlegt — nicht addiert",
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
@@ -287,19 +289,22 @@
         "rolle": "belag/unten",
         "wert": 0.9
       }
-    ]
+    ],
+    "vollstaendig": false
   },
   "dokumente_hinweis": "Unterlagen sind Verweise (URL, Seite, Hash) auf die Dokumente des Herstellers — nie deren Inhalt. Speichern, Durchsuchen oder Offline-Kopien erst nach Zustimmung des Herstellers.",
   "freigabe": "annahme",
   "gewicht_kg_m2": {
     "ausgeschlossen": [
       {
+        "art": "fehlt",
         "grund": "Trockenmasse der Beschichtung nicht hinterlegt — nicht addiert",
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
         "rolle": "oberflaeche"
       },
       {
+        "art": "anderswo",
         "grund": "Kante ist je lfm — braucht das Werkstück (siehe verbrauch)",
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "revision": 1,
@@ -337,9 +342,10 @@
         "wert": 0.621
       }
     ],
+    "vollstaendig": false,
     "wert": 14.352
   },
-  "karte_sha256": "5935fc020b748d8222fb65aa6ef77edc58b3ceb05b4f6f17e102862b25d309d9",
+  "karte_sha256": "7225f59026b7b1871a3864ddd2b358280741d236db1cb05380bcf55df5fa43e6",
   "karteversion": 1,
   "komponenten": [
     {
@@ -878,7 +884,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "bc29b2392ef8e7e67c9c30da8de8f1fa380828b1036a45579db8fa3ffbd3d3fe",
+  "resolve_manifest_sha256": "d95cfd8f60abd845c5e12d6ea3b8d97f358b9cd628e072a246dc17ef3d189e24",
   "schema": "werkstoff/karte.schema.json",
   "unterlagen_ohne_verweis": [
     {
@@ -1029,6 +1035,7 @@
         "wert": 3.4
       }
     ],
+    "vollstaendig": true,
     "werkstueck": "teil_beispielbo0unten"
   },
   "videos": [],

@@ -1,0 +1,21 @@
+{
+  "anzahl": 1,
+  "aufbau": {
+    "id": "eiche-furniert-p2-19-g10",
+    "revision": 1
+  },
+  "bezeichnung": "Fachboden (Korpus 600 breit, Seiten 19) — Massivholz-Anleimer vorne, sonst Kanten des Aufbaus",
+  "id": "fachboden-562x555-anleimer-vorne",
+  "kanten": {
+    "vorne": {
+      "id": "massivholz-anleimer-eiche-5x24-eigen",
+      "revision": 1
+    }
+  },
+  "kontur": {
+    "breite": 555,
+    "laenge": 562,
+    "typ": "rechteck"
+  },
+  "schema": "werkstoff/werkstueck.schema.json"
+}

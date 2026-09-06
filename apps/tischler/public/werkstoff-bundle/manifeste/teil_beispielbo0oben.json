@@ -118,7 +118,7 @@
       }
     ]
   },
-  "formelversion": "werkstoff-ableitung/1",
+  "formelversion": "werkstoff-ableitung/2",
   "komponenten": [
     {
       "art": "traeger",
@@ -385,7 +385,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "129f81aa35dc2ea0802a44cbf7e8671235b24fc0fb620772dee94f5a44d1f37c",
+  "resolve_manifest_sha256": "1c654baa0e9a2dd7e06d01ace6cda1ab25394c895f65afcf5cd9f7834af9fddb",
   "systeme": {
     "oben": {
       "id": "adler-g10-2x-klarlack",

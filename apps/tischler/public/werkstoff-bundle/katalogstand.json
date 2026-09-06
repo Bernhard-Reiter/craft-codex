@@ -77,10 +77,14 @@
       "sha256": "f7047b295c6c8baa3f520d1c27c1ed555004a7e83a8162cfebef05e66383bc00"
     },
     {
+      "pfad": "werkstuecke/fachboden-562x555-anleimer-vorne.json",
+      "sha256": "090563dbed9369b284db3cab4593f8a3fbd3816e90dd09f35b975d46473522cd"
+    },
+    {
       "pfad": "werkstuecke/seite-links-890x555.json",
       "sha256": "bd3939be76a7fb535098a34cd0bacc83ca5c2ff62095920e824c791fbb23df49"
     }
   ],
-  "sha256": "74f7b7a2f11a27df7cb18e345856b8cf1d93599850164b5d8ce6c9e56fde83c8",
+  "sha256": "a30e91dfd8e106aca95765f8447b1868427b0f289edd0667afa2392e45927fdd",
   "stand": "2026-09-03"
 }
