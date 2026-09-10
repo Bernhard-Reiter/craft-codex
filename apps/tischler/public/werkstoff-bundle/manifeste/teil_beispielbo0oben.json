@@ -17,6 +17,16 @@
         "rolle": "oberflaeche/unten/1-klarlack"
       },
       {
+        "grund": "Trockenmasse des Belagleims nicht hinterlegt — nicht addiert",
+        "komponente": "ponal-flaechenleim-pvac",
+        "rolle": "leim/oben"
+      },
+      {
+        "grund": "Trockenmasse des Belagleims nicht hinterlegt — nicht addiert",
+        "komponente": "ponal-flaechenleim-pvac",
+        "rolle": "leim/unten"
+      },
+      {
         "grund": "Trockenmasse der Beschichtung nicht hinterlegt — nicht addiert",
         "komponente": "adler-aduro-legnopur-g10",
         "rolle": "oberflaeche"
@@ -118,7 +128,7 @@
       }
     ]
   },
-  "formelversion": "werkstoff-ableitung/2",
+  "formelversion": "werkstoff-ableitung/3",
   "komponenten": [
     {
       "art": "traeger",
@@ -385,7 +395,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "1c654baa0e9a2dd7e06d01ace6cda1ab25394c895f65afcf5cd9f7834af9fddb",
+  "resolve_manifest_sha256": "eb9daf28da71a6ad8a3b8aabb7f4b6c551ba1cca839fb4efa2b74492552f27c1",
   "systeme": {
     "oben": {
       "id": "adler-g10-2x-klarlack",

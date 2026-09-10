@@ -94,24 +94,25 @@ const AUFTRAG_PIN = "e55a2f50a0c6421fbbb9c0ab1ebcde915d7dc9fbd42754d5d3131f457dc
  */
 const BYTE_PINS: Record<string, Record<string, string>> = {
   karten: {
-    teil_beispielbo0oben: "6f9de347ef26464bd93a3f61423bfa39d5fe29a0b10012c3fc4d7be95dc4d187",
-    teil_beispielbo0unten: "09f29010a5e03b334e315e9370b2ad69006ea7b9e14875d2b16727527d3b1033",
-    teil_beispielse0links: "284b8c25aeb7b5acf5fbcf4d4bc775f54fb731ba51b1c181f6e76cd72504b643",
-    teil_beispielse0rechts: "adab94054fac79317cb0b61a78c4be45db3a5389eb9aa17262e28ec2f4e920eb",
+    teil_beispielbo0oben: "4d7d793ce7922ce22cfb80ae10d096a1375c535f4a5cffb7004d82037989aba1",
+    teil_beispielbo0unten: "ad16648e4b73276dfcb6c71a311d6d4f8ab5c143771d2c9db98bee32536c2baa",
+    teil_beispielse0links: "0c8774a24e5b8353352abcf51b2fc479b43b5f140feed09558658be5a965a2ec",
+    teil_beispielse0rechts: "80931182ce1b1a55abf05daee5fa3c6d026b0845130f74f722db1a4a13ef84e0",
   },
   manifeste: {
-    teil_beispielbo0oben: "053161405d1691a273f1edc1923830c6c91a4f0377c05d15c2001f7678f0ba19",
-    teil_beispielbo0unten: "a34282f7969de57da3ea81094312f37d8e78dbf760a3d4eddc1f2a5870d9dac3",
-    teil_beispielse0links: "971df70a85757872df4142f382844270c368a2a7f71fe3466034d2120e47f803",
-    teil_beispielse0rechts: "471efa1a1fdeef4049ffc70c580a93746d6e8bac72b7128579a1218abc0ee58a",
+    teil_beispielbo0oben: "bdef93d5d287323668de31fbc5514b0a946769d4d1d2dbcdd5b36f71a2d65063",
+    teil_beispielbo0unten: "e836b928f8a959c51fd1d701bfcbbe6447537d22e050cf9226d96a581793491d",
+    teil_beispielse0links: "af59429e8faa8b0c26b02825b2a0cbf153619331e09d57a57b4f835f87804a37",
+    teil_beispielse0rechts: "91a913bf6d227bc9d2311b48e0d24de0b9754733376d7467a0bd4dd6982bffda",
   },
 };
-const FORMELVERSION = "werkstoff-ableitung/2";
+// cody-cad#164 hob die Version: der Belagleim steht jetzt als FEHLT im Gewicht.
+const FORMELVERSION = "werkstoff-ableitung/3";
 const KARTEN_PINS: Record<string, string> = {
-  teil_beispielbo0oben: "f9c51cea0b096f2c9b35ee99d914eb98a33933df81edc15a212a0a357e8f4111",
-  teil_beispielbo0unten: "7225f59026b7b1871a3864ddd2b358280741d236db1cb05380bcf55df5fa43e6",
-  teil_beispielse0links: "cb640e737ada140a72b624d5a21d1dbaca7bf1d61b7c8c802b2e92838e15ff3a",
-  teil_beispielse0rechts: "0cf68a9fb27ecc1ee02a2d2edd56999587d480602d890c1e5ea4b0300c242f80",
+  teil_beispielbo0oben: "e9b200cda5b91d1b51264968038266fab47d77e637934616cdbd2a58066dc793",
+  teil_beispielbo0unten: "2bcef5e594a3bde3a62bf1b89aa6c8f549c40e455f5c41dfed7b1b58ef51fcc5",
+  teil_beispielse0links: "57a70d194f5a0742f874faf5df535b93eccf2f7f99520f4e41fb3c9fc77eddaf",
+  teil_beispielse0rechts: "126c6f1e863a7a890b94ff9b2c70505dc0fd6f0f632a6dd9c11a2aca728952f9",
 };
 
 describe("das Bundle stammt aus dem Erzeuger, den cody-cad pinnt", () => {

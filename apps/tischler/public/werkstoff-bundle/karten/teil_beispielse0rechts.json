@@ -298,6 +298,20 @@
     "ausgeschlossen": [
       {
         "art": "fehlt",
+        "grund": "Trockenmasse des Belagleims nicht hinterlegt — nicht addiert",
+        "komponente": "ponal-flaechenleim-pvac",
+        "revision": 1,
+        "rolle": "leim/oben"
+      },
+      {
+        "art": "fehlt",
+        "grund": "Trockenmasse des Belagleims nicht hinterlegt — nicht addiert",
+        "komponente": "ponal-flaechenleim-pvac",
+        "revision": 1,
+        "rolle": "leim/unten"
+      },
+      {
+        "art": "fehlt",
         "grund": "Trockenmasse der Beschichtung nicht hinterlegt — nicht addiert",
         "komponente": "adler-aduro-legnopur-g10",
         "revision": 1,
@@ -345,7 +359,7 @@
     "vollstaendig": false,
     "wert": 14.352
   },
-  "karte_sha256": "0cf68a9fb27ecc1ee02a2d2edd56999587d480602d890c1e5ea4b0300c242f80",
+  "karte_sha256": "126c6f1e863a7a890b94ff9b2c70505dc0fd6f0f632a6dd9c11a2aca728952f9",
   "karteversion": 1,
   "komponenten": [
     {
@@ -884,7 +898,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "b3794f67edd5b257d1c0c73d2ed09fc0124459599dbf19e41c6999d3af6b72bc",
+  "resolve_manifest_sha256": "214bec325c3ddca01bfc154a1113456297c5694307c6f7dcbd916aee9d983aa6",
   "schema": "werkstoff/karte.schema.json",
   "unterlagen_ohne_verweis": [
     {
