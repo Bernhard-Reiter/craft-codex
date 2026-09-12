@@ -1,14 +1,14 @@
 "use client";
 
-import { Root, Container, Text } from "@react-three/uikit";
-import { Card, Button } from "@react-three/uikit-apfel";
+import { Container, Text, withOpacity } from "@react-three/uikit";
+import { Panel, Button } from "@react-three/uikit-horizon";
 import { PencilRuler, Hammer, X } from "@react-three/uikit-lucide";
 import type { AnreissFlow } from "../lib/zinken/anreiss-flow";
 
 /**
  * Detail-Tafel als visionOS-Fenster.
  *
- * Apple-/visionOS-Window-Pattern: ein GLAS-Fensterrahmen (apfel Card, grosse
+ * Apple-/visionOS-Window-Pattern: ein GLAS-Fensterrahmen (apfel Panel, grosse
  * Rundung) mit einer vertikalen Tab-Rail LINKS (Anreissen/Hand), rundem
  * Schliessen-Button OBEN-RECHTS und der eigentlichen Schultafel als dunkler,
  * "eingehaengter" Schreibflaeche darin (Ebenen = Tiefe). Die Fensterleiste zum
@@ -49,24 +49,20 @@ export function XRDetailTafel({
 
   return (
     <group position={position}>
-      <Root pixelSize={0.0011} anchorX="center" anchorY="center">
+      <Container pixelSize={0.0011} anchorX="center" anchorY="center">
         {/* GLAS-Fensterrahmen (visionOS) — feste Breite, damit der Text umbricht
             und das Fenster nicht ins Riesenhafte waechst. */}
-        <Card flexDirection="row" width={1020} padding={22} gap={20} borderRadius={40}>
+        <Panel flexDirection="row" width={1020} padding={22} gap={20} borderRadius={40}>
           {/* Tab-Rail LINKS */}
           <Container flexDirection="column" gap={12} alignItems="center">
             <Button
-              variant="icon"
-              size="md"
-              selected={anreissModus}
+              variant={anreissModus ? "primary" : "secondary"} size="sm" icon
               onClick={() => onModus(true)}
             >
               <PencilRuler width={20} height={20} />
             </Button>
             <Button
-              variant="icon"
-              size="md"
-              selected={!anreissModus}
+              variant={!anreissModus ? "primary" : "secondary"} size="sm" icon
               onClick={() => onModus(false)}
             >
               <Hammer width={20} height={20} />
@@ -78,7 +74,7 @@ export function XRDetailTafel({
             {/* Kopfzeile mit rundem Schliessen-Button oben-rechts */}
             <Container flexDirection="row" justifyContent="space-between" alignItems="center">
               <Text fontSize={26} color="#f4f1e8">{asciiFold(title)}</Text>
-              <Button variant="icon" size="sm" onClick={onClose}>
+              <Button variant="secondary" size="sm" icon onClick={onClose}>
                 <X width={18} height={18} />
               </Button>
             </Container>
@@ -94,8 +90,7 @@ export function XRDetailTafel({
                     ))}
                   </Container>
                   <Container
-                    backgroundColor="#000000"
-                    backgroundOpacity={0.22}
+                    backgroundColor={withOpacity("#000000", 0.22)}
                     borderRadius={16}
                     padding={20}
                     marginTop={2}
@@ -127,8 +122,8 @@ export function XRDetailTafel({
               )}
             </Container>
           </Container>
-        </Card>
-      </Root>
+        </Panel>
+      </Container>
     </group>
   );
 }

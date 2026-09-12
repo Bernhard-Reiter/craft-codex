@@ -19,9 +19,8 @@
     "@react-three/drei": "^10.7.0",
     "@react-three/fiber": "^9.6.0",
     "@react-three/handle": "6.6.29",
-    "@react-three/uikit": "^0.8.21",
-    "@react-three/uikit-apfel": "^0.8.21",
-    "@react-three/uikit-lucide": "^0.8.21",
+    "@react-three/uikit": "^1.0.75",
+    "@react-three/uikit-lucide": "^1.0.75",
     "@react-three/xr": "^6.6.0",
     "@supabase/supabase-js": "^2.110.7",
     "hls.js": "^1.5.0",
@@ -32,7 +31,8 @@
     "react-dom": "^19.2.3",
     "three": "^0.170.0",
     "three-bvh-csg": "^0.0.17",
-    "zod": "^3.25.0"
+    "zod": "^3.25.0",
+    "@react-three/uikit-horizon": "^1.0.75"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",

@@ -16,7 +16,7 @@
 
 import { useMemo } from "react";
 import * as THREE from "three";
-import { Root, Text } from "@react-three/uikit";
+import { Container, Text } from "@react-three/uikit";
 import {
   mayRenderDrillPoints,
   resolveDrillY,
@@ -180,11 +180,11 @@ function Masskette({
           : [offset, height / 2 - m.mitteMm];
         return (
           <group key={`${chain.id}-${i}`} position={[tx, ty, 0]}>
-            <Root pixelSize={1} anchorX="center" anchorY="center">
+            <Container pixelSize={1} anchorX="center" anchorY="center">
               <Text fontSize={14} color={FARBE.massText} fontWeight="normal">
                 {m.label}
               </Text>
-            </Root>
+            </Container>
           </group>
         );
       })}
@@ -197,11 +197,11 @@ function Masskette({
             : [offset - 34, height / 2, 0]
         }
       >
-        <Root pixelSize={1} anchorX="center" anchorY="center">
+        <Container pixelSize={1} anchorX="center" anchorY="center">
           <Text fontSize={11} color={FARBE.massLinie} fontWeight="normal">
             {`ab ${chain.from}`}
           </Text>
-        </Root>
+        </Container>
       </group>
     </group>
   );
