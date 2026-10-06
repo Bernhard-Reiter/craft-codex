@@ -1,90 +1,142 @@
 {
   "dateien": [
     {
+      "pfad": "aufbauten/egger-spanplatte-p2-19-roh.json",
+      "sha256": "b46032ff97c6ed46724198e116ec6581a946808e43d4979e6f6ae424cc1bdf04"
+    },
+    {
+      "pfad": "aufbauten/egger-spanplatte-p3-19-roh.json",
+      "sha256": "72608e32952d7f371e7e3b543dcb5c835af8f883fa3b6120e0567dae31901e05"
+    },
+    {
+      "pfad": "aufbauten/eiche-furniert-p2-19-g10-r2.json",
+      "sha256": "d3b46d307399e9bd48dc666f828f68a4e6325f9134424be8e9ba5efdd1afff2c"
+    },
+    {
       "pfad": "aufbauten/eiche-furniert-p2-19-g10.json",
       "sha256": "22b53e108519da3fb2bc64027456d51c17528ed1ac4afee9f1898016687004c4"
     },
     {
       "pfad": "belaege/furnier-eiche-0-9-gemessert.json",
-      "sha256": "a3d0a609cf4f6b6f34e30adeffc6be3e79538388f3fdc20a2f51614672d2080c"
+      "sha256": "72a85f56944cab2cdbeedb185bcc1a6e2e1f4221517aa036c9e228d2a3cf9c57"
+    },
+    {
+      "pfad": "beschichtungen/adler-aduro-antiscratch-g10-r2.json",
+      "sha256": "3093388b80ce87601fbceb35c1400edc019100a6f667ee82f33d2f6ae62fc104"
     },
     {
       "pfad": "beschichtungen/adler-aduro-antiscratch-g10.json",
-      "sha256": "a1d2b2f93e49ef12c3bd2b923ed9e18a1b72d3133dc95f1f169e036abbc4f07e"
+      "sha256": "42a16fc35dee60995dd6aeeb12ccfe53f1e0ec7b2c4b924052e491b3694e1451"
+    },
+    {
+      "pfad": "beschichtungen/adler-aduro-legnopur-g10-r2.json",
+      "sha256": "bea0025718c08999a0727096eb27420d1509c923ae2b07540c52bdb87c0e3564"
     },
     {
       "pfad": "beschichtungen/adler-aduro-legnopur-g10.json",
-      "sha256": "a20a99226ee875b23753ad4cd0c40f5c6aa2bf5a64f3d1f85d32fbcf33c234c3"
+      "sha256": "95af46954b6f51447c381c11b3056629057139a52e61e9515b4d04ab412f6c8e"
+    },
+    {
+      "pfad": "beschichtungen/adler-bluefin-unistar-g10-r2.json",
+      "sha256": "6266009f12756fdb89a649a181310f32293055c6685ace44ada185cb062b7451"
     },
     {
       "pfad": "beschichtungen/adler-bluefin-unistar-g10.json",
-      "sha256": "4e63fe1cffd46efbeaf6b6dedb8a248b8029cb333ff8cfde1c7eedd6ad4dd7c7"
+      "sha256": "80b55e8bb2146c1ec3486dbb0f3395501ee9bb090faf8547353900425188b099"
+    },
+    {
+      "pfad": "familien/egger-spanplatte-roh-p2.json",
+      "sha256": "e45dab3a19e015295575751ea728ebfe0cd32dd4ad435d2d45aefb68614288e9"
+    },
+    {
+      "pfad": "familien/egger-spanplatte-roh-p3.json",
+      "sha256": "747b99f7d3da26fa6bfb12b00088ec48220636dcfd4376cfc26d9c20cdbc5441"
     },
     {
       "pfad": "kanten/hranipex-starkfurnierkante-2-0.json",
-      "sha256": "bb5fccbafb0af5258743b5d5a075904d0e4be08386fb9d5a32f38bfd78f4d5da"
+      "sha256": "5c6f7c17c127feb421089d06c79ffb8bf1058eafa7304e8dd4340e5128cac6a5"
     },
     {
       "pfad": "kanten/massivholz-anleimer-eiche-5x24-eigen.json",
-      "sha256": "40e1b1e931954a2be0988528397803f9510a7fe5ccec1caea51e9c86c3568279"
+      "sha256": "d174caf228c9a4a2abd0ad3c6f32e6148c3974ac049f4a6b18f7f76bf4b66412"
     },
     {
       "pfad": "kanten/ostermann-furnierkante-eiche-1-0.json",
-      "sha256": "5f17e6554a16e19f9a4e00834a695b3282a5e83cf8f4c309ed922f1b941e1fe0"
+      "sha256": "18f0f79f8a138f336971637ccc14d56a7d7e71318bd51c1c36a281bfb5724956"
     },
     {
       "pfad": "kanten/rehau-raukantex-wood-duennfurnier-1-0.json",
-      "sha256": "c97165af67a1697845cdc2713399fe94eee7ed01ac6c3cc61631bba8a5dedb3e"
+      "sha256": "48ffbc0e0c4be584bdefd47deba0d452849409baced9c50090919335e2a589b3"
     },
     {
       "pfad": "klebstoffe/jowacoll-103-10-pvac.json",
-      "sha256": "3db411f1faecb179b68e6e750fabb27ad765fc2559c32dc5e6f242e0f3d82058"
+      "sha256": "5c68a311e55812141de01865a013b0f042b214de9c17313e70c22a78c6269a61"
     },
     {
       "pfad": "klebstoffe/jowatherm-280-30-eva.json",
-      "sha256": "823e9c9fd3d3107af64298ef021b688b3ad675ea1f8dcb4f96b82acea8e35c72"
+      "sha256": "a2ae5041b7610dd84fb816c581ec6be3b5c2cdcfc05f23f5693c47858c7150d5"
     },
     {
       "pfad": "klebstoffe/kleiberit-303-0-pvac.json",
-      "sha256": "fa36c5399d89818343caa7daa82f55199ec55030f7107b958efdd8b6c0aad6dd"
+      "sha256": "ad0dc95cd2b4c1de273e20b8248046738c7ffadb124d7a23d452f246bafff336"
     },
     {
       "pfad": "klebstoffe/kleiberit-774-4-eva.json",
-      "sha256": "7ebe0a11c067ffcaa06c60561e8e571118ce7c5c796783d5ce8ed8dda9b34ec2"
+      "sha256": "aea5dfcaeba4c372b639a875795df110a423c1a20566fc6f8d6a976adc3a41e9"
     },
     {
       "pfad": "klebstoffe/ponal-flaechenleim-pvac.json",
-      "sha256": "7637f6afa0d08ad54c915c88af5922cc2ca206f1788c98f15e1b9ee757c27b43"
+      "sha256": "abd69d3d42587442235a4e118dd796367c80f97a161142f17687bc19fcf38753"
     },
     {
       "pfad": "klebstoffe/ponal-pressal-hydro-uf.json",
-      "sha256": "642c3c05c1cd56bc06c3fdf0b287164e3f50f3de98426866a20fc0c4da98828f"
+      "sha256": "457f3edff9a39a9bd9cee8beed2bdbf9cb62acd2aa8facfb6845b0fdb1ae5f5a"
+    },
+    {
+      "pfad": "systeme/adler-g10-2x-klarlack-r2.json",
+      "sha256": "c017eaef1818e32ce4f76a7f0f1bb74850f7e1475fe9cc71afb027ce7c6c1b30"
     },
     {
       "pfad": "systeme/adler-g10-2x-klarlack.json",
       "sha256": "29f28166549c55ddc699cffc284b03c6b2f2e15a1f5a60d7c414c57f070c1e8d"
     },
     {
+      "pfad": "systeme/beispiel-mdf-farbig-6-schichten-r2.json",
+      "sha256": "19b7db1a8ddc9b53d0b263175a84b0ab231012cde37dbafe1f29e99f1779065c"
+    },
+    {
       "pfad": "systeme/beispiel-mdf-farbig-6-schichten.json",
       "sha256": "ded5a15edb929fa045fa1bd7681a65a67e141d1b749707beef66e3896ff2950e"
     },
     {
+      "pfad": "traeger/egger-spanplatte-p2-19-r2.json",
+      "sha256": "5d8c1a9f5796b3e079e248ea83094ed87cae514f2ea73b60ec184b8343e42bea"
+    },
+    {
+      "pfad": "traeger/egger-spanplatte-p2-19-r3.json",
+      "sha256": "e3f2f48acf4fb4f9fda4a3879c36f7305e348e57eb3234ba7e38a440ff411342"
+    },
+    {
       "pfad": "traeger/egger-spanplatte-p2-19.json",
-      "sha256": "57f96eb0a55a447cbacc9aad592db9f04bb5e8242af917e00a0d75e0b8a727b6"
+      "sha256": "d14a914389df863f926c4027445c220a990666a2a07058b646b7c25192455a7d"
+    },
+    {
+      "pfad": "traeger/egger-spanplatte-p3-19.json",
+      "sha256": "932a6942b49b950784363a67ac19878d08c3a836ac5d4431eda8c7c1c180a857"
     },
     {
       "pfad": "werkstuecke/boden-562x555.json",
-      "sha256": "f7047b295c6c8baa3f520d1c27c1ed555004a7e83a8162cfebef05e66383bc00"
+      "sha256": "fc92d6e68b31d1d73caee7fd5a14f8896a83a51d1aaf9cbbdc0404b1ec76f20c"
     },
     {
       "pfad": "werkstuecke/fachboden-562x555-anleimer-vorne.json",
-      "sha256": "090563dbed9369b284db3cab4593f8a3fbd3816e90dd09f35b975d46473522cd"
+      "sha256": "5fc8d76de4a12b1851e831e39fb336f0fee42a39492272d2cf9443bfb198471b"
     },
     {
       "pfad": "werkstuecke/seite-links-890x555.json",
-      "sha256": "bd3939be76a7fb535098a34cd0bacc83ca5c2ff62095920e824c791fbb23df49"
+      "sha256": "6fe77d5201eb65b7020aea1cc96ff47d792175551d2ba9205ba62481da0b77e0"
     }
   ],
-  "sha256": "a30e91dfd8e106aca95765f8447b1868427b0f289edd0667afa2392e45927fdd",
+  "sha256": "8afbc69b4364cf935c10809c0c93e36342739d9475651d3087f7c9e56d02798b",
   "stand": "2026-09-03"
 }

@@ -1,0 +1,84 @@
+{
+  "art": "traeger",
+  "artikelnr": null,
+  "bezeichnung": "EGGER Spanplatte roh E1E05 TSCA P3 CE, 19 mm",
+  "dicke": {
+    "begruendung": "TD-224 S. 1 nennt nur die Plattendicken 8–40 mm, keine Einzeldicke. 19 mm wie bei P2-19 (übliche Korpusplatte). Zweitquelle Händler Holz Disselnmeyer Art. 0302000015 (abgerufen 01.10.2026) führt 19 mm. Belegt erst mit einer EGGER-Quelle der Einzeldicken.",
+    "einheit": "mm",
+    "freigabe": "annahme",
+    "quelle": {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+      "seite": "S. 1",
+      "stand": "2026-04-08",
+      "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+    },
+    "wert": 19
+  },
+  "eigenschaften": {
+    "format_mm": {
+      "begruendung": "EPD Abschn. 2.4 »Spanplatten Standardformat Abmessungen: 5610 x 2070 & 2800 x 2070 mm« gilt für Eurospan Rohspanplatten allgemein, nicht ausdrücklich für diesen Typ. 2800 x 2070 wie P2-19. Zweitquelle Händler Holz Disselnmeyer Art. 0302000015 (abgerufen 01.10.2026).",
+      "freigabe": "annahme",
+      "quelle": {
+        "abgerufen": "2026-10-01",
+        "dokument": "EGGER Umwelt-Produktdeklaration EPD-EGG-20200249-IBC3-DE (Eurospan Rohspanplatten)",
+        "seite": "S. 3, Abschn. 2.4 Lieferzustand",
+        "stand": "2021-05-10",
+        "url": "https://binary.egger.link/pis/2b35f17d-71e9-43e3-b82a-b960066943bb/Umwelt-Produktdeklaration_Eurospan_Rohspanplatten"
+      },
+      "wert": "2800 x 2070"
+    }
+  },
+  "familie": {
+    "id": "egger-spanplatte-roh-p3",
+    "revision": 1
+  },
+  "format_breite_mm": 2070,
+  "format_laenge_mm": 2800,
+  "format_mm": "2800 x 2070",
+  "hersteller": "EGGER",
+  "id": "egger-spanplatte-p3-19",
+  "norm": "EN 312 P3",
+  "quelle": {
+    "abgerufen": "2026-10-01",
+    "dokument": "EGGER Technisches Datenblatt TD-224 (E1E05 TSCA P3 CE), Rev. 08.04.2026",
+    "seite": "S. 1",
+    "stand": "2026-04-08",
+    "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+  },
+  "revision": 1,
+  "schema": "werkstoff/traeger.schema.json",
+  "toleranz_dicke": {
+    "minus": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.3
+    },
+    "plus": {
+      "einheit": "mm",
+      "freigabe": "belegt",
+      "wert": 0.3
+    }
+  },
+  "typ": "spanplatte",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER TD-224 Technisches Datenblatt Spanplatten roh E1E05 TSCA P3 CE EAC",
+      "seiten": "S. 1–2",
+      "sha256": "f56343ec7997d18da40d5937a29702e8e0818d4a6608c3aa40a933dd19fc9b3d",
+      "stand": "2026-04-08",
+      "typ": "datenblatt",
+      "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+    },
+    {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER Umwelt-Produktdeklaration EPD-EGG-20200249-IBC3-DE (Eurospan Rohspanplatten)",
+      "seiten": "S. 3",
+      "sha256": "2abb43b23719581f198d0f697b96814e54a235dde158d6cae7773810f05f68a7",
+      "stand": "2021-05-10",
+      "typ": "sonstiges",
+      "url": "https://binary.egger.link/pis/2b35f17d-71e9-43e3-b82a-b960066943bb/Umwelt-Produktdeklaration_Eurospan_Rohspanplatten"
+    }
+  ]
+}

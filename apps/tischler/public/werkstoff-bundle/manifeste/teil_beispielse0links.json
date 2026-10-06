@@ -32,7 +32,7 @@
         "rolle": "oberflaeche"
       },
       {
-        "grund": "Kante ist je lfm — braucht das Werkstück (siehe verbrauch)",
+        "grund": "Kante ist je lfm — braucht das Bauteil (siehe verbrauch)",
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "rolle": "kante/vorne"
       }
@@ -395,7 +395,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "bd75346c7781b61b4189728150118b394101970d5b9b6e20928063392fdbe04c",
+  "resolve_manifest_sha256": "237b6a9026e5ce1fcc5a47ceedfbdb97c9727d936a39a7064fce18962905336b",
   "systeme": {
     "oben": {
       "id": "adler-g10-2x-klarlack",
