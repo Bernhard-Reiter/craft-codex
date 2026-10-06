@@ -91,28 +91,32 @@ const AUFTRAG_PIN = "e55a2f50a0c6421fbbb9c0ab1ebcde915d7dc9fbd42754d5d3131f457dc
  * Also der Umweg über die Bytes: er beantwortet nicht »hat cody-cad das so gerechnet«
  * (das tut der `karte_sha256`-Vergleich), sondern »ist es noch das, was ausgeliefert wurde«.
  * Beim nächsten Regen werden diese Zahlen vom Erzeugnis abgelesen, nicht nachgezogen.
+ *
+ * Neu gesetzt am 06.10.2026 für alle acht Byte-Pins: Datenstand main 10c3f98c, #549/#414. Das Bundle ist ganz neu
+ * aus dem Erzeuger (Wortlaut »Bauteil« aus cody-cad#548, Werkstoff-Datenstand seit cody-cad#414).
  */
 const BYTE_PINS: Record<string, Record<string, string>> = {
   karten: {
-    teil_beispielbo0oben: "4d7d793ce7922ce22cfb80ae10d096a1375c535f4a5cffb7004d82037989aba1",
-    teil_beispielbo0unten: "ad16648e4b73276dfcb6c71a311d6d4f8ab5c143771d2c9db98bee32536c2baa",
-    teil_beispielse0links: "0c8774a24e5b8353352abcf51b2fc479b43b5f140feed09558658be5a965a2ec",
-    teil_beispielse0rechts: "80931182ce1b1a55abf05daee5fa3c6d026b0845130f74f722db1a4a13ef84e0",
+    teil_beispielbo0oben: "a5cebe0521fc99a488cdba78adfcbb1af013f5a7547e3e3fc1287fff3196a8c5",
+    teil_beispielbo0unten: "20f57ff813fdfc281faebe65cc62a20daf2ac48407425f45f3c7dd9a823cec3e",
+    teil_beispielse0links: "89656c9ce0809f7965344f5c33382017fd764addd1f13bc1081704abd9538e42",
+    teil_beispielse0rechts: "483c9151cfce3cebf20fe287284826625217a0cb7096171fd69d3b9c7f1530db",
   },
   manifeste: {
-    teil_beispielbo0oben: "bdef93d5d287323668de31fbc5514b0a946769d4d1d2dbcdd5b36f71a2d65063",
-    teil_beispielbo0unten: "e836b928f8a959c51fd1d701bfcbbe6447537d22e050cf9226d96a581793491d",
-    teil_beispielse0links: "af59429e8faa8b0c26b02825b2a0cbf153619331e09d57a57b4f835f87804a37",
-    teil_beispielse0rechts: "91a913bf6d227bc9d2311b48e0d24de0b9754733376d7467a0bd4dd6982bffda",
+    teil_beispielbo0oben: "06595fde652eff25649012ee9d0269dc1b7c0bfb1ef73d190de79023bec12f6b",
+    teil_beispielbo0unten: "e3daf6b62ba7a338cfc5c05fdf669e4bed104208b6844a3739e2b0ae0a2b5261",
+    teil_beispielse0links: "f9f75b9e085c0d129995ae875a9efcc41b68ded3b55cfaf4e0d398e88255ce0c",
+    teil_beispielse0rechts: "3246cac8af5e3dae35bcf457e2f58adfa558df4f8d2343ad5757db4bc7c83bae",
   },
 };
 // cody-cad#164 hob die Version: der Belagleim steht jetzt als FEHLT im Gewicht.
 const FORMELVERSION = "werkstoff-ableitung/3";
+// Neu gesetzt am 06.10.2026 für alle vier karte_sha256: Datenstand main 10c3f98c, #549/#414.
 const KARTEN_PINS: Record<string, string> = {
-  teil_beispielbo0oben: "e9b200cda5b91d1b51264968038266fab47d77e637934616cdbd2a58066dc793",
-  teil_beispielbo0unten: "2bcef5e594a3bde3a62bf1b89aa6c8f549c40e455f5c41dfed7b1b58ef51fcc5",
-  teil_beispielse0links: "57a70d194f5a0742f874faf5df535b93eccf2f7f99520f4e41fb3c9fc77eddaf",
-  teil_beispielse0rechts: "126c6f1e863a7a890b94ff9b2c70505dc0fd6f0f632a6dd9c11a2aca728952f9",
+  teil_beispielbo0oben: "d37d38cd997f6a4481c417874a76151b52f69f6442c87c96d343f00b54fca86b",
+  teil_beispielbo0unten: "84f5014305effab1eeefdc079bae177d02c5e1832c96f4373f954c6ca2e76bd9",
+  teil_beispielse0links: "d14de5133aad7ccc60e0a6c2c96eb94b59fbfafca5541a4e141aff09cbf41328",
+  teil_beispielse0rechts: "6949f817e206c2a116585097ddd417213f34f0ed18c9f93aeeaace396f968717",
 };
 
 describe("das Bundle stammt aus dem Erzeuger, den cody-cad pinnt", () => {
