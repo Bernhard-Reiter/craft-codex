@@ -42,9 +42,16 @@
       "wert": 13.11
     },
     "formaldehydklasse": {
-      "bemerkung": "TD-181 S. 2, Fußnote **",
+      "bemerkung": "Zeile »Formaldehydemissionsklassen(n)«. Das TD-181 nennt kein CARB2. Die ältere Leistungserklärung DOP-181 (Freigabe 29.07.2025) nennt zusätzlich CARB2, das neuere Blatt nicht mehr. Deshalb nur als Hinweis, nicht als Wert (#463).",
       "freigabe": "belegt",
-      "wert": "E1E05 / TSCA / CARB2"
+      "quelle": {
+        "abgerufen": "2026-10-01",
+        "dokument": "EGGER Technisches Datenblatt TD-181 (E1E05 TSCA P2 CE), Rev. 08.04.2026",
+        "seite": "S. 1",
+        "stand": "2026-04-08",
+        "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
+      },
+      "wert": "E1 (E1E05), TSCA"
     },
     "plattenfeuchte_max_prozent": {
       "einheit": "%",
@@ -70,6 +77,11 @@
       "wert": 5
     }
   },
+  "ersetzt": {
+    "datum": "2026-10-01",
+    "grund": "CARB2 ohne Beleg im geltenden TD-181 (#463, PR #464)",
+    "revision": 1
+  },
   "format_breite_mm": 2070,
   "format_laenge_mm": 2800,
   "format_mm": "2800 x 2070",
@@ -83,9 +95,9 @@
     "stand": "2026-04-08",
     "url": "https://binary.egger.link/pis/978585f4-777c-45bf-96bb-3cfa40df2bae/Technical_datasheet_E1E05_TSCA_P2_CE_TD-181_Deutsch"
   },
-  "revision": 1,
+  "revision": 2,
   "rohdichte": {
-    "begruendung": "TD-181 sagt 'werkspezifisch' (±10 %); 690 aus Frischeis-Plattengewicht 75,982 kg / (2,8 × 2,07 m² × 0,019 m) berechnet",
+    "begruendung": "TD-181 sagt 'werkspezifisch' (±10 %); 690 aus Frischeis-Plattengewicht 75,982 kg / (2,8 × 2,07 m² × 0,019 m) berechnet. Hinweis: EPD-EGG-20200249-IBC3-DE nennt 655 kg/m³ als Mittel über alle Rohspan-Typen, Werk Brilon. Das ist kein Wert für diese Platte (#463).",
     "einheit": "kg/m3",
     "freigabe": "annahme",
     "wert": 690

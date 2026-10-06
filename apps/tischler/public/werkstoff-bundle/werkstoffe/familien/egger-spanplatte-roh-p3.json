@@ -1,0 +1,1083 @@
+{
+  "art": "familie",
+  "bauphysik": {
+    "bezugsdichte_kg_m3": 600,
+    "werte": {
+      "waermeleitfaehigkeit_w_mk": {
+        "bemerkung": "TD-Zeile »Wärmeleitfähigkeit EN 12664«, »Basierend auf einer mittleren Rohdichte von 600 kg/m3« — kein Wert dieser Platte",
+        "einheit": "W/mK",
+        "freigabe": "belegt",
+        "pruefnorm": "EN 12664",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 2",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      "wasserdampf_mu_feucht": {
+        "bemerkung": "TD-Zeile »Wasserdampfdurchlässigkeit EN 12524«, feucht [µ], »Basierend auf einer mittleren Rohdichte von 600 kg/m3« — kein Wert dieser Platte",
+        "einheit": "1",
+        "freigabe": "belegt",
+        "pruefnorm": "EN 12524",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 2",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 15,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      "wasserdampf_mu_trocken": {
+        "bemerkung": "TD-Zeile »Wasserdampfdurchlässigkeit EN 12524«, trocken [µ], »Basierend auf einer mittleren Rohdichte von 600 kg/m3« — kein Wert dieser Platte",
+        "einheit": "1",
+        "freigabe": "belegt",
+        "pruefnorm": "EN 12524",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 2",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 50,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    }
+  },
+  "bezeichnung": "EGGER Spanplatten roh E1E05 TSCA P3 CE EAC (Rez. 224)",
+  "brandverhalten": {
+    "quelle": {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+      "seite": "S. 2",
+      "stand": "2026-04-08",
+      "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+    },
+    "quelle_typ": "td",
+    "verweis": "gemäß Tabelle 8 EN 13986"
+  },
+  "dekor_verfuegbarkeit": [],
+  "dickenreihe": [],
+  "emission": [
+    {
+      "klasse": "E1 (E1E05), TSCA",
+      "quelle": {
+        "abgerufen": "2026-10-01",
+        "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+        "seite": "S. 1",
+        "stand": "2026-04-08",
+        "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+      },
+      "quelle_typ": "td"
+    }
+  ],
+  "formate": [],
+  "hersteller": "EGGER",
+  "hinweise": [
+    {
+      "quelle": {
+        "abgerufen": "2026-10-01",
+        "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+        "seite": "S. 2",
+        "stand": "2025-07-29",
+        "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+      },
+      "quelle_typ": "dop",
+      "text": "DOP-224 S. 2 (Freigabe 29.07.2025), Zeile »Formaldehydabgabe EN 13986«: »E1 (E1E05), TSCA, CARB2«. Das neuere TD-224 (Freigabe 08.04.2026) nennt CARB2 nicht. Deshalb nur Hinweis, keine Klasse."
+    },
+    {
+      "quelle": {
+        "abgerufen": "2026-10-01",
+        "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+        "seite": "S. 2",
+        "stand": "2025-07-29",
+        "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+      },
+      "quelle_typ": "dop",
+      "text": "DOP-224 S. 2, Fußnote *1 am Tabellenkopf »Plattenmittelwerte«, gilt für jede Zweitquelle DOP-224 dieser Familie: »Merkmale der Leistungserklärung sind für folgende Produktionsstandorte der EGGER Gruppe gültig: St. Johann in Tirol(AT), Unterradlberg(AT), Hexham(UK), Rion des Landes(FR), Barony(UK), Rambervillers(FR), Caorso (IT)«. Die erklärten Leistungen gelten nur für Platten aus diesen Werken."
+    }
+  ],
+  "id": "egger-spanplatte-roh-p3",
+  "kennwerte": {
+    "abhebefestigkeit_n_mm2": [
+      {
+        "bemerkung": "TD: »0.95« für alle Plattendicken",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 311",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.95,
+        "wertart": "hersteller_deklariert"
+      }
+    ],
+    "biege_e_modul_n_mm2": [
+      {
+        "bemerkung": "TD-Zeile »Biege- und Elastizitätsmodul EN 310«; die DoP nennt diesen Wert nicht",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 2050,
+        "wertart": "hersteller_deklariert"
+      },
+      {
+        "bemerkung": "TD-Zeile »Biege- und Elastizitätsmodul EN 310«; die DoP nennt diesen Wert nicht",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 1950,
+        "wertart": "hersteller_deklariert"
+      },
+      {
+        "bemerkung": "TD-Zeile »Biege- und Elastizitätsmodul EN 310«; die DoP nennt diesen Wert nicht",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 1850,
+        "wertart": "hersteller_deklariert"
+      },
+      {
+        "bemerkung": "TD-Zeile »Biege- und Elastizitätsmodul EN 310«; die DoP nennt diesen Wert nicht",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 1700,
+        "wertart": "hersteller_deklariert"
+      },
+      {
+        "bemerkung": "TD-Zeile »Biege- und Elastizitätsmodul EN 310«; die DoP nennt diesen Wert nicht",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 1550,
+        "wertart": "hersteller_deklariert"
+      }
+    ],
+    "biegefestigkeit_n_mm2": [
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 15,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 14,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 11,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 310",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 9,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    ],
+    "dickenquellung_24h_prozent": [
+      {
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 317",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 17,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 317",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 14,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 317",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 13,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 317",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 13,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 317",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    ],
+    "dickenquellung_zyklus_prozent": [
+      {
+        "bemerkung": "TD-Zeile »Dickenquellung nach Zyklustest EN 321«",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 14,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Dickenquellung nach Zyklustest EN 321«",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 13,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Dickenquellung nach Zyklustest EN 321«",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Dickenquellung nach Zyklustest EN 321«",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Dickenquellung nach Zyklustest EN 321«",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 11,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    ],
+    "plattenfeuchte_max_prozent": [
+      {
+        "bemerkung": "TD-Zeile »Plattenfeuchte* EN 322«: »4 - 13«, Fußnote »*Bei Auslieferung« (S. 2)",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 322",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 13,
+        "wertart": "hersteller_deklariert"
+      }
+    ],
+    "plattenfeuchte_min_prozent": [
+      {
+        "bemerkung": "TD-Zeile »Plattenfeuchte* EN 322«: »4 - 13«, Fußnote »*Bei Auslieferung« (S. 2)",
+        "einheit": "%",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 322",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 4,
+        "wertart": "hersteller_deklariert"
+      }
+    ],
+    "querzugfestigkeit_n_mm2": [
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 319",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.45,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 319",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.45,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 319",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.4,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 319",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.35,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 319",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.3,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    ],
+    "querzugfestigkeit_zyklus_n_mm2": [
+      {
+        "bemerkung": "TD-Zeile »Querzugfestigkeit nach Zyklustest EN 321«",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 13000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.15,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Querzugfestigkeit nach Zyklustest EN 321«",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 20000,
+        "min_inklusive": false,
+        "min_um": 13000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.13,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Querzugfestigkeit nach Zyklustest EN 321«",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 25000,
+        "min_inklusive": false,
+        "min_um": 20000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.12,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Querzugfestigkeit nach Zyklustest EN 321«",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 32000,
+        "min_inklusive": false,
+        "min_um": 25000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.1,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      },
+      {
+        "bemerkung": "TD-Zeile »Querzugfestigkeit nach Zyklustest EN 321«",
+        "einheit": "N/mm2",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": false,
+        "min_um": 32000,
+        "pruefnorm": "EN 321",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 0.09,
+        "wertart": "hersteller_deklariert",
+        "zweitquelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+          "seite": "S. 2",
+          "stand": "2025-07-29",
+          "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+        },
+        "zweitquelle_typ": "dop"
+      }
+    ],
+    "toleranz_laenge_breite_mm": [
+      {
+        "bemerkung": "TD-Tabelle »Allgemeine Toleranzen«, Zeile »Längen- und Breitentoleranz EN 324-1«: »±5«",
+        "einheit": "mm",
+        "freigabe": "belegt",
+        "max_inklusive": true,
+        "max_um": 40000,
+        "min_inklusive": true,
+        "min_um": 8000,
+        "pruefnorm": "EN 324-1",
+        "quelle": {
+          "abgerufen": "2026-10-01",
+          "dokument": "EGGER Technisches Datenblatt TD-224 (Spanplatten roh E1E05 TSCA P3 CE EAC, Rez. 224)",
+          "seite": "S. 1",
+          "stand": "2026-04-08",
+          "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+        },
+        "quelle_typ": "td",
+        "wert": 5,
+        "wertart": "hersteller_deklariert"
+      }
+    ]
+  },
+  "kennwerte_vermerk": "Kopf TD: ›Plattentyp P3 nach EN 312‹ / ›Plattenmittelwerte‹. Ob Mindestanforderung der Norm oder Herstellermittel, sagt das Blatt nicht.",
+  "luecken": [
+    {
+      "feld": "rohdichte",
+      "grund": "TD-224 S. 1: »werkspezifisch«, Grenzabweichung ± 10 % (EN 323) — keine Zahl im Blatt"
+    },
+    {
+      "feld": "brandverhalten_klasse",
+      "grund": "TD-224 S. 2 und DOP-224 S. 2 verweisen nur auf »gemäß Tabelle 8 EN 13986«, keine Klasse"
+    },
+    {
+      "feld": "schraubenausziehwiderstand_n",
+      "grund": "TD-224 und DOP-224 nennen keinen Wert"
+    },
+    {
+      "feld": "dickenreihe",
+      "grund": "Lieferverzeichnis 26+, offen bis EGGER-Partnerschaft"
+    },
+    {
+      "feld": "formate",
+      "grund": "Lieferverzeichnis 26+, offen bis EGGER-Partnerschaft"
+    },
+    {
+      "feld": "dekor_verfuegbarkeit",
+      "grund": "Lieferverzeichnis 26+, offen bis EGGER-Partnerschaft"
+    }
+  ],
+  "norm": "EN 312 P3",
+  "revision": 1,
+  "schema": "werkstoff/familie.schema.json",
+  "typ": "spanplatte",
+  "unterlagen": [
+    {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER TD-224 Technisches Datenblatt Spanplatten roh E1E05 TSCA P3 CE EAC",
+      "seiten": "S. 1–2",
+      "sha256": "f56343ec7997d18da40d5937a29702e8e0818d4a6608c3aa40a933dd19fc9b3d",
+      "stand": "2026-04-08",
+      "typ": "datenblatt",
+      "url": "https://binary.egger.link/pis/122920fe-c3d4-4f68-abc2-c861589f9a2a/Technical_datasheet_E1E05_TSCA_P3_CE_TD-224_Deutsch"
+    },
+    {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER DOP-224 Leistungserklärung 224DE",
+      "seiten": "S. 1–2",
+      "sha256": "63290f6f12591b8110cebdf4e8760c2f379e7c004d9c466a055b5b9f3d8ef493",
+      "stand": "2025-07-29",
+      "typ": "sonstiges",
+      "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+    }
+  ],
+  "verwendungszweck": {
+    "quelle": {
+      "abgerufen": "2026-10-01",
+      "dokument": "EGGER Leistungserklärung DOP-224 (224DE)",
+      "seite": "S. 1",
+      "stand": "2025-07-29",
+      "url": "https://binary.egger.link/pis/ac9d5223-fab7-46bb-9b29-d22b9af83b4a/Declaration_of_performance_E1E05_TSCA_P3_CE_DOP-224_German"
+    },
+    "quelle_typ": "dop",
+    "zitat": "Platten für Innenverwendung als nichttragende Bauteile im Feuchtbereich"
+  }
+}

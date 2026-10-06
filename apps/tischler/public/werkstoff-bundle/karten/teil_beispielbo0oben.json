@@ -319,7 +319,7 @@
       },
       {
         "art": "anderswo",
-        "grund": "Kante ist je lfm — braucht das Werkstück (siehe verbrauch)",
+        "grund": "Kante ist je lfm — braucht das Bauteil (siehe verbrauch)",
         "komponente": "ostermann-furnierkante-eiche-1-0",
         "revision": 1,
         "rolle": "kante/vorne"
@@ -359,7 +359,7 @@
     "vollstaendig": false,
     "wert": 14.352
   },
-  "karte_sha256": "e9b200cda5b91d1b51264968038266fab47d77e637934616cdbd2a58066dc793",
+  "karte_sha256": "d37d38cd997f6a4481c417874a76151b52f69f6442c87c96d343f00b54fca86b",
   "karteversion": 1,
   "komponenten": [
     {
@@ -898,7 +898,7 @@
       ]
     }
   ],
-  "resolve_manifest_sha256": "eb9daf28da71a6ad8a3b8aabb7f4b6c551ba1cca839fb4efa2b74492552f27c1",
+  "resolve_manifest_sha256": "5fe25d4161084ad3300583a0be904f48d2875627d6034a090e7024f6d27f535a",
   "schema": "werkstoff/karte.schema.json",
   "unterlagen_ohne_verweis": [
     {

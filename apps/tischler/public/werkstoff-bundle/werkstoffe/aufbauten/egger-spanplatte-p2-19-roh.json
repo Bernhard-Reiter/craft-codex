@@ -1,0 +1,10 @@
+{
+  "bezeichnung": "EGGER Spanplatte P2 19 roh",
+  "id": "egger-spanplatte-p2-19-roh",
+  "revision": 1,
+  "schema": "werkstoff/aufbau.schema.json",
+  "traeger": {
+    "id": "egger-spanplatte-p2-19",
+    "revision": 3
+  }
+}
