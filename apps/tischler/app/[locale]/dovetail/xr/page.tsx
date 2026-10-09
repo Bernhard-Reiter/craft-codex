@@ -365,7 +365,7 @@ export default function DovetailXRPage() {
                 onClick={enterAR}
                 className="cc-btn cc-btn--primary"
               >
-                Enter AR
+                {t("enterAr")}
               </button>
               <button
                 type="button"
@@ -373,7 +373,7 @@ export default function DovetailXRPage() {
                 onClick={enterVR}
                 className="cc-btn cc-btn--primary"
               >
-                Enter VR
+                {t("enterVr")}
               </button>
             </div>
 

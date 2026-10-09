@@ -37,10 +37,10 @@
     "width": "Brettbreite"
   },
   "surface": {
-    "aria": "Master-Surface Modes",
-    "empty": "Keine Modes registriert.",
-    "noneActive": "Kein Mode aktiv",
-    "pickHint": "Wähle einen Mode oben (Tafel / CAD / Video) um zu starten.",
+    "aria": "Ansichten der Arbeitsfläche",
+    "empty": "Keine Ansichten vorhanden.",
+    "noneActive": "Keine Ansicht gewählt",
+    "pickHint": "Wähle oben eine Ansicht (Tafel oder CAD), um zu starten.",
     "loading": "{label} wird geladen …"
   },
   "cad": {

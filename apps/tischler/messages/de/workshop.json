@@ -4,14 +4,14 @@
     "title": "Schwalbenschwanz",
     "sub": "Der Meister führt — frag jederzeit dazwischen.",
     "kioskBadge": "Kiosk · Auto",
-    "beatsLabel": "Lektions-Beats"
+    "beatsLabel": "Lektionsschritte"
   },
   "beat": {
     "master": "Der Meister: „{text}“",
     "speaking": "🔊 Spricht …",
     "readAloud": "🔊 Vorlesen",
     "back": "◀ Zurück",
-    "counter": "Beat {current}/{total}",
+    "counter": "Schritt {current}/{total}",
     "next": "Weiter ▶",
     "startXr": "In XR starten ▶"
   },
@@ -74,7 +74,7 @@
     "questionLabel": "Frage:",
     "sourceBadge": "📚 Quelle",
     "audioPlayed": "🔊 Audio abgespielt",
-    "audioNone": "🔇 kein Audio (Cache/Server leer — Text-Antwort)",
+    "audioNone": "🔇 kein Ton — Antwort als Text",
     "offlineFallback": "Offline-Fallback: lokales Wissen",
     "dialogCount": "💬 Gespräch: {count, plural, one {# Frage} other {# Fragen}}",
     "newDialog": "neues Gespräch",

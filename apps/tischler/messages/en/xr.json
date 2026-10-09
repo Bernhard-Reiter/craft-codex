@@ -113,5 +113,7 @@
       "schraege": "The tail flank gets a slope of 1 : {ratio} (about {deg} degrees). Set each flank with the sliding bevel. Steeper, and the tips break out (that's short end grain there); shallower, and it holds worse under pull. 1 : {ratio} is the proven middle ground between grip and durability.",
       "fertig": "The layout is done: {AZS} tails in {AZT} parts, each {T} mm, with a slope of 1 : {ratio}. Now comes the sawing — always on the waste side of the line, so the layout line stays as a fine mark. Later it's your reference when fitting."
     }
-  }
+  },
+  "enterAr": "Enter AR",
+  "enterVr": "Enter VR"
 }

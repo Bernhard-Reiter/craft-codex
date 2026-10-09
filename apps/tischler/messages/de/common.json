@@ -26,7 +26,7 @@
   },
   "systemStatus": {
     "kicker": "Systemcheck — live",
-    "offlineChain": "Offline-Kette: Cache → Server → Text. Die Demo bricht nie.",
+    "offlineChain": "Ohne Netz antwortet der Meister als Text aus dem lokalen Fachwissen.",
     "corpus": {
       "label": "Wissenskorpus",
       "detail": "{count} Fachdokumente · lokal im Browser, läuft immer"
@@ -34,16 +34,16 @@
     "brain": {
       "label": "Antwort-Hirn",
       "probing": "prüfe Server …",
-      "template": "Server erreichbar · Template-Antworten aus dem Korpus",
+      "template": "Server erreichbar · Antworten aus dem Fachwissen",
       "live": "Server erreichbar · {provider} antwortet live",
-      "offline": "offline · lokales Template aus dem Korpus übernimmt"
+      "offline": "offline · Antworten aus dem lokalen Fachwissen"
     },
     "voice": {
       "label": "Stimme",
-      "probing": "prüfe Cache …",
+      "probing": "prüfe Stimme …",
       "cached": "{count} Antworten offline vorvertont",
-      "cachedLive": "{count} Antworten offline vorvertont · Server-TTS zusätzlich live",
-      "serverOnly": "Server-TTS live",
+      "cachedLive": "{count} Antworten vorab vertont · Server-Stimme zusätzlich live",
+      "serverOnly": "Server-Stimme live",
       "none": "kein Audio · Antworten kommen als Text"
     },
     "xr": {

@@ -1,7 +1,7 @@
 {
   "kicker": "Werkstück 03",
   "h1": "Schwalbenschwanz als <mark>Hologramm</mark>",
-  "intro": "Dieselbe 3D-Szene wie in der Werkstatt, jetzt als echte WebXR-Session. „Enter AR“ auf einer Quest 3 oder Galaxy XR (oder Chrome mit WebXR-Emulator) — das Brett erscheint auf Tischhöhe in deinem Raum.",
+  "intro": "Dieselbe 3D-Szene wie in der Werkstatt, jetzt im Raum. „AR starten“ auf einer Quest 3 oder Galaxy XR — das Brett erscheint auf Tischhöhe vor dir.",
   "checking": "Prüfe XR-Support …",
   "capability": {
     "ready": "bereit",
@@ -10,7 +10,7 @@
   "reasonLabel": "Grund:",
   "fallback": {
     "title": "Kein XR-Gerät verfügbar.",
-    "body": "Du kannst die Demo trotzdem in 3D nutzen — in der <link>Werkstatt</link>. Für XR brauchst du Galaxy XR, Quest 3 oder Chrome mit WebXR-Emulator (chrome://flags/#webxr-incubations).",
+    "body": "Du kannst die Demo trotzdem in 3D nutzen — in der <link>Werkstatt</link>. Für XR brauchst du eine Quest 3 oder Galaxy XR.",
     "detail": "Detail: {reason}"
   },
   "modes": {
@@ -20,7 +20,7 @@
   "center": "🎯 Brett zentrieren",
   "centerTitle": "Brett und Ansicht zurück ins Zentrum",
   "stepSummary": "Schritt {current}/{total} — {label} · {count} Schwalben",
-  "preview": "Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett {width}×{length}mm, {pins} Pins, 1:{ratio}. Änderbar in der <link>Werkstatt</link> (State geteilt via localStorage).",
+  "preview": "Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett {width}×{length}mm, {pins} Pins, 1:{ratio}. Änderbar in der <link>Werkstatt</link>.",
   "phases": {
     "messen": "Messen",
     "schwalbenzahl": "Schwalbenzahl",
@@ -113,5 +113,7 @@
       "schraege": "Die Schwalbenflanke bekommt die Schraege 1 : {ratio} (rund {deg} Grad). Mit der Schmiege jede Flanke anlegen. Steiler bricht an den Spitzen aus (dort steht kurzes Hirnholz), flacher hält schlechter auf Zug. 1 : {ratio} ist der bewaehrte Mittelweg zwischen Halt und Haltbarkeit.",
       "fertig": "Der Anriss steht: {AZS} Schwalben in {AZT} Teilen, jedes {T} mm, mit der Schraege 1 : {ratio}. Jetzt wird gesägt — immer auf der Abfallseite der Linie, damit die Anrisslinie als feiner Strich stehenbleibt. Sie ist später deine Prüfmarke beim Passen."
     }
-  }
+  },
+  "enterAr": "AR starten",
+  "enterVr": "VR starten"
 }
