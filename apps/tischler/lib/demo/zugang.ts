@@ -73,7 +73,6 @@ export function cookieAusHeader(header: string | null, name: string): string | u
 export function sicheresZiel(raw: string | null | undefined): string {
   const fallback = "/de/voice";
   // Steuerzeichen + Backslash weg: Browser streichen TAB/LF/CR beim Parsen ("/\t/x" → "//x").
-  // eslint-disable-next-line no-control-regex
   if (!raw || !raw.startsWith("/") || raw.startsWith("//") || /[\u0000-\u001f\u007f\\]/.test(raw)) {
     return fallback;
   }
