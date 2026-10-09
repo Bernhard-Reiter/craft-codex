@@ -49,6 +49,35 @@ function kuerzen(text: string, max: number): string {
   return (satzEnde > max * 0.6 ? cut.slice(0, satzEnde + 1) : cut) + " …";
 }
 
+/**
+ * Umgangssprache → Fachbegriffe der Ausbildungsordnung/des Lehrplans.
+ * Die Korpus-Suche ist lexikalisch; Lehrlinge fragen "Wie lange dauert die
+ * Lehre zum Tischler?", im RIS steht "Lehrberuf Tischlerei … Lehrzeit".
+ * Nur ANHAENGEN (die Originalfrage bleibt vorn), feste Liste, kein Modell.
+ */
+const FACHBEGRIFFE: ReadonlyArray<readonly [RegExp, string]> = [
+  [/schreiner/, "Tischlerei"],
+  [/\btischler(in|innen)?\b/, "Tischlerei"],
+  [/(wie lange|dauer|dauert|jahre)/, "Lehrzeit Lehrberuf eingerichtet"],
+  [/\blehre\b/, "Lehrberuf Lehrzeit"],
+  [/(prüfung|pruefung|\blap\b|abschluss)/, "Lehrabschlussprüfung"],
+  [/theor/, "Theoretische Prüfung Gegenstände"],
+  [/(praxis|praktisch)/, "Praktische Prüfung Prüfarbeit"],
+  [/(wiederhol|durchgefallen|nicht bestanden)/, "Wiederholungsprüfung"],
+  [/projekt/, "Abschlussprojekt"],
+  [/berufsschul/, "Lehrplan Berufsschule Pflichtgegenstände"],
+  [/(kreiss(ä|ae)ge|maschine|sicherheit|unfall|verletz|gefahr)/, "Sicherheit Unfallverhütung Maschinen Notfall"],
+  [/(lehrjahr|lerne ich|lernt man|lernen)/, "Berufsbild Lehrjahr Fachkraft kann"],
+  [/drechsl/, "Drechslerei Schwerpunkt"],
+  [/(was macht|berufsprofil|aufgaben)/, "Berufsprofil Fachkraft"],
+];
+
+export function erweitereFrage(frage: string): string {
+  const klein = frage.toLowerCase();
+  const zusatz = FACHBEGRIFFE.filter(([re]) => re.test(klein)).map(([, w]) => w);
+  return zusatz.length > 0 ? `${frage} ${zusatz.join(" ")}` : frage;
+}
+
 export function zuWissensAntwort(docs: ReadonlyArray<RAGDocument>): WissensAntwort {
   const treffer = docs.slice(0, MAX_TREFFER).map((d) => ({
     id: d.id,

@@ -7,7 +7,9 @@ import {
   realtimeInstructions,
   transcribeModelAusEnv,
 } from "./realtime-config";
-import { erlaubteUrl, zuWissensAntwort, MAX_TREFFER } from "./wissen-suche";
+import { erlaubteUrl, erweitereFrage, zuWissensAntwort, MAX_TREFFER } from "./wissen-suche";
+import { LocalRAGProvider } from "../rag/local-rag";
+import { getDemoCorpus } from "../rag/corpus";
 import { frageAusArgumenten, functionCallsAus } from "./realtime-client";
 import { getRisCorpus } from "../rag/corpus/ris-corpus";
 
@@ -92,5 +94,25 @@ describe("RIS-Korpus (frisch geerntet)", () => {
       expect(d.text, d.id).not.toMatch(/Kundmachungsorgan|Dokumentnummer|Zuletzt aktualisiert am|&#\d+;/);
       expect(d.text, d.id).not.toMatch(/Paragraph eins|Absatz eins,/);
     }
+  });
+});
+
+describe("suche_wissen Fachbegriffe (Umgangssprache → Ausbildungsordnung)", () => {
+  it("haengt Fachbegriffe an und laesst die Frage vorn stehen", () => {
+    const e = erweitereFrage("Wie lange dauert die Lehre zum Tischler?");
+    expect(e.startsWith("Wie lange dauert die Lehre zum Tischler?")).toBe(true);
+    expect(e).toContain("Lehrzeit");
+    expect(e).toContain("Tischlerei");
+    expect(erweitereFrage("Schreinerei")).toContain("Tischlerei");
+    expect(erweitereFrage("Zinken anreissen")).toBe("Zinken anreissen");
+  });
+  it("findet § 1 (Lehrzeit drei Jahre) fuer die Lehrlingsfrage im echten Korpus", async () => {
+    const rag = new LocalRAGProvider(getDemoCorpus("de"));
+    const docs = await rag.query(erweitereFrage("Wie lange dauert die Lehre zum Tischler"), {
+      topK: MAX_TREFFER,
+      minScore: 0.08,
+    });
+    expect(docs.map((d) => d.id)).toContain("ris-20011991--1");
+    expect(docs.find((d) => d.id === "ris-20011991--1")?.text).toContain("Lehrzeit von drei Jahren");
   });
 });

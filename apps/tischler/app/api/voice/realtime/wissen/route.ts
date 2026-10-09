@@ -10,7 +10,7 @@ import { z } from "zod";
 import { jsonError, serverRag } from "../../_lib/server-voice";
 import { liveWaechter } from "../_lib/guard";
 import { parseVoiceLocale } from "../../../../../lib/voice/voice-locale";
-import { MAX_TREFFER, zuWissensAntwort } from "../../../../../lib/voice/wissen-suche";
+import { MAX_TREFFER, erweitereFrage, zuWissensAntwort } from "../../../../../lib/voice/wissen-suche";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export async function POST(req: Request): Promise<Response> {
   if (!locale) return jsonError(400, "invalid_locale");
 
   const { rag } = serverRag(locale);
-  const docs = await rag.query(parsed.data.frage, { topK: MAX_TREFFER, minScore: 0.08 });
+  const docs = await rag.query(erweitereFrage(parsed.data.frage), { topK: MAX_TREFFER, minScore: 0.08 });
 
   return new Response(JSON.stringify(zuWissensAntwort(docs)), {
     status: 200,

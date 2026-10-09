@@ -55,6 +55,16 @@ describe("Zugang (fail-closed)", () => {
     expect(sicheresZiel("https://evil.example")).toBe("/de/voice");
     expect(sicheresZiel("/\\evil.example")).toBe("/de/voice");
   });
+  it("sicheresZiel weist Steuerzeichen ab (Browser streicht TAB/LF/CR → //fremd)", () => {
+    expect(sicheresZiel("/\t/evil.example")).toBe("/de/voice");
+    expect(sicheresZiel("/\n/evil.example")).toBe("/de/voice");
+    expect(sicheresZiel("/\r/evil.example")).toBe("/de/voice");
+    expect(sicheresZiel("/\u0000/evil.example")).toBe("/de/voice");
+    expect(sicheresZiel("/\u007f/evil.example")).toBe("/de/voice");
+    expect(sicheresZiel("//x")).toBe("/de/voice");
+    expect(sicheresZiel("/\\x")).toBe("/de/voice");
+    expect(sicheresZiel("/de/lernen?a=1")).toBe("/de/lernen?a=1");
+  });
   it("POST /api/zugang setzt das Cookie nur mit richtigem Code", async () => {
     process.env.DEMO_PIN = PIN;
     expect((await zugangPOST(req("/api/zugang", { pin: "falsch" }))).status).toBe(401);

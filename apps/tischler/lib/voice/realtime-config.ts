@@ -76,7 +76,7 @@ export function wissenTool(locale: VoiceLocale) {
           type: "string",
           description:
             locale === "de"
-              ? "Suchanfrage in Stichworten auf Deutsch, z. B. 'Berufsschule Lehrplan Holzverbindungen' oder 'Ausbildungsordnung Berufsprofil'."
+              ? "Suchanfrage in Stichworten auf Deutsch mit den Fachbegriffen der Ausbildungsordnung (Lehrberuf Tischlerei, Lehrzeit, Berufsbild, Lehrabschlussprüfung, Lehrplan Berufsschule), z. B. 'Lehrzeit Lehrberuf Tischlerei' oder 'Lehrabschlussprüfung praktische Prüfung'. Findest du nichts, suche ein zweites Mal mit anderen Stichworten."
               : "Search query as German keywords, e.g. 'Berufsschule Lehrplan Holzverbindungen'.",
         },
       },

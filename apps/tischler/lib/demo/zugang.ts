@@ -71,6 +71,18 @@ export function cookieAusHeader(header: string | null, name: string): string | u
 
 /** Nur relative Ziele innerhalb der App (kein Open Redirect). */
 export function sicheresZiel(raw: string | null | undefined): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return "/de/voice";
-  return raw;
+  const fallback = "/de/voice";
+  // Steuerzeichen + Backslash weg: Browser streichen TAB/LF/CR beim Parsen ("/\t/x" → "//x").
+  // eslint-disable-next-line no-control-regex
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || /[\u0000-\u001f\u007f\\]/.test(raw)) {
+    return fallback;
+  }
+  try {
+    const basis = "https://x.invalid";
+    const u = new URL(raw, basis);
+    if (u.origin !== basis) return fallback;
+    return u.pathname + u.search;
+  } catch {
+    return fallback;
+  }
 }
