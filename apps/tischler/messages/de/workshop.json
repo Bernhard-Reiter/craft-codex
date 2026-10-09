@@ -45,11 +45,11 @@
   },
   "voiceConsole": {
     "defaultQueries": [
-      "Wie reisse ich mit dem Streichmass an",
-      "Schwalbenwinkel fuer Hartholz",
+      "Wie reiße ich mit dem Streichmaß an",
+      "Schwalbenwinkel für Hartholz",
       "Stemmeisen Schliff",
-      "Auf welcher Seite saege ich",
-      "Wie pruefe ich die Passung"
+      "Auf welcher Seite säge ich",
+      "Wie prüfe ich die Passung"
     ],
     "trust": {
       "official": "Amtlich · RIS",

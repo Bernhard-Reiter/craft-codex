@@ -11,14 +11,15 @@ import { SiteFooter } from "../../../components/SiteFooter";
 import { createServerAnswerFn } from "../../../lib/voice/server-providers";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
 
-// ⚠️ Wortlaut = TTS-Cache-Key — nicht umformulieren, sonst greift die
-// vorvertonte Offline-Stimme nicht mehr.
+// Beispielfragen mit Umlauten (Lienz-Demo). Kein Cache-Schlüssel: der TTS-Cache
+// hasht den gesprochenen Antworttext (lib/voice/tts-cache.ts), der RAG
+// transliteriert Umlaute selbst (lib/rag/local-rag.ts).
 const SAMPLE_QUERIES = [
-  "Wie reisse ich mit dem Streichmass an",
-  "Welcher Schwalbenwinkel passt fuer Hartholz",
-  "Was ist beim Stemmeisen schaerfen wichtig",
-  "Auf welcher Seite der Anrisslinie saege ich",
-  "Wie pruefe ich die Passung am Ende",
+  "Wie reiße ich mit dem Streichmaß an",
+  "Welcher Schwalbenwinkel passt für Hartholz",
+  "Was ist beim Stemmeisen schärfen wichtig",
+  "Auf welcher Seite der Anrisslinie säge ich",
+  "Wie prüfe ich die Passung am Ende",
 ] as const;
 
 export default function VoiceTestPage() {

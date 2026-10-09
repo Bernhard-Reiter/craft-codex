@@ -483,7 +483,7 @@ export default function DovetailXRPage() {
                   total={anreissFlow.schritte.length}
                   label={phaseLabel}
                   labels={ornamentLabels}
-                  meisterFrage="Wie reisse ich mit dem Streichmass an"
+                  meisterFrage="Wie reiße ich mit dem Streichmaß an"
                   onPrev={() => gotoSchritt(Math.max(0, anreissIndex - 1))}
                   onNext={() =>
                     gotoSchritt(

@@ -321,11 +321,11 @@ const HAND_STEPS: ReadonlyArray<Exclude<DovetailStep, "ueberblick">> = [
 // Wortlaut = TTS-Cache-Key — exakt wie in VoiceConsole, sonst greift die
 // vorvertonte Offline-Stimme nicht.
 const QUESTIONS_BY_STEP: Record<Exclude<DovetailStep, "ueberblick">, string[]> = {
-  anreissen: ["Wie reisse ich mit dem Streichmass an", "Schwalbenwinkel fuer Hartholz"],
-  saegen: ["Auf welcher Seite saege ich"],
+  anreissen: ["Wie reiße ich mit dem Streichmaß an", "Schwalbenwinkel für Hartholz"],
+  saegen: ["Auf welcher Seite säge ich"],
   stemmen: ["Stemmeisen Schliff"],
-  passen: ["Wie pruefe ich die Passung"],
-  pruefen: ["Wie pruefe ich die Passung"],
+  passen: ["Wie prüfe ich die Passung"],
+  pruefen: ["Wie prüfe ich die Passung"],
 };
 
 function Divider() {
