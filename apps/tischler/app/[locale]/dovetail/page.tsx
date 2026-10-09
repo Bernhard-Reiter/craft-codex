@@ -14,6 +14,7 @@ import { SceneBoundary, SceneFallback } from "../../../components/SceneBoundary"
 import { ModeBar } from "../../../components/ModeBar";
 import { ParamSliders } from "../../../components/ParamSliders";
 import { ZinkenDiagram } from "../../../components/ZinkenDiagram";
+import { SchrittText } from "../../../components/SchrittText";
 import { SurfaceModeBar } from "../../../components/SurfaceModeBar";
 import { SurfacePanel } from "../../../components/SurfacePanel";
 import { PlacementHandles } from "../../../components/PlacementHandles";
@@ -207,12 +208,15 @@ export default function DovetailPage() {
             </div>
           </section>
         ) : (
-          <section className="cc-card cc-card--flat">
-            <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
-              {t("paramsKicker")}
-            </p>
-            <ParamSliders params={params} onChange={setParams} />
-          </section>
+          <>
+            <SchrittText step={step} locale={appLocale} />
+            <section className="cc-card cc-card--flat">
+              <p className="cc-kicker" style={{ marginBottom: "0.75rem" }}>
+                {t("paramsKicker")}
+              </p>
+              <ParamSliders params={params} onChange={setParams} />
+            </section>
+          </>
         )}
 
         <section>
