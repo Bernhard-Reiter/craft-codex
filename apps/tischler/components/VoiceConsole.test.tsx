@@ -21,7 +21,7 @@ function providers() {
 }
 
 describe("VoiceConsole", () => {
-  it("rendert im Mock-Modus mit Frage-Button + Demo-Fragen", () => {
+  it("rendert im Mock-Modus mit Demo-Fragen, ohne Mikrofon-Knopf", () => {
     const { rag, guard } = providers();
     // Komponente liest workshop.voiceConsole.* — Provider mit den echten
     // DE-Messages, Assertions bleiben gegen die deutschen Texte.
@@ -30,10 +30,23 @@ describe("VoiceConsole", () => {
         <VoiceConsole rag={rag} guard={guard} />
       </NextIntlClientProvider>,
     );
-    expect(screen.getByRole("button", { name: /Frage stellen/ })).toBeTruthy();
+    // Lienz Punkt 1: Der Knopf "🎤 Frage stellen" hört nicht zu, er stellt reihum
+    // eine eingebaute Frage. Wer hineinspricht, bekommt eine Antwort auf etwas anderes.
+    // Standard deshalb: ausgeblendet.
+    expect(screen.queryByRole("button", { name: /Frage stellen/ })).toBeNull();
     // mindestens eine Demo-Frage als Chip
     expect(screen.getByRole("button", { name: /Schwalbenwinkel/ })).toBeTruthy();
     // Texteingabe als Offline-Fallback
     expect(screen.getByLabelText(/Frage eingeben/)).toBeTruthy();
+  });
+
+  it("zeigt den Reihum-Knopf nur auf ausdrücklichen Wunsch (showAskButton)", () => {
+    const { rag, guard } = providers();
+    render(
+      <NextIntlClientProvider locale="de" messages={{ workshop: deWorkshop }}>
+        <VoiceConsole rag={rag} guard={guard} showAskButton />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByRole("button", { name: /Frage stellen/ })).toBeTruthy();
   });
 });

@@ -62,10 +62,16 @@ interface VoiceConsoleProps {
   sampleQueries?: ReadonlyArray<string>;
   /** Mode-Badge. Auto-detect wenn nicht gesetzt. */
   mode?: VoiceMode;
+  /**
+   * Knopf "🎤 Frage stellen" zeigen. Er hört NICHT zu, sondern stellt reihum eine
+   * eingebaute Demo-Frage — wer hineinspricht, bekommt eine Antwort auf etwas
+   * anderes (Lienz-Analyse Punkt 1). Darum standardmäßig aus.
+   */
+  showAskButton?: boolean;
 }
 
-// ⚠️ DE-Wortlaut (workshop.voiceConsole.defaultQueries) = TTS-Cache-Key —
-// nicht umformulieren, sonst greift die vorvertonte Offline-Stimme nicht mehr.
+// DE-Wortlaut (workshop.voiceConsole.defaultQueries) ist kein Cache-Schlüssel:
+// der TTS-Cache hasht den gesprochenen Antworttext (lib/voice/tts-cache.ts).
 const DEFAULT_SAMPLE_QUERY_COUNT = 5;
 
 export function VoiceConsole({
@@ -77,6 +83,7 @@ export function VoiceConsole({
   makeAnswer,
   sampleQueries,
   mode,
+  showAskButton = false,
 }: VoiceConsoleProps) {
   const t = useTranslations("workshop.voiceConsole");
   const defaultQueries = useMemo(
@@ -225,14 +232,16 @@ export function VoiceConsole({
           flexWrap: "wrap",
         }}
       >
-        <button
-          type="button"
-          onClick={handleMicClick}
-          disabled={busy}
-          className="cc-btn cc-btn--primary cc-btn--sm"
-        >
-          🎤 {!busy ? t("askButton") : busyLabel}
-        </button>
+        {showAskButton && (
+          <button
+            type="button"
+            onClick={handleMicClick}
+            disabled={busy}
+            className="cc-btn cc-btn--primary cc-btn--sm"
+          >
+            🎤 {!busy ? t("askButton") : busyLabel}
+          </button>
+        )}
         <span
           className={`cc-badge ${badge.className}`}
           aria-label={`Voice mode: ${effectiveMode}`}
