@@ -64,6 +64,13 @@ describe("computePins", () => {
 });
 
 describe("generateMarkings", () => {
+  it("Rot ist nur die Stemmtiefe: die Mittellinie hat eine andere Farbe als das Streichmaß (Punkt C)", () => {
+    const m = generateMarkings("anreissen", { ...P, pinCount: 5 });
+    const rot = m.find((x) => x.id === "streichmass_brettstaerke")!.color;
+    const mitte = m.find((x) => x.id === "mittellinie")!.color;
+    expect(mitte).not.toBe(rot);
+    expect(mitte.toUpperCase()).not.toMatch(/^#FF[0-4]/);
+  });
   it("anreissen → streichmass + mittellinie + 1 Schwalben-Kontur pro Pin", () => {
     const m = generateMarkings("anreissen", { ...P, pinCount: 5 });
     expect(m.find((x) => x.id === "streichmass_brettstaerke")).toBeDefined();

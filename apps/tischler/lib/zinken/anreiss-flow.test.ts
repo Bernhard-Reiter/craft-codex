@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildAnreissFlow, istLinieSichtbar } from "./anreiss-flow";
+import { buildAnreissFlowEn } from "./anreiss-flow.en";
 
 describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
   const flow = buildAnreissFlow(140, 20);
@@ -9,12 +10,12 @@ describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
     expect(flow.layout.AZT).toBe(13);
   });
 
-  it("hat die 7 Anreiss-Phasen in Reihenfolge", () => {
+  it("hat die 7 Anreiss-Phasen in Reihenfolge — Streichmaß vor dem Teilen (Punkt B)", () => {
     expect(flow.schritte.map((s) => s.id)).toEqual([
       "messen",
+      "streichmass",
       "schwalbenzahl",
       "teile",
-      "streichmass",
       "markieren",
       "schraege",
       "fertig",
@@ -47,15 +48,13 @@ describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
     expect(teile.tafel.join(" ")).toContain("13 Teile");
   });
 
-  it("Mess-/Rechen-Schritte zeigen noch keine Brett-Kontur (progressiv)", () => {
-    // messen + schwalbenzahl: noch gar nichts; teile: die Mittellinie erscheint,
-    // auf der danach geteilt wird.
-    for (const id of ["messen", "schwalbenzahl"] as const) {
-      const s = flow.schritte.find((x) => x.id === id)!;
-      expect(s.zeigeLinien).toEqual([]);
-    }
+  it("Messen zeigt noch nichts; nach dem Streichmaß bleibt dessen Linie stehen (progressiv)", () => {
+    const messen = flow.schritte.find((x) => x.id === "messen")!;
+    expect(messen.zeigeLinien).toEqual([]);
+    const schwalben = flow.schritte.find((x) => x.id === "schwalbenzahl")!;
+    expect(schwalben.zeigeLinien).toEqual(["streichmass_brettstaerke"]);
     const teile = flow.schritte.find((x) => x.id === "teile")!;
-    expect(teile.zeigeLinien).toEqual(["mittellinie"]);
+    expect(teile.zeigeLinien).toEqual(["streichmass_brettstaerke", "mittellinie"]);
   });
 
   it("Streichmaß-Schritt zeigt genau die Streichmaß-Linie", () => {
@@ -64,16 +63,54 @@ describe("buildAnreissFlow (Methode 1, B=140, D=20)", () => {
     expect(istLinieSichtbar(s, "schwalbe_pin_0")).toBe(false);
   });
 
-  it("Markieren-Schritt zeigt Mittellinie + Schwalben-Konturen (Praefix-Match)", () => {
+  it("Markieren zeigt noch KEINE Schwalbenflanken — die kommen erst bei der Schräge (Punkt B)", () => {
     const s = flow.schritte.find((x) => x.id === "markieren")!;
     expect(istLinieSichtbar(s, "mittellinie")).toBe(true);
+    expect(istLinieSichtbar(s, "streichmass_brettstaerke")).toBe(true);
+    expect(istLinieSichtbar(s, "schwalbe_pin_0")).toBe(false);
+  });
+
+  it("Schräge zeigt die Schwalbenflanken (Praefix-Match) und sagt, wo gesägt wird", () => {
+    const s = flow.schritte.find((x) => x.id === "schraege")!;
     expect(istLinieSichtbar(s, "schwalbe_pin_0")).toBe(true);
     expect(istLinieSichtbar(s, "schwalbe_pin_3")).toBe(true);
+    expect(s.meisterSagt).toContain("Die Risse zeigen dir, wo später gesägt wird.");
+    const markieren = flow.schritte.find((x) => x.id === "markieren")!;
+    expect(markieren.meisterSagt).not.toContain("wo später gesägt wird");
+  });
+
+  it("DE-Fließtext mit richtigen Umlauten/ß (Punkt D)", () => {
+    const alles = flow.schritte.map((s) => s.meisterSagt + " " + s.tafel.join(" ")).join(" ");
+    expect(alles).not.toMatch(/schaetzen|reissen|Anreissen/);
+    expect(alles).toContain("schätzen");
+    expect(alles).toContain("Anreißen");
+  });
+
+  it("Gradzahl folgt dem Code: 1:6 = atan(1/6) ≈ 9,5° überall gleich (Punkt D)", () => {
+    const s = flow.schritte.find((x) => x.id === "schraege")!;
+    expect(s.meisterSagt).toContain("rund 9,5 Grad");
+    expect(s.tafel.join(" ")).toContain("≈ 9,5°");
   });
 
   it("Fertig-Schritt zeigt alle Anrisslinien zusammen", () => {
     const s = flow.schritte.find((x) => x.id === "fertig")!;
     expect(istLinieSichtbar(s, "streichmass_brettstaerke")).toBe(true);
     expect(istLinieSichtbar(s, "schwalbe_pin_1")).toBe(true);
+  });
+});
+
+describe("buildAnreissFlowEn — EN-Zwilling folgt (Punkt B/D)", () => {
+  const de = buildAnreissFlow(140, 20);
+  const en = buildAnreissFlowEn(140, 20);
+
+  it("gleiche Reihenfolge und gleiche Linien je Schritt wie DE", () => {
+    expect(en.schritte.map((s) => s.id)).toEqual(de.schritte.map((s) => s.id));
+    expect(en.schritte.map((s) => s.zeigeLinien)).toEqual(de.schritte.map((s) => s.zeigeLinien));
+  });
+
+  it("Gradzahl ≈ 9.5 degrees", () => {
+    const s = en.schritte.find((x) => x.id === "schraege")!;
+    expect(s.meisterSagt).toContain("9.5 degrees");
+    expect(s.tafel.join(" ")).toContain("≈ 9.5°");
   });
 });
