@@ -15,6 +15,10 @@ export interface WissensQuelle {
   quelle: string;
   url: string | null;
   amtlich: boolean;
+  /** Herkunft fuer die Quellenkarte (fehlt = lokaler Korpus). */
+  art?: "korpus" | "wikipedia";
+  /** Lizenzhinweis, der sichtbar mitgeht (Wikipedia: CC BY-SA 4.0). */
+  lizenz?: string;
 }
 
 export interface WissensTreffer extends WissensQuelle {
@@ -30,12 +34,12 @@ export interface WissensAntwort {
 export const MAX_TREFFER = 3;
 export const MAX_AUSZUG = 1400;
 
-export function erlaubteUrl(raw: unknown): string | null {
+export function erlaubteUrl(raw: unknown, hosts: readonly string[] = ERLAUBTE_QUELLEN_HOSTS): string | null {
   if (typeof raw !== "string" || raw.length === 0) return null;
   try {
     const u = new URL(raw);
     if (u.protocol !== "https:") return null;
-    return (ERLAUBTE_QUELLEN_HOSTS as readonly string[]).includes(u.hostname) ? u.toString() : null;
+    return hosts.includes(u.hostname) ? u.toString() : null;
   } catch {
     return null;
   }

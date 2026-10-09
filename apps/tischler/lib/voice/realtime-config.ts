@@ -28,6 +28,7 @@ export const REALTIME_MAX_SESSION_MS = 10 * 60 * 1000;
 export const REALTIME_TOKEN_TTL_S = 60;
 
 export const WISSEN_TOOL_NAME = "suche_wissen";
+export const WIKIPEDIA_TOOL_NAME = "wikipedia_suche";
 
 export const realtimeThemen = ["allgemein", "zinken"] as const;
 export type RealtimeThema = (typeof realtimeThemen)[number];
@@ -41,10 +42,14 @@ const PERSONA: Record<VoiceLocale, string> = {
 
 Fakten holst du dir mit dem Werkzeug ${WISSEN_TOOL_NAME}: IMMER bei Fragen zur Lehrlingsausbildung, Ausbildungsordnung, Berufsbild, Berufsschule, Lehrplan oder Lehrabschlussprüfung, und bei Fachfragen zu Zinken und Holzverbindungen. Erfinde keine Paragraphen und keine Inhalte. Nenne bei Rechts- und Lehrplanfragen die Quelle kurz beim Namen, zum Beispiel "laut Tischlerei-Ausbildungsordnung, Paragraph 2" oder "laut Lehrplan der Berufsschule, Anlage 147". Lies keine Internetadressen vor; die Quellen sieht der Lehrling am Bildschirm. Findet das Werkzeug nichts Passendes, sag das ehrlich.
 
+Für allgemeines Wissen, das nicht in Ausbildungsordnung oder Lehrplan steht (zum Beispiel Holzarten, Werkzeuggeschichte, Begriffe), darfst du das Werkzeug ${WIKIPEDIA_TOOL_NAME} nutzen. Das RIS geht immer vor: Bei Ausbildungs- und Lehrplanfragen zuerst ${WISSEN_TOOL_NAME}. Was du aus Wikipedia hast, leitest du mit "laut Wikipedia" ein.
+
 Bleib beim Holzhandwerk und der Ausbildung. Bei fachfremden Fragen führst du freundlich zurück zum Werkstück.`,
   en: `You are an experienced Austrian master cabinetmaker talking with an apprentice in the workshop. Informal, warm, enthusiastic; answer briefly: at most three sentences, then let the apprentice ask more. If interrupted, respond to the interruption right away.
 
 Get facts with the tool ${WISSEN_TOOL_NAME}: ALWAYS for questions about the apprenticeship, the Austrian training regulation (Tischlerei-Ausbildungsordnung), vocational school curriculum (Lehrplan, Anlage 147) or the final exam, and for technical questions about dovetails and wood joints. Never invent sections or content. For legal or curriculum questions name the source briefly (the sources are German originals). Never read out web addresses; the apprentice sees the sources on screen. If the tool finds nothing fitting, say so honestly.
+
+For general knowledge that is not in the training regulation or curriculum (e.g. wood species, tool history, terms) you may use the tool ${WIKIPEDIA_TOOL_NAME} (German Wikipedia). RIS always comes first: for apprenticeship and curriculum questions use ${WISSEN_TOOL_NAME} first. Introduce anything taken from Wikipedia with "according to Wikipedia".
 
 Stay with woodworking and the apprenticeship; gently steer off-topic questions back to the workpiece.`,
 };
@@ -85,6 +90,30 @@ export function wissenTool(locale: VoiceLocale) {
   };
 }
 
+export function wikipediaTool(locale: VoiceLocale) {
+  return {
+    type: "function" as const,
+    name: WIKIPEDIA_TOOL_NAME,
+    description:
+      locale === "de"
+        ? "Schlägt live in der deutschen Wikipedia nach (Einleitung eines Artikels, Lizenz CC BY-SA 4.0). Nur für allgemeines Wissen; Ausbildung und Lehrplan immer zuerst mit suche_wissen."
+        : "Looks up the German Wikipedia live (article introduction, license CC BY-SA 4.0). General knowledge only; apprenticeship and curriculum always via suche_wissen first.",
+    parameters: {
+      type: "object",
+      properties: {
+        frage: {
+          type: "string",
+          description:
+            locale === "de"
+              ? "Suchbegriff auf Deutsch, am besten der Artikelname, z. B. 'Eiche', 'Schwalbenschwanzverbindung' oder 'Hobel'."
+              : "Search term in German, ideally the article name, e.g. 'Eiche' or 'Hobel'.",
+        },
+      },
+      required: ["frage"],
+    },
+  };
+}
+
 export interface RealtimeSessionOptions {
   locale: VoiceLocale;
   thema: RealtimeThema;
@@ -107,7 +136,7 @@ export function buildClientSecretRequest(opts: RealtimeSessionOptions) {
       type: "realtime",
       model: opts.model || REALTIME_DEFAULT_MODEL,
       instructions: realtimeInstructions(opts.locale, opts.thema),
-      tools: [wissenTool(opts.locale)],
+      tools: [wissenTool(opts.locale), wikipediaTool(opts.locale)],
       tool_choice: "auto",
       audio: {
         input,

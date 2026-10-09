@@ -19,7 +19,7 @@ describe("realtime-config", () => {
     expect(b.expires_after).toEqual({ anchor: "created_at", seconds: 60 });
     expect(b.session.type).toBe("realtime");
     expect(b.session.model).toBe(REALTIME_DEFAULT_MODEL);
-    expect(b.session.tools.map((t) => t.name)).toEqual([WISSEN_TOOL_NAME]);
+    expect(b.session.tools.map((t) => t.name)).toEqual([WISSEN_TOOL_NAME, "wikipedia_suche"]);
     expect(b.session.instructions).toContain("Tischlermeister");
     expect(b.session.instructions).toContain(WISSEN_TOOL_NAME);
     expect(b.session.audio.input).not.toHaveProperty("transcription");

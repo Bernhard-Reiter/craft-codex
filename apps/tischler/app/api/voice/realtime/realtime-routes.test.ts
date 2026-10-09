@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST as tokenPOST } from "./token/route";
 import { POST as wissenPOST } from "./wissen/route";
+import { POST as wikipediaPOST } from "./wikipedia/route";
 import { POST as zugangPOST } from "../../zugang/route";
 import { resetLimits } from "./_lib/guard";
 import { ZUGANG_COOKIE, pruefeZugang, sicheresZiel, zugangsToken } from "../../../../lib/demo/zugang";
@@ -158,5 +159,31 @@ describe("POST /api/voice/realtime/wissen", () => {
     expect((await wissenPOST(req("/api/voice/realtime/wissen", { frage: "" }, { cookie: c }))).status).toBe(400);
     expect((await wissenPOST(req("/api/voice/realtime/wissen", { frage: "x".repeat(301) }, { cookie: c }))).status).toBe(400);
     expect((await wissenPOST(req("/api/voice/realtime/wissen", { frage: "Lehrplan" }))).status).toBe(401);
+  });
+});
+
+describe("POST /api/voice/realtime/wikipedia", () => {
+  it("braucht Zugang, gleiche Herkunft und eine gueltige Frage (ohne Netz)", async () => {
+    const netz = vi.spyOn(globalThis, "fetch");
+    process.env.DEMO_PIN = PIN;
+    const c = await cookie();
+    expect((await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "Eiche" }))).status).toBe(401);
+    expect(
+      (await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "Eiche" }, { cookie: c, origin: "https://fremd.example" }))).status,
+    ).toBe(403);
+    expect((await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "" }, { cookie: c }))).status).toBe(400);
+    expect((await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "x".repeat(201) }, { cookie: c }))).status).toBe(400);
+    delete process.env.DEMO_PIN;
+    expect((await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "Eiche" }, { cookie: c }))).status).toBe(503);
+    expect(netz).not.toHaveBeenCalled();
+    netz.mockRestore();
+  });
+  it("liefert 502, wenn Wikipedia nicht antwortet", async () => {
+    const netz = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
+    process.env.DEMO_PIN = PIN;
+    const res = await wikipediaPOST(req("/api/voice/realtime/wikipedia", { frage: "Eiche" }, { cookie: await cookie() }));
+    expect(res.status).toBe(502);
+    expect(netz).toHaveBeenCalledTimes(1);
+    netz.mockRestore();
   });
 });

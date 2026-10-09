@@ -7,7 +7,13 @@
  */
 
 import type { WissensAntwort, WissensTreffer } from "./wissen-suche";
-import { WISSEN_TOOL_NAME, type RealtimeThema } from "./realtime-config";
+import { WIKIPEDIA_TOOL_NAME, WISSEN_TOOL_NAME, type RealtimeThema } from "./realtime-config";
+
+/** Werkzeug → eigene Server-Route (feste Liste; Unbekanntes wird abgewiesen). */
+export const WERKZEUG_ROUTEN: Readonly<Record<string, string>> = {
+  [WISSEN_TOOL_NAME]: "/api/voice/realtime/wissen",
+  [WIKIPEDIA_TOOL_NAME]: "/api/voice/realtime/wikipedia",
+};
 import type { VoiceLocale } from "./voice-locale";
 
 export type LiveStatus = "bereit" | "verbinde" | "hoert" | "spricht" | "denkt" | "beendet" | "fehler";
@@ -247,16 +253,17 @@ export class MeisterLive {
     for (const call of calls) {
       this.erledigteCalls.add(call.call_id);
       let output: WissensAntwort | { ok: false; error: string };
-      const frage = call.name === WISSEN_TOOL_NAME ? frageAusArgumenten(call.arguments) : null;
-      if (!frage) {
-        output = { ok: false, error: call.name === WISSEN_TOOL_NAME ? "ungueltige_frage" : "unbekanntes_werkzeug" };
+      const route = Object.prototype.hasOwnProperty.call(WERKZEUG_ROUTEN, call.name) ? WERKZEUG_ROUTEN[call.name] : null;
+      const frage = route ? frageAusArgumenten(call.arguments) : null;
+      if (!route || !frage) {
+        output = { ok: false, error: route ? "ungueltige_frage" : "unbekanntes_werkzeug" };
       } else {
         try {
-          const r = await fetch("/api/voice/realtime/wissen", {
+          const r = await fetch(route, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ frage, locale: this.locale }),
-            signal: AbortSignal.timeout(5000),
+            signal: AbortSignal.timeout(12000),
           });
           output = r.ok ? ((await r.json()) as WissensAntwort) : { ok: false, error: `suche_${r.status}` };
         } catch {

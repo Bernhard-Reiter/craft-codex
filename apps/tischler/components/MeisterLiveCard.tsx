@@ -5,6 +5,9 @@ import { MeisterLive, type LiveStatus } from "../lib/voice/realtime-client";
 import type { RealtimeThema } from "../lib/voice/realtime-config";
 import type { WissensTreffer } from "../lib/voice/wissen-suche";
 
+/** Nur Link (neues Fenster), keine Inhalte von BIC.at (Impressum: persoenliche Verwendung). */
+const BIC_LEHRBERUF_URL = "https://www.bic.at/berufsinformation.php?brfid=2952";
+
 const TEXT = {
   de: {
     kicker: "Live · Sprechen wie mit einem Menschen",
@@ -26,12 +29,15 @@ const TEXT = {
     quellen: "Quellen aus dem Gespräch",
     amtlich: "Amtlich · RIS",
     oeffnen: "Im RIS öffnen ↗",
+    wikipedia: "Wikipedia · CC BY-SA 4.0",
+    oeffnenWiki: "Auf Wikipedia öffnen ↗",
+    bic: "Mehr zum Lehrberuf auf BIC.at ↗",
     du: "Du",
     meister: "Meister",
     fehler:
       "Die Live-Verbindung klappt gerade nicht. Unten kannst du dem Meister weiter Fragen per Knopf stellen.",
     mikro: "Bitte erlaube den Zugriff aufs Mikrofon.",
-    hinweis: "RIS-Auszüge (Fassung tagesaktuell geerntet) — keine vollständige Rechtsauskunft.",
+    hinweis: "RIS-Auszüge (Fassung tagesaktuell geerntet) und Wikipedia (CC BY-SA 4.0) — keine vollständige Rechtsauskunft.",
   },
   en: {
     kicker: "Live · talk like with a person",
@@ -53,11 +59,14 @@ const TEXT = {
     quellen: "Sources from the conversation",
     amtlich: "Official · RIS",
     oeffnen: "Open in RIS ↗",
+    wikipedia: "Wikipedia · CC BY-SA 4.0",
+    oeffnenWiki: "Open on Wikipedia ↗",
+    bic: "More about the apprenticeship on BIC.at (German) ↗",
     du: "You",
     meister: "Master",
     fehler: "The live connection isn't working right now. Below you can keep asking the master by button.",
     mikro: "Please allow microphone access.",
-    hinweis: "RIS excerpts (harvested daily) — not complete legal advice.",
+    hinweis: "RIS excerpts (harvested daily) and Wikipedia (CC BY-SA 4.0) — not complete legal advice.",
   },
 } as const;
 
@@ -172,6 +181,7 @@ export function MeisterLiveCard({ locale, thema = "allgemein" }: { locale: "de" 
               <div key={q.id} className="cc-card cc-card--gray cc-card--flat" style={{ padding: "0.75rem" }}>
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
                   {q.amtlich ? <span className="cc-badge cc-badge--yellow">{t.amtlich}</span> : null}
+                  {q.art === "wikipedia" ? <span className="cc-badge">{t.wikipedia}</span> : null}
                   <strong style={{ fontSize: "0.95rem" }}>{q.titel}</strong>
                 </div>
                 <p className="cc-muted" style={{ fontSize: "0.8rem", margin: "0.35rem 0" }}>
@@ -179,7 +189,7 @@ export function MeisterLiveCard({ locale, thema = "allgemein" }: { locale: "de" 
                 </p>
                 {q.url ? (
                   <a href={q.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.85rem" }}>
-                    {t.oeffnen}
+                    {q.art === "wikipedia" ? t.oeffnenWiki : t.oeffnen}
                   </a>
                 ) : null}
               </div>
@@ -188,6 +198,12 @@ export function MeisterLiveCard({ locale, thema = "allgemein" }: { locale: "de" 
           <p className="cc-muted" style={{ fontSize: "0.75rem", marginBottom: 0 }}>{t.hinweis}</p>
         </div>
       ) : null}
+
+      <div style={{ marginTop: "1rem" }}>
+        <a className="cc-btn cc-btn--sm" href={BIC_LEHRBERUF_URL} target="_blank" rel="noopener noreferrer">
+          {t.bic}
+        </a>
+      </div>
     </section>
   );
 }
