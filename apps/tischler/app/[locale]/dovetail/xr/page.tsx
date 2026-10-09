@@ -21,10 +21,8 @@ import { XROrnament } from "../../../../components/XROrnament";
 import { XRWristMenu } from "../../../../components/XRWristMenu";
 import { SiteFooter } from "../../../../components/SiteFooter";
 import { buildAnreissFlowEn } from "../../../../lib/zinken/anreiss-flow.en";
-import {
-  buildAnreissFlow,
-  type AnreissPhase,
-} from "../../../../lib/zinken/anreiss-flow";
+import { buildAnreissFlow } from "../../../../lib/zinken/anreiss-flow";
+import { ANRISS_LAYERS_BY_PHASE } from "../../../../lib/zinken/anriss-layers";
 import type { AnrissLayer } from "../../../../components/AnrissFlat";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
 import { loadSession, saveSession } from "../../../../lib/storage/local";
@@ -40,18 +38,6 @@ import { Link } from "../../../../i18n/navigation";
 // Menue-Panel-Startpose: LINKS neben dem Brett (rechts sitzen die Brett-Controls),
 // auf Arbeitshoehe vor dem User — entzerrt, damit nichts ueberlappt.
 const MENU_DEFAULT: [number, number, number] = [-0.8, 1.2, -0.5];
-
-// Progressiver Anriss-Aufbau pro Lernschritt (wie der Meister anreisst):
-// erst einteilen → Grundlinie → Schwalben + Abfall. Leere Schritte zeigen nichts.
-const ANRISS_LAYERS_BY_PHASE: Record<AnreissPhase, AnrissLayer[]> = {
-  messen: [],
-  schwalbenzahl: [],
-  teile: ["divisions"],
-  streichmass: ["baseline", "divisions"],
-  markieren: ["baseline", "divisions", "flanks", "tails", "wastes"],
-  schraege: ["baseline", "flanks", "tails", "wastes"],
-  fertig: ["baseline", "flanks", "tails", "wastes"],
-};
 
 export default function DovetailXRPage() {
   const t = useTranslations("xr");
@@ -173,7 +159,7 @@ export default function DovetailXRPage() {
       case "schraege":
         return t("tafel.detail.schraege", {
           ratio: L.slopeRatio,
-          deg: L.slopeDeg.toFixed(0),
+          deg: fmt1(L.slopeDeg),
         });
       case "fertig":
         return t("tafel.detail.fertig", {

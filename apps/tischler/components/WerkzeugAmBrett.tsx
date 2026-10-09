@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { DovetailLayout, DovetailParams } from "@craft-codex/core";
 import type { AnreissPhase } from "../lib/zinken/anreiss-flow";
+import { werkzeugFuerPhase } from "../lib/zinken/werkzeug-phase";
 
 const SCALE_MM_TO_M = 0.001;
 const BOARD_SEPARATION_M = 0.15;
@@ -31,8 +32,9 @@ export function WerkzeugAmBrett({
   const halfL = params.length_mm / 2;
   const t = params.thickness_mm;
 
-  const showWinkel = phase === "schraege" || phase === "markieren";
-  const showStreichmass = phase === "streichmass";
+  const werkzeug = werkzeugFuerPhase(phase);
+  const showWinkel = werkzeug.schmiege;
+  const showStreichmass = werkzeug.streichmass;
 
   return (
     <group

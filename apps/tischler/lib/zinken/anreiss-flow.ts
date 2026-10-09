@@ -62,6 +62,11 @@ function mm(x: number): string {
   return x.toFixed(1).replace(".", ",");
 }
 
+/** Gradzahl wie der Code sie rechnet (atan(1/ratio)), eine Nachkommastelle, DE-Komma. */
+export function grad(deg: number): string {
+  return deg.toFixed(1).replace(".", ",");
+}
+
 /**
  * Baut den geführten Anreiss-Flow für Methode 1 (Mittellinie).
  *
@@ -89,15 +94,26 @@ export function buildAnreissFlow(
       frageErlaubt: true,
     },
     {
+      id: "streichmass",
+      label: "Streichmaß",
+      meisterSagt:
+        `Erst kommt das Streichmaß: wir reißen die Brettstärke rundherum an. ` +
+        `Diese rote Linie ist deine Stemmtiefe — tiefer gehst du beim Stemmen ` +
+        `nie. Schau, so läuft sie umlaufend ums Brett.`,
+      zeigeLinien: ["streichmass_brettstaerke"],
+      tafel: [`Stemmtiefe = Brettdicke D = ${mm(D)} mm`],
+      frageErlaubt: true,
+    },
+    {
       id: "schwalbenzahl",
       label: "Schwalbenzahl",
       meisterSagt:
-        `Jetzt schaetzen wir, wie viele Schwalben aufs Brett passen. Die Formel ` +
+        `Jetzt schätzen wir, wie viele Schwalben aufs Brett passen. Die Formel ` +
         `ist AZS = B geteilt durch 1,7 mal D, also ${mm(B)} durch ` +
         `${mm(1.7 * D)} = ${L.AZS_raw.toFixed(2).replace(".", ",")}. ` +
         `Gerundet sind das ${L.AZS} Schwalben. Die 1,7 ist ein Daumenwert aus ` +
         `der Werkstatt — frag nach, wenn du wissen willst, warum.`,
-      zeigeLinien: [],
+      zeigeLinien: ["streichmass_brettstaerke"],
       kennzahl: `${L.AZS} Schwalben`,
       tafel: [
         `AZS = B / (1,7 · D)`,
@@ -114,7 +130,7 @@ export function buildAnreissFlow(
         `${L.AZS} mal 3 plus 1 = ${L.AZT} Teile. Jedes Teil ist T = B durch AZT ` +
         `= ${mm(L.T)} Millimeter breit. Merk dir: ein Zinken ist 1 Teil ` +
         `(${mm(L.zinkenBreite)} mm), eine Schwalbe 2 Teile (${mm(L.schwalbeBreite)} mm).`,
-      zeigeLinien: ["mittellinie"],
+      zeigeLinien: ["streichmass_brettstaerke", "mittellinie"],
       kennzahl: `${L.AZT} Teile à ${mm(L.T)} mm`,
       tafel: [
         `AZT = AZS · 3 + 1 = ${L.AZT} Teile`,
@@ -124,24 +140,12 @@ export function buildAnreissFlow(
       frageErlaubt: true,
     },
     {
-      id: "streichmass",
-      label: "Streichmaß",
-      meisterSagt:
-        `Erst kommt das Streichmaß: wir reissen die Brettstärke rundherum an. ` +
-        `Diese rote Linie ist deine Stemmtiefe — tiefer gehst du beim Stemmen ` +
-        `nie. Schau, so läuft sie umlaufend ums Brett.`,
-      zeigeLinien: ["streichmass_brettstaerke"],
-      tafel: [`Stemmtiefe = Brettdicke D = ${mm(D)} mm`],
-      frageErlaubt: true,
-    },
-    {
       id: "markieren",
       label: "Markieren",
       meisterSagt:
         `Jetzt teilen wir die Breite ein und markieren die Schwalben — ${L.AZS} ` +
-        `Stück, gleichmäßig verteilt. Zinken schmal, Schwalbe doppelt so breit. ` +
-        `Die Risse zeigen dir, wo später gesägt wird.`,
-      zeigeLinien: ["mittellinie", "schwalbe_pin_"],
+        `Stück, gleichmäßig verteilt. Zinken schmal, Schwalbe doppelt so breit.`,
+      zeigeLinien: ["streichmass_brettstaerke", "mittellinie"],
       kennzahl: `${L.AZS} Schwalben markiert`,
       tafel: [
         `Zinken  = 1 Teil  (${mm(L.zinkenBreite)} mm)`,
@@ -155,13 +159,14 @@ export function buildAnreissFlow(
       label: "Schräge",
       meisterSagt:
         `Zum Schluss die Schräge: 1 zu ${L.slopeRatio}, das sind rund ` +
-        `${L.slopeDeg.toFixed(0)} Grad. Mit der Schmiege legst du jede ` +
+        `${grad(L.slopeDeg)} Grad. Mit der Schmiege legst du jede ` +
         `Schwalbenflanke an. Steiler bricht aus, flacher hält schlechter — ` +
-        `1 zu ${L.slopeRatio} ist der bewährte Mittelweg.`,
-      zeigeLinien: ["mittellinie", "schwalbe_pin_"],
+        `1 zu ${L.slopeRatio} ist der bewährte Mittelweg. ` +
+        `Die Risse zeigen dir, wo später gesägt wird.`,
+      zeigeLinien: ["streichmass_brettstaerke", "mittellinie", "schwalbe_pin_"],
       kennzahl: `Schräge 1:${L.slopeRatio}`,
       tafel: [
-        `Schräge = 1 : ${L.slopeRatio}  (≈ ${L.slopeDeg.toFixed(0)}°)`,
+        `Schräge = 1 : ${L.slopeRatio}  (≈ ${grad(L.slopeDeg)}°)`,
         `ZS = ${L.slopeRatio} · T = ${mm(L.ZS)} mm`,
       ],
       frageErlaubt: true,
@@ -170,7 +175,7 @@ export function buildAnreissFlow(
       id: "fertig",
       label: "Fertig",
       meisterSagt:
-        `Das Anreissen steht. Du hast ${L.AZS} Schwalben in ${L.AZT} Teilen, ` +
+        `Das Anreißen steht. Du hast ${L.AZS} Schwalben in ${L.AZT} Teilen, ` +
         `jedes ${mm(L.T)} Millimeter, mit der Schräge 1 zu ${L.slopeRatio}. ` +
         `Jetzt darf gesägt werden — immer auf der Abfallseite der Linie.`,
       zeigeLinien: ["streichmass_brettstaerke", "mittellinie", "schwalbe_pin_"],
