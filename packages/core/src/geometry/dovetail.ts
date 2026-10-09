@@ -101,7 +101,7 @@ export function generateMarkings(
     markings.push({
       id: "mittellinie",
       description: "Mittellinie der Zinkenteilung",
-      color: "#FF3030",
+      color: "#555555", // Hilfslinie grau — Rot nur für die Stemmtiefe
       points: [
         [-halfW, 0, halfL - t / 2],
         [halfW, 0, halfL - t / 2],
