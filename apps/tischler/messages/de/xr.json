@@ -5,11 +5,11 @@
   "checking": "Prüfe XR-Support …",
   "capability": {
     "ready": "bereit",
-    "unavailable": "nicht verfügbar"
+    "unavailable": "im Headset öffnen"
   },
   "reasonLabel": "Grund:",
   "fallback": {
-    "title": "Kein XR-Gerät verfügbar.",
+    "title": "Im Headset öffnen.",
     "body": "Du kannst die Demo trotzdem in 3D nutzen — in der <link>Werkstatt</link>. Für XR brauchst du eine Quest 3 oder Galaxy XR.",
     "detail": "Detail: {reason}"
   },
@@ -20,7 +20,7 @@
   "center": "🎯 Brett zentrieren",
   "centerTitle": "Brett und Ansicht zurück ins Zentrum",
   "stepSummary": "Schritt {current}/{total} — {label} · {count} Schwalben",
-  "preview": "Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett {width}×{length}mm, {pins} Pins, 1:{ratio}. Änderbar in der <link>Werkstatt</link>.",
+  "preview": "Vorschau zeigt aktuellen Lernschritt: <strong>{step}</strong> · Brett {width}×{length}mm, {pins} Schwalben, 1:{ratio}. Änderbar in der <link>Werkstatt</link>.",
   "phases": {
     "messen": "Messen",
     "schwalbenzahl": "Schwalbenzahl",

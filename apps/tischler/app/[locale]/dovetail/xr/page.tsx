@@ -342,7 +342,7 @@ export default function DovetailXRPage() {
               <Capability label="Immersive AR" supported={support.ar} />
               <Capability label="Immersive VR" supported={support.vr} />
             </div>
-            {support.reason && (
+            {(support.ar || support.vr) && support.reason && (
               <p
                 className="cc-muted"
                 style={{ marginTop: "1rem", fontSize: "0.85rem" }}
@@ -378,7 +378,7 @@ export default function DovetailXRPage() {
             </div>
 
             {!support.ar && !support.vr && (
-              <FallbackMessage reason={support.reason} />
+              <FallbackMessage />
             )}
           </section>
         )}
@@ -611,8 +611,8 @@ export default function DovetailXRPage() {
             step,
             width: params.width_mm,
             length: params.length_mm,
-            pins: params.pinCount,
-            ratio: params.ratio,
+            pins: xrParams.pinCount,
+            ratio: xrParams.ratio,
             strong: (chunks) => <strong>{chunks}</strong>,
             link: (chunks) => (
               <Link

@@ -5,11 +5,11 @@
   "checking": "Checking XR support …",
   "capability": {
     "ready": "ready",
-    "unavailable": "not available"
+    "unavailable": "open in a headset"
   },
   "reasonLabel": "Reason:",
   "fallback": {
-    "title": "No XR device available.",
+    "title": "Open in a headset.",
     "body": "You can still use the demo in 3D — in the <link>workshop</link>. For XR you need a Galaxy XR, a Quest 3 or Chrome with the WebXR emulator (chrome://flags/#webxr-incubations).",
     "detail": "Detail: {reason}"
   },
@@ -20,7 +20,7 @@
   "center": "🎯 Center the board",
   "centerTitle": "Bring board and view back to center",
   "stepSummary": "Step {current}/{total} — {label} · {count} tails",
-  "preview": "Preview shows the current learning step: <strong>{step}</strong> · board {width}×{length}mm, {pins} pins, 1:{ratio}. Adjustable in the <link>workshop</link> (state shared via localStorage).",
+  "preview": "Preview shows the current learning step: <strong>{step}</strong> · board {width}×{length}mm, {pins} tails, 1:{ratio}. Adjustable in the <link>workshop</link> (state shared via localStorage).",
   "phases": {
     "messen": "Measure",
     "schwalbenzahl": "Tail count",
