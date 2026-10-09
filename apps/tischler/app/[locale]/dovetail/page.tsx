@@ -18,6 +18,7 @@ import { SurfaceModeBar } from "../../../components/SurfaceModeBar";
 import { SurfacePanel } from "../../../components/SurfacePanel";
 import { PlacementHandles } from "../../../components/PlacementHandles";
 import { VoiceConsole } from "../../../components/VoiceConsole";
+import { MeisterLiveCard } from "../../../components/MeisterLiveCard";
 import { createDefaultModeBundle } from "../../../lib/surface-modes";
 import { createPersistedPlacementProvider } from "../../../lib/tracking/persisted-placement";
 import { registerDefaultModels } from "../../../lib/surface-modes/cad-defaults";
@@ -215,6 +216,9 @@ export default function DovetailPage() {
         )}
 
         <section>
+          <div style={{ marginBottom: "1rem" }}>
+            <MeisterLiveCard locale={appLocale} thema="zinken" />
+          </div>
           <p className="cc-kicker" style={{ marginBottom: "0.6rem" }}>
             {t("askMaster")}
           </p>

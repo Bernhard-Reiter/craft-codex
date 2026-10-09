@@ -6,6 +6,7 @@ import { LocalRAGProvider } from "../../../lib/rag/local-rag";
 import { KeywordTopicGuard } from "../../../lib/rag/topic-guard";
 import { getDemoCorpus } from "../../../lib/rag/corpus";
 import { VoiceConsole } from "../../../components/VoiceConsole";
+import { MeisterLiveCard } from "../../../components/MeisterLiveCard";
 import { SiteFooter } from "../../../components/SiteFooter";
 import { createServerAnswerFn } from "../../../lib/voice/server-providers";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
@@ -57,6 +58,10 @@ export default function VoiceTestPage() {
         <p className="cc-muted" style={{ lineHeight: 1.6, margin: 0 }}>
           {t("intro", { count: getDemoCorpus(appLocale).length })}
         </p>
+
+        <div style={{ marginTop: "1.75rem" }}>
+          <MeisterLiveCard locale={appLocale} />
+        </div>
 
         <section style={{ marginTop: "1.75rem" }}>
           {voiceStatus === "probing" ? (

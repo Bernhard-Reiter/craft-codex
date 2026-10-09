@@ -91,13 +91,66 @@ function refMeta(ref) {
   };
 }
 
-function stripHtml(html) {
-  return html
+/**
+ * RIS-Verwaltungsbloecke (Kopf-/Fusszeilen jedes Dokuments). Jeder Block im
+ * RIS-HTML ist ein <div class="contentBlock"> mit einem <h1>-Label —
+ * diese Bloecke sind keine Rechtsinhalte und werden beim Ernten verworfen.
+ */
+const RIS_ADMIN_HEADINGS = new Set([
+  "Kurztitel",
+  "Kundmachungsorgan",
+  "Typ",
+  "§/Artikel/Anlage",
+  "Inkrafttretensdatum",
+  "Außerkrafttretensdatum",
+  "Index",
+  "Schlagworte",
+  "Zuletzt aktualisiert am",
+  "Gesetzesnummer",
+  "Dokumentnummer",
+  "Beachte",
+  "Anmerkung",
+  "Änderung",
+  "Im RIS seit",
+]);
+
+/** Screenreader-Dopplungen (»§ 2. Paragraph 2,«) entfernen. */
+function dropScreenreader(html) {
+  return html.replace(/<span class="sr-only">[\s\S]*?<\/span>/gi, "");
+}
+
+/** Nur Inhaltsbloecke behalten; Verwaltungsbloecke (s. o.) verwerfen. */
+export function keepContentBlocks(html) {
+  const parts = html.split(/<div class="contentBlock">/i);
+  if (parts.length < 2) return html; // unbekannte Struktur → nichts wegwerfen
+  const kept = [];
+  for (const part of parts.slice(1)) {
+    // Block-Label = <h1 class="Titel …"> (RIS-HTML, Stand 2026-10).
+    const h = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(part);
+    const heading = h ? dropScreenreader(h[1]).replace(/<[^>]+>/g, "").trim() : "";
+    if (RIS_ADMIN_HEADINGS.has(heading)) continue;
+    // Das Block-Label selbst (»Text«, »Langtitel« …) ist kein Inhalt.
+    kept.push(part.replace(/<h1[^>]*>[\s\S]*?<\/h1>/i, ""));
+  }
+  return kept.join("\n");
+}
+
+/** Oeffentlicher RIS-Link je Paragraph/Anlage (NOR-Dokumentnummer). */
+export function risDocUrl(risId) {
+  return /^NOR\d+$/.test(risId)
+    ? `https://www.ris.bka.gv.at/Dokumente/Bundesnormen/${risId}/${risId}.html`
+    : "";
+}
+
+export function stripHtml(html) {
+  return dropScreenreader(keepContentBlocks(html))
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|li|tr|h[1-6])>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, n) => (Number(n) === 160 ? " " : String.fromCodePoint(Number(n))))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
     .replace(/&amp;/g, "&")
     .replace(/&[a-z]+;/gi, " ")
     .replace(/[ \t]+/g, " ")
@@ -175,7 +228,8 @@ async function main() {
       source: ${tsString(d.source)},
       attribution: "Rechtsinformationssystem des Bundes (RIS), amtliches Werk gem. §7 UrhG",
       license: "official-document",
-      topic: ${tsString(d.topic)},
+      topic: ${tsString(d.topic)},${risDocUrl(d.risId) ? `
+      source_url: ${tsString(risDocUrl(d.risId))},` : ""}
     },
   },`,
     )
@@ -204,7 +258,10 @@ export function getRisCorpus(): RAGDocument[] {
   console.log(`✓ ${docs.length} Korpus-Dokumente → ${OUT_PATH}`);
 }
 
-main().catch((e) => {
-  console.error("Fatal:", e);
-  process.exit(1);
-});
+// Nur als Skript ernten — beim Import (Tests) keine Netzlast.
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((e) => {
+    console.error("Fatal:", e);
+    process.exit(1);
+  });
+}

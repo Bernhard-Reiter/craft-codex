@@ -16,6 +16,7 @@ import { getDemoCorpus } from "../../../lib/rag/corpus";
 import { useServerVoice } from "../../../lib/voice/use-server-voice";
 import { createServerAnswerFn } from "../../../lib/voice/server-providers";
 import { VoiceConsole } from "../../../components/VoiceConsole";
+import { MeisterLiveCard } from "../../../components/MeisterLiveCard";
 import { ZinkenDiagram } from "../../../components/ZinkenDiagram";
 import { SchwalbenwinkelWahl } from "../../../components/SchwalbenwinkelWahl";
 import { OfflineTrust } from "../../../components/OfflineTrust";
@@ -299,6 +300,9 @@ export default function LernenPage() {
           <p className="cc-sub" style={{ marginBottom: "1rem" }}>
             {t("ask.sub")}
           </p>
+          <div style={{ maxWidth: 640, marginBottom: "1rem" }}>
+            <MeisterLiveCard locale={appLocale} thema="zinken" />
+          </div>
           <div style={{ maxWidth: 640 }}>
             {voiceStatus === "probing" ? (
               <p className="cc-muted" style={{ fontSize: "0.85rem" }}>

@@ -107,11 +107,13 @@ function makeSecondRow(): ContributionRowLike {
 
 // ---------------------------------------------------------------------------
 describe("community corpus — golden master (Bestand bleibt unangetastet)", () => {
-  it("getDemoCorpus('de') enthaelt >=268 Docs und ALLE Legacy-IDs", () => {
+  // Untergrenze 244 (vorher 268): RIS-Neuernte 2026-10-09 schneidet die
+  // RIS-Verwaltungsbloecke weg → 163 statt 187 RIS-Chunks (bewusst, Lienz-Demo).
+  it("getDemoCorpus('de') enthaelt >=244 Docs und ALLE Legacy-IDs", () => {
     const legacy = legacyCorpus("de");
     const demo = getDemoCorpus("de");
-    expect(legacy.length).toBeGreaterThanOrEqual(268);
-    expect(demo.length).toBeGreaterThanOrEqual(268);
+    expect(legacy.length).toBeGreaterThanOrEqual(244);
+    expect(demo.length).toBeGreaterThanOrEqual(244);
     const demoIds = new Set(demo.map((d) => d.id));
     for (const doc of legacy) {
       expect(demoIds.has(doc.id), `legacy id ${doc.id} missing`).toBe(true);
