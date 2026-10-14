@@ -22,7 +22,7 @@ Unberührt: `/dovetail`, `/lernen`, `/werkstatt`, Lienz, PR #41.
 - **Rundung:** Der Test prüft den genauen Wert 2T = 21,54, die Anzeige rundet auf 0,1. Der Lehrgang erklärt, warum das Buch 21,6 erhält (es rundet T vorher auf 10,8).
 - **Sicherheit:** AR nur zum Anreißen und Prüfen, Sägen und Stemmen ohne Brille. Das steht sichtbar in der App und in `ihm-demo.md`.
 - **Streichmaß:** Vorgabe ist das Buch (genau D). Die Zugabe von 0,4–0,8 mm ist als »Werkstattpraxis, weicht vom Lehrbuch ab« gekennzeichnet, mit Quellen (Woodsmith 2022, Popular Woodworking 2024, per WebFetch geprüft).
-- **Bilder:** Im Zweig liegen keine jpg/png/heic. Alles, was vom Lehrbuch-Foto stammt, liegt nur lokal außerhalb des Repos.
+- **Bilder:** Im Zweig liegen keine Bilddateien (jpg/png/heic).
 
 ## Quellen
 
@@ -55,6 +55,7 @@ Nachlauf nach den Text-Fixes (Streichmaß, Spur): Kopf b56b42c, gleiches Skript.
   - AR-Fading (volle Linien → Endpunkte → aus)
   - Hilfestufen nach der Leistung statt von Hand gewählt
   - Messe-Modus
+- **halbverdeckt:** Zeichnung und 3D zeigen noch die offene Zinkung (Nacht 2).
 - **Noch nicht geprüft:** AR/VR auf der Quest 3. Bisher gibt es nur Build und Unit-Tests, kein Gerätetest.
 - **Kein Merge:** Der Stand liegt als Entwurf-PR vor.
 
