@@ -121,6 +121,8 @@
     "neu": "zu ungenau — bitte neu ausrichten",
     "ungueltig": "Die drei Punkte liegen fast auf einer Linie. Bitte neu ausrichten.",
     "vrStatus": "Virtuelle Hobelbank · Zeitlupe",
-    "pruefen": "Prüfe jede projizierte Linie mit dem Maßstab, bevor du anreißt. Die Brille ist kein Messwerkzeug."
+    "pruefen": "Prüfe jede projizierte Linie mit dem Maßstab, bevor du anreißt. Die Brille ist kein Messwerkzeug.",
+    "masseBuch": "Buchbeispiel {b} × {d} mm",
+    "masseEigen": "Eigene Maße aus dem Rechner: {b} × {d} mm"
   }
 }

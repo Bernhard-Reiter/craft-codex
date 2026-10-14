@@ -121,6 +121,8 @@
     "neu": "too inaccurate — please align again",
     "ungueltig": "The three points are almost in a line. Please align again.",
     "vrStatus": "Virtual workbench · slow motion",
-    "pruefen": "Check every projected line with a rule before you mark it. The headset is not a measuring tool."
+    "pruefen": "Check every projected line with a rule before you mark it. The headset is not a measuring tool.",
+    "masseBuch": "Textbook example {b} × {d} mm",
+    "masseEigen": "Your measurements from the calculator: {b} × {d} mm"
   }
 }

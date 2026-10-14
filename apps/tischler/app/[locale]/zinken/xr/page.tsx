@@ -21,6 +21,7 @@ import {
   type DreiPunktErgebnis,
 } from "../../../../components/zinken/XRDreiPunktRegistrierung";
 import { bewerteRegistrierung, zinkenModellPunkte } from "../../../../lib/zinken/xr-registrierung";
+import { xrMasseAusSuche, type XRMasse } from "../../../../lib/zinken/xr-masse";
 
 const MIT_ANIMATION: readonly SchrittId[] = ["saegen", "stemmen", "passen"];
 /** Vor der Registrierung: Werkstück schwebt auf Arbeitshöhe vor dem Lehrling. */
@@ -38,7 +39,15 @@ export default function ZinkenXRPage() {
   const t = useTranslations("zinken");
   const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
   const lehrgang = getLehrgang(appLocale);
-  const teilung = useMemo(() => zinkenTeilung(140, 20), []);
+  // Maße aus dem Rechner (?b=&d=…), sonst Buchbeispiel 140 × 20 — immer sichtbar angezeigt.
+  const [masse, setMasse] = useState<XRMasse>(() => xrMasseAusSuche(""));
+  useEffect(() => {
+    setMasse(xrMasseAusSuche(window.location.search));
+  }, []);
+  const teilung = useMemo(
+    () => zinkenTeilung(masse.B, masse.D, { dichte: masse.dichte, azs: masse.azs }),
+    [masse],
+  );
   const modellPunkte = useMemo(() => zinkenModellPunkte(teilung.layout.B, teilung.layout.D), [teilung]);
 
   const [support, setSupport] = useState<XRSupport | null>(null);
@@ -107,8 +116,11 @@ export default function ZinkenXRPage() {
           ? `${t("xr.ausgerichtet", { mm: zahl(registrierung.rmsError * 1000), guete: t(`xr.${guete}`) })} · ${t("xr.pruefen")}`
           : t("xr.nichtAusgerichtet");
 
+  const mm = (n: number) => n.toLocaleString(appLocale === "en" ? "en-GB" : "de-AT", { maximumFractionDigits: 1 });
+  const masseText = t(masse.buch ? "xr.masseBuch" : "xr.masseEigen", { b: mm(masse.B), d: mm(masse.D) });
+
   const tafelTexte = {
-    titel: `${t("nav.schritt", { nr: schritt.nr })}: ${schritt.titel}`,
+    titel: `${t("nav.schritt", { nr: schritt.nr })}: ${schritt.titel} · ${masseText}`,
     zeilen: [...schritt.nachmachen.map((n, i) => `${i + 1}. ${n.kurz}`), `✓ ${schritt.kontrollpunkt[0] ?? ""}`],
     status,
     sicherheit: t("hero.sicherheit"),
@@ -133,6 +145,7 @@ export default function ZinkenXRPage() {
         <p className="cc-kicker">{t("hero.kicker")}</p>
         <h1 className="cc-display" style={{ margin: "0.3rem 0 0.5rem", fontSize: "clamp(1.6rem, 3.5vw, 2.3rem)" }}>{t("xr.title")}</h1>
         <p className="cc-lead" style={{ maxWidth: "62ch" }}>{t("xr.lead")}</p>
+        <p className="cc-muted" data-testid="xr-masse" style={{ marginTop: "0.4rem" }}>{masseText}</p>
         <p className="cc-note" role="note" style={{ marginTop: "0.8rem" }} data-testid="ar-regel">{t("hero.sicherheit")}</p>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", marginTop: "0.9rem", alignItems: "center" }}>

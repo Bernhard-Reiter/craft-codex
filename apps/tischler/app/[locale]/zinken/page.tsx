@@ -18,6 +18,7 @@ import { LernProtokollPanel, browserAblage } from "../../../components/zinken/Le
 import { getLehrgang, schrittAusQuery } from "../../../lib/zinken/lehrgang-index";
 import type { Hilfestufe, SchrittId } from "../../../lib/zinken/lehrgang-typen";
 import { protokolliere } from "../../../lib/zinken/protokoll";
+import { xrHref } from "../../../lib/zinken/xr-masse";
 
 const Werkstueck3D = dynamic(
   () => import("../../../components/zinken/ZinkenWerkstueck3D").then((m) => m.ZinkenWerkstueck3D),
@@ -110,7 +111,7 @@ export default function ZinkenLehrgangPage() {
             {t("hero.sicherheit")}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", marginTop: "0.8rem", alignItems: "center" }}>
-            <Link href="/zinken/xr" className="cc-btn cc-btn--primary cc-btn--sm">{t("hero.xr")}</Link>
+            <Link href={teilung ? xrHref(eingabe) : "/zinken/xr"} className="cc-btn cc-btn--primary cc-btn--sm">{t("hero.xr")}</Link>
             <span className="cc-muted" style={{ fontSize: "0.78rem", maxWidth: "60ch" }}>{t("hero.quelle")}</span>
           </div>
         </header>
