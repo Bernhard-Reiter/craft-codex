@@ -66,6 +66,7 @@ Die Prüfung fand zwei Blocker. Beide sind behoben, jeweils mit eigenem Test.
   - Hilfestufen nach der Leistung statt von Hand gewählt
   - Messe-Modus
 - **halbverdeckt:** Zeichnung und 3D zeigen noch die offene Zinkung (Nacht 2).
+- **Kleinkram aus den Prüfungen (Nacht 2):** Das AZS-Feld lässt sich nicht ganz leeren, weil der Vorschlag sofort hineinspringt. AR übernimmt B × D, Dichte und AZS, aber nicht »halbverdeckt«. Eine ungültige AZS führt in AR zum ganzen Buchbeispiel. Die Seite rendert beim Abspielen in jedem Frame neu. Einige Konstanten und Zahlformate stehen doppelt. `/zinken/xr` hat noch keinen eigenen Titel und kein eigenes hreflang. Wechselt der aktive Controller mitten im Ausrichten, kann die Drei-Punkt-Registrierung Punkte von beiden Händen mischen. Der XR-Canvas hat noch keine SceneBoundary, ein Fehler in der Szene reißt also die ganze Seite mit.
 - **Noch nicht geprüft:** AR/VR auf der Quest 3. Bisher gibt es nur Build und Unit-Tests, kein Gerätetest.
 - **Kein Merge:** Der Stand liegt als Entwurf-PR vor.
 
@@ -78,3 +79,10 @@ Die Prüfung fand zwei Blocker. Beide sind behoben, jeweils mit eigenem Test.
 5. **Studie:** Welche Hochschule, wer betreut, braucht es ein Ethikvotum? (`studiendesign.md`)
 6. **Stemmen:** Soll innen begonnen werden wie bei Gochnour und Cosman, oder bleibt außen → innen?
 7. **#41:** Bei der Migration von #41 die neue `ZinkenXRTafel` mitziehen? Das wäre eine Datei.
+
+**Webseite im VI4-Look** (eigener Zweig, gestapelt auf diesen PR, noch nicht gepusht):
+
+8. **VOAI-Werte öffentlich:** Dürfen die Farb-, Radius- und Größenwerte von VOAI Paper in diesem öffentlichen MIT-Repo stehen? Kopiert ist keine Datei, aber die Werte stammen aus einer nicht öffentlichen Quelle. Bis zu deiner Antwort bleibt der Zweig lokal.
+9. **Signalgelb:** Fällt Gelb auf den VI4-Seiten ganz weg?
+10. **Umfang:** Sollen später alle Routen VI4 bekommen? Stufe 1 ist nur `/zinken` und `/zinken/xr`, mit Header dort.
+11. **Startseite:** Auf VI4 umstellen, obwohl die Lienz-Demo dort »Demo zurücksetzen« nutzt? Wenn ja, wann?
