@@ -224,11 +224,13 @@ export function hirnholzStuecke(t: ZinkenTeilung): HirnholzStueck[] {
       return {
         id: `abfall-${s.index}`,
         art: "abfall" as const,
+        // Gegenform der Zinken: außen breiter, innen schmaler. Jede Flanke
+        // liegt außen und innen genau auf der Flanke des Nachbarzinkens.
         punkte: [
-          [s.von + dx, 0],
-          [s.bis - dx, 0],
-          [s.bis + dx, D],
-          [s.von - dx, D],
+          [s.von - dx, 0],
+          [s.bis + dx, 0],
+          [s.bis - dx, D],
+          [s.von + dx, D],
         ] as const,
       };
     }
