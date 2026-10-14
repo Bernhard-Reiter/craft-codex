@@ -131,7 +131,7 @@ export const LEHRGANG_DE: readonly LehrgangSchritt[] = [
     ziel: "Du reißt Grundlinie, Teilung, Schrägen und Abfall am Zinkenbrett so an, dass jeder Schnitt eine klare Linie hat.",
     werkzeug: ["Streichmaß", "Anreißmesser", "Schmiege (auf 1:6)", "Anschlagwinkel", "weicher Bleistift"],
     vormachen: [
-      "Ich stelle das Streichmaß genau auf die Dicke des Gegenbretts. Am besten halte ich es direkt am Brett an, statt eine Zahl abzulesen.",
+      "Ich stelle das Streichmaß genau auf die Dicke des Gegenbretts. Am besten halte ich es direkt am Brett an, statt eine Zahl abzulesen. Viele Tischler stellen es 0,4 bis 0,8 mm größer ein. Dann stehen Zinken und Schwalben nach dem Leimen etwas über und werden bündig gehobelt. Hier arbeiten wir wie das Buch: genau auf D.",
       "Die Grundlinie reiße ich rundum: beide Flächen und beide Kanten, immer mit dem Anschlag an der Hirnholzkante. Ich drücke leicht und mache lieber zwei leichte Züge als einen festen.",
       "Auf dem Hirnholz trage ich die Teilung von der Mittellinie ab. Von jedem Teilungspunkt aus reiße ich mit der Schmiege die Schrägen an. Beim Zinkenbrett liegen die Schrägen auf dem Hirnholz.",
       "Von den Schrägen aus führe ich die Linien mit dem Winkel senkrecht auf beiden Flächen bis zur Grundlinie hinunter.",

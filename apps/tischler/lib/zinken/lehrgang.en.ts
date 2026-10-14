@@ -131,7 +131,7 @@ export const LEHRGANG_EN: readonly LehrgangSchritt[] = [
     ziel: "You mark out the baseline, spacing, slopes and waste on the pin board so that every cut has a clear line.",
     werkzeug: ["Marking gauge", "Marking knife", "Sliding bevel (set to 1:6)", "Try square", "Soft pencil"],
     vormachen: [
-      "I set the marking gauge to exactly the thickness of the other board. It's best to set it straight off the board instead of reading a number.",
+      "I set the marking gauge to exactly the thickness of the other board. It's best to set it straight off the board instead of reading a number. Many woodworkers set it 0.4 to 0.8 mm (about 1/64 to 1/32 in) wider. Then the pins and tails stand slightly proud after glue-up and get planed flush. Here we work like the book: exactly D.",
       "I mark the baseline all the way round: both faces and both edges, always with the fence against the end grain. I press lightly. Two light passes are better than one heavy one.",
       "On the end grain I mark out the spacing from the center line. From each spacing point I mark the slopes with the sliding bevel. On the pin board, the slopes go on the end grain.",
       "From the slopes I use the try square to take the lines straight down both faces to the baseline.",
