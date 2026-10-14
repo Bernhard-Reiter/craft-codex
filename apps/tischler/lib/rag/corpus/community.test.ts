@@ -1,3 +1,4 @@
+import { getZinkenLehrgangCorpus } from "./zinken-lehrgang-corpus";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { RAGDocument } from "@craft-codex/core";
@@ -44,10 +45,12 @@ const manifestData = manifest as unknown as CommunityManifest;
 // ---------------------------------------------------------------------------
 // Legacy-Aggregat (OHNE Community-Layer) — der Golden-Master-Bestand.
 // ---------------------------------------------------------------------------
+
 function legacyCorpus(locale: "de" | "en"): RAGDocument[] {
   if (locale === "en") {
     return [
       ...getZinkenGrundlagenCorpusEn(),
+      ...getZinkenLehrgangCorpus("en"),
       ...getZinkenKonstruktionCorpusEn(),
       ...getDovetailCorpusEn(),
       ...getRisCorpus(),
@@ -55,6 +58,7 @@ function legacyCorpus(locale: "de" | "en"): RAGDocument[] {
   }
   return [
     ...getZinkenGrundlagenCorpus(),
+    ...getZinkenLehrgangCorpus("de"),
     ...getZinkenKonstruktionCorpus(),
     ...getDovetailCorpus(),
     ...getRisCorpus(),
