@@ -5,6 +5,8 @@ import {
   schraegeInfo,
   papierRechnung,
   pruefeZinkenEingabe,
+  hirnholzStuecke,
+  saegeschnitte,
 } from "../src/geometry/zinken-teilung.js";
 import { method1Mittellinie } from "../src/geometry/construction.js";
 
@@ -152,5 +154,72 @@ describe("method1Mittellinie — azs-Option bleibt additiv", () => {
   it("azs wird gerundet und mindestens 1", () => {
     expect(method1Mittellinie(140, 20, { azs: 0 }).AZS).toBe(1);
     expect(method1Mittellinie(140, 20, { azs: 5 }).AZT).toBe(16);
+  });
+});
+
+describe("Hirnholz des Zinkenbretts — eine Quelle für SVG/3D/AR", () => {
+  const t = zinkenTeilung(140, 20);
+  const st = hirnholzStuecke(t);
+  const breiteBei = (p: readonly (readonly [number, number])[], z: number) => {
+    // lineare Interpolation der Viereck-Kanten (außen z=0, innen z=D)
+    const f = z / 20;
+    const l = p[0]![0] + (p[3]![0] - p[0]![0]) * f;
+    const r = p[1]![0] + (p[2]![0] - p[1]![0]) * f;
+    return r - l;
+  };
+
+  it("5 Zinken + 4 Abfallstücke", () => {
+    expect(st.filter((s) => s.art === "zinken")).toHaveLength(5);
+    expect(st.filter((s) => s.art === "abfall")).toHaveLength(4);
+  });
+
+  it("auf der Mittellinie: Innenzinken genau 1T, Abfall genau 2T", () => {
+    const innen = st.find((s) => s.id === "zinken-2")!;
+    const abfall = st.find((s) => s.id === "abfall-1")!;
+    expect(breiteBei(innen.punkte, 10)).toBeCloseTo(t.layout.T, 9);
+    expect(breiteBei(abfall.punkte, 10)).toBeCloseTo(2 * t.layout.T, 9);
+  });
+
+  it("Zinken innen breiter als außen, Differenz = 2·D/(2·6) = D/6", () => {
+    const z = st.find((s) => s.id === "zinken-2")!;
+    expect(breiteBei(z.punkte, 20) - breiteBei(z.punkte, 0)).toBeCloseTo(20 / 6, 9);
+  });
+
+  it("Flankenschräge 1:6 = 9,46° zur Dickenrichtung", () => {
+    const z = st.find((s) => s.id === "zinken-2")!;
+    const [aL, , , iL] = z.punkte;
+    const grad = (Math.atan(Math.abs(aL[0] - iL[0]) / 20) * 180) / Math.PI;
+    expect(grad).toBeCloseTo(9.4623, 3);
+  });
+
+  it("Randzinken behalten die Brettkante", () => {
+    expect(st[0]!.punkte[0][0]).toBe(0);
+    expect(st[0]!.punkte[3][0]).toBe(0);
+    expect(st.at(-1)!.punkte[1][0]).toBe(140);
+  });
+
+  it("Stücke füllen das Hirnholz lückenlos (Flächen-Summe = B·D)", () => {
+    const flaeche = (p: readonly (readonly [number, number])[]) => {
+      let a = 0;
+      for (let i = 0; i < p.length; i++) {
+        const [x1, y1] = p[i]!;
+        const [x2, y2] = p[(i + 1) % p.length]!;
+        a += x1 * y2 - x2 * y1;
+      }
+      return Math.abs(a) / 2;
+    };
+    const summe = st.reduce((s, x) => s + flaeche(x.punkte), 0);
+    expect(summe).toBeCloseTo(140 * 20, 6);
+  });
+
+  it("8 Sägeschnitte (je 2 an 3 Innenzinken + je 1 an 2 Randzinken), Abfall immer neben dem Zinken", () => {
+    const sch = saegeschnitte(t);
+    expect(sch).toHaveLength(8);
+    for (const s of sch) {
+      expect(s.aussen[1]).toBe(0);
+      expect(s.innen[1]).toBe(20);
+    }
+    expect(sch.find((s) => s.id === "zinken-0-rechts")!.abfallSeite).toBe(1);
+    expect(sch.find((s) => s.id === "zinken-2-links")!.abfallSeite).toBe(-1);
   });
 });

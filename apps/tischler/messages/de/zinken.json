@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "title": "Zinken-Lehrgang",
+    "description": "Zinken von Hand lernen: Aufteilung, Anreißen, Sägen, Stemmen — Schritt für Schritt, am Computer, in AR und in VR."
+  },
+  "hero": {
+    "kicker": "Lehrgang · Offene Zinkung · Zinken zuerst",
+    "title": "Deine erste Zinkung",
+    "lead": "Sechs Schritte vom Brett bis zur geleimten Ecke. In jedem Schritt machen wir es zuerst vor, dann machst du es nach, und am Ende prüfst du selbst, ob es passt.",
+    "quelle": "Rechenregel: geometrische Zinkenteilung auf der Mittellinie nach dem österreichischen Fachkunde-Lehrbuch Tischler, Kap. 4.1 (in eigenen Worten).",
+    "xr": "In AR / VR öffnen",
+    "sicherheit": "AR-Regel: Mit der Brille wird nur angerissen und geprüft. Sägen und Stemmen nie mit aufgesetzter Brille: erst ansehen, Brille ab, dann arbeiten."
+  },
+  "nav": {
+    "label": "Schritte des Lehrgangs",
+    "schritt": "Schritt {nr}",
+    "zurueck": "Zurück",
+    "weiter": "Weiter"
+  },
+  "schritt": {
+    "ziel": "Ziel",
+    "werkzeug": "Werkzeug",
+    "vormachen": "Vormachen — der Meister erklärt",
+    "nachmachen": "Nachmachen — jetzt du",
+    "kontrollpunkt": "Kontrollpunkt — woran merkst du, dass es passt?",
+    "fehler": "Typische Fehler",
+    "fehlerUrsache": "Ursache",
+    "fehlerAbhilfe": "Abhilfe",
+    "sicherheit": "Sicherheit",
+    "nachmachenAus": "Hilfe ist aus. Arbeite nach dem Ziel und prüfe am Kontrollpunkt."
+  },
+  "hilfe": {
+    "label": "Hilfe",
+    "stufe2": "Viel",
+    "stufe1": "Stichworte",
+    "stufe0": "Keine",
+    "erklaerung": "Wenn du sicherer wirst, nimm weniger Hilfe. So lernst du, ohne Anleitung zu arbeiten."
+  },
+  "fragen": {
+    "titel": "Kontrollfragen",
+    "richtig": "Richtig.",
+    "falsch": "Noch nicht.",
+    "nochmal": "Nochmal versuchen",
+    "stand": "{richtig} von {gesamt} richtig"
+  },
+  "rechner": {
+    "titel": "Rechner — Aufteilung",
+    "breite": "Brettbreite B (mm)",
+    "dicke": "Brettdicke D (mm)",
+    "dichte": "Schwalbenzahl schätzen mit",
+    "dicht": "B / (1,7 · D) — mehr Schwalben",
+    "weit": "B / (2 · D) — weniger Schwalben",
+    "azs": "Schwalbenzahl AZS (du legst fest)",
+    "vorschlag": "Vorschlag übernehmen ({n})",
+    "art": "Art",
+    "offen": "offen",
+    "halbverdeckt": "halbverdeckt (Blattl ¼ D)",
+    "ergebnis": "Ergebnis",
+    "azsRoh": "Formel ergibt",
+    "azt": "Teile AZT = 3 · AZS + 1",
+    "t": "Teil T = B / AZT",
+    "zinken": "Zinken (Mittellinie) = 1T",
+    "schwalbe": "Schwalbe (Mittellinie) = 2T",
+    "schraege": "Schräge",
+    "hilfsdreieck": "Hilfsdreieck: 1T auf {ratio}T",
+    "blatt": "Blattl BL / Schwalbenlänge SL",
+    "geht": "Kontrolle: {zinken} × 1T + {schwalben} × 2T = {summe} mm",
+    "papier": "Auf dem Papier rundet man T zuerst: T ≈ {t} → 2T ≈ {zweiT} → {ratio}T ≈ {hilf} mm. Der Rechner rechnet ungerundet weiter; der Unterschied ist kleiner als ein Bleistiftstrich.",
+    "winkelHinweis": "1:6 ergibt rund 9,5°. Die Angabe »10° bis 14°« ist eine zweite Faustregel, nicht derselbe Winkel.",
+    "fehler": {
+      "breite_ungueltig": "Brettbreite zwischen 40 und 600 mm eingeben.",
+      "dicke_ungueltig": "Brettdicke zwischen 8 und 50 mm eingeben.",
+      "dicke_zu_gross": "Das Brett ist zu dick für diese Breite.",
+      "azs_ungueltig": "Schwalbenzahl als ganze Zahl von 1 bis 20 eingeben."
+    }
+  },
+  "svg": {
+    "titel": "Hirnholz des Zinkenbretts mit Teilung auf der Mittellinie",
+    "mittellinie": "Mitte",
+    "aussen": "außen",
+    "innen": "innen",
+    "abfall": "Abfall",
+    "hilfsdreieck": "Hilfsdreieck"
+  },
+  "buehne": {
+    "label": "3D-Werkstück",
+    "abspielen": "Abspielen",
+    "pause": "Pause",
+    "vonVorn": "Von vorn",
+    "zeitlupe": "Zeitlupe",
+    "normal": "Normal",
+    "fallback": "3D ist auf diesem Gerät nicht verfügbar. Die Zeichnung zeigt dasselbe."
+  },
+  "protokoll": {
+    "titel": "Lern-Protokoll (freiwillig)",
+    "erklaerung": "Nur wenn du es einschaltest: Auf diesem Gerät wird gespeichert, welche Schritte du geöffnet und welche Fragen du richtig hattest. Keine Namen, keine Uhrzeit, nichts geht ins Netz. Du kannst es jederzeit als Datei sichern oder löschen.",
+    "an": "Protokoll einschalten",
+    "aus": "Ausschalten und löschen",
+    "anzahl": "{n} Einträge",
+    "export": "Als Datei sichern",
+    "loeschen": "Einträge löschen",
+    "studie": "Für eine Studie gilt zusätzlich: Teilnahme nur mit Einwilligung (bei Minderjährigen auch der Eltern) und Zustimmung von Betrieb oder Schule."
+  }
+}

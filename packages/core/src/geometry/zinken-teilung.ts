@@ -186,3 +186,78 @@ export function papierRechnung(t: ZinkenTeilung): {
     hilfsLaenge: Math.round(t.layout.slopeRatio * T * 10) / 10,
   };
 }
+
+/** Punkt im Hirnholz des Zinkenbretts: x entlang B, z quer durch D (0 = außen, D = innen). */
+export type HirnholzPunkt = readonly [x: number, z: number];
+
+export interface HirnholzStueck {
+  id: string;
+  art: "zinken" | "abfall";
+  /** Viereck [außen-links, außen-rechts, innen-rechts, innen-links]. */
+  punkte: readonly [HirnholzPunkt, HirnholzPunkt, HirnholzPunkt, HirnholzPunkt];
+}
+
+export interface Saegeschnitt {
+  id: string;
+  /** Linie im Hirnholz von außen (z=0) nach innen (z=D). */
+  aussen: HirnholzPunkt;
+  innen: HirnholzPunkt;
+  /** Auf welcher Seite der Linie liegt der Abfall (−1 = links, +1 = rechts)? */
+  abfallSeite: -1 | 1;
+}
+
+/**
+ * Zinken und Abfall im Hirnholz des Zinkenbretts (Zinken zuerst).
+ * Auf der Mittellinie (z = D/2) gilt die Teilung 1T/2T genau; zur Außenseite
+ * werden die Zinken um D/(2·ratio) je Flanke schmaler, zur Innenseite breiter.
+ * Randzinken behalten die Brettkante als Außenflanke.
+ * EINE Quelle für SVG, 3D und AR.
+ */
+export function hirnholzStuecke(t: ZinkenTeilung): HirnholzStueck[] {
+  const { B, D, slopeRatio } = t.layout;
+  const dx = D / 2 / slopeRatio;
+  const eps = 1e-9;
+  return t.segmente.map((s) => {
+    const linksKante = s.von < eps;
+    const rechtsKante = Math.abs(s.bis - B) < eps;
+    if (s.art === "schwalbe") {
+      return {
+        id: `abfall-${s.index}`,
+        art: "abfall" as const,
+        punkte: [
+          [s.von + dx, 0],
+          [s.bis - dx, 0],
+          [s.bis + dx, D],
+          [s.von - dx, D],
+        ] as const,
+      };
+    }
+    const lA = linksKante ? 0 : s.von + dx;
+    const lI = linksKante ? 0 : s.von - dx;
+    const rA = rechtsKante ? B : s.bis - dx;
+    const rI = rechtsKante ? B : s.bis + dx;
+    return {
+      id: `zinken-${s.index}`,
+      art: "zinken" as const,
+      punkte: [
+        [lA, 0],
+        [rA, 0],
+        [rI, D],
+        [lI, D],
+      ] as const,
+    };
+  });
+}
+
+/** Alle Sägeschnitte am Zinkenbrett: jede Zinkenflanke, die nicht Brettkante ist. */
+export function saegeschnitte(t: ZinkenTeilung): Saegeschnitt[] {
+  const out: Saegeschnitt[] = [];
+  for (const st of hirnholzStuecke(t)) {
+    if (st.art !== "zinken") continue;
+    const [aL, aR, iR, iL] = st.punkte;
+    if (aL[0] > 1e-9) out.push({ id: `${st.id}-links`, aussen: aL, innen: iL, abfallSeite: -1 });
+    if (Math.abs(aR[0] - t.layout.B) > 1e-9)
+      out.push({ id: `${st.id}-rechts`, aussen: aR, innen: iR, abfallSeite: 1 });
+  }
+  return out;
+}
