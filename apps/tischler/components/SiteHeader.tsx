@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "../i18n/navigation";
 import { routing } from "../i18n/routing";
 import { DovetailMark } from "./DovetailMark";
+import { istVi4Route } from "../lib/look";
 
 const LINKS: Array<{ href: string; key: string }> = [
   { href: "/", key: "start" },
@@ -22,9 +23,11 @@ export function SiteHeader() {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("common.header");
+  // VI4-Look nur auf den Routen aus lib/look.ts; sonst exakt das bisherige Markup (Attribut fehlt).
+  const vi4 = istVi4Route(pathname);
 
   return (
-    <header className="cc-header">
+    <header className="cc-header" data-look={vi4 ? "vi4" : undefined}>
       <Link href="/" className="cc-logo">
         <DovetailMark />
         <span>
@@ -62,7 +65,7 @@ export function SiteHeader() {
               aria-current={l === locale ? "true" : undefined}
               style={{
                 textTransform: "uppercase",
-                fontWeight: l === locale ? 800 : 500,
+                fontWeight: l === locale ? (vi4 ? 600 : 800) : 500,
                 borderBottom: l === locale ? "3px solid var(--cc-yellow)" : "none",
               }}
             >
