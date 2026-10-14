@@ -100,5 +100,27 @@
     "export": "Als Datei sichern",
     "loeschen": "Einträge löschen",
     "studie": "Für eine Studie gilt zusätzlich: Teilnahme nur mit Einwilligung (bei Minderjährigen auch der Eltern) und Zustimmung von Betrieb oder Schule."
+  },
+  "xr": {
+    "title": "Zinken in AR und VR",
+    "lead": "AR legt Anriss, Sägelinien mit Abfallseite und Stemm-Zonen auf dein echtes Brett. VR zeigt dieselbe Arbeit an einer virtuellen Hobelbank in Zeitlupe, aus deiner Sicht.",
+    "ar": "AR starten (Quest 3)",
+    "vr": "VR starten",
+    "nichtVerfuegbar": "WebXR ist hier nicht verfügbar. Öffne die Seite im Browser der Quest 3. Unten siehst du die Vorschau.",
+    "zurueckLehrgang": "Zurück zum Lehrgang",
+    "vorschau": "Vorschau (ohne Brille)",
+    "ausrichten": "Brett ausrichten",
+    "p1": "Punkt 1/3: Spitze auf die OBERE LINKE Ecke der Außenfläche, dann GRIFF-Taste",
+    "p2": "Punkt 2/3: OBERE RECHTE Ecke der Außenfläche, dann GRIFF-Taste",
+    "p3": "Punkt 3/3: Marke auf der linken Kante, 100 mm unter dem Hirnholz, dann GRIFF-Taste",
+    "ohneController": "Zum Ausrichten brauchst du einen Controller.",
+    "nichtAusgerichtet": "Noch nicht ausgerichtet. Brett einspannen, Marke 100 mm unter dem Hirnholz anzeichnen, dann »Brett ausrichten«.",
+    "ausgerichtet": "Ausgerichtet: Restfehler {mm} mm ({guete})",
+    "gut": "gut",
+    "grenzwertig": "grenzwertig — Linien mit dem Maßstab prüfen",
+    "neu": "zu ungenau — bitte neu ausrichten",
+    "ungueltig": "Die drei Punkte liegen fast auf einer Linie. Bitte neu ausrichten.",
+    "vrStatus": "Virtuelle Hobelbank · Zeitlupe",
+    "pruefen": "Prüfe jede projizierte Linie mit dem Maßstab, bevor du anreißt. Die Brille ist kein Messwerkzeug."
   }
 }

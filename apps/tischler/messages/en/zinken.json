@@ -100,5 +100,27 @@
     "export": "Save as file",
     "loeschen": "Delete entries",
     "studie": "For a study, in addition: participation only with consent (for minors also from parents) and approval from the company or school."
+  },
+  "xr": {
+    "title": "Dovetails in AR and VR",
+    "lead": "AR places the layout, the saw lines with their waste side and the chopping zones on your real board. VR shows the same work at a virtual workbench in slow motion, from your point of view.",
+    "ar": "Start AR (Quest 3)",
+    "vr": "Start VR",
+    "nichtVerfuegbar": "WebXR is not available here. Open this page in the Quest 3 browser. You can see the preview below.",
+    "zurueckLehrgang": "Back to the course",
+    "vorschau": "Preview (no headset)",
+    "ausrichten": "Align board",
+    "p1": "Point 1/3: tip on the TOP LEFT corner of the outside face, then press GRIP",
+    "p2": "Point 2/3: TOP RIGHT corner of the outside face, then press GRIP",
+    "p3": "Point 3/3: mark on the left edge, 100 mm below the end grain, then press GRIP",
+    "ohneController": "You need a controller to align the board.",
+    "nichtAusgerichtet": "Not aligned yet. Clamp the board, mark a point 100 mm below the end grain, then press \"Align board\".",
+    "ausgerichtet": "Aligned: residual error {mm} mm ({guete})",
+    "gut": "good",
+    "grenzwertig": "borderline — check the lines with a rule",
+    "neu": "too inaccurate — please align again",
+    "ungueltig": "The three points are almost in a line. Please align again.",
+    "vrStatus": "Virtual workbench · slow motion",
+    "pruefen": "Check every projected line with a rule before you mark it. The headset is not a measuring tool."
   }
 }

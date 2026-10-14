@@ -37,8 +37,14 @@ export interface WerkstueckProps {
   phase: SchrittId;
   /** Fortschritt der Arbeitsgang-Animation 0..1 (von außen gesteuert). */
   fortschritt: number;
-  /** Für XR: Röhren statt Linien wären dicker — hier nur Linienstärke. */
+  /** Linienstärke (px) der Anrisslinien. */
   linienBreite?: number;
+  /**
+   * "voll" = ganzes Werkstück (Computer, VR). "anriss" = nur Linien,
+   * Sägefugen und Stemm-Zonen — für AR über dem ECHTEN Brett, das man ja
+   * nicht verdecken will. Säge und Stecheisen werden in AR nicht gezeigt.
+   */
+  darstellung?: "voll" | "anriss";
 }
 
 /** Prisma aus einem Hirnholz-Viereck, entlang y von y0 bis y1 extrudiert. */
@@ -128,12 +134,15 @@ function Fuge({ s, D, tiefe }: { s: Saegeschnitt; D: number; tiefe: number }) {
   );
 }
 
+const RECHTECK = (B: number, D: number): HirnholzPunkt[] => [[0, 0], [B, 0], [B, D], [0, D]];
+
 const sichtbar = (phase: SchrittId, ab: SchrittId) => {
   const reihe: SchrittId[] = ["holz", "aufteilung", "anreissen", "saegen", "stemmen", "passen"];
   return reihe.indexOf(phase) >= reihe.indexOf(ab);
 };
 
-export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBreite = 1.5 }: WerkstueckProps) {
+export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBreite = 1.5, darstellung = "voll" }: WerkstueckProps) {
+  const voll = darstellung === "voll";
   const { B, D } = teilung.layout;
   const LAENGE = Math.max(3 * D, 60); // sichtbarer Brettkörper unter der Grundlinie
   const stuecke = useMemo(() => hirnholzStuecke(teilung), [teilung]);
@@ -155,15 +164,15 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
   return (
     <group scale={[MM, MM, MM]} position={[(-B / 2) * MM, 0, (-D / 2) * MM]}>
       {/* Brettkörper unter der Grundlinie */}
-      <Prisma punkte={[[0, 0], [B, 0], [B, D], [0, D]]} y0={-LAENGE} y1={0} farbe={HOLZ} />
+      {voll && <Prisma punkte={RECHTECK(B, D)} y0={-LAENGE} y1={0} farbe={HOLZ} />}
 
       {/* Über der Grundlinie: vor dem Sägen ein Block, danach Zinken + Abfall einzeln */}
       {phase === "holz" || phase === "aufteilung" ? (
-        <Prisma punkte={[[0, 0], [B, 0], [B, D], [0, D]]} y0={0} y1={D} farbe={HOLZ} />
+        voll && <Prisma punkte={RECHTECK(B, D)} y0={0} y1={D} farbe={HOLZ} />
       ) : (
         <>
           {stuecke
-            .filter((s) => s.art === "zinken")
+            .filter((s) => voll && s.art === "zinken")
             .map((s) => (
               <Prisma key={s.id} punkte={s.punkte} y0={0} y1={D} farbe={HOLZ} />
             ))}
@@ -171,12 +180,14 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
             const [aussen, innen] = halbiere(s.punkte);
             const wA = abfallWeg(i, 0);
             const wI = abfallWeg(i, 1);
+            // AR: Abfall nur als durchscheinende Stemm-Zone über dem echten Holz.
+            const deck = (w: number) => (voll ? 1 - w : Math.min(1 - w, 0.4));
             return (
               <group key={s.id}>
                 <Prisma punkte={aussen} y0={0} y1={D} farbe={phase === "anreissen" ? HOLZ_DUNKEL : ABFALL}
-                  deckkraft={1 - wA} versatz={[0, wA * D * 1.5, -wA * D]} />
+                  deckkraft={deck(wA)} versatz={[0, wA * D * 1.5, -wA * D]} />
                 <Prisma punkte={innen} y0={0} y1={D} farbe={phase === "anreissen" ? HOLZ_DUNKEL : ABFALL}
-                  deckkraft={1 - wI} versatz={[0, wI * D * 1.5, wI * D]} />
+                  deckkraft={deck(wI)} versatz={[0, wI * D * 1.5, wI * D]} />
               </group>
             );
           })}
@@ -235,7 +246,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
         })}
 
       {/* Säge: Blatt am aktuellen Schnitt */}
-      {phase === "saegen" && (() => {
+      {voll && phase === "saegen" && (() => {
         const i = plan.aktiverSchnitt(fortschritt);
         const s = schnitte[i];
         if (!s) return null;
@@ -257,7 +268,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
       })()}
 
       {/* Stecheisen am aktuellen Abfall */}
-      {phase === "stemmen" && (() => {
+      {voll && phase === "stemmen" && (() => {
         const { index, haelfte } = plan.aktivesStemmen(fortschritt);
         const s = abfaelle[index];
         if (!s) return null;
@@ -283,7 +294,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
           {abfaelle.map((s) => (
             <Prisma key={`sw-${s.id}`} punkte={s.punkte} y0={0} y1={D} farbe={MARKER} deckkraft={0.92} />
           ))}
-          <Prisma punkte={[[0, D], [B, D], [B, D + LAENGE], [0, D + LAENGE]]} y0={0} y1={D} farbe={MARKER} deckkraft={0.92} />
+          <Prisma punkte={[[0, D], [B, D], [B, D + LAENGE], [0, D + LAENGE]]} y0={0} y1={D} farbe={MARKER} deckkraft={voll ? 0.92 : 0.45} />
         </group>
       )}
     </group>
@@ -291,7 +302,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
 }
 
 /** Spielt den Fortschritt ab (Zeitlupe über `tempo`), meldet ihn nach außen. */
-function Abspieler({
+export function Abspieler({
   laeuft,
   tempo,
   dauerS,
