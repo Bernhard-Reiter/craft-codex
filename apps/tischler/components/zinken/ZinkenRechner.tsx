@@ -79,7 +79,7 @@ export function ZinkenRechner({
           {t("azs")}
           <input className="cc-input" type="number" min={1} max={20} step={1} style={{ maxWidth: "7rem" }}
             value={eingabe.azs ?? teilung?.azsVorschlag ?? ""}
-            onChange={(e) => setze({ azs: zahlAus(e.target.value) })} />
+            onChange={(e) => setze({ azs: e.target.value.trim() === "" ? undefined : zahlAus(e.target.value) })} />
         </label>
         {teilung && eingabe.azs !== undefined && eingabe.azs !== teilung.azsVorschlag && (
           <button type="button" className="cc-btn cc-btn--sm" onClick={() => setze({ azs: undefined })}>
