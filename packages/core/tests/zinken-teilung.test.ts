@@ -180,9 +180,9 @@ describe("Hirnholz des Zinkenbretts — eine Quelle für SVG/3D/AR", () => {
     expect(breiteBei(abfall.punkte, 10)).toBeCloseTo(2 * t.layout.T, 9);
   });
 
-  it("Zinken innen breiter als außen, Differenz = 2·D/(2·6) = D/6", () => {
+  it("Zinken innen breiter als außen: je Flanke D/6 Versatz über die Dicke, zusammen 2·D/6", () => {
     const z = st.find((s) => s.id === "zinken-2")!;
-    expect(breiteBei(z.punkte, 20) - breiteBei(z.punkte, 0)).toBeCloseTo(20 / 6, 9);
+    expect(breiteBei(z.punkte, 20) - breiteBei(z.punkte, 0)).toBeCloseTo((2 * 20) / 6, 9);
   });
 
   it("Flankenschräge 1:6 = 9,46° zur Dickenrichtung", () => {
