@@ -39,9 +39,27 @@
 | Anreißen | laying out / marking out | als Lernschritt: “Lay out” |
 | Streichmaß | marking gauge | |
 | Gehrung | miter | US-Schreibweise (UK: mitre) |
-| Winkel (Werkzeug) | bevel gauge / sliding bevel | |
+| Winkel (Werkzeug) | bevel gauge / sliding bevel | nur im Sinn von *Schmiege*; der feste Winkel heißt Anschlagwinkel → try square |
+| Schmiege | sliding bevel | auf 1:6 bzw. 1:8 eingestellt |
+| Anschlagwinkel | try square | |
+| Anreißmesser | marking knife | |
+| Grundlinie | baseline | mit dem Streichmaß rundum gerissen, Abstand = Dicke des Gegenbretts |
+| Mittellinie | center line | Teilungsebene der Lehrbuch-Teilung (Methode 1) |
+| Teil T | part T | T = B / AZT |
+| AZS / AZT | AZS (number of tails) / AZT (number of parts) | Abkürzungen bleiben, bei erster Nennung erklären |
+| Hilfsdreieck (1T auf 6T) | helper triangle (1T over 6T) | Konstruktion der Schräge 1:6, keine Schnittlänge |
+| Abfall | waste | Abfallseite = waste side |
 | Feinsäge / Zinkensäge | dovetail saw | |
-| Stemmeisen | chisel | |
+| Dozuki | dozuki | japanische Rückensäge, Zugsäge |
+| Laubsäge | coping saw / fretsaw | zum groben Ausräumen |
+| Stemmeisen / Stecheisen | chisel | |
+| Klüpfel | mallet | |
+| Zulage | backing board (Stemmen) / caul (Verleimen) | |
+| Vorstich | knife-wall / first chop at the baseline | |
+| hinterschneiden | undercut | |
+| Sägen · Stemmen · Übertragen · Passen · Verleimen | sawing · chopping · transferring · fitting · gluing up | Lernschritt-Namen |
+| Bezugsfläche / Bezugskante | reference face / reference edge | |
+| Tischlerzeichen | face mark | |
 
 ## Wood & workpiece (Holz & Werkstück)
 
