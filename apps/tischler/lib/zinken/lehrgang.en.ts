@@ -132,7 +132,7 @@ export const LEHRGANG_EN: readonly LehrgangSchritt[] = [
     werkzeug: ["Marking gauge", "Marking knife", "Sliding bevel (set to 1:6)", "Try square", "Soft pencil"],
     vormachen: [
       "I set the marking gauge to exactly the thickness of the other board. It's best to set it straight off the board instead of reading a number. Shop practice that differs from the textbook: some woodworkers set it 0.4 to 0.8 mm (about 1/64 to 1/32 in) wider (Woodsmith 2022, Popular Woodworking 2024). Then the pins and tails stand slightly proud after glue-up and get planed flush. The course still follows the book: exactly D.",
-      "I mark the baseline all the way round: both faces and both edges, always with the fence against the end grain. I press lightly. Two light passes are better than one heavy one.",
+      "I mark the baseline all the way round: both faces and both edges, always with the fence against the end grain. I press lightly. Two light passes are better than one heavy one, both in the same track. A second, offset line will confuse you later when chopping.",
       "On the end grain I mark out the spacing from the center line. From each spacing point I mark the slopes with the sliding bevel. On the pin board, the slopes go on the end grain.",
       "From the slopes I use the try square to take the lines straight down both faces to the baseline.",
       "Finally, I put a cross in every waste piece. From now on, for every cut I know which side of the line the saw runs on.",

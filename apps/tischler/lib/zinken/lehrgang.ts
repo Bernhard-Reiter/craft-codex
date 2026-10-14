@@ -132,7 +132,7 @@ export const LEHRGANG_DE: readonly LehrgangSchritt[] = [
     werkzeug: ["Streichmaß", "Anreißmesser", "Schmiege (auf 1:6)", "Anschlagwinkel", "weicher Bleistift"],
     vormachen: [
       "Ich stelle das Streichmaß genau auf die Dicke des Gegenbretts. Am besten halte ich es direkt am Brett an, statt eine Zahl abzulesen. Werkstattpraxis, weicht vom Lehrbuch ab: Manche Tischler stellen es 0,4 bis 0,8 mm größer ein (Woodsmith 2022, Popular Woodworking 2024). Dann stehen Zinken und Schwalben nach dem Leimen etwas über und werden bündig gehobelt. Vorgabe im Lehrgang bleibt das Buch: genau D.",
-      "Die Grundlinie reiße ich rundum: beide Flächen und beide Kanten, immer mit dem Anschlag an der Hirnholzkante. Ich drücke leicht und mache lieber zwei leichte Züge als einen festen.",
+      "Die Grundlinie reiße ich rundum: beide Flächen und beide Kanten, immer mit dem Anschlag an der Hirnholzkante. Ich drücke leicht und mache lieber zwei leichte Züge als einen festen, beide in derselben Spur. Eine zweite, versetzte Linie verwirrt später beim Stemmen.",
       "Auf dem Hirnholz trage ich die Teilung von der Mittellinie ab. Von jedem Teilungspunkt aus reiße ich mit der Schmiege die Schrägen an. Beim Zinkenbrett liegen die Schrägen auf dem Hirnholz.",
       "Von den Schrägen aus führe ich die Linien mit dem Winkel senkrecht auf beiden Flächen bis zur Grundlinie hinunter.",
       "Zum Schluss kommt in jedes Abfallstück ein Kreuz. Ab jetzt weiß ich bei jedem Schnitt, auf welcher Seite der Linie die Säge läuft.",
