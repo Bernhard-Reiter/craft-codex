@@ -9,6 +9,7 @@ import { zinkenTeilung } from "@craft-codex/core";
 import { Link } from "../../../../i18n/navigation";
 import { SiteFooter } from "../../../../components/SiteFooter";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
+import { beiSitzungsEnde } from "../../../../lib/xr/sitzung-ende";
 import { getLehrgang } from "../../../../lib/zinken/lehrgang-index";
 import type { SchrittId } from "../../../../lib/zinken/lehrgang-typen";
 import { Abspieler, ZinkenWerkstueckInhalt } from "../../../../components/zinken/ZinkenWerkstueck3D";
@@ -54,8 +55,13 @@ export default function ZinkenXRPage() {
   useEffect(() => {
     let weg = false;
     detectXRSupport().then((r) => !weg && setSupport(r));
-    const ab = store.subscribe((s) => {
-      if (!s.session) setModus(null);
+    // Sitzungsende: alles zurück, was am Raum der alten Sitzung hing. Eine
+    // alte Pose stünde sonst in der neuen Sitzung als »ausgerichtet … gut« da.
+    const ab = beiSitzungsEnde(store, () => {
+      setModus(null);
+      setRegistrierung(null);
+      setRichteAus(false);
+      setUngueltig(false);
     });
     return () => {
       weg = true;
