@@ -223,3 +223,58 @@ describe("Hirnholz des Zinkenbretts — eine Quelle für SVG/3D/AR", () => {
     expect(sch.find((s) => s.id === "zinken-2-links")!.abfallSeite).toBe(-1);
   });
 });
+
+// Lage statt Summe: Die Flächen-Summe bleibt bei jeder Kippung B·D und beweist
+// deshalb nicht, wo der Abfall liegt. Hier muss jede gemeinsame Flanke von
+// Zinken und Abfall außen UND innen auf demselben x liegen.
+describe("Hirnholz — Zinken und Abfall teilen ihre Flanken (Lage, nicht nur Summe)", () => {
+  const faelle = [
+    { B: 140, D: 20, opts: {} },
+    { B: 200, D: 22, opts: {} },
+    { B: 90, D: 18, opts: {} },
+    { B: 300, D: 25, opts: { slopeRatio: 8 } },
+    { B: 240, D: 20, opts: { dichte: "weit" as const } },
+  ];
+  for (const { B, D, opts } of faelle) {
+    const st = hirnholzStuecke(zinkenTeilung(B, D, opts));
+    const name = `B ${B} / D ${D}${Object.keys(opts).length ? " " + JSON.stringify(opts) : ""}`;
+
+    it(`${name}: Nachbarn haben dieselbe Flanke außen (z=0) und innen (z=D)`, () => {
+      expect(st.length).toBeGreaterThan(2);
+      for (let i = 0; i + 1 < st.length; i++) {
+        const links = st[i]!;
+        const rechts = st[i + 1]!;
+        expect(links.art).not.toBe(rechts.art);
+        // rechte Außenflanke des linken Stücks = linke Außenflanke des rechten
+        expect(links.punkte[1][0]).toBeCloseTo(rechts.punkte[0][0], 9);
+        // rechte Innenflanke des linken Stücks = linke Innenflanke des rechten
+        expect(links.punkte[2][0]).toBeCloseTo(rechts.punkte[3][0], 9);
+      }
+    });
+
+    it(`${name}: keine Lücke und keine Überlappung bei z = 0, D/2, D`, () => {
+      for (const z of [0, D / 2, D]) {
+        const f = z / D;
+        const strecken = st.map((s) => {
+          const [aL, aR, iR, iL] = s.punkte;
+          return [aL[0] + (iL[0] - aL[0]) * f, aR[0] + (iR[0] - aR[0]) * f] as const;
+        });
+        expect(strecken[0]![0]).toBeCloseTo(0, 9);
+        expect(strecken.at(-1)![1]).toBeCloseTo(B, 9);
+        for (let i = 0; i < strecken.length; i++) {
+          expect(strecken[i]![1] - strecken[i]![0]).toBeGreaterThan(0);
+          if (i > 0) expect(strecken[i]![0]).toBeCloseTo(strecken[i - 1]![1], 9);
+        }
+      }
+    });
+  }
+
+  it("Abfall ist die Gegenform: außen breiter als innen (Zinken umgekehrt)", () => {
+    const st = hirnholzStuecke(zinkenTeilung(140, 20));
+    const breite = (p: (typeof st)[number]["punkte"], z: 0 | 1) =>
+      z === 0 ? p[1][0] - p[0][0] : p[2][0] - p[3][0];
+    for (const s of st.filter((x) => x.art === "abfall")) {
+      expect(breite(s.punkte, 0) - breite(s.punkte, 1)).toBeCloseTo((2 * 20) / 6, 9);
+    }
+  });
+});
