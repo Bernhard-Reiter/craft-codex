@@ -40,26 +40,34 @@ export function XRDreiPunktRegistrierung({
 }) {
   const spitze = useRef<THREE.Group>(null);
   const [punkte, setPunkte] = useState<Vec3[]>([]);
+  // Erfasste Punkte zusätzlich im Ref: Die Callbacks laufen außerhalb eines
+  // setState-Updaters (der darf in StrictMode doppelt laufen).
+  const erfasst = useRef<Vec3[]>([]);
   const rechts = useXRInputSourceState("controller", "right");
   const links = useXRInputSourceState("controller", "left");
-  const raum = (rechts ?? links)?.inputSource?.targetRaySpace;
+  // Die Sonde hängt an genau einem Controller; nur dessen Griff-Taste zählt.
+  const sonde = (rechts ?? links)?.inputSource;
+  const raum = sonde?.targetRaySpace;
 
   useXRInputSourceEvent(
-    "all",
+    sonde,
     "squeeze",
     () => {
       const g = spitze.current;
       if (!g) return;
       const p = new THREE.Vector3();
       g.getWorldPosition(p);
-      setPunkte((vorher) => {
-        const neu: Vec3[] = [...vorher, [p.x, p.y, p.z]];
-        if (neu.length < 3) return neu;
-        const t = solveRigidFrom3Points(modell, neu as [Vec3, Vec3, Vec3]);
-        if (t) onRegistriert({ position: t.position, quaternion: t.rotation, rmsError: t.rmsError });
-        else onUngueltig();
-        return [];
-      });
+      const neu: Vec3[] = [...erfasst.current, [p.x, p.y, p.z]];
+      if (neu.length < 3) {
+        erfasst.current = neu;
+        setPunkte(neu);
+        return;
+      }
+      erfasst.current = [];
+      setPunkte([]);
+      const t = solveRigidFrom3Points(modell, neu as [Vec3, Vec3, Vec3]);
+      if (t) onRegistriert({ position: t.position, quaternion: t.rotation, rmsError: t.rmsError });
+      else onUngueltig();
     },
     [modell, onRegistriert, onUngueltig],
   );
