@@ -1,3 +1,5 @@
+import { bewerteRegistrierung } from "./xr-registrierung";
+
 /**
  * Pose des Werkstücks im AR-Overlay. Reine Funktion, damit sie ohne Brille
  * testbar ist. null heißt: keine Ausrichtung, die Seite nimmt den Platzhalter
@@ -15,9 +17,13 @@ export interface OverlayPose {
   quaternion: [number, number, number, number];
 }
 
-// ALTE Logik aus page.tsx (Stand 9ea1017), nur herausgezogen, damit der Test ROT zeigt.
+/**
+ * Nur in AR, nur mit Registrierung und nur bei Güte »gut« oder »grenzwertig«.
+ * Eine zu ungenaue Ausrichtung (»neu«) zeichnet keine Anrisslinien an eine
+ * falsche Stelle: fail-closed, das Werkstück bleibt dann am Platzhalter.
+ */
 export function arOverlayPose(inAR: boolean, registrierung: Registrierung | null): OverlayPose | null {
-  return inAR && registrierung
-    ? { position: registrierung.position, quaternion: registrierung.quaternion }
-    : null;
+  if (!inAR || !registrierung) return null;
+  if (bewerteRegistrierung(registrierung.rmsError) === "neu") return null;
+  return { position: registrierung.position, quaternion: registrierung.quaternion };
 }

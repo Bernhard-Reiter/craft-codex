@@ -22,6 +22,7 @@ import {
 } from "../../../../components/zinken/XRDreiPunktRegistrierung";
 import { bewerteRegistrierung, zinkenModellPunkte } from "../../../../lib/zinken/xr-registrierung";
 import { xrMasseAusSuche, type XRMasse } from "../../../../lib/zinken/xr-masse";
+import { arOverlayPose } from "../../../../lib/zinken/xr-pose";
 
 const MIT_ANIMATION: readonly SchrittId[] = ["saegen", "stemmen", "passen"];
 /** Vor der Registrierung: Werkstück schwebt auf Arbeitshöhe vor dem Lehrling. */
@@ -101,7 +102,11 @@ export default function ZinkenXRPage() {
     setRichteAus(false);
     setUngueltig(false);
   }, []);
-  const onUngueltig = useCallback(() => setUngueltig(true), []);
+  // Ungültig oder neu ausrichten: die alte Pose gilt nicht mehr.
+  const onUngueltig = useCallback(() => {
+    setRegistrierung(null);
+    setUngueltig(true);
+  }, []);
 
   const guete = registrierung ? bewerteRegistrierung(registrierung.rmsError) : null;
   const zahl = (n: number) =>
@@ -131,13 +136,12 @@ export default function ZinkenXRPage() {
     ausrichten: modus === "ar" ? t("xr.ausrichten") : undefined,
   };
 
-  // Werkstück-Pose: AR → registriert (oder Platzhalter); VR/Vorschau → in der Zange.
+  // Werkstück-Pose: AR → registriert, nur bei Güte gut/grenzwertig (sonst Platzhalter);
+  // VR/Vorschau → in der Zange.
   const inAR = modus === "ar";
-  const werkstueckPos: [number, number, number] = inAR
-    ? (registrierung?.position ?? AR_PLATZHALTER)
-    : ZANGE_POSITION;
-  const werkstueckQuat: [number, number, number, number] =
-    inAR && registrierung ? registrierung.quaternion : [0, 0, 0, 1];
+  const pose = arOverlayPose(inAR, registrierung);
+  const werkstueckPos: [number, number, number] = pose?.position ?? (inAR ? AR_PLATZHALTER : ZANGE_POSITION);
+  const werkstueckQuat: [number, number, number, number] = pose?.quaternion ?? [0, 0, 0, 1];
 
   return (
     <>
@@ -223,7 +227,7 @@ export default function ZinkenXRPage() {
                     if (fortschritt >= 1) setFortschritt(0);
                     setLaeuft((l) => !l);
                   }}
-                  onAusrichten={inAR ? () => { setRichteAus(true); setUngueltig(false); } : undefined}
+                  onAusrichten={inAR ? () => { setRegistrierung(null); setRichteAus(true); setUngueltig(false); } : undefined}
                 />
               </XRMovable>
 
