@@ -47,6 +47,15 @@ Lauf 2, Kopf 9593949, vom Prüfmeister selbst gegengezählt:
 
 Nachlauf nach den Text-Fixes (Streichmaß, Spur): Kopf b56b42c, gleiches Skript. Ergebnis wieder grün: core 181/181, tischler 510/0/24 skip, tsc, i18n und eslint 0, `next build` rc 0.
 
+## Nachzug N2 (Prüfung des Entwurf-PR #55)
+
+Die Prüfung fand zwei Blocker. Beide sind behoben, jeweils mit eigenem Test.
+- **Abfall im Hirnholz war gekippt wie ein Zinken.** An jeder Flanke gab es außen eine Lücke und innen eine Überlappung von je 2·D/(2·Schräge), beim Buchbeispiel 3,33 mm. Das betraf die Schraffur in der Zeichnung, die Stemm-Zonen in 3D und das AR-Overlay. Die Sägeschnitte waren richtig. Jetzt ist der Abfall die Gegenform: außen breiter, innen schmaler. Der neue Test verlangt für jedes Nachbarpaar dieselbe Flanke außen und innen und prüft bei z = 0, D/2 und D, dass nichts fehlt und nichts doppelt ist (5 Maßkombinationen). Der Test wurde zuerst am alten Code rot gesehen.
+- **AR: Ausrichtung überlebte das Sitzungsende.** Beim nächsten Start lag das Werkstück an der alten Pose und zeigte »ausgerichtet … gut«. Jetzt setzt das Sitzungsende Registrierung, Ausrichten und Ungültig zurück.
+- Kleiner: Die Griff-Taste zählt nur noch an der Hand mit der Sonde. AR/VR übernimmt die Maße aus dem Rechner und zeigt sichtbar an, welche Maße gelten (sonst »Buchbeispiel 140 × 20 mm«). Ein leeres AZS-Feld bedeutet wieder »Vorschlag der Formel«.
+
+**Lehre:** Ein Test, der nur Summen prüft, beweist keine Lage. Der alte Test hieß »lückenlos«, hat aber nur die Flächen-Summe geprüft, und die bleibt bei jeder Kippung B·D. Einen Test muss man an dem messen, was er wirklich prüft, nicht an seinem Namen.
+
 ## Offen / bewusst nicht gemacht
 
 - **Stemm-Reihenfolge:** `arbeitsgang.ts` lässt erst die Außenhälfte und dann die Innenhälfte stemmen. Gochnour und Cosman [H 13][H 18] beginnen innen. Das ist noch nicht geändert und steht in lernpfad F5 als offen (siehe Frage 6).
