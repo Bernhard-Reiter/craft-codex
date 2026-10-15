@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "title": "Dovetail course",
+    "description": "Learn to cut dovetails by hand: spacing, marking, sawing, chopping — step by step, on the computer, in AR and in VR."
+  },
+  "hero": {
+    "kicker": "Course · Through dovetail · Pins first",
+    "title": "Your first dovetail joint",
+    "lead": "Six steps from the board to the glued corner. In every step we show it first, then you do it yourself, and at the end you check on your own whether it fits.",
+    "quelle": "Layout rule: geometric dovetail spacing on the center line, following the Austrian carpentry textbook (Fachkunde Tischler), ch. 4.1 (in our own words).",
+    "xr": "Open in AR / VR",
+    "sicherheit": "AR rule: with the headset on you only mark out and check. Never saw or chop with the headset on: watch first, headset off, then work."
+  },
+  "nav": {
+    "label": "Course steps",
+    "schritt": "Step {nr}",
+    "zurueck": "Back",
+    "weiter": "Next"
+  },
+  "schritt": {
+    "ziel": "Goal",
+    "werkzeug": "Tools",
+    "vormachen": "Demonstration — the master explains",
+    "nachmachen": "Your turn",
+    "kontrollpunkt": "Checkpoint — how do you know it fits?",
+    "fehler": "Typical mistakes",
+    "fehlerUrsache": "Cause",
+    "fehlerAbhilfe": "Fix",
+    "sicherheit": "Safety",
+    "nachmachenAus": "Help is off. Work towards the goal and check yourself at the checkpoint."
+  },
+  "hilfe": {
+    "label": "Help",
+    "stufe2": "Full",
+    "stufe1": "Keywords",
+    "stufe0": "None",
+    "erklaerung": "As you get more confident, use less help. That is how you learn to work without instructions."
+  },
+  "fragen": {
+    "titel": "Check questions",
+    "richtig": "Correct.",
+    "falsch": "Not yet.",
+    "nochmal": "Try again",
+    "stand": "{richtig} of {gesamt} correct"
+  },
+  "rechner": {
+    "titel": "Calculator — spacing",
+    "breite": "Board width B (mm)",
+    "dicke": "Board thickness D (mm)",
+    "dichte": "Estimate number of tails with",
+    "dicht": "B / (1.7 · D) — more tails",
+    "weit": "B / (2 · D) — fewer tails",
+    "azs": "Number of tails AZS (you decide)",
+    "vorschlag": "Use suggestion ({n})",
+    "art": "Type",
+    "offen": "through",
+    "halbverdeckt": "half-blind (lap ¼ D)",
+    "ergebnis": "Result",
+    "azsRoh": "Formula gives",
+    "azt": "Parts AZT = 3 · AZS + 1",
+    "t": "Part T = B / AZT",
+    "zinken": "Pin (center line) = 1T",
+    "schwalbe": "Tail (center line) = 2T",
+    "schraege": "Slope",
+    "hilfsdreieck": "Helper triangle: 1T over {ratio}T",
+    "blatt": "Lap BL / tail length SL",
+    "geht": "Check: {zinken} × 1T + {schwalben} × 2T = {summe} mm",
+    "papier": "On paper you round T first: T ≈ {t} → 2T ≈ {zweiT} → {ratio}T ≈ {hilf} mm. The calculator keeps the unrounded value; the difference is smaller than a pencil line.",
+    "winkelHinweis": "1:6 gives about 9.5°. The range \"10° to 14°\" is a second rule of thumb, not the same angle.",
+    "fehler": {
+      "breite_ungueltig": "Enter a board width between 40 and 600 mm.",
+      "dicke_ungueltig": "Enter a board thickness between 8 and 50 mm.",
+      "dicke_zu_gross": "The board is too thick for this width.",
+      "azs_ungueltig": "Enter the number of tails as a whole number from 1 to 20."
+    }
+  },
+  "svg": {
+    "titel": "End grain of the pin board with spacing on the center line",
+    "mittellinie": "Center",
+    "aussen": "outside",
+    "innen": "inside",
+    "abfall": "Waste",
+    "hilfsdreieck": "Helper triangle"
+  },
+  "buehne": {
+    "label": "3D workpiece",
+    "abspielen": "Play",
+    "pause": "Pause",
+    "vonVorn": "Restart",
+    "zeitlupe": "Slow motion",
+    "normal": "Normal",
+    "fallback": "3D is not available on this device. The drawing shows the same thing."
+  },
+  "protokoll": {
+    "titel": "Learning log (optional)",
+    "erklaerung": "Only if you switch it on: this device stores which steps you opened and which questions you got right. No names, no time of day, nothing goes online. You can save it as a file or delete it at any time.",
+    "an": "Switch log on",
+    "aus": "Switch off and delete",
+    "anzahl": "{n} entries",
+    "export": "Save as file",
+    "loeschen": "Delete entries",
+    "studie": "For a study, in addition: participation only with consent (for minors also from parents) and approval from the company or school."
+  },
+  "xr": {
+    "title": "Dovetails in AR and VR",
+    "lead": "AR places the layout, the saw lines with their waste side and the chopping zones on your real board. VR shows the same work at a virtual workbench in slow motion, from your point of view.",
+    "ar": "Start AR (Quest 3)",
+    "vr": "Start VR",
+    "nichtVerfuegbar": "WebXR is not available here. Open this page in the Quest 3 browser. You can see the preview below.",
+    "zurueckLehrgang": "Back to the course",
+    "vorschau": "Preview (no headset)",
+    "ausrichten": "Align board",
+    "p1": "Point 1/3: tip on the TOP LEFT corner of the outside face, then press GRIP",
+    "p2": "Point 2/3: TOP RIGHT corner of the outside face, then press GRIP",
+    "p3": "Point 3/3: mark on the left edge, 100 mm below the end grain, then press GRIP",
+    "ohneController": "You need a controller to align the board.",
+    "nichtAusgerichtet": "Not aligned yet. Clamp the board, mark a point 100 mm below the end grain, then press \"Align board\".",
+    "ausgerichtet": "Aligned: residual error {mm} mm ({guete})",
+    "gut": "good",
+    "grenzwertig": "borderline — check the lines with a rule",
+    "neu": "too inaccurate — please align again",
+    "ungueltig": "The three points are almost in a line. Please align again.",
+    "vrStatus": "Virtual workbench · slow motion",
+    "pruefen": "Check every projected line with a rule before you mark it. The headset is not a measuring tool.",
+    "masseBuch": "Textbook example {b} × {d} mm",
+    "masseEigen": "Your measurements from the calculator: {b} × {d} mm"
+  }
+}

@@ -22,6 +22,27 @@ export type {
   DovetailMethod,
   ConstructionOptions,
 } from "./construction.js";
+export {
+  zinkenTeilung,
+  teilungsKette,
+  schraegeInfo,
+  papierRechnung,
+  pruefeZinkenEingabe,
+  hirnholzStuecke,
+  saegeschnitte,
+  ZINKEN_GRENZEN,
+} from "./zinken-teilung.js";
+export type {
+  ZinkenTeilung,
+  ZinkenTeilungOptionen,
+  TeilungsSegment,
+  TeilArt,
+  SchraegeInfo,
+  ZinkenEingabeFehler,
+  HirnholzPunkt,
+  HirnholzStueck,
+  Saegeschnitt,
+} from "./zinken-teilung.js";
 export { buildDovetailAnriss } from "./anriss.js";
 export type {
   DovetailAnriss,

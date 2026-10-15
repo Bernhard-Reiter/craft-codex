@@ -14,6 +14,7 @@ const NAMESPACES = [
   "voice",
   "xr",
   "contribute",
+  "zinken",
 ] as const;
 
 async function loadMessages(locale: string) {

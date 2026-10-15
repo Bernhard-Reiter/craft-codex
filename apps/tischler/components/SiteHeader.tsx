@@ -8,6 +8,7 @@ import { DovetailMark } from "./DovetailMark";
 const LINKS: Array<{ href: string; key: string }> = [
   { href: "/", key: "start" },
   { href: "/universum", key: "vision" },
+  { href: "/zinken", key: "course" },
   { href: "/lernen", key: "overview" },
   { href: "/werkstatt", key: "lesson" },
   { href: "/cockpit", key: "teacher" },

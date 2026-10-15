@@ -62,6 +62,11 @@ export interface ConstructionOptions {
   dichte?: "dicht" | "weit";
   /** Schraege als 1:ratio. Default 6 (Lehrbuch). */
   slopeRatio?: number;
+  /**
+   * Schwalbenzahl vom Lehrling festgelegt (Lehrbuch: »schätzen und
+   * festlegen«). Nur Methode 1. Ohne Angabe gilt der gerundete Vorschlag.
+   */
+  azs?: number;
   /** Halbverdeckte Zinken: Blattanteil von D (1/4..1/3). Default offen (kein Blatt). */
   blattAnteil?: number;
 }
@@ -96,7 +101,9 @@ export function method1Mittellinie(
   const slopeRatio = opts.slopeRatio ?? DEFAULT_SLOPE_RATIO;
 
   const AZS_raw = B / (faktor * D);
-  const AZS = Math.max(1, Math.round(AZS_raw));
+  const festgelegt =
+    opts.azs !== undefined && Number.isFinite(opts.azs) ? Math.round(opts.azs) : undefined;
+  const AZS = Math.max(1, festgelegt ?? Math.round(AZS_raw));
   const AZT = AZS * 3 + 1;
   const T = B / AZT;
   const ZS = slopeRatio * T;

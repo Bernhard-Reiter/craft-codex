@@ -17,6 +17,7 @@ import { getZinkenKonstruktionCorpusEn } from "./dovetail-konstruktion-corpus.en
 import { getDovetailCorpus } from "./dovetail-corpus";
 import { getDovetailCorpusEn } from "./dovetail-corpus.en";
 import { getRisCorpus } from "./ris-corpus";
+import { getZinkenLehrgangCorpus } from "./zinken-lehrgang-corpus";
 import { getCommunityCorpus } from "./community-corpus";
 
 export type CorpusLocale = "de" | "en";
@@ -29,6 +30,7 @@ export function getDemoCorpus(locale: CorpusLocale = "de"): RAGDocument[] {
   if (locale === "en") {
     return [
       ...getZinkenGrundlagenCorpusEn(),
+      ...getZinkenLehrgangCorpus("en"),
       ...getZinkenKonstruktionCorpusEn(),
       ...getDovetailCorpusEn(),
       ...getRisCorpus(),
@@ -37,6 +39,7 @@ export function getDemoCorpus(locale: CorpusLocale = "de"): RAGDocument[] {
   }
   return [
     ...getZinkenGrundlagenCorpus(),
+    ...getZinkenLehrgangCorpus("de"),
     ...getZinkenKonstruktionCorpus(),
     ...getDovetailCorpus(),
     ...getRisCorpus(),
