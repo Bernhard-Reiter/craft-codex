@@ -19,6 +19,10 @@ const json = (rel: string) => JSON.parse(text(rel)) as Record<string, Record<str
 
 const eintrag = <T extends { id: string }>(liste: readonly T[], id: string) => liste.find((s) => s.id === id);
 
+/** xr.json: der Tafeltext liegt unter tafel.detail.streichmass (nicht detail.streichmass). */
+const xrStreichmass = (sprache: string) =>
+  (json(`messages/${sprache}/xr.json`).tafel as { detail?: Record<string, unknown> } | undefined)?.detail?.streichmass;
+
 describe("P1 · E6 »10–14°« ist weg (T4)", () => {
   it.each([
     "lib/zinken/lehrgang.ts",
@@ -58,6 +62,7 @@ describe("P1 · E2 Grundlinie: Zinkenbrett nur Flächen, Schwalbenbrett umlaufen
     const k2 = eintrag(LEHRGANG_DE, "anzeichnen");
     expect(k2, "Eintrag anzeichnen fehlt").toBeDefined();
     const g = k2?.nachmachen.find((h) => /Grundlinie/.test(h.kurz));
+    expect(typeof g?.lang, "Handgriff Grundlinie fehlt").toBe("string");
     expect(g?.lang ?? "").toMatch(/nur auf beiden Flächen/);
     expect(g?.lang ?? "").toMatch(/Schwalbenbrett umlaufend/);
   });
@@ -66,6 +71,7 @@ describe("P1 · E2 Grundlinie: Zinkenbrett nur Flächen, Schwalbenbrett umlaufen
     const k2 = eintrag(LEHRGANG_EN, "anzeichnen");
     expect(k2, "entry anzeichnen missing").toBeDefined();
     const g = k2?.nachmachen.find((h) => /[Bb]aseline/.test(h.kurz));
+    expect(typeof g?.lang, "Handgriff baseline fehlt").toBe("string");
     expect(g?.lang ?? "").toMatch(/only on both faces/);
     expect(g?.lang ?? "").toMatch(/tail board all the way round/);
   });
@@ -73,6 +79,8 @@ describe("P1 · E2 Grundlinie: Zinkenbrett nur Flächen, Schwalbenbrett umlaufen
   it("Anreiß-Ablauf (Zinkenbrett): Streichmaß nicht mehr rundherum", () => {
     const de = buildAnreissFlow(140, 20).schritte.find((s) => s.id === "streichmass")!;
     const en = buildAnreissFlowEn(140, 20).schritte.find((s) => s.id === "streichmass")!;
+    expect(typeof de.meisterSagt).toBe("string");
+    expect(typeof en.meisterSagt).toBe("string");
     expect(de.meisterSagt).not.toMatch(/rundherum|umlauf|rundum|ums Brett|allen vier Seiten/);
     expect(en.meisterSagt).not.toMatch(/all the way a?round|right around|around the board|all four sides/);
   });
@@ -80,23 +88,33 @@ describe("P1 · E2 Grundlinie: Zinkenbrett nur Flächen, Schwalbenbrett umlaufen
   it("Lektion Beat anreissen: nicht mehr umlaufend", () => {
     const de = eintrag(SCHWALBENSCHWANZ_LEKTION, "anreissen")!;
     const en = eintrag(SCHWALBENSCHWANZ_LEKTION_EN, "anreissen")!;
+    expect(typeof de.meisterSays).toBe("string");
+    expect(typeof en.meisterSays).toBe("string");
     expect(de.meisterSays).not.toMatch(/rundherum|umlauf|rundum|ums Brett|allen vier Seiten/);
     expect(en.meisterSays).not.toMatch(/all the way a?round|right around|around the board|all four sides/);
   });
 
   it("XR-Tafel Streichmaß: nicht mehr umlaufend", () => {
-    expect(String(json("messages/de/xr.json").detail?.streichmass)).not.toMatch(/rundherum|umlauf|rundum|ums Brett|allen vier Seiten/);
-    expect(String(json("messages/en/xr.json").detail?.streichmass)).not.toMatch(/all the way a?round|right around|around the board|all four sides/);
+    const de = xrStreichmass("de");
+    const en = xrStreichmass("en");
+    expect(typeof de, "Schlüssel tafel.detail.streichmass (de) fehlt").toBe("string");
+    expect(typeof en, "Schlüssel tafel.detail.streichmass (en) fehlt").toBe("string");
+    expect(String(de)).not.toMatch(/rundherum|umlauf|rundum|ums Brett|allen vier Seiten/);
+    expect(String(en)).not.toMatch(/all the way a?round|right around|around the board|all four sides/);
   });
 });
 
 describe("P1 · E3 Schmiege am Zinkenbrett (T7)", () => {
   it("kein »6 Teile in Faserrichtung« mehr", () => {
+    expect(LEHRGANG_DE.length).toBeGreaterThan(0);
+    expect(LEHRGANG_EN.length).toBeGreaterThan(0);
     expect(JSON.stringify(LEHRGANG_DE)).not.toMatch(/6 Teile in Faserrichtung/);
     expect(JSON.stringify(LEHRGANG_EN)).not.toMatch(/6 parts along the grain/);
   });
 
   it("Kapitel 2 sagt, wo der Anschlag liegt", () => {
+    expect(eintrag(LEHRGANG_DE, "anzeichnen"), "Eintrag anzeichnen (de) fehlt").toBeDefined();
+    expect(eintrag(LEHRGANG_EN, "anzeichnen"), "Eintrag anzeichnen (en) fehlt").toBeDefined();
     expect(JSON.stringify(eintrag(LEHRGANG_DE, "anzeichnen") ?? "")).toMatch(/Anschlag an der Fläche/);
     expect(JSON.stringify(eintrag(LEHRGANG_EN, "anzeichnen") ?? "")).toMatch(/stock rests on the face/);
   });
@@ -104,11 +122,13 @@ describe("P1 · E3 Schmiege am Zinkenbrett (T7)", () => {
 
 describe("P1 · E7 Außen/Innen, Tischlerdreieck, Ecknummer (T8)", () => {
   it("Kapitel 2 DE nennt alle drei Zeichen", () => {
+    expect(eintrag(LEHRGANG_DE, "anzeichnen"), "Eintrag anzeichnen (de) fehlt").toBeDefined();
     const t = JSON.stringify(eintrag(LEHRGANG_DE, "anzeichnen") ?? "");
     for (const w of ["AUSSEN", "Innenseite", "Tischlerdreieck", "Ecknummer"]) expect(t, w).toContain(w);
   });
 
   it("Kapitel 2 EN nennt alle drei Zeichen", () => {
+    expect(eintrag(LEHRGANG_EN, "anzeichnen"), "Eintrag anzeichnen (en) fehlt").toBeDefined();
     const t = JSON.stringify(eintrag(LEHRGANG_EN, "anzeichnen") ?? "");
     for (const w of ["OUTSIDE", "inside face", "cabinetmaker's triangle", "corner number"]) expect(t, w).toContain(w);
   });
@@ -116,12 +136,14 @@ describe("P1 · E7 Außen/Innen, Tischlerdreieck, Ecknummer (T8)", () => {
 
 describe("P1 · E1 Schwalbenbrett wird geneigt gesägt (T9)", () => {
   it("Eintrag passen DE: geneigt, nicht »genau wie beim Zinkenbrett«", () => {
+    expect(eintrag(LEHRGANG_DE, "passen"), "Eintrag passen (de) fehlt").toBeDefined();
     const t = JSON.stringify(eintrag(LEHRGANG_DE, "passen") ?? "");
     expect(t).toMatch(/geneigt/);
     expect(t).not.toMatch(/genau wie beim Zinkenbrett/);
   });
 
   it("Eintrag passen EN: angled, not »just like on the pin board«", () => {
+    expect(eintrag(LEHRGANG_EN, "passen"), "Eintrag passen (en) fehlt").toBeDefined();
     const t = JSON.stringify(eintrag(LEHRGANG_EN, "passen") ?? "");
     expect(t).toMatch(/angled/);
     expect(t).not.toMatch(/just like on the pin board/);
