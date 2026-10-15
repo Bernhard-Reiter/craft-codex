@@ -27,18 +27,18 @@ describe("Lern-Protokoll", () => {
   it("ist standardmäßig AUS und speichert ohne Opt-in nichts", () => {
     const a = neueAblage();
     expect(istOptIn(a)).toBe(false);
-    expect(protokolliere(a, { art: "schritt", schritt: "holz" })).toBe(false);
+    expect(protokolliere(a, { art: "schritt", schritt: "warum" })).toBe(false);
     expect(a.map.size).toBe(0);
   });
 
   it("speichert nach Opt-in nur Lernereignisse mit grober Minute", () => {
     const a = neueAblage();
     setzeOptIn(a, true);
-    protokolliere(a, { art: "schritt", schritt: "holz" }, 1_000_000);
-    protokolliere(a, { art: "frage", schritt: "holz", frageId: "holz-1", richtig: true }, 1_000_000 + 150_000);
+    protokolliere(a, { art: "schritt", schritt: "warum" }, 1_000_000);
+    protokolliere(a, { art: "frage", schritt: "warum", frageId: "warum-1", richtig: true }, 1_000_000 + 150_000);
     const e = ladeEintraege(a);
     expect(e).toHaveLength(2);
-    expect(e[0]).toEqual({ art: "schritt", schritt: "holz", nr: 1, minuten: 0 });
+    expect(e[0]).toEqual({ art: "schritt", schritt: "warum", nr: 1, minuten: 0 });
     expect(e[1]!.minuten).toBe(3); // 2,5 min → 3
   });
 
@@ -55,7 +55,7 @@ describe("Lern-Protokoll", () => {
   it("Opt-out löscht das Protokoll sofort", () => {
     const a = neueAblage();
     setzeOptIn(a, true);
-    protokolliere(a, { art: "schritt", schritt: "holz" });
+    protokolliere(a, { art: "schritt", schritt: "warum" });
     setzeOptIn(a, false);
     expect(a.map.has(OPTIN_KEY)).toBe(false);
     expect(a.map.has(PROTOKOLL_KEY)).toBe(false);
@@ -64,7 +64,7 @@ describe("Lern-Protokoll", () => {
   it("Löschen lässt den Opt-in stehen", () => {
     const a = neueAblage();
     setzeOptIn(a, true);
-    protokolliere(a, { art: "schritt", schritt: "holz" });
+    protokolliere(a, { art: "schritt", schritt: "warum" });
     loescheProtokoll(a);
     expect(ladeEintraege(a)).toEqual([]);
     expect(istOptIn(a)).toBe(true);
@@ -73,7 +73,7 @@ describe("Lern-Protokoll", () => {
   it("ist nach oben begrenzt", () => {
     const a = neueAblage();
     setzeOptIn(a, true);
-    for (let i = 0; i < PROTOKOLL_MAX + 5; i++) protokolliere(a, { art: "schritt", schritt: "holz" }, i);
+    for (let i = 0; i < PROTOKOLL_MAX + 5; i++) protokolliere(a, { art: "schritt", schritt: "warum" }, i);
     expect(ladeEintraege(a)).toHaveLength(PROTOKOLL_MAX);
   });
 
@@ -98,11 +98,11 @@ describe("Lern-Protokoll", () => {
 
   it("Auswertung zählt Fragen je Schritt", () => {
     const r = auswertung([
-      { art: "frage", schritt: "holz", frageId: "holz-1", richtig: true, nr: 1, minuten: 0 },
-      { art: "frage", schritt: "holz", frageId: "holz-2", richtig: false, nr: 2, minuten: 1 },
+      { art: "frage", schritt: "warum", frageId: "warum-1", richtig: true, nr: 1, minuten: 0 },
+      { art: "frage", schritt: "warum", frageId: "warum-2", richtig: false, nr: 2, minuten: 1 },
       { art: "schritt", schritt: "saegen", nr: 3, minuten: 0 },
     ]);
-    expect(r.holz).toEqual({ richtig: 1, gesamt: 2 });
+    expect(r.warum).toEqual({ richtig: 1, gesamt: 2 });
     expect(r.saegen).toBeUndefined();
   });
 });

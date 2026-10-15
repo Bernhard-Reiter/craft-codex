@@ -15,7 +15,24 @@
  *   Einwilligung (siehe Studiendesign). Deshalb heißt es hier »Protokoll«
  *   und nicht »anonyme Daten«.
  */
-import type { Hilfestufe, SchrittId } from "./lehrgang-typen";
+import { SCHRITT_IDS, type Hilfestufe, type SchrittId } from "./lehrgang-typen";
+
+/**
+ * Schritt-Ids von vor der Kapitel-Liste → neue Ids. Ältere Protokolle (und
+ * alte Links ?schritt=…) tragen sie noch. Umgeschrieben wird NUR beim Lesen,
+ * die Ablage bleibt, wie sie ist; die Schema-Kennung bleibt /1.
+ */
+const ALTE_SCHRITTE: Readonly<Record<string, SchrittId>> = {
+  holz: "warum",
+  aufteilung: "warum",
+  anreissen: "anzeichnen",
+};
+
+/** Alte Id → neue, neue Id bleibt, Unbekanntes → undefined. */
+export function normalisiereSchritt(wert: string): SchrittId | undefined {
+  if ((SCHRITT_IDS as readonly string[]).includes(wert)) return wert as SchrittId;
+  return Object.hasOwn(ALTE_SCHRITTE, wert) ? ALTE_SCHRITTE[wert] : undefined;
+}
 
 export const PROTOKOLL_SCHEMA = "craft-codex/zinken-protokoll/1" as const;
 export const PROTOKOLL_KEY = "craft-codex:zinken:protokoll:v1";
@@ -44,6 +61,10 @@ export interface Ablage {
 
 interface Gespeichert {
   schema: typeof PROTOKOLL_SCHEMA;
+  /**
+   * Roh, wie abgelegt: `schritt` kann hier noch eine alte oder unbekannte Id
+   * sein. Nach außen geht nur, was `normalisiert` durchlässt.
+   */
   eintraege: ProtokollEintrag[];
   /** Interner Zeitpunkt des letzten Eintrags (ms) — nur für die Minuten-Differenz, wird nicht exportiert. */
   zuletzt: number | null;
@@ -65,6 +86,17 @@ function lies(ablage: Ablage): Gespeichert {
   } catch {
     return { schema: PROTOKOLL_SCHEMA, eintraege: [], zuletzt: null };
   }
+}
+
+/** Beim Lesen: alte Schritt-Ids auf die neuen, Unbekanntes fällt weg. */
+function normalisiert(eintraege: readonly ProtokollEintrag[]): ProtokollEintrag[] {
+  const out: ProtokollEintrag[] = [];
+  for (const e of eintraege) {
+    if (!e || typeof e !== "object") continue;
+    const schritt = normalisiereSchritt(String(e.schritt));
+    if (schritt) out.push({ ...e, schritt });
+  }
+  return out;
 }
 
 export function istOptIn(ablage: Ablage): boolean {
@@ -113,7 +145,7 @@ export function protokolliere(
 }
 
 export function ladeEintraege(ablage: Ablage): ProtokollEintrag[] {
-  return lies(ablage).eintraege;
+  return normalisiert(lies(ablage).eintraege);
 }
 
 export function loescheProtokoll(ablage: Ablage): void {
@@ -126,7 +158,7 @@ export function loescheProtokoll(ablage: Ablage): void {
 
 /** Export als JSON-Text (ohne internen Zeitpunkt). */
 export function exportiereProtokoll(ablage: Ablage): string {
-  const { eintraege } = lies(ablage);
+  const eintraege = normalisiert(lies(ablage).eintraege);
   return JSON.stringify({ schema: PROTOKOLL_SCHEMA, eintraege }, null, 2);
 }
 

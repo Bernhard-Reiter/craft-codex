@@ -11,8 +11,9 @@ import {
   type Saegeschnitt,
   type ZinkenTeilung,
 } from "@craft-codex/core";
-import type { SchrittId } from "../../lib/zinken/lehrgang-typen";
+import { SCHRITT_IDS, type SchrittId } from "../../lib/zinken/lehrgang-typen";
 import { zeitplan, type Zeitplan } from "../../lib/zinken/arbeitsgang";
+import { grundlinieZinkenbrett } from "../../lib/zinken/grundlinie";
 
 /**
  * Das Werkstück des Lehrgangs in 3D — EINE Szene, phasengesteuert.
@@ -42,7 +43,7 @@ export interface WerkstueckProps {
   /**
    * "voll" = ganzes Werkstück (Computer, VR). "anriss" = nur Linien,
    * Sägefugen und Stemm-Zonen — für AR über dem ECHTEN Brett, das man ja
-   * nicht verdecken will. Säge und Stecheisen werden in AR nicht gezeigt.
+   * nicht verdecken will. Säge und Stemmeisen werden in AR nicht gezeigt.
    */
   darstellung?: "voll" | "anriss";
 }
@@ -136,10 +137,8 @@ function Fuge({ s, D, tiefe }: { s: Saegeschnitt; D: number; tiefe: number }) {
 
 const RECHTECK = (B: number, D: number): HirnholzPunkt[] => [[0, 0], [B, 0], [B, D], [0, D]];
 
-const sichtbar = (phase: SchrittId, ab: SchrittId) => {
-  const reihe: SchrittId[] = ["holz", "aufteilung", "anreissen", "saegen", "stemmen", "passen"];
-  return reihe.indexOf(phase) >= reihe.indexOf(ab);
-};
+/** Ist die Phase `ab` erreicht? Reihenfolge = Lehrgang (kapitel.ts), keine eigene Liste. */
+const sichtbar = (phase: SchrittId, ab: SchrittId) => SCHRITT_IDS.indexOf(phase) >= SCHRITT_IDS.indexOf(ab);
 
 export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBreite = 1.5, darstellung = "voll" }: WerkstueckProps) {
   const voll = darstellung === "voll";
@@ -149,7 +148,12 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
   const schnitte = useMemo(() => saegeschnitte(teilung), [teilung]);
   const plan: Zeitplan = useMemo(() => zeitplan(teilung), [teilung]);
 
-  const zeigeAnriss = sichtbar(phase, "anreissen");
+  const zeigeAnriss = sichtbar(phase, "anzeichnen");
+  // Abfall-Kreuze erst ab Kapitel 3 (Kontrolle: erst prüfen, dann kreuzen).
+  const zeigeKreuze = phase === "kontrolle";
+  // Bis zur Kontrolle ist der Abfall nur angezeichnet, noch nicht »Abfall«-rot.
+  const abfallFarbe = phase === "anzeichnen" || phase === "kontrolle" ? HOLZ_DUNKEL : ABFALL;
+  const grundlinie = useMemo(() => grundlinieZinkenbrett(B, D), [B, D]);
   const yTop = D + 0.05;
 
   // Fortschritt je Element aus dem Zeitplan
@@ -167,7 +171,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
       {voll && <Prisma punkte={RECHTECK(B, D)} y0={-LAENGE} y1={0} farbe={HOLZ} />}
 
       {/* Über der Grundlinie: vor dem Sägen ein Block, danach Zinken + Abfall einzeln */}
-      {phase === "holz" || phase === "aufteilung" ? (
+      {!zeigeAnriss ? (
         voll && <Prisma punkte={RECHTECK(B, D)} y0={0} y1={D} farbe={HOLZ} />
       ) : (
         <>
@@ -184,9 +188,9 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
             const deck = (w: number) => (voll ? 1 - w : Math.min(1 - w, 0.4));
             return (
               <group key={s.id}>
-                <Prisma punkte={aussen} y0={0} y1={D} farbe={phase === "anreissen" ? HOLZ_DUNKEL : ABFALL}
+                <Prisma punkte={aussen} y0={0} y1={D} farbe={abfallFarbe}
                   deckkraft={deck(wA)} versatz={[0, wA * D * 1.5, -wA * D]} />
-                <Prisma punkte={innen} y0={0} y1={D} farbe={phase === "anreissen" ? HOLZ_DUNKEL : ABFALL}
+                <Prisma punkte={innen} y0={0} y1={D} farbe={abfallFarbe}
                   deckkraft={deck(wI)} versatz={[0, wI * D * 1.5, wI * D]} />
               </group>
             );
@@ -194,8 +198,8 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
         </>
       )}
 
-      {/* Aufteilung: Mittellinie + Teilungspunkte auf dem Hirnholz */}
-      {sichtbar(phase, "aufteilung") && phase !== "passen" && (
+      {/* Teilung: Mittellinie + Teilungspunkte auf dem Hirnholz */}
+      {sichtbar(phase, "warum") && phase !== "passen" && (
         <>
           <Line points={[[0, yTop, D / 2], [B, yTop, D / 2]]} color={ANRISS} lineWidth={linienBreite * 0.7} dashed dashSize={3} gapSize={1.5} />
           {teilung.segmente.slice(1).map((s) => (
@@ -207,14 +211,13 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
         </>
       )}
 
-      {/* Anreißen: Grundlinie rundum + Flanken auf dem Hirnholz + Senkrechte auf beiden Flächen */}
+      {/* Anzeichnen: Grundlinie nur auf Außen- und Innenfläche (am Zinkenbrett
+          nicht über die Kanten) + Schrägen im Hirnholz + Senkrechte auf beiden Flächen */}
       {zeigeAnriss && phase !== "passen" && (
         <>
-          <Line
-            points={[[0, 0, -0.05], [B, 0, -0.05], [B + 0.05, 0, 0], [B + 0.05, 0, D], [B, 0, D + 0.05], [0, 0, D + 0.05], [-0.05, 0, D], [-0.05, 0, 0], [0, 0, -0.05]]}
-            color={ANRISS}
-            lineWidth={linienBreite}
-          />
+          {grundlinie.map((linie, i) => (
+            <Line key={`g-${i}`} points={linie} color={ANRISS} lineWidth={linienBreite} />
+          ))}
           {schnitte.map((s) => (
             <group key={`l-${s.id}`}>
               <Line points={[[s.aussen[0], yTop, s.aussen[1]], [s.innen[0], yTop, s.innen[1]]]} color={ANRISS} lineWidth={linienBreite} />
@@ -222,8 +225,8 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
               <Line points={[[s.innen[0], D, D + 0.05], [s.innen[0], 0, D + 0.05]]} color={ANRISS} lineWidth={linienBreite * 0.8} />
             </group>
           ))}
-          {/* Abfall-Kreuze auf dem Hirnholz */}
-          {phase === "anreissen" &&
+          {/* Abfall-Kreuze auf dem Hirnholz (Kapitel 3: Abfall kreuzen) */}
+          {zeigeKreuze &&
             abfaelle.map((s) => {
               const cx = (s.punkte[0][0] + s.punkte[1][0] + s.punkte[2][0] + s.punkte[3][0]) / 4;
               const r = Math.min(D / 4, (s.punkte[1][0] - s.punkte[0][0]) / 3);
@@ -267,7 +270,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
         );
       })()}
 
-      {/* Stecheisen am aktuellen Abfall */}
+      {/* Stemmeisen am aktuellen Abfall */}
       {voll && phase === "stemmen" && (() => {
         const { index, haelfte } = plan.aktivesStemmen(fortschritt);
         const s = abfaelle[index];
