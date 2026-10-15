@@ -49,7 +49,7 @@ describe("Lern-Protokoll", () => {
     const txt = exportiereProtokoll(a);
     expect(txt).not.toContain("1700000000000");
     expect(txt).not.toContain("zuletzt");
-    expect(JSON.parse(txt).schema).toBe("craft-codex/zinken-protokoll/1");
+    expect(JSON.parse(txt).schema).toBe("craft-codex/zinken-protokoll/2");
   });
 
   it("Opt-out löscht das Protokoll sofort", () => {

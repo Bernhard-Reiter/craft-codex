@@ -6,7 +6,8 @@ import * as I from "./lehrgang-index";
  * P1 · alte Schritt-Ids im Lern-Protokoll und in Links (T10, D8).
  * Alte Ids (holz, aufteilung, anreissen) werden NUR beim Lesen auf die neuen
  * umgeschrieben (holz/aufteilung → warum, anreissen → anzeichnen). In der
- * Ablage bleibt alles, wie es war; die Schema-Kennung bleibt /1.
+ * Ablage bleibt alles, wie es war; ihre Kennung bleibt /1. Der Export trägt
+ * /2 und zählt die verworfenen Einträge einer lesbaren Ablage (`verworfen`).
  */
 
 function neueAblage(): P.Ablage & { map: Map<string, string> } {
@@ -75,10 +76,36 @@ describe("P1 · Protokoll liest alte Schritt-Ids (T10)", () => {
     });
   });
 
-  it("Export: neue Ids, Schema bleibt /1", () => {
-    const ex = JSON.parse(P.exportiereProtokoll(mitAltbestand())) as { schema: string; eintraege: { schritt: string }[] };
-    expect(ex.schema).toBe(P.PROTOKOLL_SCHEMA);
+  it("Export: neue Ids unter eigener Kennung /2, Ablage-Kennung bleibt /1", () => {
+    const ex = JSON.parse(P.exportiereProtokoll(mitAltbestand())) as { schema: string; eintraege: { schritt: string; frageId?: string }[] };
+    expect(ex.schema).toBe("craft-codex/zinken-protokoll/2");
+    expect(P.PROTOKOLL_SCHEMA).toBe("craft-codex/zinken-protokoll/1");
     expect(ex.eintraege.map((x) => x.schritt)).toEqual(["warum", "warum", "anzeichnen", "saegen"]);
+    // frageId bleibt bewusst unverändert (Umbenennung = Folge-Issue)
+    expect(ex.eintraege.map((x) => x.frageId)).toEqual([undefined, "aufteilung-1", "anreissen-1", "saegen-1"]);
+  });
+
+  it("Export zählt verworfene Einträge einer lesbaren Ablage (verworfen)", () => {
+    const a = neueAblage();
+    a.setItem(P.OPTIN_KEY, "ja");
+    a.setItem(P.PROTOKOLL_KEY, JSON.stringify({ ...ALT, eintraege: [...ALT.eintraege, null, { art: "schritt", schritt: "x", nr: 6, minuten: 0 }] }));
+    const ex = JSON.parse(P.exportiereProtokoll(a)) as { verworfen: number; eintraege: unknown[] };
+    expect(ex.eintraege).toHaveLength(4);
+    expect(ex.verworfen).toBe(3); // gibtsnicht, null, x
+    const sauber = JSON.parse(P.exportiereProtokoll(neueAblage())) as { verworfen: number };
+    expect(sauber.verworfen).toBe(0);
+  });
+
+  it("ein alter /1-Eintrag in der Ablage bleibt ladbar und wird als /2 exportiert", () => {
+    const a = neueAblage();
+    a.setItem(P.OPTIN_KEY, "ja");
+    a.setItem(
+      P.PROTOKOLL_KEY,
+      JSON.stringify({ schema: "craft-codex/zinken-protokoll/1", zuletzt: 5, eintraege: [{ art: "schritt", schritt: "anreissen", nr: 1, minuten: 0 }] }),
+    );
+    expect(P.ladeEintraege(a)).toEqual([{ art: "schritt", schritt: "anzeichnen", nr: 1, minuten: 0 }]);
+    const ex = JSON.parse(P.exportiereProtokoll(a)) as { schema: string; verworfen: number };
+    expect([ex.schema, ex.verworfen]).toEqual(["craft-codex/zinken-protokoll/2", 0]);
   });
 
   it("nur beim Lesen umschreiben: die Ablage behält die alten Ids, auch nach einem neuen Eintrag", () => {
