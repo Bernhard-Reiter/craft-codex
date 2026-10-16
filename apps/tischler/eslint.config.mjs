@@ -26,11 +26,15 @@
  * Der letzte Block unten zieht beide Regeln nach, wortgleich wie in
  * `packages/core`: unbenutzte Variablen/Importe = Fehler (Ausnahme: Name
  * beginnt mit `_`; Funktionsargumente werden nicht geprüft), `any` = Warnung.
- * Bewacht von `lib/lint-waechter.test.ts` (prüft die Regeln über die
- * ESLint-API an app/, components/ und lib/).
+ * `lint` läuft mit `--max-warnings 0`: eine Warnung (`any`) bricht die CI
+ * also genauso wie ein Fehler.
+ * Bewacht von `lib/lint-waechter.test.ts` (prüft über die ESLint-API die
+ * Regeln in app/, components/, lib/ und in den Dateien außerhalb davon,
+ * dazu das `lint`-Kommando selbst).
  *
- * ⚠️ GRENZE: `i18n/` und `scripts/` liegen außerhalb dessen, was der
- * CI-Lint-Schritt (`next lint`) prüft — dort greifen die Regeln nicht.
+ * ABDECKUNG (#64): `lint` = ESLint-CLI über die ganze App (`eslint .`); nur
+ * die `ignores` im ersten Block unten sind ausgenommen. Vorher lief
+ * `next lint`, das nur app/, components/ und lib/ las.
  */
 
 import { dirname } from 'node:path';
@@ -43,10 +47,24 @@ const compat = new FlatCompat({
   baseDirectory: dirname(fileURLToPath(import.meta.url)),
 });
 
-export default [
+const config = [
   {
     // Generierte und fremde Verzeichnisse gehören nicht zum Prüfstoff.
-    ignores: ['.next/**', 'node_modules/**', 'public/**', 'next-env.d.ts'],
+    // ESLint 9 liest `.gitignore` nicht — die Ausgabe-Ordner aus der
+    // Root-`.gitignore` stehen deshalb ausdrücklich hier (sonst lintet
+    // `eslint .` lokal auch ungetrackte Build-Ausgaben).
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'public/**',
+      'next-env.d.ts',
+      '.turbo/**',
+      'dist/**',
+      'out/**',
+      'coverage/**',
+      'test-results/**',
+      '.vercel/**',
+    ],
   },
   ...compat.extends('next/core-web-vitals'),
   {
@@ -59,7 +77,10 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', args: 'none' },
       ],
+      // warn reicht: lint läuft mit --max-warnings 0, any bricht die CI wie ein Fehler.
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
 ];
+
+export default config;

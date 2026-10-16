@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable */
 /**
  * harvest-ris-corpus.mjs — pulls the OFFICIAL Austrian regulations relevant
  * for the Tischler apprenticeship from the RIS OGD API and generates

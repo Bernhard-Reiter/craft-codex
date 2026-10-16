@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable */
 /**
  * build-tts-cache.mjs — generiert vor-vertonte PCM-Audios für die Top-Antworten
  * mit GOOGLE GEMINI TTS (Prototyp-Stimme; kein ElevenLabs).

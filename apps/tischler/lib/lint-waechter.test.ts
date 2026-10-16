@@ -1,14 +1,14 @@
 /**
- * Wächter für den Lint-Wächter (#36): Die App meldet dieselben zwei
- * TS-Hygiene-Regeln wie packages/core — unbenutzte Namen als Fehler (mit
- * `^_`-Ausnahme), `any` als Warnung. Geprüft über die ESLint-API mit der
- * echten Konfiguration der App; die Proben sind gedachte Pfade (`lintText`),
- * es entsteht keine Datei.
- *
+ * Wächter für den Lint-Wächter (#36, #64): Die App meldet dieselben zwei
+ * TS-Hygiene-Regeln wie packages/core (unbenutzt = Fehler, `^_` frei, `any`
+ * = Warnung), und `lint` ist die ESLint-CLI über die ganze App, auch
+ * außerhalb von app/, components/, lib/ (i18n/, scripts/, middleware.ts …).
+ * Geprüft über die ESLint-API mit der echten Config; die Proben sind
+ * gedachte Pfade (`lintText`), es entsteht keine Datei.
  * Warum ein Test: Vor #35 meldete der Lint-Job grün, ohne eine Regel
- * anzuwenden; vor #36 kam `any` + unbenutzte Variable in der App durch, im
- * Kern nicht. Ein Wächter, der nichts prüft, meldet grün — dieser Test merkt
- * es, wenn die Regeln, ihre Dateimuster oder die Next-Regeln wegfallen.
+ * anzuwenden; vor #36 kam `any` + unbenutzte Variable durch; vor #64 las
+ * `next lint` nur app/, components/, lib/. Ein Wächter, der nichts prüft,
+ * meldet grün — der Test merkt, wenn Regeln, Muster oder Abdeckung fehlen.
  */
 import { readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
