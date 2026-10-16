@@ -10,6 +10,7 @@
  * Kern nicht. Ein Wächter, der nichts prüft, meldet grün — dieser Test merkt
  * es, wenn die Regeln, ihre Dateimuster oder die Next-Regeln wegfallen.
  */
+import { readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESLint } from "eslint";
@@ -102,5 +103,50 @@ describe("Lint-Wächter App (#36)", { timeout: 60_000 }, () => {
     it("je Ordner mehr als 0 TS-Dateien gelintet", () => {
       expect(Object.entries(proOrdner).filter(([, n]) => n === 0)).toEqual([]);
     });
+  });
+
+  // #64: `next lint` las nur app/, components/, lib/ — lint ist jetzt die ESLint-CLI über die ganze App.
+  it("W4: lint ist die ESLint-CLI über die ganze App", () => {
+    const pkg = JSON.parse(readFileSync(join(APP, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    expect(pkg.scripts?.lint).toBe("eslint . --max-warnings 0");
+  });
+
+  it("W5: die 5 TS-Dateien außerhalb von app/components/lib sind nicht ignoriert und bekommen beide Regeln", async () => {
+    const eslint = new ESLint({ cwd: APP });
+    const pfade = ["middleware.ts", "vitest.config.ts", "i18n/navigation.ts", "i18n/request.ts", "i18n/routing.ts"];
+    const zeilen: [string, boolean, [number, boolean][], number[]][] = [];
+    for (const p of pfade) {
+      const [res] = await eslint.lintText(PROBE, { filePath: join(APP, p) });
+      const ms: Meldung[] = res?.messages ?? [];
+      zeilen.push([
+        p,
+        await eslint.isPathIgnored(join(APP, p)),
+        von(ms, UNUSED).map((m): [number, boolean] => [m.severity, m.message.includes("'unbenutzt'")]),
+        von(ms, ANY).map((m) => m.severity),
+      ]);
+    }
+    // erst sammeln, dann EIN expect: ein ignorierter Pfad wirft nicht schon beim ersten Paar
+    expect(zeilen).toEqual(pfade.map((p) => [p, false, [[2, true]], [1]]));
+  });
+
+  it("W6a: die 5 JS/MJS-Dateien außerhalb sind nicht ignoriert", async () => {
+    const eslint = new ESLint({ cwd: APP });
+    const pfade = [
+      "eslint.config.mjs",
+      "next.config.mjs",
+      "scripts/build-tts-cache.mjs",
+      "scripts/check-i18n-parity.mjs",
+      "scripts/harvest-ris-corpus.mjs",
+    ];
+    const paare: [string, boolean][] = [];
+    for (const p of pfade) paare.push([p, await eslint.isPathIgnored(join(APP, p))]);
+    expect(paare).toEqual(pfade.map((p) => [p, false]));
+  });
+
+  it("W6b: .mjs bekommt die Next-Regeln", async () => {
+    const ms = await melde(APP, "export default [];\n", "scripts/__sab.mjs");
+    expect(ms.some((m) => m.ruleId === "import/no-anonymous-default-export")).toBe(true);
   });
 });
