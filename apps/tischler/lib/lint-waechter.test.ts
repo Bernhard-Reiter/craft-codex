@@ -2,7 +2,8 @@
  * Wächter für den Lint-Wächter (#36, #64): Die App meldet dieselben zwei
  * TS-Hygiene-Regeln wie packages/core (unbenutzt = Fehler, `^_` frei, `any`
  * = Warnung), und `lint` ist die ESLint-CLI über die ganze App, auch
- * außerhalb von app/, components/, lib/ (i18n/, scripts/, middleware.ts …).
+ * außerhalb von app/, components/, lib/ (i18n/, scripts/, middleware.ts …);
+ * .js/.mjs/.cjs bekommen `no-unused-vars` als Fehler, `^_` frei (W6c).
  * Geprüft über die ESLint-API mit der echten Config; die Proben sind
  * gedachte Pfade (`lintText`), es entsteht keine Datei.
  * Warum ein Test: Vor #35 meldete der Lint-Job grün, ohne eine Regel
@@ -110,7 +111,19 @@ describe("Lint-Wächter App (#36)", { timeout: 60_000 }, () => {
     const pkg = JSON.parse(readFileSync(join(APP, "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
     };
-    expect(pkg.scripts?.lint).toBe("eslint . --max-warnings 0");
+    // Review-Nit: die Teile mit Bedeutung prüfen, nicht den ganzen String. Die Menge ist GESCHLOSSEN:
+    // genau eslint, ».«, --max-warnings 0 (auch `=0`), dazu höchstens `--cache` — jedes weitere Teil
+    // (`--quiet`, `|| true`, `--ignore-pattern …`, ein zweites `--max-warnings`) macht W4 rot.
+    const teile = (pkg.scripts?.lint ?? "")
+      .trim()
+      .split(/\s+/)
+      .flatMap((t) => (t.startsWith("--max-warnings=") ? ["--max-warnings", t.slice("--max-warnings=".length)] : [t]))
+      .filter((t) => t !== "--cache");
+    expect([teile[0], [...teile].sort(), teile[teile.indexOf("--max-warnings") + 1]]).toEqual([
+      "eslint",
+      ["eslint", ".", "--max-warnings", "0"].sort(),
+      "0",
+    ]);
   });
 
   it("W5: die 5 TS-Dateien außerhalb von app/components/lib sind nicht ignoriert und bekommen beide Regeln", async () => {
@@ -148,5 +161,32 @@ describe("Lint-Wächter App (#36)", { timeout: 60_000 }, () => {
   it("W6b: .mjs bekommt die Next-Regeln", async () => {
     const ms = await melde(APP, "export default [];\n", "scripts/__sab.mjs");
     expect(ms.some((m) => m.ruleId === "import/no-anonymous-default-export")).toBe(true);
+  });
+
+  it("W6c: JS/MJS/CJS bekommen no-unused-vars (Fehler, _ frei) — Regelergebnis, nicht nur isPathIgnored", async () => {
+    // Review S1: ohne den JS-Block meldet lintText hier [] — der Kommentar ABDECKUNG versprach mehr.
+    const eslint = new ESLint({ cwd: APP });
+    const probe = "const unbenutzt = 42;\nconst _frei = 1;\n";
+    const pfade = [
+      "eslint.config.mjs",
+      "next.config.mjs",
+      "scripts/build-tts-cache.mjs",
+      "scripts/check-i18n-parity.mjs",
+      "scripts/harvest-ris-corpus.mjs",
+      "scripts/__sab.js",
+      "scripts/__sab.cjs",
+    ];
+    const zeilen: [string, [number, boolean][], number][] = [];
+    for (const p of pfade) {
+      const [res] = await eslint.lintText(probe, { filePath: join(APP, p) });
+      const ms: Meldung[] = res?.messages ?? [];
+      zeilen.push([
+        p,
+        von(ms, "no-unused-vars").map((m): [number, boolean] => [m.severity, m.message.includes("'unbenutzt'")]),
+        ms.filter((m) => m.message.includes("'_frei'")).length,
+      ]);
+    }
+    // erst sammeln, dann EIN expect (wie W5)
+    expect(zeilen).toEqual(pfade.map((p) => [p, [[2, true]], 0]));
   });
 });
