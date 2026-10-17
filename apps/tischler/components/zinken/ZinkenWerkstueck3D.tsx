@@ -199,7 +199,7 @@ export function ZinkenWerkstueckInhalt({ teilung, phase, fortschritt, linienBrei
       )}
 
       {/* Teilung: Mittellinie + Teilungspunkte auf dem Hirnholz */}
-      {sichtbar(phase, "warum") && phase !== "passen" && (
+      {phase !== "passen" && (
         <>
           <Line points={[[0, yTop, D / 2], [B, yTop, D / 2]]} color={ANRISS} lineWidth={linienBreite * 0.7} dashed dashSize={3} gapSize={1.5} />
           {teilung.segmente.slice(1).map((s) => (

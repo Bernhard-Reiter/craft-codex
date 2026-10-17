@@ -34,6 +34,7 @@ const IDS = new Set([
 ]);
 
 const ERLAUBT = new Set(["lib/zinken/kapitel.ts"]);
+const WURZELN = ["app", "components", "lib"] as const;
 
 function dateien(dir: string): string[] {
   const out: string[] = [];
@@ -68,15 +69,23 @@ describe("P1 · eine Kapitel-Liste — Wächter gegen Literal-Listen (T3w)", () 
 
   it("außerhalb von lib/zinken/kapitel.ts führt kein Quelltext eine eigene Id-Liste", () => {
     const funde: string[] = [];
-    for (const teil of ["app", "components", "lib"]) {
+    const gesehen: string[] = [];
+    const gelesen = new Map<string, number>();
+    for (const teil of WURZELN) {
       for (const p of dateien(join(APP, teil))) {
         const rel = relative(APP, p).split("\\").join("/");
+        gesehen.push(rel);
         if (ERLAUBT.has(rel)) continue;
+        gelesen.set(teil, (gelesen.get(teil) ?? 0) + 1);
         for (const l of literalListen(readFileSync(p, "utf8"))) {
           if (l.length >= 2 && l.every((x) => IDS.has(x))) funde.push(`${rel}: [${l.join(", ")}]`);
         }
       }
     }
+    // Der Wächter hat wirklich gesucht: jede erlaubte Liste lag im Suchbaum (#62 N-b, #72 N1), und JEDE Wurzel
+    // hat mindestens eine Datei gelesen — eine leere Wurzel wäre sonst still grün (#72 S1).
+    for (const e of ERLAUBT) expect(gesehen).toContain(e);
+    expect(WURZELN.filter((w) => !gelesen.get(w))).toEqual([]);
     expect(funde).toEqual([]);
   });
 });
