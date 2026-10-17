@@ -101,6 +101,8 @@ export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
     meisterSays:
       "Zum Schluss prüfen wir gegen die Soll-Geometrie — das grüne Hologramm. Dein Werkstück soll ihm so nah wie möglich kommen: kein Spalt, kein Hirnholz-Ausriss.",
   },
+  // Kapitel-Folge hier bewusst nicht monoton: der XR-Beat gehört zu »kontrolle« (Kap. 3, Prüfbild in der Brille),
+  // steht aber nach »zusammenfuehren« (Kap. 9), weil die Übergabe ans echte Holz den Lehrgang abschließt (#62 N3).
   {
     id: "xr-uebergabe",
     kapitel: "kontrolle",

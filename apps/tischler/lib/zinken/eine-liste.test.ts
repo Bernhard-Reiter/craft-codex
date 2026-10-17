@@ -68,15 +68,22 @@ describe("P1 · eine Kapitel-Liste — Wächter gegen Literal-Listen (T3w)", () 
 
   it("außerhalb von lib/zinken/kapitel.ts führt kein Quelltext eine eigene Id-Liste", () => {
     const funde: string[] = [];
+    const gesehen: string[] = [];
+    let gelesen = 0;
     for (const teil of ["app", "components", "lib"]) {
       for (const p of dateien(join(APP, teil))) {
         const rel = relative(APP, p).split("\\").join("/");
+        gesehen.push(rel);
         if (ERLAUBT.has(rel)) continue;
+        gelesen++;
         for (const l of literalListen(readFileSync(p, "utf8"))) {
           if (l.length >= 2 && l.every((x) => IDS.has(x))) funde.push(`${rel}: [${l.join(", ")}]`);
         }
       }
     }
+    // Der Wächter hat wirklich gesucht: die eine Liste lag im Suchbaum, und es wurde gelesen (#62 N-b).
+    expect(gesehen).toContain("lib/zinken/kapitel.ts");
+    expect(gelesen).toBeGreaterThan(0);
     expect(funde).toEqual([]);
   });
 });
