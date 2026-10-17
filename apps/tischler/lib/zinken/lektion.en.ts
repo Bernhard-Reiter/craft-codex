@@ -17,6 +17,7 @@ import type { LektionBeat } from "./lektion";
 export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   {
     id: "ueberblick",
+    kapitel: "warum",
     label: "Overview",
     surface: "joint3d",
     step: "ueberblick",
@@ -26,15 +27,17 @@ export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   },
   {
     id: "anreissen",
+    kapitel: "anzeichnen",
     label: "Lay out",
     surface: "joint3d",
     step: "anreissen",
     titel: "Step 1 — Lay out",
     meisterSays:
-      "First we lay out. Scribe the board thickness all the way around with the marking gauge, then set the dovetail angles with the bevel gauge. The red lines are your chopping depth, the orange ones are the angle.",
+      "First we lay out. With the marking gauge, scribe the baseline on the pin board only on the two faces, then mark the slopes in the end grain with the bevel gauge, stock on the face. The red lines are the baseline, the orange ones the slope.",
   },
   {
     id: "saegen",
+    kapitel: "saegen",
     label: "Saw",
     surface: "joint3d",
     step: "saegen",
@@ -44,6 +47,7 @@ export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   },
   {
     id: "stemmen",
+    kapitel: "stemmen",
     label: "Chop",
     surface: "joint3d",
     step: "stemmen",
@@ -53,6 +57,7 @@ export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   },
   {
     id: "passen",
+    kapitel: "zusammenfuehren",
     label: "Fit",
     surface: "joint3d",
     step: "passen",
@@ -62,6 +67,7 @@ export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   },
   {
     id: "pruefen",
+    kapitel: "zusammenfuehren",
     label: "Check",
     surface: "joint3d",
     step: "pruefen",
@@ -71,6 +77,7 @@ export const SCHWALBENSCHWANZ_LEKTION_EN: readonly LektionBeat[] = [
   },
   {
     id: "xr-uebergabe",
+    kapitel: "kontrolle",
     label: "Your turn (XR)",
     surface: "xr",
     titel: "Your turn — on real wood",
