@@ -15,9 +15,35 @@
  *   Einwilligung (siehe Studiendesign). Deshalb heißt es hier »Protokoll«
  *   und nicht »anonyme Daten«.
  */
-import type { Hilfestufe, SchrittId } from "./lehrgang-typen";
+import { SCHRITT_IDS, type Hilfestufe, type SchrittId } from "./lehrgang-typen";
 
+/**
+ * Schritt-Ids von vor der Kapitel-Liste → neue Ids. Ältere Protokolle (und
+ * alte Links ?schritt=…) tragen sie noch. Umgeschrieben wird NUR beim Lesen,
+ * die Ablage bleibt, wie sie ist; ihre Kennung bleibt /1. Der Export trägt
+ * die neuen Ids und deshalb eine eigene Kennung (/2, siehe EXPORT_SCHEMA).
+ */
+const ALTE_SCHRITTE: Readonly<Record<string, SchrittId>> = {
+  holz: "warum",
+  aufteilung: "warum",
+  anreissen: "anzeichnen",
+};
+
+/** Alte Id → neue, neue Id bleibt, Unbekanntes → undefined. */
+export function normalisiereSchritt(wert: string): SchrittId | undefined {
+  if ((SCHRITT_IDS as readonly string[]).includes(wert)) return wert as SchrittId;
+  return Object.hasOwn(ALTE_SCHRITTE, wert) ? ALTE_SCHRITTE[wert] : undefined;
+}
+
+/** Kennung der Ablage im Browser — unverändert, alte Protokolle bleiben ladbar. */
 export const PROTOKOLL_SCHEMA = "craft-codex/zinken-protokoll/1" as const;
+/**
+ * Kennung des Exports: Schritt-Ids nach der Kapitel-Liste (alte umgeschrieben;
+ * `frageId` bleibt unverändert, z. B. »aufteilung-1« unter »warum«)
+ * plus `verworfen` = Zahl der Einträge einer lesbaren Ablage, die beim Lesen
+ * wegfielen. Eine ganz unlesbare Ablage verwirft `lies()` vorher (Folge-Issue).
+ */
+export const EXPORT_SCHEMA = "craft-codex/zinken-protokoll/2" as const;
 export const PROTOKOLL_KEY = "craft-codex:zinken:protokoll:v1";
 export const OPTIN_KEY = "craft-codex:zinken:protokoll:optin";
 /** Obergrenze, damit das Protokoll nicht unbegrenzt wächst. */
@@ -44,6 +70,10 @@ export interface Ablage {
 
 interface Gespeichert {
   schema: typeof PROTOKOLL_SCHEMA;
+  /**
+   * Roh, wie abgelegt: `schritt` kann hier noch eine alte oder unbekannte Id
+   * sein. Nach außen geht nur, was `normalisiert` durchlässt.
+   */
   eintraege: ProtokollEintrag[];
   /** Interner Zeitpunkt des letzten Eintrags (ms) — nur für die Minuten-Differenz, wird nicht exportiert. */
   zuletzt: number | null;
@@ -65,6 +95,29 @@ function lies(ablage: Ablage): Gespeichert {
   } catch {
     return { schema: PROTOKOLL_SCHEMA, eintraege: [], zuletzt: null };
   }
+}
+
+/**
+ * Beim Lesen: alte Schritt-Ids auf die neuen, Unbekanntes fällt weg —
+ * gezählt in `verworfen` (Einträge einer lesbaren Ablage).
+ */
+function normalisiertMitZahl(eintraege: readonly ProtokollEintrag[]): {
+  eintraege: ProtokollEintrag[];
+  verworfen: number;
+} {
+  const out: ProtokollEintrag[] = [];
+  let verworfen = 0;
+  for (const e of eintraege) {
+    const schritt =
+      e && typeof e === "object" ? normalisiereSchritt(String(e.schritt)) : undefined;
+    if (schritt) out.push({ ...e, schritt });
+    else verworfen += 1;
+  }
+  return { eintraege: out, verworfen };
+}
+
+function normalisiert(eintraege: readonly ProtokollEintrag[]): ProtokollEintrag[] {
+  return normalisiertMitZahl(eintraege).eintraege;
 }
 
 export function istOptIn(ablage: Ablage): boolean {
@@ -113,7 +166,7 @@ export function protokolliere(
 }
 
 export function ladeEintraege(ablage: Ablage): ProtokollEintrag[] {
-  return lies(ablage).eintraege;
+  return normalisiert(lies(ablage).eintraege);
 }
 
 export function loescheProtokoll(ablage: Ablage): void {
@@ -124,10 +177,10 @@ export function loescheProtokoll(ablage: Ablage): void {
   }
 }
 
-/** Export als JSON-Text (ohne internen Zeitpunkt). */
+/** Export als JSON-Text (ohne internen Zeitpunkt), Kennung /2 mit `verworfen` (verworfene Einträge). */
 export function exportiereProtokoll(ablage: Ablage): string {
-  const { eintraege } = lies(ablage);
-  return JSON.stringify({ schema: PROTOKOLL_SCHEMA, eintraege }, null, 2);
+  const { eintraege, verworfen } = normalisiertMitZahl(lies(ablage).eintraege);
+  return JSON.stringify({ schema: EXPORT_SCHEMA, eintraege, verworfen }, null, 2);
 }
 
 /** Kurzauswertung für die Anzeige: Fragen richtig/gesamt je Schritt. */

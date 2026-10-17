@@ -1,11 +1,15 @@
 import type { DovetailStep } from "@craft-codex/core";
 import type { AnrissLayer } from "../../components/AnrissFlat";
+import type { KapitelId, SchrittId } from "./kapitel";
 
 /**
  * Zinken-Lehrgang für den absoluten Anfänger — Datenvertrag.
  *
- * Sechs fachliche Schritte (Holz → Aufteilung → Anreißen → Sägen → Stemmen →
- * Übertragen/Passen/Verleimen). Die Vier-Stufen-Methode steckt INNERHALB jedes
+ * Die Einträge folgen der EINEN Kapitel-Liste (kapitel.ts, neun Kapitel):
+ * warum, anzeichnen und kontrolle sind je ein Kapitel; saegen, stemmen und
+ * passen fassen als Entwurf noch mehrere Kapitel zusammen. Ids und
+ * Reihenfolge kommen aus kapitel.ts, hier steht keine eigene Liste.
+ * Die Vier-Stufen-Methode steckt INNERHALB jedes
  * Schritts (vorbereiten = Ziel/Werkzeug, vormachen = Animation + Meister-
  * Kommentar, nachmachen = Anleitung, üben = Kontrollpunkt + Fragen). Die
  * Hilfestufen (2 = alles, 1 = Stichworte, 0 = nur Ziel + Kontrollpunkt) sind
@@ -15,22 +19,8 @@ import type { AnrissLayer } from "../../components/AnrissFlat";
  * Lehrbuch Tischler, Kap. 4.1 Zinkenverbindungen — TODO(Bernhard): Titel/Verlag.
  */
 
-export type SchrittId =
-  | "holz"
-  | "aufteilung"
-  | "anreissen"
-  | "saegen"
-  | "stemmen"
-  | "passen";
-
-export const SCHRITT_IDS: readonly SchrittId[] = [
-  "holz",
-  "aufteilung",
-  "anreissen",
-  "saegen",
-  "stemmen",
-  "passen",
-] as const;
+export type { KapitelId, SchrittId } from "./kapitel";
+export { SCHRITT_IDS } from "./kapitel";
 
 /** Ein Handgriff der Nachmachen-Anleitung: kurz (Stufe 1) und ausführlich (Stufe 2). */
 export interface Handgriff {
@@ -64,8 +54,15 @@ export interface SchrittSzene {
 
 export interface LehrgangSchritt {
   id: SchrittId;
+  /** Nummer des ersten Kapitels dieses Eintrags (kapitel.ts). */
   nr: number;
+  /** Kapitel, die dieser Eintrag abdeckt — genau LEHRGANG_GRUPPEN[id]. */
+  kapitel: readonly KapitelId[];
   titel: string;
+  /** Sichtbarer Hinweis zum Eintrag (z. B. Stand des Rechners, »Entwurf«). DE und EN gleich gesetzt. */
+  hinweis?: string;
+  /** Zweiter Weg neben dem Lehrweg (z. B. Werkstattweg). DE und EN gleich gesetzt. */
+  variante?: string;
   /** Ein Satz: was kann der Lehrling nach diesem Schritt? */
   ziel: string;
   werkzeug: readonly string[];

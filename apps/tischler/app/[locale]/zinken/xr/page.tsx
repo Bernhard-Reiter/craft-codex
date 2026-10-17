@@ -11,7 +11,6 @@ import { SiteFooter } from "../../../../components/SiteFooter";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
 import { beiSitzungsEnde } from "../../../../lib/xr/sitzung-ende";
 import { getLehrgang } from "../../../../lib/zinken/lehrgang-index";
-import type { SchrittId } from "../../../../lib/zinken/lehrgang-typen";
 import { Abspieler, ZinkenWerkstueckInhalt } from "../../../../components/zinken/ZinkenWerkstueck3D";
 import { XRHobelbank, ZANGE_POSITION } from "../../../../components/zinken/XRHobelbank";
 import { ZinkenXRTafel } from "../../../../components/zinken/ZinkenXRTafel";
@@ -24,7 +23,6 @@ import { bewerteRegistrierung, zinkenModellPunkte } from "../../../../lib/zinken
 import { xrMasseAusSuche, type XRMasse } from "../../../../lib/zinken/xr-masse";
 import { arOverlayPose } from "../../../../lib/zinken/xr-pose";
 
-const MIT_ANIMATION: readonly SchrittId[] = ["saegen", "stemmen", "passen"];
 /** Vor der Registrierung: Werkstück schwebt auf Arbeitshöhe vor dem Lehrling. */
 const AR_PLATZHALTER: [number, number, number] = [0, 1.0, -0.45];
 
@@ -53,7 +51,8 @@ export default function ZinkenXRPage() {
 
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [modus, setModus] = useState<"ar" | "vr" | null>(null);
-  const [index, setIndex] = useState(2); // AR beginnt beim Anreißen
+  // AR beginnt beim Anzeichnen (Kapitel 2) — Index aus den Daten, kein fester Wert.
+  const [index, setIndex] = useState(() => Math.max(0, lehrgang.findIndex((s) => s.id === "anzeichnen")));
   const [fortschritt, setFortschritt] = useState(0);
   const [laeuft, setLaeuft] = useState(false);
   const [registrierung, setRegistrierung] = useState<DreiPunktErgebnis | null>(null);
@@ -80,7 +79,8 @@ export default function ZinkenXRPage() {
   }, [store]);
 
   const schritt = lehrgang[index] ?? lehrgang[0]!;
-  const mitAnimation = MIT_ANIMATION.includes(schritt.id);
+  // Animation nur, wo der Eintrag einen Arbeitsgang hat (sägen, stemmen, passen).
+  const mitAnimation = schritt.szene.arbeitsgang !== undefined;
 
   const geheZu = (i: number) => {
     setIndex(Math.max(0, Math.min(lehrgang.length - 1, i)));

@@ -26,12 +26,12 @@ const Werkstueck3D = dynamic(
 );
 
 const BUCH: RechnerEingabe = { B: 140, D: 20, dichte: "dicht", azs: undefined, halbverdeckt: false };
-const MIT_ANIMATION: readonly SchrittId[] = ["saegen", "stemmen", "passen"];
 
 /**
- * Zinken-Lehrgang am Computer: sechs Schritte, je Vormachen (Meister-
- * Kommentar + 3D in Zeitlupe) → Nachmachen (mit Hilfestufen) →
- * Kontrollpunkt → Kontrollfragen. Rechner + eigene Zeichnung in Schritt 2.
+ * Zinken-Lehrgang am Computer: Einträge nach der Kapitel-Liste (kapitel.ts),
+ * je Vormachen (Meister-Kommentar + 3D in Zeitlupe) → Nachmachen (mit
+ * Hilfestufen) → Kontrollpunkt → Kontrollfragen. Rechner + eigene Zeichnung
+ * in Kapitel 1 (warum), Zeichnung auch in Kapitel 2 (anzeichnen).
  * Alle Maße aus EINER Quelle (zinkenTeilung im Kern).
  */
 export default function ZinkenLehrgangPage() {
@@ -39,7 +39,7 @@ export default function ZinkenLehrgangPage() {
   const appLocale: "de" | "en" = useLocale() === "en" ? "en" : "de";
   const lehrgang = getLehrgang(appLocale);
 
-  const [schrittId, setSchrittId] = useState<SchrittId>("holz");
+  const [schrittId, setSchrittId] = useState<SchrittId>(() => lehrgang[0]!.id);
   const [hilfe, setHilfe] = useState<Hilfestufe>(2);
   const [eingabe, setEingabe] = useState<RechnerEingabe>(BUCH);
   const [fortschritt, setFortschritt] = useState(0);
@@ -87,7 +87,8 @@ export default function ZinkenLehrgangPage() {
 
   const index = lehrgang.findIndex((s) => s.id === schrittId);
   const schritt = lehrgang[index] ?? lehrgang[0]!;
-  const mitAnimation = MIT_ANIMATION.includes(schritt.id);
+  // Animation nur, wo der Eintrag einen Arbeitsgang hat (sägen, stemmen, passen).
+  const mitAnimation = schritt.szene.arbeitsgang !== undefined;
 
   const svgLabels = {
     titel: t("svg.titel"),
@@ -140,6 +141,11 @@ export default function ZinkenLehrgangPage() {
               <p className="cc-kicker">{t("nav.schritt", { nr: schritt.nr })}</p>
               <h2 id="schritt-titel" style={{ margin: "0.2rem 0 0.4rem", fontSize: "1.45rem" }}>{schritt.titel}</h2>
               <p><strong>{t("schritt.ziel")}:</strong> {schritt.ziel}</p>
+              {schritt.hinweis && (
+                <p className="cc-note" role="note" style={{ marginTop: "0.6rem", fontSize: "0.88rem" }} data-testid="schritt-hinweis">
+                  <strong>{t("schritt.hinweis")}:</strong> {schritt.hinweis}
+                </p>
+              )}
             </header>
 
             <section>
@@ -183,6 +189,11 @@ export default function ZinkenLehrgangPage() {
                     </li>
                   ))}
                 </ol>
+              )}
+              {schritt.variante && hilfe > 0 && (
+                <p className="cc-muted" style={{ fontSize: "0.88rem", marginTop: "0.6rem" }} data-testid="schritt-variante">
+                  <strong>{t("schritt.variante")}:</strong> {schritt.variante}
+                </p>
               )}
             </section>
 
@@ -274,12 +285,12 @@ export default function ZinkenLehrgangPage() {
               )}
             </section>
 
-            {(schritt.id === "aufteilung" || schritt.id === "anreissen") && (
+            {(schritt.id === "warum" || schritt.id === "anzeichnen") && (
               <div className="cc-card" style={{ padding: "0.8rem" }}>
                 <ZinkenTeilungSvg teilung={buehnenTeilung} labels={svgLabels} locale={appLocale} />
               </div>
             )}
-            {schritt.id === "aufteilung" && (
+            {schritt.id === "warum" && (
               <ZinkenRechner eingabe={eingabe} onEingabe={setEingabe} teilung={teilung} fehler={fehler} />
             )}
 
