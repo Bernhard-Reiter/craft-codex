@@ -14,6 +14,7 @@ import {
 import { SCHRITT_IDS, type SchrittId } from "../../lib/zinken/lehrgang-typen";
 import { zeitplan, type Zeitplan } from "../../lib/zinken/arbeitsgang";
 import { grundlinieZinkenbrett } from "../../lib/zinken/grundlinie";
+import { VI4_XR } from "../../lib/look";
 
 /**
  * Das Werkstück des Lehrgangs in 3D — EINE Szene, phasengesteuert.
@@ -31,7 +32,7 @@ const HOLZ = "#d8b98a";
 const HOLZ_DUNKEL = "#b8945f";
 const ABFALL = "#c0583c";
 const ANRISS = "#1d1d1b";
-const MARKER = "#f5c518";
+const MARKER = VI4_XR.brand; /* VI4: Navy statt Signalgelb */
 
 export interface WerkstueckProps {
   teilung: ZinkenTeilung;

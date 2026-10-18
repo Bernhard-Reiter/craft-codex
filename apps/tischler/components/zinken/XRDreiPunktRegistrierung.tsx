@@ -13,6 +13,7 @@ import * as THREE from "three";
 import { Billboard, Text } from "@react-three/drei";
 import { XRSpace, useXRInputSourceEvent, useXRInputSourceState } from "@react-three/xr";
 import { solveRigidFrom3Points, type Vec3 } from "@craft-codex/core";
+import { VI4_XR } from "../../lib/look";
 
 export interface DreiPunktErgebnis {
   position: [number, number, number];
@@ -83,7 +84,7 @@ export function XRDreiPunktRegistrierung({
           <group ref={spitze} position={[0, 0, -SONDE]}>
             <mesh>
               <sphereGeometry args={[0.003, 12, 12]} />
-              <meshBasicMaterial color="#ffed00" />
+              <meshBasicMaterial color={VI4_XR.papier} />
             </mesh>
           </group>
         </XRSpace>
@@ -95,7 +96,7 @@ export function XRDreiPunktRegistrierung({
         </mesh>
       ))}
       <Billboard position={[0, 0.9, -0.6]}>
-        <Text fontSize={0.02} color="#ffed00" anchorX="center" anchorY="middle" maxWidth={0.7}>
+        <Text fontSize={0.02} color={VI4_XR.papier} anchorX="center" anchorY="middle" maxWidth={0.7}>
           {raum ? anweisungen[Math.min(punkte.length, 2)] : ohneController}
         </Text>
       </Billboard>

@@ -9,6 +9,14 @@
  */
 export const VI4_ROUTEN = ["/zinken"] as const;
 
+/**
+ * VI4-Farben für 3D und XR. Three.js und uikit lesen keine CSS-Variablen,
+ * deshalb stehen die zwei Werte hier noch einmal: gleich --vi4-brand und
+ * --vi4-paper in app/_vi4/look.css (lib/look-xr.test.ts prüft die Gleichheit).
+ * Kein Signalgelb auf den VI4-Seiten, auch nicht in der Szene.
+ */
+export const VI4_XR = { brand: "#2c4b7a", papier: "#ffffff" } as const;
+
 export function istVi4Route(pfad: string | null | undefined): boolean {
   if (!pfad) return false;
   const p = pfad.length > 1 && pfad.endsWith("/") ? pfad.slice(0, -1) : pfad;
