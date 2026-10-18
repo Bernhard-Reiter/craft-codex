@@ -5,9 +5,8 @@ import { SCHRITT_IDS, type LehrgangSchritt } from "./lehrgang-typen";
 import { getLehrgang } from "./lehrgang-index";
 
 describe("Zinken-Lehrgang — Aufbau", () => {
-  it("hat die sechs Schritte in der Lehrbuch-Reihenfolge", () => {
+  it("hat die Schritte in der Lehrgang-Reihenfolge (ids/nr/kapitel exakt: kapitel.test.ts T2)", () => {
     expect(LEHRGANG_DE.map((s) => s.id)).toEqual([...SCHRITT_IDS]);
-    expect(LEHRGANG_DE.map((s) => s.nr)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it.each(LEHRGANG_DE.map((s) => [s.id, s] as const))(
@@ -42,7 +41,8 @@ describe("Zinken-Lehrgang — Aufbau", () => {
   });
 
   it("die Schräge 1:6 wird NICHT als 10–14° ausgegeben", () => {
-    const s = LEHRGANG_DE.find((x) => x.id === "aufteilung")!;
+    const s = LEHRGANG_DE.find((x) => (x.id as string) === "warum");
+    expect(s).toBeDefined();
     const text = JSON.stringify(s);
     expect(text).toMatch(/9,5/);
     expect(text).not.toMatch(/1:6 \(10/);
@@ -57,6 +57,9 @@ describe("Zinken-Lehrgang — Parität DE/EN", () => {
       expect(en.id).toBe(de.id);
       expect(en.nr).toBe(de.nr);
       expect(en.szene).toEqual(de.szene);
+      expect(en.kapitel).toEqual(de.kapitel);
+      expect(en.hinweis === undefined).toBe(de.hinweis === undefined);
+      expect(en.variante === undefined).toBe(de.variante === undefined);
       expect(en.werkzeug).toHaveLength(de.werkzeug.length);
       expect(en.vormachen).toHaveLength(de.vormachen.length);
       expect(en.nachmachen).toHaveLength(de.nachmachen.length);

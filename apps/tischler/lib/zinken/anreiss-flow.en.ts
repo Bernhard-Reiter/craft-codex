@@ -40,6 +40,7 @@ export function buildAnreissFlowEn(
   const schritte: AnreissSchritt[] = [
     {
       id: "messen",
+      kapitel: "warum",
       label: "Measure",
       meisterSagt:
         `First we measure the board. The width is B = ${mm(B)} millimeters, ` +
@@ -52,6 +53,7 @@ export function buildAnreissFlowEn(
     },
     {
       id: "schwalbenzahl",
+      kapitel: "warum",
       label: "Tail count",
       meisterSagt:
         `Now we estimate how many tails fit on the board. The formula is ` +
@@ -70,6 +72,7 @@ export function buildAnreissFlowEn(
     },
     {
       id: "teile",
+      kapitel: "anzeichnen",
       label: "Divide",
       meisterSagt:
         `From the tails we get the division: AZT = AZS times 3 plus 1 = ` +
@@ -87,17 +90,19 @@ export function buildAnreissFlowEn(
     },
     {
       id: "streichmass",
+      kapitel: "anzeichnen",
       label: "Marking gauge",
       meisterSagt:
-        `The marking gauge comes first: we scribe the board thickness all ` +
-        `the way around. This red line is your chopping depth — when you chop, ` +
-        `you never go deeper. See how it runs right around the board.`,
+        `The marking gauge comes first, set from the mating board: this red ` +
+        `line is the baseline. On the pin board we scribe it only on the two ` +
+        `faces, not across the edges. You saw and chop down to it, never past it.`,
       zeigeLinien: ["streichmass_brettstaerke"],
-      tafel: [`Chopping depth = board thickness D = ${mm(D)} mm`],
+      tafel: [`Baseline = mating board thickness D = ${mm(D)} mm`],
       frageErlaubt: true,
     },
     {
       id: "markieren",
+      kapitel: "anzeichnen",
       label: "Mark",
       meisterSagt:
         `Now we divide the width and mark the tails — ${L.AZS} of them, ` +
@@ -114,11 +119,13 @@ export function buildAnreissFlowEn(
     },
     {
       id: "schraege",
+      kapitel: "anzeichnen",
       label: "Slope",
       meisterSagt:
         `Finally the slope: 1 in ${L.slopeRatio}, that's about ` +
-        `${L.slopeDeg.toFixed(0)} degrees. With the bevel gauge you lay out ` +
-        `each tail flank. Steeper breaks out, shallower holds worse — ` +
+        `${L.slopeDeg.toFixed(0)} degrees. With the bevel gauge you mark each ` +
+        `slope in the end grain, the stock resting on the face of the pin board. ` +
+        `Steeper breaks out, shallower holds worse — ` +
         `1 in ${L.slopeRatio} is the proven middle ground.`,
       zeigeLinien: ["mittellinie", "schwalbe_pin_"],
       kennzahl: `Slope 1:${L.slopeRatio}`,
@@ -130,6 +137,7 @@ export function buildAnreissFlowEn(
     },
     {
       id: "fertig",
+      kapitel: "kontrolle",
       label: "Done",
       meisterSagt:
         `The layout is done. You've got ${L.AZS} tails across ${L.AZT} parts, ` +

@@ -54,6 +54,7 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', args: 'none' },
       ],
+      // warn reicht: lint läuft mit --max-warnings 0, any bricht die CI wie ein Fehler.
       '@typescript-eslint/no-explicit-any': 'warn',
       // Die Open-Core-Grenze: die Engine bleibt frei von Framework-, DB-,
       // Transport- und Auth-Abhängigkeiten. Wortgleich aus der alten Config.

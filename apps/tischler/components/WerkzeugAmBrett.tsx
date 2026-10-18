@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import type { DovetailLayout, DovetailParams } from "@craft-codex/core";
 import type { AnreissPhase } from "../lib/zinken/anreiss-flow";
 

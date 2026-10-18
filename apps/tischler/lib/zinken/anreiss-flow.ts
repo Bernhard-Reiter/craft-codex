@@ -3,6 +3,7 @@ import {
   type DovetailLayout,
   type DovetailMethod,
 } from "@craft-codex/core";
+import type { KapitelId } from "./kapitel";
 
 /**
  * Anreiss-Flow — der Meister reisst Schritt fuer Schritt am Brett an.
@@ -28,6 +29,8 @@ export type AnreissPhase =
 
 export interface AnreissSchritt {
   id: AnreissPhase;
+  /** Kapitel des Lehrgangs, zu dem diese Phase gehört (kapitel.ts). */
+  kapitel: KapitelId;
   /** Kurzlabel fuer die Schritt-Leiste */
   label: string;
   /** Was der Meister sagt — einfache Sprache, echte Werte eingesetzt. */
@@ -78,6 +81,7 @@ export function buildAnreissFlow(
   const schritte: AnreissSchritt[] = [
     {
       id: "messen",
+      kapitel: "warum",
       label: "Messen",
       meisterSagt:
         `Zuerst messen wir das Brett. Die Breite ist B = ${mm(B)} Millimeter, ` +
@@ -90,6 +94,7 @@ export function buildAnreissFlow(
     },
     {
       id: "schwalbenzahl",
+      kapitel: "warum",
       label: "Schwalbenzahl",
       meisterSagt:
         `Jetzt schaetzen wir, wie viele Schwalben aufs Brett passen. Die Formel ` +
@@ -108,6 +113,7 @@ export function buildAnreissFlow(
     },
     {
       id: "teile",
+      kapitel: "anzeichnen",
       label: "Teilen",
       meisterSagt:
         `Aus den Schwalben wird die Einteilung: AZT = AZS mal 3 plus 1 = ` +
@@ -125,17 +131,20 @@ export function buildAnreissFlow(
     },
     {
       id: "streichmass",
+      kapitel: "anzeichnen",
       label: "Streichmaß",
       meisterSagt:
-        `Erst kommt das Streichmaß: wir reissen die Brettstärke rundherum an. ` +
-        `Diese rote Linie ist deine Stemmtiefe — tiefer gehst du beim Stemmen ` +
-        `nie. Schau, so läuft sie umlaufend ums Brett.`,
+        `Erst kommt das Streichmaß, eingestellt am Gegenbrett: Diese rote Linie ` +
+        `ist die Grundlinie. Am Zinkenbrett reissen wir sie nur auf den beiden ` +
+        `Flächen, nicht über die Kanten. Bis zu ihr wird gesägt und gestemmt, ` +
+        `nie darüber hinaus.`,
       zeigeLinien: ["streichmass_brettstaerke"],
-      tafel: [`Stemmtiefe = Brettdicke D = ${mm(D)} mm`],
+      tafel: [`Grundlinie = Dicke Gegenbrett D = ${mm(D)} mm`],
       frageErlaubt: true,
     },
     {
       id: "markieren",
+      kapitel: "anzeichnen",
       label: "Markieren",
       meisterSagt:
         `Jetzt teilen wir die Breite ein und markieren die Schwalben — ${L.AZS} ` +
@@ -152,11 +161,13 @@ export function buildAnreissFlow(
     },
     {
       id: "schraege",
+      kapitel: "anzeichnen",
       label: "Schräge",
       meisterSagt:
         `Zum Schluss die Schräge: 1 zu ${L.slopeRatio}, das sind rund ` +
-        `${L.slopeDeg.toFixed(0)} Grad. Mit der Schmiege legst du jede ` +
-        `Schwalbenflanke an. Steiler bricht aus, flacher hält schlechter — ` +
+        `${L.slopeDeg.toFixed(0)} Grad. Mit der Schmiege reisst du jede Schräge ` +
+        `im Hirnholz an, der Anschlag liegt an der Fläche des Zinkenbretts. ` +
+        `Steiler bricht aus, flacher hält schlechter — ` +
         `1 zu ${L.slopeRatio} ist der bewährte Mittelweg.`,
       zeigeLinien: ["mittellinie", "schwalbe_pin_"],
       kennzahl: `Schräge 1:${L.slopeRatio}`,
@@ -168,6 +179,7 @@ export function buildAnreissFlow(
     },
     {
       id: "fertig",
+      kapitel: "kontrolle",
       label: "Fertig",
       meisterSagt:
         `Das Anreissen steht. Du hast ${L.AZS} Schwalben in ${L.AZT} Teilen, ` +

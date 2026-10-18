@@ -6,14 +6,14 @@
   "hero": {
     "kicker": "Course · Through dovetail · Pins first",
     "title": "Your first dovetail joint",
-    "lead": "Six steps from the board to the glued corner. In every step we show it first, then you do it yourself, and at the end you check on your own whether it fits.",
+    "lead": "Nine chapters from the board to the glued corner; chapters 1 to 3 are new, the rest is still a draft. In every chapter we show it first, then you do it yourself, and at the end you check on your own whether it fits.",
     "quelle": "Layout rule: geometric dovetail spacing on the center line, following the Austrian carpentry textbook (Fachkunde Tischler), ch. 4.1 (in our own words).",
     "xr": "Open in AR / VR",
     "sicherheit": "AR rule: with the headset on you only mark out and check. Never saw or chop with the headset on: watch first, headset off, then work."
   },
   "nav": {
     "label": "Course steps",
-    "schritt": "Step {nr}",
+    "schritt": "Chapter {nr}",
     "zurueck": "Back",
     "weiter": "Next"
   },
@@ -27,7 +27,9 @@
     "fehlerUrsache": "Cause",
     "fehlerAbhilfe": "Fix",
     "sicherheit": "Safety",
-    "nachmachenAus": "Help is off. Work towards the goal and check yourself at the checkpoint."
+    "nachmachenAus": "Help is off. Work towards the goal and check yourself at the checkpoint.",
+    "hinweis": "Note",
+    "variante": "Another way"
   },
   "hilfe": {
     "label": "Help",
@@ -66,7 +68,7 @@
     "blatt": "Lap BL / tail length SL",
     "geht": "Check: {zinken} × 1T + {schwalben} × 2T = {summe} mm",
     "papier": "On paper you round T first: T ≈ {t} → 2T ≈ {zweiT} → {ratio}T ≈ {hilf} mm. The calculator keeps the unrounded value; the difference is smaller than a pencil line.",
-    "winkelHinweis": "1:6 gives about 9.5°. The range \"10° to 14°\" is a second rule of thumb, not the same angle.",
+    "winkelHinweis": "Until the next stage the calculator uses a fixed 1:6 and the factor 1.7. 1:7 for hardwood and the 1.5 rule will be added there as options.",
     "fehler": {
       "breite_ungueltig": "Enter a board width between 40 and 600 mm.",
       "dicke_ungueltig": "Enter a board thickness between 8 and 50 mm.",

@@ -6,14 +6,14 @@
   "hero": {
     "kicker": "Lehrgang · Offene Zinkung · Zinken zuerst",
     "title": "Deine erste Zinkung",
-    "lead": "Sechs Schritte vom Brett bis zur geleimten Ecke. In jedem Schritt machen wir es zuerst vor, dann machst du es nach, und am Ende prüfst du selbst, ob es passt.",
+    "lead": "Neun Kapitel vom Brett bis zur geleimten Ecke, Kapitel 1 bis 3 sind neu, der Rest ist noch Entwurf. In jedem Kapitel machen wir es zuerst vor, dann machst du es nach, und am Ende prüfst du selbst, ob es passt.",
     "quelle": "Rechenregel: geometrische Zinkenteilung auf der Mittellinie nach dem österreichischen Fachkunde-Lehrbuch Tischler, Kap. 4.1 (in eigenen Worten).",
     "xr": "In AR / VR öffnen",
     "sicherheit": "AR-Regel: Mit der Brille wird nur angerissen und geprüft. Sägen und Stemmen nie mit aufgesetzter Brille: erst ansehen, Brille ab, dann arbeiten."
   },
   "nav": {
     "label": "Schritte des Lehrgangs",
-    "schritt": "Schritt {nr}",
+    "schritt": "Kapitel {nr}",
     "zurueck": "Zurück",
     "weiter": "Weiter"
   },
@@ -27,7 +27,9 @@
     "fehlerUrsache": "Ursache",
     "fehlerAbhilfe": "Abhilfe",
     "sicherheit": "Sicherheit",
-    "nachmachenAus": "Hilfe ist aus. Arbeite nach dem Ziel und prüfe am Kontrollpunkt."
+    "nachmachenAus": "Hilfe ist aus. Arbeite nach dem Ziel und prüfe am Kontrollpunkt.",
+    "hinweis": "Hinweis",
+    "variante": "Andere Möglichkeit"
   },
   "hilfe": {
     "label": "Hilfe",
@@ -66,7 +68,7 @@
     "blatt": "Blattl BL / Schwalbenlänge SL",
     "geht": "Kontrolle: {zinken} × 1T + {schwalben} × 2T = {summe} mm",
     "papier": "Auf dem Papier rundet man T zuerst: T ≈ {t} → 2T ≈ {zweiT} → {ratio}T ≈ {hilf} mm. Der Rechner rechnet ungerundet weiter; der Unterschied ist kleiner als ein Bleistiftstrich.",
-    "winkelHinweis": "1:6 ergibt rund 9,5°. Die Angabe »10° bis 14°« ist eine zweite Faustregel, nicht derselbe Winkel.",
+    "winkelHinweis": "Der Rechner rechnet bis zur nächsten Stufe fest mit 1:6 und dem Faktor 1,7. 1:7 für Hartholz und die Regel 1,5 kommen dort als Auswahl.",
     "fehler": {
       "breite_ungueltig": "Brettbreite zwischen 40 und 600 mm eingeben.",
       "dicke_ungueltig": "Brettdicke zwischen 8 und 50 mm eingeben.",

@@ -14,11 +14,14 @@
  */
 
 import type { DovetailStep } from "@craft-codex/core";
+import type { KapitelId } from "./kapitel";
 
 export type LektionSurface = "joint3d" | "tafel" | "video" | "xr";
 
 export interface LektionBeat {
   id: string;
+  /** Kapitel des Lehrgangs, zu dem dieser Beat gehört (kapitel.ts). */
+  kapitel: KapitelId;
   /** Kurzlabel für die Beat-Leiste */
   label: string;
   /** Welche Fläche die Bühne zeigt */
@@ -40,6 +43,7 @@ export interface LektionBeat {
 export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
   {
     id: "ueberblick",
+    kapitel: "warum",
     label: "Überblick",
     surface: "joint3d",
     step: "ueberblick",
@@ -49,15 +53,17 @@ export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
   },
   {
     id: "anreissen",
+    kapitel: "anzeichnen",
     label: "Anreißen",
     surface: "joint3d",
     step: "anreissen",
     titel: "Schritt 1 — Anreißen",
     meisterSays:
-      "Zuerst reißen wir an. Mit dem Streichmaß die Brettstärke umlaufend übertragen, dann die Schwalbenwinkel mit der Schmiege. Die roten Linien sind deine Stemmtiefe, die orangen der Winkel.",
+      "Zuerst reißen wir an. Mit dem Streichmaß die Grundlinie am Zinkenbrett nur auf beiden Flächen reißen, dann die Schrägen im Hirnholz mit der Schmiege, Anschlag an der Fläche. Die roten Linien sind die Grundlinie, die orangen die Schräge.",
   },
   {
     id: "saegen",
+    kapitel: "saegen",
     label: "Sägen",
     surface: "joint3d",
     step: "saegen",
@@ -67,6 +73,7 @@ export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
   },
   {
     id: "stemmen",
+    kapitel: "stemmen",
     label: "Stemmen",
     surface: "joint3d",
     step: "stemmen",
@@ -76,15 +83,17 @@ export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
   },
   {
     id: "passen",
+    kapitel: "zusammenfuehren",
     label: "Passen",
     surface: "joint3d",
     step: "passen",
     titel: "Schritt 4 — Passen",
     meisterSays:
-      "Trocken anpassen, ohne Leim. Geht es ohne Druck rein, ist es zu lose. Klemmt es, suchst du die Glanzstellen und nimmst sie punktgenau mit dem Stechbeitel ab.",
+      "Trocken anpassen, ohne Leim. Geht es ohne Druck rein, ist es zu lose. Klemmt es, suchst du die Glanzstellen und nimmst sie punktgenau mit dem Stemmeisen ab.",
   },
   {
     id: "pruefen",
+    kapitel: "zusammenfuehren",
     label: "Prüfen",
     surface: "joint3d",
     step: "pruefen",
@@ -92,8 +101,12 @@ export const SCHWALBENSCHWANZ_LEKTION: readonly LektionBeat[] = [
     meisterSays:
       "Zum Schluss prüfen wir gegen die Soll-Geometrie — das grüne Hologramm. Dein Werkstück soll ihm so nah wie möglich kommen: kein Spalt, kein Hirnholz-Ausriss.",
   },
+  // Kapitel-Folge hier bewusst nicht monoton: der XR-Beat hängt an »kontrolle« (Kap. 3) und steht nach »zusammenfuehren«
+  // (Kap. 9), weil die Übergabe ans echte Holz den Lehrgang abschließt (#62 N3). Seine Ansage ist Führung durch Anreißen,
+  // Sägen und Stemmen, keine Prüfung — ob »kontrolle« das richtige Kapitel ist, klärt der Abgleich mit #59 (#72 S2).
   {
     id: "xr-uebergabe",
+    kapitel: "kontrolle",
     label: "Jetzt du (XR)",
     surface: "xr",
     titel: "Jetzt du — am echten Holz",
