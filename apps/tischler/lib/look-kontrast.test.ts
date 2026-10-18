@@ -56,6 +56,11 @@ describe("VI4-Kontraste (WCAG 2.2 AA)", () => {
     ["brand", "paper", UI, "Fokusring (mit Abstand auf Papier), Button-Rahmen"],
     ["ink-mute", "paper", UI, "Rahmen von Eingabefeldern und Tabs"],
     ["sage", "paper", UI, "»richtig«-Balken"],
+    // Startseite (Stufe 2)
+    ["paper", "brand", TEXT, "Markierung im Titel (.cc-mark), Kartennummer (.cc-card-num)"],
+    ["paper", "ink", TEXT, "dunkle Karte, Fußzeile, dunkler Button, »Demo zurücksetzen« bestätigen"],
+    ["paper", "brand-dark", TEXT, "dunkler Button / Bestätigen beim Hover"],
+    ["paper", "ink", UI, "Fokusring in der Fußzeile, Unterstreichung auf dunklen Flächen"],
   ] as const)("%s auf %s ≥ %s (%s)", (vorne, hinten, min, _wozu) => {
     expect(kontrast(wert(vorne), wert(hinten))).toBeGreaterThanOrEqual(min);
   });
@@ -65,6 +70,11 @@ describe("VI4-Kontraste (WCAG 2.2 AA)", () => {
     expect(kontrast(wert("ink-mute"), wert("surface"))).toBeLessThan(TEXT);
     // Darum: --cc-muted zeigt im Scope auf ink-soft, nicht auf ink-mute.
     expect(CSS).toMatch(/--cc-muted:\s*var\(--vi4-ink-soft\)/);
+  });
+
+  it("darum Papier auf dunklen Flächen: Navy und ink-soft auf ink tragen keinen Text", () => {
+    expect(kontrast(wert("brand"), wert("ink"))).toBeLessThan(UI);
+    expect(kontrast(wert("ink-soft"), wert("ink"))).toBeLessThan(UI);
   });
 
   it("Rechenkern stimmt (Schwarz/Weiß = 21:1)", () => {

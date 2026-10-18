@@ -217,6 +217,51 @@
   background: var(--vi4-surface);
 }
 
+/* --- Startseite (Stufe 2): Gelb war Fläche hinter dunkler Schrift, auf Navy gehört helle Schrift --- */
+[data-look="vi4"] .cc-mark,
+[data-look="vi4"] .cc-card-num {
+  background: var(--vi4-brand);
+  color: var(--vi4-paper); /* 8,77:1 */
+}
+[data-look="vi4"] .cc-hl {
+  background: linear-gradient(transparent 56%, var(--vi4-light) 56%, var(--vi4-light) 93%, transparent 93%);
+  color: var(--vi4-ink);
+}
+/* Dunkle Button-Fläche: die .cc-btn-Regel oben färbt sonst die Schrift Navy auf Schwarz.
+   Auch »Demo zurücksetzen« im Bestätigungsschritt (.cc-btn--danger) bleibt so vom ersten Schritt unterscheidbar. */
+[data-look="vi4"] .cc-btn--dark,
+[data-look="vi4"] .cc-btn--danger {
+  background: var(--vi4-ink);
+  border-color: var(--vi4-ink);
+  color: var(--vi4-paper); /* 21:1 */
+}
+[data-look="vi4"] .cc-btn--dark:hover:not(:disabled),
+[data-look="vi4"] .cc-btn--danger:hover:not(:disabled) {
+  background: var(--vi4-brand-dark); /* Weiß darauf 11,39:1 */
+  border-color: var(--vi4-brand-dark);
+}
+
+/* --- Dunkle Flächen (dunkle Karte, Fußzeile): Navy auf Schwarz trägt nicht, Akzent ist dort Papier --- */
+[data-look="vi4"] .cc-card--dark .cc-kicker,
+[data-look="vi4"] .cc-footer-meta {
+  color: var(--vi4-paper); /* 21:1 auf ink */
+}
+[data-look="vi4"] .cc-card--dark .cc-kicker::before {
+  background: var(--vi4-paper);
+}
+[data-look="vi4"] .cc-card--dark .cc-hl,
+[data-look="vi4"] .cc-footer a,
+[data-look="vi4"] .cc-footer-claim em {
+  background: none;
+  color: var(--vi4-paper);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+[data-look="vi4"] .cc-footer :focus-visible {
+  outline-color: var(--vi4-paper);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-look="vi4"] .cc-btn,
   [data-look="vi4"] .cc-btn:hover:not(:disabled) {

@@ -2,12 +2,14 @@
  * Welche Routen tragen den VI4-Look (VOAI Paper, Navy-Akzent)?
  *
  * Bewusst eine kleine, feste Liste: Alles, was hier nicht steht, bleibt im
- * bisherigen Craft-Codex-Look (Papier + Signalgelb). Die Startseite gehört
- * NICHT dazu, weil die Lienz-Demo sie nutzt (»Demo zurücksetzen«).
+ * bisherigen Craft-Codex-Look (Papier + Signalgelb). Seit Stufe 2 gehört die
+ * Startseite dazu, aber nur genau "/" (kein Präfix: /dovetail usw. bleiben
+ * alt). Der Knopf »Demo zurücksetzen« der Lienz-Demo bleibt dort und tut,
+ * was er bisher tat.
  *
  * Pfade ohne Locale-Präfix, so wie sie `usePathname` aus i18n/navigation liefert.
  */
-export const VI4_ROUTEN = ["/zinken"] as const;
+export const VI4_ROUTEN = ["/zinken", "/"] as const;
 
 /**
  * VI4-Farben für 3D und XR. Three.js und uikit lesen keine CSS-Variablen,
@@ -20,5 +22,6 @@ export const VI4_XR = { brand: "#2c4b7a", papier: "#ffffff" } as const;
 export function istVi4Route(pfad: string | null | undefined): boolean {
   if (!pfad) return false;
   const p = pfad.length > 1 && pfad.endsWith("/") ? pfad.slice(0, -1) : pfad;
-  return VI4_ROUTEN.some((r) => p === r || p.startsWith(`${r}/`));
+  // "/" nur exakt, sonst wäre jede Route ein Unterpfad der Startseite.
+  return VI4_ROUTEN.some((r) => p === r || (r !== "/" && p.startsWith(`${r}/`)));
 }
