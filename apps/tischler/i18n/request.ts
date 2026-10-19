@@ -15,6 +15,7 @@ const NAMESPACES = [
   "xr",
   "contribute",
   "zinken",
+  "werkbank",
 ] as const;
 
 async function loadMessages(locale: string) {

@@ -1,0 +1,10 @@
+{
+  "tor": {
+    "titel": "Workbench in trial run",
+    "erklaerung": "The workbench is only open for the trial run right now. Enter the code from the note. Spaces and upper or lower case do not matter.",
+    "feld": "Code",
+    "knopf": "Open",
+    "falsch": "That code is not right. Check it and try again.",
+    "zu": "Trial run not active right now"
+  }
+}
