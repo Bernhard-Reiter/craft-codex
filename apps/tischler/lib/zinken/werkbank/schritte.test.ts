@@ -1,7 +1,11 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { getZinkenLehrgangCorpus } from "../../rag/corpus/zinken-lehrgang-corpus";
 import {
   WERKBANK_KAMERAS,
+  WERKBANK_SCHRITT_IDS,
   WERKBANK_SCHRITTE_DE,
   type WerkbankSchritt,
 } from "./schritte";
@@ -12,10 +16,18 @@ import { WERKBANK_SCHRITTE_EN } from "./schritte.en";
  * kurz ≤ 2 Sätze, 1–3 Kriterien, jede quelle im Lehrgang-Korpus, de/en
  * gleiche IDs. Jeder Test prüft zuerst »genau 3«, damit ein leerer Datensatz
  * nie still grün wird.
+ * Fix #74: bezugsflaeche zeigt noch keine Anrisslinie (die Grundlinie wird erst
+ * im Schritt grundlinie gerissen, lehrgang.ts »anzeichnen«), die IDs kommen aus
+ * WERKBANK_SCHRITT_IDS, die Daten sind tief readonly, AnrissLayer steht in lib.
  */
 
 const REIHE = ["bezugsflaeche", "grundlinie", "pruefen"];
 const ANRISSLINIEN = new Set(["baseline", "flanks", "tails", "wastes", "divisions"]);
+const APP = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+function quelle(pfad: string): string {
+  return readFileSync(resolve(APP, pfad), "utf8");
+}
 
 function drei(liste: readonly WerkbankSchritt[]): readonly WerkbankSchritt[] {
   expect(liste).toHaveLength(3);
@@ -115,10 +127,69 @@ describe("Werkbank S1 — Schritte (Daten)", () => {
     const de = drei(WERKBANK_SCHRITTE_DE);
     for (const s of de) {
       expect(WERKBANK_KAMERAS, s.id).toContain(s.kamera);
-      expect(s.marker.length, s.id).toBeGreaterThanOrEqual(1);
+      // Fix #74: bezugsflaeche darf marker [] haben (noch nichts gerissen), eigener Test unten.
+      if (s.id !== "bezugsflaeche") expect(s.marker.length, s.id).toBeGreaterThanOrEqual(1);
       for (const m of s.marker) expect(ANRISSLINIEN.has(m), `${s.id} → ${m}`).toBe(true);
     }
     expect(de.find((s) => s.id === "grundlinie")?.marker).toContain("baseline");
+  });
+
+  it.each(SPRACHEN)(
+    "%s: bezugsflaeche zeigt noch keine Anrisslinie, die Grundlinie kommt erst mit Schritt grundlinie",
+    (_l, liste) => {
+      const schritte = drei(liste());
+      expect(schritte.find((s) => s.id === "bezugsflaeche")?.marker).toEqual([]);
+      expect(schritte.find((s) => s.id === "grundlinie")?.marker).toContain("baseline");
+      expect(schritte.find((s) => s.id === "pruefen")?.marker).toContain("baseline");
+    },
+  );
+
+  it("WERKBANK_SCHRITT_IDS ist die eine Liste der IDs, de und en tragen genau diese in dieser Reihenfolge", () => {
+    expect(WERKBANK_SCHRITT_IDS).toEqual(REIHE);
+    expect(drei(WERKBANK_SCHRITTE_DE).map((s) => s.id)).toEqual([...WERKBANK_SCHRITT_IDS]);
+    expect(drei(WERKBANK_SCHRITTE_EN).map((s) => s.id)).toEqual([...WERKBANK_SCHRITT_IDS]);
+  });
+
+  it("Daten sind tief readonly: Schreiben an Schritt, Listen und hilfen ist ein Typfehler (greift unter tsc)", () => {
+    // Nie aufgerufen: vitest schreibt nichts, tsc prüft jede Zeile (@ts-expect-error muss greifen).
+    const _schreiben = (s: WerkbankSchritt, liste: readonly WerkbankSchritt[]): void => {
+      // @ts-expect-error id ist readonly
+      s.id = "pruefen";
+      // @ts-expect-error kurz ist readonly
+      s.kurz = "";
+      // @ts-expect-error kamera ist readonly
+      s.kamera = "schraeg";
+      // @ts-expect-error marker ist readonly
+      s.marker = [];
+      // @ts-expect-error die marker-Liste ist readonly
+      s.marker.push("baseline");
+      // @ts-expect-error kriterien ist readonly
+      s.kriterien = [];
+      // @ts-expect-error hilfen ist readonly
+      s.hilfen = { ...s.hilfen };
+      // @ts-expect-error hilfen.erklaerung ist readonly
+      s.hilfen.erklaerung = "";
+      // @ts-expect-error sicherheit ist readonly
+      s.sicherheit = true;
+      // @ts-expect-error die Schrittliste ist readonly
+      liste.pop();
+    };
+    expect(drei(WERKBANK_SCHRITTE_DE)).toHaveLength(3);
+    expect(drei(WERKBANK_SCHRITTE_EN)).toHaveLength(3);
+  });
+
+  it("lib hängt nicht an der UI: AnrissLayer steht in lib/zinken/anriss-layer.ts, AnrissFlat reicht ihn weiter", () => {
+    for (const datei of ["schritte.ts", "schritte.en.ts", "meister-stufen.ts"]) {
+      expect(quelle(`lib/zinken/werkbank/${datei}`), datei).not.toMatch(/components\//);
+    }
+    expect(quelle("lib/zinken/werkbank/schritte.ts")).toMatch(
+      /import type \{ AnrissLayer \} from "\.\.\/anriss-layer";/,
+    );
+    expect(quelle("lib/zinken/anriss-layer.ts")).toMatch(/export type AnrissLayer =/);
+    const flat = quelle("components/AnrissFlat.tsx");
+    expect(flat).toMatch(/import type \{ AnrissLayer \} from "\.\.\/lib\/zinken\/anriss-layer";/);
+    expect(flat).toMatch(/export type \{ AnrissLayer \};/);
+    expect(flat).not.toMatch(/export type AnrissLayer =/);
   });
 
   it("Sicherheitskarte steht genau vor Schritt grundlinie", () => {
