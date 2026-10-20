@@ -379,6 +379,87 @@ describe("Probelauf-Tor: Tor-Route", () => {
     expect(ergebnisse).toEqual(faelle.map(([name]) => [name, null, "zu"]));
   });
 
+  it("Body-Grenze vor dem Lesen: ein langer Body ohne Content-Length wird nach höchstens zwei Stücken abgebrochen", async () => {
+    let gezogen = 0;
+    const strom = new ReadableStream<Uint8Array>({
+      pull(steuer) {
+        if (gezogen >= 64) {
+          steuer.close();
+          return;
+        }
+        gezogen += 1;
+        steuer.enqueue(new Uint8Array(1024).fill(0x61));
+      },
+    });
+    const res = await POST(
+      new Request("https://werkbank.test/api/zinken/tor", { method: "POST", body: strom, duplex: "half" } as RequestInit),
+    );
+    expect(res.headers.get("location")).toBe("/de/zinken/werkbank?tor=falsch");
+    expect(gezogen).toBeLessThanOrEqual(2);
+  });
+
+  it("Body-Grenze vor dem Lesen: Content-Length über der Grenze → falsch, der Body wird nicht angefasst", async () => {
+    // highWaterMark 0: der Strom zieht nicht von sich aus vor, jeder Zug käme also von der Route.
+    // Nach 64 Stücken endet der Strom, damit eine Route, die doch liest, sauber scheitert statt zu hängen.
+    let gezogen = 0;
+    const strom = new ReadableStream<Uint8Array>(
+      {
+        pull(steuer) {
+          if (gezogen >= 64) {
+            steuer.close();
+            return;
+          }
+          gezogen += 1;
+          steuer.enqueue(new Uint8Array(1024));
+        },
+      },
+      { highWaterMark: 0 },
+    );
+    const req = new Request("https://werkbank.test/api/zinken/tor", {
+      method: "POST",
+      headers: { "content-length": "999999" },
+      body: strom,
+      duplex: "half",
+    } as RequestInit);
+    const res = await POST(req);
+    expect(res.headers.get("location")).toBe("/de/zinken/werkbank?tor=falsch");
+    expect(gezogen).toBe(0);
+    expect(req.bodyUsed).toBe(false);
+  });
+
+  it("Body-Grenze: genau 1024 Bytes mit richtigem Code → ok, 1025 Bytes → falsch", async () => {
+    const kern = form({ code: CODE, sprache: "de" });
+    const genau = `${kern}&x=${"y".repeat(1024 - kern.length - 3)}`;
+    expect(new TextEncoder().encode(genau).byteLength).toBe(1024);
+    const ergebnisse: (string | null)[] = [];
+    for (const body of [genau, `${genau}y`]) ergebnisse.push((await post(body)).headers.get("location"));
+    expect(ergebnisse).toEqual(["/de/zinken/werkbank", "/de/zinken/werkbank?tor=falsch"]);
+  });
+
+  it("Tor zu geht vor falsch: ohne Env auch bei zu großem Body → zu", async () => {
+    delete process.env.ZINKEN_MEISTER_CODE;
+    const res = await post(form({ code: CODE, rest: "x".repeat(2048) }));
+    expect(res.headers.get("location")).toBe("/de/zinken/werkbank?tor=zu");
+  });
+
+  it("Mehrbyte-Zeichen an der Stückgrenze werden richtig gelesen (roher UTF-8-Body, Leerzeichen U+3000 im Code)", async () => {
+    const bytes = new TextEncoder().encode(`code=${CODE.slice(0, 16)}\u3000${CODE.slice(16)}&sprache=de`);
+    const teilung = "code=".length + 16 + 1;
+    expect([...bytes.slice(teilung - 1, teilung + 2)]).toEqual([0xe3, 0x80, 0x80]);
+    const stuecke = [bytes.slice(0, teilung), bytes.slice(teilung)];
+    const strom = new ReadableStream<Uint8Array>({
+      pull(steuer) {
+        const stueck = stuecke.shift();
+        if (stueck) steuer.enqueue(stueck);
+        else steuer.close();
+      },
+    });
+    const res = await POST(
+      new Request("https://werkbank.test/api/zinken/tor", { method: "POST", body: strom, duplex: "half" } as RequestInit),
+    );
+    expect(res.headers.get("location")).toBe("/de/zinken/werkbank");
+  });
+
   it("unbekannte Sprache führt auf /de, nie auf eine fremde Adresse", async () => {
     const sprachen = ["fr", "//evil.example", "https://evil.example", "EN", ""];
     const ziele: (string | null)[] = [];
