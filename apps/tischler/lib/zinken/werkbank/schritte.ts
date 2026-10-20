@@ -1,4 +1,4 @@
-import type { AnrissLayer } from "../../../components/AnrissFlat";
+import type { AnrissLayer } from "../anriss-layer";
 
 /**
  * Werkbank Stufe 1 (Kapitel Anreißen): die drei Schritte als Daten.
@@ -11,33 +11,36 @@ import type { AnrissLayer } from "../../../components/AnrissFlat";
 export const WERKBANK_KAMERAS = ["draufsicht", "stirnseite", "schraeg"] as const;
 export type WerkbankKamera = (typeof WERKBANK_KAMERAS)[number];
 
-export type WerkbankSchrittId = "bezugsflaeche" | "grundlinie" | "pruefen";
+/** Die eine Liste der Schritt-IDs in fester Reihenfolge; Typ, Daten und Automat lesen nur sie. */
+export const WERKBANK_SCHRITT_IDS = ["bezugsflaeche", "grundlinie", "pruefen"] as const;
+export type WerkbankSchrittId = (typeof WERKBANK_SCHRITT_IDS)[number];
 
 /** Hilfestufen in fester Reihenfolge; erklaerung nur auf Wunsch. */
 export interface WerkbankHilfen {
-  beobachten: string;
-  hinweis: string;
-  teilschritt: string;
-  erklaerung: string;
+  readonly beobachten: string;
+  readonly hinweis: string;
+  readonly teilschritt: string;
+  readonly erklaerung: string;
 }
 
+/** Tief readonly: Felder, Listen und hilfen lassen sich nicht beschreiben. */
 export interface WerkbankSchritt {
-  id: WerkbankSchrittId;
+  readonly id: WerkbankSchrittId;
   /** höchstens 2 Sätze */
-  kurz: string;
+  readonly kurz: string;
   /** genau ein Handgriff, ein Satz */
-  handgriff: string;
-  kamera: WerkbankKamera;
-  /** sichtbare Anrisslinien in der Werkstückansicht */
-  marker: readonly AnrissLayer[];
+  readonly handgriff: string;
+  readonly kamera: WerkbankKamera;
+  /** sichtbare Anrisslinien in der Werkstückansicht; [] = noch nichts gerissen */
+  readonly marker: readonly AnrissLayer[];
   /** »Woran du's prüfst«: 1–3 sichtbare Kriterien */
-  kriterien: readonly string[];
-  warum: string;
+  readonly kriterien: readonly string[];
+  readonly warum: string;
   /** IDs aus dem Lehrgang-Korpus (getZinkenLehrgangCorpus) */
-  quellen: readonly string[];
-  hilfen: WerkbankHilfen;
+  readonly quellen: readonly string[];
+  readonly hilfen: WerkbankHilfen;
   /** true = die feste Sicherheitskarte steht vor diesem Schritt */
-  sicherheit?: true;
+  readonly sicherheit?: true;
 }
 
 /** Kapitel Anreißen, die drei Schritte der Werkbank (Stufe 1). */
@@ -47,7 +50,9 @@ export const WERKBANK_SCHRITTE_DE: readonly WerkbankSchritt[] = [
     kurz: "Leg fest, welche Seite außen sitzt, und kennzeichne sie. Von dieser Fläche aus reißt du später alles an.",
     handgriff: "Schreib AUSSEN auf die Außenseite und zieh das Tischlerdreieck über die Kanten beider Bretter.",
     kamera: "draufsicht",
-    marker: ["baseline"],
+    // Fix #74: hier ist noch nichts gerissen, die Grundlinie kommt erst im Schritt grundlinie
+    // (lehrgang.ts, Lektion anzeichnen: vormachen Z. 104 »bevor irgendein Riss kommt«, Z. 106 Grundlinie).
+    marker: [],
     kriterien: [
       "AUSSEN steht auf der Außenseite jedes Bretts.",
       "Das Tischlerdreieck läuft über die Kanten aller Teile in dieselbe Richtung.",

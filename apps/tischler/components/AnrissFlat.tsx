@@ -10,6 +10,7 @@ import type {
   TeilungEbene,
   DovetailVariante,
 } from "@craft-codex/core";
+import type { AnrissLayer } from "../lib/zinken/anriss-layer";
 
 const SCALE_MM_TO_M = 0.001;
 const BOARD_SEPARATION_M = 0.15;
@@ -106,12 +107,8 @@ export function AnrissFlat({
   );
 }
 
-export type AnrissLayer =
-  | "baseline"
-  | "flanks"
-  | "tails"
-  | "wastes"
-  | "divisions";
+// Fix #74: der Typ steht in lib/zinken/anriss-layer.ts, hier nur weitergereicht.
+export type { AnrissLayer };
 
 /** Anriss-2D-Punkt (mm) → 3D Brett-lokal (mm, vor dem Gruppen-Scale). */
 function to3D(

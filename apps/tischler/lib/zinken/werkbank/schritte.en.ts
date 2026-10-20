@@ -7,7 +7,7 @@ export const WERKBANK_SCHRITTE_EN: readonly WerkbankSchritt[] = [
     kurz: "Decide which face goes on the outside and mark it. You mark everything later from this face.",
     handgriff: "Write OUTSIDE on the outside face and draw the cabinetmaker's triangle across the edges of both boards.",
     kamera: "draufsicht",
-    marker: ["baseline"],
+    marker: [],
     kriterien: [
       "OUTSIDE is written on the outside face of each board.",
       "The cabinetmaker's triangle runs across the edges of all parts in the same direction.",

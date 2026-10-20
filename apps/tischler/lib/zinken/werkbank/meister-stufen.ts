@@ -1,5 +1,5 @@
 import {
-  WERKBANK_SCHRITTE_DE,
+  WERKBANK_SCHRITT_IDS,
   type WerkbankHilfen,
   type WerkbankSchritt,
   type WerkbankSchrittId,
@@ -20,6 +20,11 @@ import {
  *   nicht gezeigte Stufe aus beobachten, hinweis, teilschritt, nie die erklaerung.
  *   Sind alle drei gezeigt, kommt die Meldung "alle-gezeigt".
  *
+ * Zustand (Fix #74): nur der Schritt und die Zahl der gezeigten Stufen (0–4). Welche
+ * Stufen das sind, leitet gezeigt() aus der festen Reihenfolge ab. Ein von außen gebauter
+ * Zustand mit einer anderen Zahl wirft, er kann die erklaerung nicht freischalten.
+ * Die Schritt-IDs kommen nur aus WERKBANK_SCHRITT_IDS (schritte.ts).
+ *
  * Entscheidung Texte: Die Texte der Stufen stehen in hilfen (schritte.ts, schritte.en.ts),
  * hilfeTexte() holt sie dort ab. Für »Alle Hinweise gezeigt — schau ins Warum oder frag
  * deinen Ausbilder« liefert der Automat nur den Schlüssel "alle-gezeigt" und keinen Text.
@@ -29,10 +34,13 @@ import {
 /** Die vier Hilfestufen heißen wie die Felder von hilfen. */
 export type MeisterStufe = keyof WerkbankHilfen;
 
+/** Wie viele Stufen schon gezeigt sind: 0 = noch keine, 4 = alle samt erklaerung. */
+export type MeisterAnzahl = 0 | 1 | 2 | 3 | 4;
+
 export interface MeisterZustand {
   readonly schrittId: WerkbankSchrittId;
-  /** Die schon gezeigten Stufen, immer ein Anfang der festen Reihenfolge. */
-  readonly gezeigt: readonly MeisterStufe[];
+  /** Zahl der gezeigten Stufen, gezeigt sind immer die ersten `anzahl` der festen Reihenfolge. */
+  readonly anzahl: MeisterAnzahl;
 }
 
 export interface MeisterRueckfall {
@@ -46,46 +54,65 @@ export interface MeisterHilfeText {
   readonly text: string;
 }
 
-/** Feste Reihenfolge. Die ersten drei Stufen kommen auch automatisch, erklaerung nie. */
+/** Feste Reihenfolge. Die Stufen vor der erklaerung kommen auch automatisch, erklaerung nie. */
 const REIHE: readonly MeisterStufe[] = ["beobachten", "hinweis", "teilschritt", "erklaerung"];
-const AUTOMATISCH = 3;
+/** So viele Stufen kommen automatisch: alle vor der erklaerung (aus REIHE abgeleitet, = 3). */
+const AUTOMATISCH = REIHE.indexOf("erklaerung");
 
-function pruefen(schrittId: WerkbankSchrittId): void {
-  if (!WERKBANK_SCHRITTE_DE.some((s) => s.id === schrittId)) {
-    throw new Error(`Meister-Stufen: unbekannter Schritt »${String(schrittId)}«`);
+/** Die eine Fehlermeldung für einen Schritt, den es nicht gibt. */
+function unbekannterSchritt(schrittId: unknown): never {
+  throw new Error(`Meister-Stufen: unbekannter Schritt »${String(schrittId)}«`);
+}
+
+function pruefeSchritt(schrittId: WerkbankSchrittId): void {
+  if (!(WERKBANK_SCHRITT_IDS as readonly string[]).includes(schrittId)) unbekannterSchritt(schrittId);
+}
+
+/** Prüft auch einen von außen gebauten Zustand: Schritt aus der Liste, anzahl ganzzahlig 0–4. */
+function pruefeZustand(zustand: MeisterZustand): void {
+  pruefeSchritt(zustand.schrittId);
+  const anzahl: unknown = zustand.anzahl;
+  if (typeof anzahl !== "number" || !Number.isInteger(anzahl) || anzahl < 0 || anzahl > REIHE.length) {
+    throw new Error(`Meister-Stufen: ungültige Stufenzahl »${String(anzahl)}«`);
   }
 }
 
-/** Neuer Zustand mit den ersten `anzahl` Stufen der Reihenfolge. */
+/** Neuer Zustand mit den ersten `anzahl` Stufen. Aufrufer geben nur 1 bis REIHE.length. */
 function zeige(zustand: MeisterZustand, anzahl: number): MeisterZustand {
-  return { schrittId: zustand.schrittId, gezeigt: REIHE.slice(0, anzahl) };
+  return { schrittId: zustand.schrittId, anzahl: anzahl as MeisterAnzahl };
 }
 
 /** Klappe für einen Schritt öffnen: noch keine Stufe gezeigt. */
 export function start(schrittId: WerkbankSchrittId): MeisterZustand {
-  pruefen(schrittId);
-  return { schrittId, gezeigt: [] };
+  pruefeSchritt(schrittId);
+  return { schrittId, anzahl: 0 };
+}
+
+/** Die gezeigten Stufen, abgeleitet aus anzahl: immer ein Anfang der festen Reihenfolge. */
+export function gezeigt(zustand: MeisterZustand): readonly MeisterStufe[] {
+  pruefeZustand(zustand);
+  return REIHE.slice(0, zustand.anzahl);
 }
 
 /** Klick »nächste Hilfe«: eine Stufe mehr, höchstens bis teilschritt. */
 export function weiter(zustand: MeisterZustand): MeisterZustand {
-  pruefen(zustand.schrittId);
-  if (zustand.gezeigt.length >= AUTOMATISCH) return zustand;
-  return zeige(zustand, zustand.gezeigt.length + 1);
+  pruefeZustand(zustand);
+  if (zustand.anzahl >= AUTOMATISCH) return zustand;
+  return zeige(zustand, zustand.anzahl + 1);
 }
 
 /** Eigener Klick »Erklärung zeigen«: nur direkt nach teilschritt, sonst bleibt alles gleich. */
 export function erklaerungZeigen(zustand: MeisterZustand): MeisterZustand {
-  pruefen(zustand.schrittId);
-  if (zustand.gezeigt.length !== AUTOMATISCH) return zustand;
+  pruefeZustand(zustand);
+  if (zustand.anzahl !== AUTOMATISCH) return zustand;
   return zeige(zustand, AUTOMATISCH + 1);
 }
 
 /** Meister antwortet »ohne-ki«: die nächste ungezeigte Stufe ohne erklaerung, sonst "alle-gezeigt". */
 export function rueckfall(zustand: MeisterZustand): MeisterRueckfall {
-  pruefen(zustand.schrittId);
-  if (zustand.gezeigt.length >= AUTOMATISCH) return { zustand, meldung: "alle-gezeigt" };
-  return { zustand: zeige(zustand, zustand.gezeigt.length + 1), meldung: null };
+  pruefeZustand(zustand);
+  if (zustand.anzahl >= AUTOMATISCH) return { zustand, meldung: "alle-gezeigt" };
+  return { zustand: zeige(zustand, zustand.anzahl + 1), meldung: null };
 }
 
 /** Die Texte der gezeigten Stufen aus hilfen, in der Sprache der übergebenen Liste. */
@@ -93,9 +120,7 @@ export function hilfeTexte(
   zustand: MeisterZustand,
   schritte: readonly WerkbankSchritt[],
 ): readonly MeisterHilfeText[] {
-  const schritt = schritte.find((s) => s.id === zustand.schrittId);
-  if (!schritt) {
-    throw new Error(`Meister-Stufen: unbekannter Schritt »${String(zustand.schrittId)}«`);
-  }
-  return zustand.gezeigt.map((stufe) => ({ stufe, text: schritt.hilfen[stufe] }));
+  const stufen = gezeigt(zustand);
+  const schritt = schritte.find((s) => s.id === zustand.schrittId) ?? unbekannterSchritt(zustand.schrittId);
+  return stufen.map((stufe) => ({ stufe, text: schritt.hilfen[stufe] }));
 }
