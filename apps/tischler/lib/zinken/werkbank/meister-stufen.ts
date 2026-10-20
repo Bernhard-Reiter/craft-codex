@@ -55,9 +55,13 @@ export interface MeisterHilfeText {
 }
 
 /** Feste Reihenfolge. Die Stufen vor der erklaerung kommen auch automatisch, erklaerung nie. */
-const REIHE: readonly MeisterStufe[] = ["beobachten", "hinweis", "teilschritt", "erklaerung"];
+const REIHE = ["beobachten", "hinweis", "teilschritt", "erklaerung"] as const satisfies readonly MeisterStufe[];
+/** Alle Stufen. Bindet MeisterAnzahl an REIHE: bekommt REIHE eine fünfte Stufe, meldet tsc hier einen Fehler. */
+const ALLE: MeisterAnzahl = REIHE.length;
 /** So viele Stufen kommen automatisch: alle vor der erklaerung (aus REIHE abgeleitet, = 3). */
 const AUTOMATISCH = REIHE.indexOf("erklaerung");
+/** Eine Stufe mehr als jetzt, ohne Cast. 4 bleibt 4: mehr als alle gibt es nicht. */
+const EINE_MEHR: Readonly<Record<MeisterAnzahl, MeisterAnzahl>> = { 0: 1, 1: 2, 2: 3, 3: 4, 4: 4 };
 
 /** Die eine Fehlermeldung für einen Schritt, den es nicht gibt. */
 function unbekannterSchritt(schrittId: unknown): never {
@@ -72,14 +76,14 @@ function pruefeSchritt(schrittId: WerkbankSchrittId): void {
 function pruefeZustand(zustand: MeisterZustand): void {
   pruefeSchritt(zustand.schrittId);
   const anzahl: unknown = zustand.anzahl;
-  if (typeof anzahl !== "number" || !Number.isInteger(anzahl) || anzahl < 0 || anzahl > REIHE.length) {
+  if (typeof anzahl !== "number" || !Number.isInteger(anzahl) || anzahl < 0 || anzahl > ALLE) {
     throw new Error(`Meister-Stufen: ungültige Stufenzahl »${String(anzahl)}«`);
   }
 }
 
-/** Neuer Zustand mit den ersten `anzahl` Stufen. Aufrufer geben nur 1 bis REIHE.length. */
-function zeige(zustand: MeisterZustand, anzahl: number): MeisterZustand {
-  return { schrittId: zustand.schrittId, anzahl: anzahl as MeisterAnzahl };
+/** Neuer Zustand mit den ersten `anzahl` Stufen. Der Typ deckelt anzahl auf 0–4, ein Cast ist nicht nötig. */
+function zeige(zustand: MeisterZustand, anzahl: MeisterAnzahl): MeisterZustand {
+  return { schrittId: zustand.schrittId, anzahl };
 }
 
 /** Klappe für einen Schritt öffnen: noch keine Stufe gezeigt. */
@@ -98,21 +102,21 @@ export function gezeigt(zustand: MeisterZustand): readonly MeisterStufe[] {
 export function weiter(zustand: MeisterZustand): MeisterZustand {
   pruefeZustand(zustand);
   if (zustand.anzahl >= AUTOMATISCH) return zustand;
-  return zeige(zustand, zustand.anzahl + 1);
+  return zeige(zustand, EINE_MEHR[zustand.anzahl]);
 }
 
 /** Eigener Klick »Erklärung zeigen«: nur direkt nach teilschritt, sonst bleibt alles gleich. */
 export function erklaerungZeigen(zustand: MeisterZustand): MeisterZustand {
   pruefeZustand(zustand);
   if (zustand.anzahl !== AUTOMATISCH) return zustand;
-  return zeige(zustand, AUTOMATISCH + 1);
+  return zeige(zustand, EINE_MEHR[zustand.anzahl]);
 }
 
 /** Meister antwortet »ohne-ki«: die nächste ungezeigte Stufe ohne erklaerung, sonst "alle-gezeigt". */
 export function rueckfall(zustand: MeisterZustand): MeisterRueckfall {
   pruefeZustand(zustand);
   if (zustand.anzahl >= AUTOMATISCH) return { zustand, meldung: "alle-gezeigt" };
-  return { zustand: zeige(zustand, zustand.anzahl + 1), meldung: null };
+  return { zustand: zeige(zustand, EINE_MEHR[zustand.anzahl]), meldung: null };
 }
 
 /** Die Texte der gezeigten Stufen aus hilfen, in der Sprache der übergebenen Liste. */

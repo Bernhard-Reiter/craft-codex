@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { getZinkenLehrgangCorpus } from "../../rag/corpus/zinken-lehrgang-corpus";
@@ -27,6 +27,34 @@ const APP = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 function quelle(pfad: string): string {
   return readFileSync(resolve(APP, pfad), "utf8");
+}
+
+/** Alle .ts/.tsx-Dateien unter `ordner` (rekursiv), als Pfad relativ zur App. */
+function tsDateien(ordner: string): string[] {
+  return readdirSync(resolve(APP, ordner), { withFileTypes: true }).flatMap((e) => {
+    const pfad = `${ordner}/${e.name}`;
+    if (e.isDirectory()) return tsDateien(pfad);
+    return /\.tsx?$/.test(e.name) ? [pfad] : [];
+  });
+}
+
+/**
+ * Modulpfade einer Datei, die in den UI-Ordner components/ zeigen: import/export … from, import type,
+ * import "…", import(…) und require(…), mit "…" und '…'. Relative Pfade und der Alias @/ werden
+ * auf die App aufgelöst, Pakete zählen nicht.
+ */
+function uiImporte(datei: string, text: string): string[] {
+  const muster = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*)(["'])([^"'\n]+)\1/g;
+  return [...text.matchAll(muster)]
+    .flatMap((m) => (m[2] === undefined ? [] : [m[2]]))
+    .filter((modul) => {
+      const ziel = modul.startsWith("@/")
+        ? modul.slice(2)
+        : modul.startsWith(".")
+          ? relative(APP, resolve(APP, dirname(datei), modul))
+          : null;
+      return ziel !== null && (ziel === "components" || ziel.startsWith("components/"));
+    });
 }
 
 function drei(liste: readonly WerkbankSchritt[]): readonly WerkbankSchritt[] {
@@ -178,10 +206,48 @@ describe("Werkbank S1 — Schritte (Daten)", () => {
     expect(drei(WERKBANK_SCHRITTE_EN)).toHaveLength(3);
   });
 
-  it("lib hängt nicht an der UI: AnrissLayer steht in lib/zinken/anriss-layer.ts, AnrissFlat reicht ihn weiter", () => {
-    for (const datei of ["schritte.ts", "schritte.en.ts", "meister-stufen.ts"]) {
-      expect(quelle(`lib/zinken/werkbank/${datei}`), datei).not.toMatch(/components\//);
+  it("das Schichten-Muster findet UI-Importe in jeder Form und nur diese", () => {
+    const x = "lib/zinken/x.ts";
+    for (const zeile of [
+      'import type { A } from "../../components/AnrissFlat";',
+      "import type { A } from '../../components/AnrissFlat';",
+      'import { B } from "@/components/B";',
+      "export { C } from '@/components/C';",
+      'import "../../components/seiteneffekt";',
+      "const d = await import('../../components/D');",
+      'const e = require("../../components/E");',
+    ]) {
+      expect(uiImporte(x, zeile), zeile).toHaveLength(1);
     }
+    for (const zeile of [
+      'import type { AnrissLayer } from "./anriss-layer";',
+      'import { D } from "./components/eigenes-lib-modul";',
+      'import { E } from "@react-three/drei";',
+      "// siehe components/AnrissFlat.tsx",
+      'const pfad = quelle("components/AnrissFlat.tsx");',
+    ]) {
+      expect(uiImporte(x, zeile), zeile).toEqual([]);
+    }
+  });
+
+  it("lib hängt nicht an der UI: keine Datei unter lib/ importiert aus components/", () => {
+    const dateien = tsDateien("lib");
+    expect(dateien.length).toBeGreaterThan(100);
+    expect(dateien).toEqual(
+      expect.arrayContaining([
+        "lib/zinken/lehrgang-typen.ts",
+        "lib/zinken/werkbank/schritte.ts",
+        "lib/zinken/werkbank/schritte.en.ts",
+        "lib/zinken/werkbank/meister-stufen.ts",
+      ]),
+    );
+    // Diese Datei trägt eingerückt die Probezeilen des Musters, von ihr zählen nur die Zeilen ohne Einrückung.
+    const eigen = relative(APP, fileURLToPath(import.meta.url));
+    expect(dateien).toContain(eigen);
+    const text = (d: string) =>
+      d === eigen ? quelle(d).split("\n").filter((z) => !/^\s/.test(z)).join("\n") : quelle(d);
+    const treffer = dateien.flatMap((d) => uiImporte(d, text(d)).map((modul) => `${d} → ${modul}`));
+    expect(treffer).toEqual([]);
     expect(quelle("lib/zinken/werkbank/schritte.ts")).toMatch(
       /import type \{ AnrissLayer \} from "\.\.\/anriss-layer";/,
     );
