@@ -679,13 +679,19 @@ describe("Probelauf-Tor: kein Log, eine Quelle", () => {
       "app/api/zinken/tor/route.ts",
       "middleware.ts",
       "app/[locale]/zinken/tor/page.tsx",
+      "lib/zinken/werkbank/tor-server.ts",
     ];
     const funde = dateien.filter((d) => /\bconsole\s*\.\s*[a-z]|\blogger\s*\.\s*[a-z]|lib\/logger/.test(quelle(d)));
     expect(funde).toEqual([]);
   });
 
-  it("Env-Namen, Cookie-Name und Ablaufzahl stehen nur in tor.ts, nicht in Route, Middleware oder Code-Feld", () => {
-    const dateien = ["app/api/zinken/tor/route.ts", "middleware.ts", "app/[locale]/zinken/tor/page.tsx"];
+  it("Env-Namen, Cookie-Name und Ablaufzahl stehen nur in tor.ts, nicht in Route, Middleware, Code-Feld oder tor-server", () => {
+    const dateien = [
+      "app/api/zinken/tor/route.ts",
+      "middleware.ts",
+      "app/[locale]/zinken/tor/page.tsx",
+      "lib/zinken/werkbank/tor-server.ts",
+    ];
     const funde = dateien.filter((d) => /ZINKEN_MEISTER_|__Host-|zinken-tor|43200|60 \* 60/.test(quelle(d)));
     expect(funde).toEqual([]);
   });
