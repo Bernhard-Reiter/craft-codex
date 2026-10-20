@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { timingSafeEqualStrings } from "../../security/timing-safe";
@@ -593,30 +594,53 @@ describe("Probelauf-Tor: Middleware", () => {
     expect(anIntl(await middleware(anfrage("/de/%E0")))).toBe(true);
   });
 
-  it("Grenze: /de/zinken/werkbankx, /de/zinken/werkbank-alt und /de/zinken/werkbankx.rsc liegen nicht hinter dem Tor", async () => {
+  it("Grenze: /de/zinken/werkbankx und /de/zinken/werkbank-alt liegen nicht hinter dem Tor", async () => {
     expect(torKonfig(process.env)).not.toBeNull();
-    const pfade = ["/de/zinken/werkbankx", "/de/zinken/werkbank-alt", "/de/zinken/werkbankx.rsc"];
+    const pfade = ["/de/zinken/werkbankx", "/de/zinken/werkbank-alt"];
     const offen: boolean[] = [];
     for (const p of pfade) offen.push(anIntl(await middleware(anfrage(p))));
-    expect(offen).toEqual([true, true, true]);
+    expect(offen).toEqual([true, true]);
   });
 
-  it("Matcher: die bisherige Zeile unverändert (ohne /api, ohne Dateien mit Punkt), dazu die zwei Werkbank-Zeilen", () => {
-    expect(torKonfig(process.env)).not.toBeNull();
-    expect(config.matcher).toEqual([
-      "/((?!api|_next|_vercel|.*\\..*).*)",
-      "/(de|en)/zinken/werkbank",
-      "/(de|en)/zinken/werkbank/:path*",
-    ]);
+  it("Pfade mit Punkt außerhalb der Werkbank gehen unverändert weiter, nicht an next-intl", async () => {
+    const pfade = ["/de/zinken/werkbankx.rsc", "/de/zinken.rsc", "/de/zinken/xr.rsc"];
+    const weiter: [boolean, string | null][] = [];
+    for (const p of pfade) {
+      const res = await middleware(anfrage(p));
+      weiter.push([anIntl(res), res.headers.get("x-middleware-next")]);
+    }
+    expect(weiter).toEqual(pfade.map(() => [false, "1"]));
   });
 
-  it("Matcher-Array enthält die Werkbank-Zeilen, damit auch werkbank.rsc und Unterpfade mit Punkt durch die Middleware laufen", () => {
-    expect(torKonfig(process.env)).not.toBeNull();
-    const liste: string[] = ([] as string[]).concat(config.matcher);
-    expect(["/(de|en)/zinken/werkbank", "/(de|en)/zinken/werkbank/:path*"].map((z) => liste.includes(z))).toEqual([
-      true,
-      true,
-    ]);
+  // Der Helfer von Next prüft nur den Rohpfad und ist damit strenger als `next start` (das zusätzlich den
+  // dekodierten Pfad prüft und // zusammenfasst). Vercels eigenes Routing bildet er nicht ab.
+  const PFADFORMEN = [
+    "/de/zinken/werkbank",
+    "/de/zinken/werkbank/x",
+    "/de/zinken/werkbank.rsc",
+    "/de/zinken/werkbank/x.rsc",
+    "/DE/zinken/werkbank",
+    "/de/Zinken/Werkbank",
+    "/de/zinken/werkbank%2Ex",
+    "/de/zinken/%77erkbank",
+    "/de/ZINKEN/werkbank.segments/x.segment.rsc",
+    "/DE/zinken/werkbank.rsc",
+    "/de/zinken/%77erkbank.rsc",
+    "/de//zinken/werkbank.rsc",
+    "/de/zinken",
+    "/de/zinken/xr",
+  ];
+  const NICHT_ANFASSEN = ["/_next/static/chunks/a.js", "/favicon.ico", "/api/zinken/tor", "/bilder/a.png"];
+
+  it("Matcher: jede Pfadform unter zinken erreicht die Middleware (echter Next-Matcher)", () => {
+    const nichtGetroffen = PFADFORMEN.filter((url) => !unstable_doesMiddlewareMatch({ config, url }));
+    expect(nichtGetroffen).toEqual([]);
+  });
+
+  it("Matcher: API, Next-Interna und Dateien bleiben draußen; die erste Zeile ist unverändert", () => {
+    const getroffen = NICHT_ANFASSEN.filter((url) => unstable_doesMiddlewareMatch({ config, url }));
+    expect(getroffen).toEqual([]);
+    expect(([] as string[]).concat(config.matcher)[0]).toBe("/((?!api|_next|_vercel|.*\\..*).*)");
   });
 });
 

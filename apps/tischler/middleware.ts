@@ -62,16 +62,20 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const sprache = werkbankSprache(pathname);
-  if (sprache) {
+  const torSprache = werkbankSprache(pathname);
+  if (torSprache) {
     const offen = await pruefeCookie(request.cookies.get(TOR_COOKIE)?.value, torKonfig(process.env), Date.now());
     if (!offen) {
       // frische URL statt nextUrl.clone(): NextURL hängt sonst den Schrägstrich der Anfrage an das Ziel
-      const antwort = NextResponse.rewrite(new URL(`/${sprache}/zinken/tor${request.nextUrl.search}`, request.url));
+      const antwort = NextResponse.rewrite(new URL(`/${torSprache}/zinken/tor${request.nextUrl.search}`, request.url));
       antwort.headers.set("Cache-Control", "no-store");
       antwort.headers.set("X-Robots-Tag", "noindex, nofollow");
       return antwort;
     }
+  } else if (pathname.includes(".")) {
+    // Pfade mit Punkt außerhalb der Werkbank holt nur die zinken-Zeile des Matchers hierher:
+    // für sie gilt weiter, was die erste Zeile meint (Dateien nicht durch next-intl).
+    return NextResponse.next();
   }
 
   return intlMiddleware(request);
@@ -80,11 +84,7 @@ export default async function middleware(request: NextRequest) {
 export const config = {
   // Alles außer API-Routen, Next-Interna und statischen Dateien (mit Punkt).
   // /admin bleibt im Matcher — die Funktion oben brancht VOR next-intl.
-  // Die Werkbank-Zeilen holen auch die Formen mit Punkt (werkbank.rsc, werkbank/x.rsc) vor das Tor,
-  // die die erste Zeile auslässt (Next hängt an jede Zeile die Transport-Endungen an).
-  matcher: [
-    "/((?!api|_next|_vercel|.*\\..*).*)",
-    "/(de|en)/zinken/werkbank",
-    "/(de|en)/zinken/werkbank/:path*",
-  ],
+  // Die zweite Zeile holt jeden Pfad mit »zinken« (jede Schreibweise, auch mit Punkt) in die Funktion;
+  // ob er hinter dem Tor liegt, entscheidet werkbankSprache dort.
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)", "/((?!api|_next|_vercel).*[zZ][iI][nN][kK][eE][nN].*)"],
 };
