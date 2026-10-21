@@ -30,6 +30,7 @@
     "perfect-freehand": "^1.2.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "server-only": "^0.0.1",
     "three": "^0.170.0",
     "three-bvh-csg": "^0.0.17",
     "zod": "^3.25.0"
