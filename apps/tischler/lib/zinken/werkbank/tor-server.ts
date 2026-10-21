@@ -10,17 +10,26 @@ import { pruefeCookie, torKonfig, TOR_COOKIE } from "./tor";
  * - Werkbank-Dateien: page | layout | template | default | route unter …/zinken/werkbank/… (auch in Gruppen,
  *   @slots und Intercept-Ordnern) sowie app/api/zinken/werkbank/**.
  * - Einstieg = Default-Export, jede exportierte HTTP-Methode, jede Funktion mit "use server" (auch inline,
- *   auch als Objekt- oder static-Methode) und jeder Export einer Datei mit "use server".
+ *   auch als Objekt- oder static-Methode) und jeder Export einer Datei mit "use server". Gelesen wird der ganze
+ *   App-Baum (ohne node_modules und .next sowie public, dist, coverage im App-Wurzelordner); in
+ *   packages/core/src ist "use server" verboten.
  * - Die ERSTE Anweisung jedes Einstiegs ist genau
  *     if (!(await torOffen())) return …;   bzw.   if (!(await torOffen())) throw …;
- *   Seite/Layout geben dann das Code-Feld zurück, Route-Handler 403 ohne Inhalt,
- *   Actions werfen oder geben { ok: false } zurück, bevor sie etwas lesen oder schreiben.
+ *   mit genau EINER Anweisung als Ausgang und festem Wert: return; | return W | throw W, W ein reiner Wert
+ *   (Literal oder Objekt/Array daraus) oder new Response(W, W) bzw. new Error(W?); Response, Error und
+ *   undefined bindet die Datei dafür nicht selbst. Seite/Layout geben null
+ *   zurück (kein JSX; das Code-Feld liegt unter /zinken/tor), Route-Handler 403 ohne Inhalt, Actions werfen
+ *   oder geben { ok: false } zurück, bevor sie etwas lesen oder schreiben.
+ * - torOffen ist in der Datei nur durch den Import von hier gebunden (keine eigene Funktion, Variable, kein
+ *   Parameter und keine Destrukturierung gleichen Namens).
  * - Exporte werden auf eine Funktion derselben Datei zurückgeführt (Namen nur über const); Wrapper, Re-Exporte,
  *   export *, let/var und jede andere Exportform (außer reinen Typen) sind nicht prüfbar und deshalb nicht
- *   erlaubt. Daneben in Werkbank-Dateien nur Config-Literale (metadata mit robots noindex, viewport, dynamic,
- *   dynamicParams, revalidate, fetchCache, runtime, preferredRegion, maxDuration).
- * - Next-Sonderdateien (opengraph-image, twitter-image, icon, apple-icon, auch mit Ziffer, sowie sitemap, robots,
- *   manifest) gibt es unter der Werkbank nicht (Stand Next 15.5).
+ *   erlaubt. Daneben in Werkbank-Dateien nur Config-Exporte als reiner Wert (metadata nur mit robots noindex,
+ *   als String mit noindex oder als Objekt mit index: false; viewport, dynamic, dynamicParams, revalidate,
+ *   fetchCache, runtime, preferredRegion, maxDuration).
+ * - Next-Konventionsdateien, die kein Einstieg sind (loading, error, global-error, not-found, global-not-found,
+ *   forbidden, unauthorized, opengraph-image, twitter-image, icon, apple-icon, auch mit Ziffer, sowie sitemap,
+ *   robots, manifest), gibt es unter der Werkbank nicht (Stand Next 15.5).
  */
 export async function torOffen(): Promise<boolean> {
   const jar = await cookies();
