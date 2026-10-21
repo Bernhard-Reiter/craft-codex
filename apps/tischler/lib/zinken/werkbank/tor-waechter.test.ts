@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,12 +46,21 @@ afterEach(() => {
 
 // ---------------------------------------------------------------- Wächter
 
-const WURZELN = ["app", "lib", "components"];
+/** Ordner, die der Wächter in jeder Tiefe überspringt (Fremdcode und Next-Build). */
+const UEBERALL = new Set(["node_modules", ".next"]);
+/** Ordner, die er NUR im App-Wurzelordner überspringt (wie tsconfig exclude und eslint ignores); tiefer ist z. B.
+ *  …/werkbank/public/page.tsx eine echte Route und wird gelesen (fail-closed). */
+const NUR_WURZEL = new Set(["public", "dist", "coverage"]);
 /** Datei-"use server" außerhalb der Werkbank. NUR echte Nicht-Werkbank-Actions eintragen, sonst fail-open. */
 const NICHT_WERKBANK_ACTIONS = ["app/[locale]/beitragen/actions.ts", "app/admin/contributions/actions.ts"];
 const EINSTIEG_DATEIEN = new Set(["page", "layout", "template", "default", "route"]);
-/** Next-Sonderdateien, Stand Next 15.5 (Bild-Sonderdateien auch mit einer Ziffer, z. B. icon1). */
-const SONDERDATEI = /^(?:(?:opengraph-image|twitter-image|icon|apple-icon)\d?|sitemap|robots|manifest)$/;
+/**
+ * Next-Konventionsdateien, die kein Einstieg sind, Stand Next 15.5 (Bild-Sonderdateien auch mit einer Ziffer,
+ * z. B. icon1). Unter der Werkbank sind sie alle verboten (fail-closed): loading rendert als Suspense-Rand,
+ * während torOffen() noch läuft; error/not-found/forbidden/unauthorized rendern ohne das Tor der Seite.
+ */
+const SONDERDATEI =
+  /^(?:(?:opengraph-image|twitter-image|icon|apple-icon)\d?|sitemap|robots|manifest|loading|error|global-error|not-found|global-not-found|forbidden|unauthorized)$/;
 const CONFIG_EXPORTE = new Set([
   "metadata",
   "viewport",
@@ -65,12 +74,17 @@ const CONFIG_EXPORTE = new Set([
 ]);
 const METHODEN = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 const TOR_MODUL = "lib/zinken/werkbank/tor-server";
+/** Gemeinsames Paket (transpilePackages): kein Werkbank-Einstieg, dort ist jede Server-Action verboten. */
+const CORE_SRC = resolve(APP, "../../packages/core/src");
 
 const G_ERST = "erste Anweisung ist nicht if (!(await torOffen())) return|throw";
 const G_IMPORT = "torOffen nicht aus tor-server importiert";
 const G_EXPORT = "Export nicht prüfbar";
 const G_ERLAUBT = "Export in Werkbank-Datei nicht erlaubt";
 const G_SONDER = "Sonderdatei unter der Werkbank";
+const G_SCHATTEN = "torOffen in der Datei neu gebunden";
+const G_AUSGANG = "Ausgang des Tors ist nicht genau return|throw mit festem Wert";
+const G_ROBOTS = "metadata ohne robots noindex";
 
 type Fn = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
 interface Export {
@@ -84,19 +98,20 @@ interface Ergebnis {
   verstoesse: string[];
 }
 
+/** Alle Quelldateien unter wurzel (ganzer Baum, fail-closed), ohne UEBERALL/NUR_WURZEL und ohne Testdateien. */
 function sammle(wurzel: string): string[] {
   const dateien: string[] = [];
   const laufe = (ordner: string): void => {
     for (const eintrag of readdirSync(ordner, { withFileTypes: true })) {
       const pfad = join(ordner, eintrag.name);
       if (eintrag.isDirectory()) {
-        if (eintrag.name !== "node_modules" && eintrag.name !== ".next") laufe(pfad);
-      } else if (/\.(tsx?|jsx?|mjs)$/.test(eintrag.name) && !/\.test\.[tj]sx?$/.test(eintrag.name)) {
+        if (!UEBERALL.has(eintrag.name) && !(ordner === wurzel && NUR_WURZEL.has(eintrag.name))) laufe(pfad);
+      } else if (/\.(tsx?|jsx?|mjs|mts|cts|cjs)$/.test(eintrag.name) && !/\.test\.[tj]sx?$/.test(eintrag.name)) {
         dateien.push(relative(wurzel, pfad).split("\\").join("/"));
       }
     }
   };
-  for (const w of WURZELN) if (existsSync(join(wurzel, w))) laufe(join(wurzel, w));
+  laufe(wurzel);
   return dateien.sort();
 }
 
@@ -157,19 +172,68 @@ function hatModifier(knoten: ts.Node, art: ts.SyntaxKind): boolean {
   return ts.canHaveModifiers(knoten) && (ts.getModifiers(knoten) ?? []).some((m) => m.kind === art);
 }
 
-function istLiteral(wert: ts.Expression | undefined): boolean {
+function ohneHuelle(wert: ts.Expression): ts.Expression {
+  let w = wert;
+  while (ts.isAsExpression(w) || ts.isSatisfiesExpression(w) || ts.isParenthesizedExpression(w)) w = w.expression;
+  return w;
+}
+
+/**
+ * Ein fester Wert ohne Auswertung: Literale und Objekt-/Array-Literale daraus (tief); keine Aufrufe, Namen, Spreads.
+ * `undefined` nur, wenn die Datei den Namen nirgends selbst bindet.
+ */
+function reinerWert(wert: ts.Expression | undefined): boolean {
   if (!wert) return false;
-  if (ts.isAsExpression(wert) || ts.isSatisfiesExpression(wert) || ts.isParenthesizedExpression(wert)) {
-    return istLiteral(wert.expression);
+  const w = ohneHuelle(wert);
+  if (
+    ts.isStringLiteral(w) ||
+    ts.isNoSubstitutionTemplateLiteral(w) ||
+    ts.isNumericLiteral(w) ||
+    w.kind === ts.SyntaxKind.NullKeyword ||
+    w.kind === ts.SyntaxKind.TrueKeyword ||
+    w.kind === ts.SyntaxKind.FalseKeyword ||
+    (ts.isIdentifier(w) && w.text === "undefined" && bindungenVon(w.getSourceFile(), "undefined") === 0)
+  ) {
+    return true;
   }
-  return (
-    ts.isObjectLiteralExpression(wert) ||
-    ts.isArrayLiteralExpression(wert) ||
-    ts.isStringLiteral(wert) ||
-    ts.isNoSubstitutionTemplateLiteral(wert) ||
-    ts.isNumericLiteral(wert) ||
-    wert.kind === ts.SyntaxKind.TrueKeyword ||
-    wert.kind === ts.SyntaxKind.FalseKeyword
+  if (ts.isPrefixUnaryExpression(w)) return w.operator === ts.SyntaxKind.MinusToken && ts.isNumericLiteral(w.operand);
+  if (ts.isArrayLiteralExpression(w)) return w.elements.every((el) => !ts.isSpreadElement(el) && reinerWert(el));
+  if (ts.isObjectLiteralExpression(w)) {
+    return w.properties.every(
+      (p) => ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name)) && reinerWert(p.initializer),
+    );
+  }
+  return false;
+}
+
+/** Alle Werte der Eigenschaft `name` im Objekt-Literal (mehrfach möglich, der letzte gewinnt zur Laufzeit). */
+function eigenschaft(objekt: ts.ObjectLiteralExpression, name: string): ts.Expression[] {
+  return objekt.properties.flatMap((p) =>
+    ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name)) && p.name.text === name
+      ? [ohneHuelle(p.initializer)]
+      : [],
+  );
+}
+
+/** metadata hat genau ein robots: einen String mit noindex oder ein Objekt mit genau einem index: false. */
+function robotsNoindex(wert: ts.Expression | undefined): boolean {
+  const w = wert && ohneHuelle(wert);
+  if (!w || !ts.isObjectLiteralExpression(w)) return false;
+  const robots = eigenschaft(w, "robots");
+  const [r] = robots;
+  if (robots.length !== 1 || !r) return false;
+  if (ts.isStringLiteral(r) || ts.isNoSubstitutionTemplateLiteral(r)) return r.text.includes("noindex");
+  if (!ts.isObjectLiteralExpression(r)) return false;
+  const index = eigenschaft(r, "index");
+  return index.length === 1 && index[0]?.kind === ts.SyntaxKind.FalseKeyword;
+}
+
+/** Die Datei hat einen Import von "server-only". */
+function importiertServerOnly(rel: string, text: string): boolean {
+  if (!text.includes("server-only")) return false;
+  const datei = ts.createSourceFile(rel, text, ts.ScriptTarget.Latest, false, rel.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  return datei.statements.some(
+    (a) => ts.isImportDeclaration(a) && ts.isStringLiteral(a.moduleSpecifier) && a.moduleSpecifier.text === "server-only",
   );
 }
 
@@ -248,17 +312,80 @@ function torImportiert(datei: ts.SourceFile, rel: string): boolean {
   return false;
 }
 
-function endetMitAusgang(a: ts.Statement): boolean {
-  if (ts.isReturnStatement(a) || ts.isThrowStatement(a)) return true;
-  if (ts.isBlock(a)) {
-    const letzte = a.statements[a.statements.length - 1];
-    return !!letzte && endetMitAusgang(letzte);
-  }
+/** Knotenarten, deren `name` einen Wert-Namen bindet (Typnamen binden keinen Wert). */
+const BINDUNGEN = new Set<ts.SyntaxKind>([
+  ts.SyntaxKind.VariableDeclaration,
+  ts.SyntaxKind.Parameter,
+  ts.SyntaxKind.BindingElement,
+  ts.SyntaxKind.FunctionDeclaration,
+  ts.SyntaxKind.FunctionExpression,
+  ts.SyntaxKind.ClassDeclaration,
+  ts.SyntaxKind.ClassExpression,
+  ts.SyntaxKind.ImportSpecifier,
+  ts.SyntaxKind.ImportClause,
+  ts.SyntaxKind.NamespaceImport,
+  ts.SyntaxKind.ImportEqualsDeclaration,
+  ts.SyntaxKind.EnumDeclaration,
+  ts.SyntaxKind.ModuleDeclaration,
+]);
+
+/**
+ * Wie oft `name` in der ganzen Datei als Wert gebunden ist. Dateiweit statt nur in der Funktion: eine Bindung auf
+ * Modulebene oder in einer umgebenden Funktion verdeckt den Namen genauso (auch catch-Variable, Parameter-Default,
+ * Destrukturierung, gehobene innere function, Import).
+ */
+function bindungenVon(datei: ts.SourceFile, name: string): number {
+  let bindungen = 0;
+  const besuche = (knoten: ts.Node): void => {
+    if (
+      ts.isIdentifier(knoten) &&
+      knoten.text === name &&
+      BINDUNGEN.has(knoten.parent.kind) &&
+      (knoten.parent as ts.NamedDeclaration).name === knoten
+    ) {
+      bindungen += 1;
+    }
+    ts.forEachChild(knoten, besuche);
+  };
+  besuche(datei);
+  return bindungen;
+}
+
+/** true, wenn `torOffen` in der ganzen Datei genau einmal gebunden ist (der Import, siehe torImportiert). */
+function torNurImportiert(datei: ts.SourceFile): boolean {
+  return bindungenVon(datei, "torOffen") === 1;
+}
+
+/**
+ * Ausgangswert des Tors: ein reiner Wert, new Response(W, W) oder new Error(W?), nichts, was liest oder rechnet.
+ * Response/Error zählen nur als Built-in, wenn die Datei den Namen nirgends selbst bindet (sonst fail-closed).
+ */
+function festerAusgang(wert: ts.Expression): boolean {
+  if (reinerWert(wert)) return true;
+  const w = ohneHuelle(wert);
+  if (!ts.isNewExpression(w) || !ts.isIdentifier(w.expression)) return false;
+  if (bindungenVon(w.getSourceFile(), w.expression.text) !== 0) return false;
+  const argumente: readonly ts.Expression[] = w.arguments ?? [];
+  if (w.expression.text === "Response") return argumente.length === 2 && argumente.every((a) => reinerWert(a));
+  if (w.expression.text === "Error") return argumente.length <= 1 && argumente.every((a) => reinerWert(a));
   return false;
 }
 
-/** Genau `if (!(await torOffen())) return|throw …`. */
-function istTorPruefung(a: ts.Statement | undefined): boolean {
+/** then-Zweig des Tors: genau eine Anweisung (auch als Block): return; | return W | throw W mit festem Ausgang. */
+function istAusgang(a: ts.Statement): boolean {
+  let anweisung = a;
+  if (ts.isBlock(anweisung)) {
+    const [nur] = anweisung.statements;
+    if (anweisung.statements.length !== 1 || !nur) return false;
+    anweisung = nur;
+  }
+  if (ts.isReturnStatement(anweisung)) return !anweisung.expression || festerAusgang(anweisung.expression);
+  if (ts.isThrowStatement(anweisung)) return festerAusgang(anweisung.expression);
+  return false;
+}
+
+/** Die Anweisung ist ein if mit genau der Bedingung `!(await torOffen())`. */
+function istTorBedingung(a: ts.Statement | undefined): a is ts.IfStatement {
   if (!a || !ts.isIfStatement(a)) return false;
   const nicht = a.expression;
   if (!ts.isPrefixUnaryExpression(nicht) || nicht.operator !== ts.SyntaxKind.ExclamationToken) return false;
@@ -266,14 +393,25 @@ function istTorPruefung(a: ts.Statement | undefined): boolean {
   if (!ts.isParenthesizedExpression(klammer) || !ts.isAwaitExpression(klammer.expression)) return false;
   const aufruf = klammer.expression.expression;
   if (!ts.isCallExpression(aufruf) || !ts.isIdentifier(aufruf.expression)) return false;
-  if (aufruf.expression.text !== "torOffen" || aufruf.arguments.length !== 0) return false;
-  return endetMitAusgang(a.thenStatement);
+  return aufruf.expression.text === "torOffen" && aufruf.arguments.length === 0;
 }
 
-function pruefeFn(fn: Fn, importiert: boolean): string | null {
+interface TorDatei {
+  importiert: boolean;
+  nurImportiert: boolean;
+}
+
+/**
+ * Ist die erste Anweisung (nach der Vorrede) wirklich DAS Tor? Der erste Treffer in dieser Rangfolge gewinnt:
+ * G_ERST (Form) > G_IMPORT (kein Import ohne as) > G_SCHATTEN (weitere Bindung neben dem Import) > G_AUSGANG.
+ */
+function istTor(fn: Fn, tor: TorDatei): string | null {
   if (!fn.body || !ts.isBlock(fn.body)) return G_ERST;
-  if (!istTorPruefung(ohneVorrede(fn.body.statements)[0])) return G_ERST;
-  return importiert ? null : G_IMPORT;
+  const erste = ohneVorrede(fn.body.statements)[0];
+  if (!istTorBedingung(erste)) return G_ERST;
+  if (!tor.importiert) return G_IMPORT;
+  if (!tor.nurImportiert) return G_SCHATTEN;
+  return istAusgang(erste.thenStatement) ? null : G_AUSGANG;
 }
 
 function pruefeBaum(wurzel: string): Ergebnis {
@@ -290,7 +428,7 @@ function pruefeBaum(wurzel: string): Ergebnis {
     const dateiUseServer = hatUseServer(datei.statements);
     const gelistet = NICHT_WERKBANK_ACTIONS.includes(rel);
     if (dateiUseServer) ergebnis.useServer.push(rel);
-    const importiert = torImportiert(datei, rel);
+    const tor: TorDatei = { importiert: torImportiert(datei, rel), nurImportiert: torNurImportiert(datei) };
     const geprueft = new Set<ts.Node>();
     const melde = (name: string, grund: string | null): void => {
       ergebnis.einstiege += 1;
@@ -299,7 +437,7 @@ function pruefeBaum(wurzel: string): Ergebnis {
     if (dateiUseServer && !gelistet) {
       for (const e of exporte(datei)) {
         if (e.ziel) geprueft.add(e.ziel);
-        melde(e.name, e.ziel ? pruefeFn(e.ziel, importiert) : G_EXPORT);
+        melde(e.name, e.ziel ? istTor(e.ziel, tor) : G_EXPORT);
       }
     } else if (art === "einstieg") {
       const istRoute = /(^|\/)route\.[^/]+$/.test(rel);
@@ -307,16 +445,18 @@ function pruefeBaum(wurzel: string): Ergebnis {
         const einstieg = istRoute ? METHODEN.has(e.name) : e.name === "default";
         if (einstieg) {
           if (e.ziel) geprueft.add(e.ziel);
-          melde(e.name, e.ziel ? pruefeFn(e.ziel, importiert) : G_EXPORT);
-        } else if (!(CONFIG_EXPORTE.has(e.name) && !e.ziel && istLiteral(e.wert))) {
+          melde(e.name, e.ziel ? istTor(e.ziel, tor) : G_EXPORT);
+        } else if (!(CONFIG_EXPORTE.has(e.name) && !e.ziel && reinerWert(e.wert))) {
           ergebnis.verstoesse.push(`${rel}#${e.name}: ${G_ERLAUBT}`);
+        } else if (e.name === "metadata" && !robotsNoindex(e.wert)) {
+          ergebnis.verstoesse.push(`${rel}#${e.name}: ${G_ROBOTS}`);
         }
       }
     }
     if (gelistet) continue;
     const besuche = (knoten: ts.Node): void => {
       if (istFn(knoten) && !geprueft.has(knoten) && knoten.body && ts.isBlock(knoten.body) && hatUseServer(knoten.body.statements)) {
-        melde("<inline>", pruefeFn(knoten, importiert));
+        melde("<inline>", istTor(knoten, tor));
       }
       ts.forEachChild(knoten, besuche);
     };
@@ -362,6 +502,23 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     expect(ECHT.verstoesse).toEqual([]);
   });
 
+  it("echter Baum: server-only ist echte Abhängigkeit", () => {
+    // Next löst server-only intern über einen Alias auf; ohne eigene Abhängigkeit hinge der Schutz an diesem Alias.
+    const paket = JSON.parse(readFileSync(join(APP, "package.json"), "utf8")) as { dependencies?: Record<string, string> };
+    const ohneAbhaengigkeit =
+      paket.dependencies?.["server-only"] === undefined
+        ? sammle(APP).filter((rel) => importiertServerOnly(rel, readFileSync(join(APP, rel), "utf8")))
+        : [];
+    expect(ohneAbhaengigkeit).toEqual([]);
+  });
+
+  it("packages/core/src: keine Server-Action", () => {
+    // Ein Paket ist kein Werkbank-Einstieg: dort gibt es nichts zu gaten, jede Server-Action ist verboten.
+    const core = pruefeBaum(CORE_SRC);
+    expect(core.useServer).toEqual([]);
+    expect(core.einstiege).toBe(0);
+  });
+
   const baum = mkdtempSync(join(tmpdir(), "tor-waechter-"));
   afterAll(() => rmSync(baum, { recursive: true, force: true }));
 
@@ -403,6 +560,35 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     [`${W}/opengraph-image.tsx`]: `export default function Bild() { return null; }\n`,
     // 26: Inline-Action als Objekt- und als static-Methode (Next macht beide zur Server-Action) — meldet zweimal
     [`${W}/f26/page.tsx`]: `${IMPORT}const o = { async speichere() { "use server"; await tue(); } };\nclass K { static async sichere() { "use server"; await tue(); } }\nexport default async function Seite() { ${PRUEFUNG} return [o, K]; }\n`,
+    // 27–30: torOffen neben dem Import neu gebunden (dateiweit)
+    [`${W}/f27/page.tsx`]: `${IMPORT}export default async function Seite() { ${PRUEFUNG} async function torOffen() { return true; } return null; }\n`,
+    [`${W}/f28/page.tsx`]: `${IMPORT}export default async function Seite(torOffen = async () => true) { ${PRUEFUNG} return null; }\n`,
+    [`${W}/f29/page.tsx`]: `${IMPORT}export default async function Seite() { ${PRUEFUNG} var torOffen = async () => true; return null; }\n`,
+    [`${W}/f30/page.tsx`]: `${IMPORT}const torOffen = async () => true;\nexport default async function Seite() { ${PRUEFUNG} return null; }\n`,
+    // 31–34: Ausgang des Tors nicht genau eine Anweisung mit festem Wert
+    [`${W}/f31/page.tsx`]: `${IMPORT}export default async function Seite() { if (!(await torOffen())) { await schreibe(); return null; } return null; }\n`,
+    [`${W}/f32/page.tsx`]: `${IMPORT}export default async function Seite() { if (!(await torOffen())) return await ladeGeheim(); return null; }\n`,
+    [`${W}/f33/page.tsx`]: `${IMPORT}export default async function Seite() { if (!(await torOffen())) return lade(); return null; }\n`,
+    [`${W}/f34/actions.ts`]: `"use server";\n${IMPORT}export async function a() { if (!(await torOffen())) throw fehler(x); await tue(); }\n`,
+    // 35–37: "use server" außerhalb von app/lib/components (ganzer App-Baum, auch .mts)
+    "i18n/x.ts": `"use server";\nexport async function x() { await tue(); }\n`,
+    "server/x.ts": `"use server";\nexport async function x() { await tue(); }\n`,
+    "x.mts": `"use server";\nexport async function x() { await tue(); }\n`,
+    // 38–41: Konventionsdateien unter der Werkbank
+    [`${W}/loading.tsx`]: `export default function Laden() { return null; }\n`,
+    [`${W}/not-found.tsx`]: `export default function Fehlt() { return null; }\n`,
+    [`${W}/forbidden.tsx`]: `export default function Verboten() { return null; }\n`,
+    [`${W}/error.tsx`]: `export default function Fehler() { return null; }\n`,
+    // 42–45: Config-Exporte nur als reiner Wert, metadata nur mit robots noindex
+    [`${W}/f42/page.tsx`]: `${IMPORT}export const metadata = { robots: { index: true } };\nexport default async function Seite() { ${PRUEFUNG} return null; }\n`,
+    [`${W}/f43/page.tsx`]: `${IMPORT}export const metadata = { title: "Werkbank" };\nexport default async function Seite() { ${PRUEFUNG} return null; }\n`,
+    [`${W}/f44/page.tsx`]: `${IMPORT}export const metadata = { title: lade(), robots: "noindex" };\nexport default async function Seite() { ${PRUEFUNG} return null; }\n`,
+    [`${W}/f45/page.tsx`]: `${IMPORT}export const dynamic = String(x);\nexport default async function Seite() { ${PRUEFUNG} return null; }\n`,
+    // 46–47: public/dist/coverage nur im App-Wurzelordner übersprungen, tiefer wird gelesen
+    [`${W}/public/page.tsx`]: ungeprueft,
+    "lib/dist/x.ts": `"use server";\nexport async function x() { await tue(); }\n`,
+    // 48: Response in der Datei selbst gebunden → kein fester Ausgang
+    [`${API}/f48/route.ts`]: `${IMPORT}class Response { constructor() { schreibe(); } }\nexport async function GET() { if (!(await torOffen())) return new Response(null, { status: 403 }); return null; }\n`,
     // Negativfälle: kein Verstoß
     [`${W}/ok/page.tsx`]: `${IMPORT}export const metadata = { robots: { index: false, follow: false } };\nexport const dynamic = "force-dynamic";\nexport default async function Seite() { if (!(await torOffen())) { return null; } return null; }\n`,
     [`${API}/ok/route.ts`]: `${IMPORT}export async function GET() { if (!(await torOffen())) return new Response(null, { status: 403 }); return new Response("x"); }\nexport async function POST() { if (!(await torOffen())) return new Response(null, { status: 403 }); return new Response("x"); }\n`,
@@ -411,7 +597,7 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     "app/[locale]/zinken/xr/page.tsx": ungeprueft,
     [`${W}/ok6/page.tsx`]: `${IMPORT}const Seite = async () => { ${PRUEFUNG} return null; };\nexport default Seite;\n`,
     [`${API}/ok10/route.ts`]: `${IMPORT}async function h() { if (!(await torOffen())) return new Response(null, { status: 403 }); return new Response("x"); }\nexport { h as POST };\n`,
-    [`${W}/loading.tsx`]: `export default function Laden() { return null; }\n`,
+    [`${W}/ok7/page.tsx`]: `${IMPORT}export const metadata = { title: "Werkbank", robots: "noindex, nofollow" } as const;\nexport const revalidate = 0;\nexport default async function Seite() { if (!(await torOffen())) { return; } return null; }\n`,
     [`${W}/ok/teil.test.tsx`]: ungeprueft,
   };
   for (const [rel, inhalt] of Object.entries(fixture)) {
@@ -419,7 +605,7 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     writeFileSync(join(baum, rel), inhalt);
   }
 
-  const SOLL_26 = [
+  const SOLL_48 = [
     `${W}/page.tsx#default: ${G_ERST}`,
     `app/[lang]/ZINKEN/Werkbank/x/page.tsx#default: ${G_ERST}`,
     `${API}/x/route.ts#POST: ${G_ERST}`,
@@ -447,11 +633,33 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     `${W}/opengraph-image.tsx#datei: ${G_SONDER}`,
     `${W}/f26/page.tsx#<inline>: ${G_ERST}`,
     `${W}/f26/page.tsx#<inline>: ${G_ERST}`,
+    `${W}/f27/page.tsx#default: ${G_SCHATTEN}`,
+    `${W}/f28/page.tsx#default: ${G_SCHATTEN}`,
+    `${W}/f29/page.tsx#default: ${G_SCHATTEN}`,
+    `${W}/f30/page.tsx#default: ${G_SCHATTEN}`,
+    `${W}/f31/page.tsx#default: ${G_AUSGANG}`,
+    `${W}/f32/page.tsx#default: ${G_AUSGANG}`,
+    `${W}/f33/page.tsx#default: ${G_AUSGANG}`,
+    `${W}/f34/actions.ts#a: ${G_AUSGANG}`,
+    `i18n/x.ts#x: ${G_ERST}`,
+    `server/x.ts#x: ${G_ERST}`,
+    `x.mts#x: ${G_ERST}`,
+    `${W}/loading.tsx#datei: ${G_SONDER}`,
+    `${W}/not-found.tsx#datei: ${G_SONDER}`,
+    `${W}/forbidden.tsx#datei: ${G_SONDER}`,
+    `${W}/error.tsx#datei: ${G_SONDER}`,
+    `${W}/f42/page.tsx#metadata: ${G_ROBOTS}`,
+    `${W}/f43/page.tsx#metadata: ${G_ROBOTS}`,
+    `${W}/f44/page.tsx#metadata: ${G_ERLAUBT}`,
+    `${W}/f45/page.tsx#dynamic: ${G_ERLAUBT}`,
+    `${W}/public/page.tsx#default: ${G_ERST}`,
+    `lib/dist/x.ts#x: ${G_ERST}`,
+    `${API}/f48/route.ts#GET: ${G_AUSGANG}`,
   ].sort();
 
-  it("Fixture-Positivprobe: genau die 26 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
+  it("Fixture-Positivprobe: genau die 48 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
     const ergebnis = pruefeBaum(baum);
-    expect(ergebnis.verstoesse).toEqual(SOLL_26);
+    expect(ergebnis.verstoesse).toEqual(SOLL_48);
   });
 });
 
