@@ -1,6 +1,6 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, posix, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -51,7 +51,8 @@ const UEBERALL = new Set(["node_modules", ".next"]);
 /** Ordner, die er NUR im App-Wurzelordner überspringt: dist (wie tsconfig exclude) und .vercel (Build-Ausgabe
  *  von `vercel build`, steht in .gitignore). public/ und coverage/ kompiliert tsconfig mit, sie sind importierbar
  *  und werden gelesen; tiefer ist z. B. …/werkbank/public/page.tsx eine echte Route, und lib/.vercel/ wird gelesen
- *  (fail-closed). */
+ *  (fail-closed). Ein Import dorthin (über @/ oder relativ) ist ein Verstoß (G_BUILD): tsconfig kompiliert eine
+ *  importierte Datei trotz exclude mit, der Wächter liest sie aber nicht. */
 const NUR_WURZEL = new Set(["dist", ".vercel"]);
 /** Datei-"use server" außerhalb der Werkbank. NUR echte Nicht-Werkbank-Actions eintragen, sonst fail-open. */
 const NICHT_WERKBANK_ACTIONS = ["app/[locale]/beitragen/actions.ts", "app/admin/contributions/actions.ts"];
@@ -88,6 +89,7 @@ const G_SCHATTEN = "torOffen in der Datei neu gebunden";
 const G_AUSGANG = "Ausgang des Tors passt nicht zur Art (Seite null, Route 403 ohne Inhalt, Action throw oder { ok: false })";
 const G_ROBOTS = "metadata ohne robots noindex";
 const G_SYMLINK = "Symlink im Baum (nicht gelesen, fail-closed)";
+const G_BUILD = "Import aus der Build-Ausgabe (dist/ oder .vercel/ im App-Wurzelordner, nicht gelesen)";
 
 type Fn = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
 interface Export {
@@ -101,10 +103,55 @@ interface Ergebnis {
   verstoesse: string[];
 }
 
+/** Quelldatei im Sinne des Wächters: JS/TS-Endung, keine Testdatei. */
+function istQuelle(name: string): boolean {
+  return /\.(tsx?|jsx?|mjs|mts|cts|cjs)$/.test(name) && !/\.test\.[tj]sx?$/.test(name);
+}
+
+/** Folgt dem Symlink; ein toter Link oder eine Schleife gilt nicht als Ordner. */
+function zeigtAufOrdner(pfad: string): boolean {
+  try {
+    return statSync(pfad).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+/** import(…) oder require(…) */
+function istLaden(aufruf: ts.CallExpression): boolean {
+  const f = aufruf.expression;
+  return f.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(f) && f.text === "require");
+}
+
+/** Modulpfade einer Datei, die in dist/ oder .vercel/ im App-Wurzelordner zeigen (über @/ oder relativ). */
+function buildImporte(rel: string, text: string): string[] {
+  const datei = ts.createSourceFile(rel, text, ts.ScriptTarget.Latest, true, rel.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const treffer: string[] = [];
+  const pruefe = (spez: ts.Node | undefined): void => {
+    if (!spez || !ts.isStringLiteralLike(spez)) return;
+    const quelle = spez.text;
+    const ziel = quelle.startsWith("@/")
+      ? posix.normalize(quelle.slice(2))
+      : quelle.startsWith(".")
+        ? posix.join(posix.dirname(rel), quelle)
+        : null;
+    if (ziel !== null && NUR_WURZEL.has((ziel.split("/")[0] ?? "").toLowerCase())) treffer.push(quelle);
+  };
+  const besuche = (k: ts.Node): void => {
+    if (ts.isImportDeclaration(k) || ts.isExportDeclaration(k)) pruefe(k.moduleSpecifier);
+    else if (ts.isExternalModuleReference(k)) pruefe(k.expression);
+    else if (ts.isCallExpression(k) && istLaden(k)) pruefe(k.arguments[0]);
+    ts.forEachChild(k, besuche);
+  };
+  besuche(datei);
+  return treffer;
+}
+
 /**
  * Alle Quelldateien unter wurzel (ganzer Baum, fail-closed), ohne UEBERALL/NUR_WURZEL und ohne Testdateien.
- * Symlinks (auf Ordner wie auf Dateien) liest der Wächter nicht, Next folgt ihnen aber: sie landen in `symlinks`
- * und werden gemeldet, statt still übersprungen zu werden.
+ * Symlinks liest der Wächter nicht, Next folgt ihnen aber: Symlinks auf Ordner und auf Quelldateien (istQuelle)
+ * landen in `symlinks` und werden gemeldet. Andere (z. B. .env.local, Bilder, Fonts) sind keine Route und bleiben
+ * ohne Befund; ein toter Link zählt nur über seinen Namen.
  */
 function sammle(wurzel: string, symlinks: string[] = []): string[] {
   const dateien: string[] = [];
@@ -114,10 +161,10 @@ function sammle(wurzel: string, symlinks: string[] = []): string[] {
       const rel = relative(wurzel, pfad).split("\\").join("/");
       const ausgenommen = UEBERALL.has(eintrag.name) || (ordner === wurzel && NUR_WURZEL.has(eintrag.name));
       if (eintrag.isSymbolicLink()) {
-        if (!ausgenommen) symlinks.push(rel);
+        if (!ausgenommen && (istQuelle(eintrag.name) || zeigtAufOrdner(pfad))) symlinks.push(rel);
       } else if (eintrag.isDirectory()) {
         if (!ausgenommen) laufe(pfad);
-      } else if (/\.(tsx?|jsx?|mjs|mts|cts|cjs)$/.test(eintrag.name) && !/\.test\.[tj]sx?$/.test(eintrag.name)) {
+      } else if (istQuelle(eintrag.name)) {
         dateien.push(rel);
       }
     }
@@ -468,6 +515,7 @@ function pruefeBaum(wurzel: string): Ergebnis {
   for (const rel of sammle(wurzel, symlinks)) {
     const art = werkbankArt(rel);
     const text = readFileSync(join(wurzel, rel), "utf8");
+    for (const quelle of buildImporte(rel, text)) ergebnis.verstoesse.push(`${rel}#import ${quelle}: ${G_BUILD}`);
     if (art === "sonder") {
       ergebnis.verstoesse.push(`${rel}#datei: ${G_SONDER}`);
       continue;
@@ -665,7 +713,19 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     [`${W}/f63/page.tsx`]: `${IMPORT}export default async function Seite() { if (!(await torOffen())) throw new Error("tor"); return null; }\n`,
     [`${W}/f64/actions.ts`]: `"use server";\n${IMPORT}export async function a() { if (!(await torOffen())) return; await tue(); }\n`,
     [`${API}/f65/route.ts`]: `${IMPORT}export async function GET() { if (!(await torOffen())) throw new Error("tor"); return new Response("x"); }\n`,
+    // 67: Symlink auf eine .ts-Datei unter der Werkbank (Ziel hier, Link unten) → gemeldet
+    "quelle/x67.ts": `export const x = 1;\n`,
+    // 68–70: Import aus der Build-Ausgabe im App-Wurzelordner: über @/, relativ als Re-Export, dynamisch mit .. und
+    //        Großbuchstaben (macOS-Dateisystem) → gemeldet, obwohl der Wächter dist/ und .vercel/ nicht liest
+    "lib/f68.ts": `import { x } from "@/.vercel/x";\nexport const y = x;\n`,
+    "lib/f69.ts": `export { x } from "../dist/x";\n`,
+    "lib/f70.ts": `export async function lade() { return import("@/lib/../Dist/x"); }\n`,
     // Negativfälle: kein Verstoß
+    // kein Build-Import: lib/dist tiefer im Baum, .vercel2, Paketname mit dist
+    "lib/ok-build.ts": `import { a } from "@/lib/dist/x";\nimport { b } from "@/.vercel2/x";\nimport c from "dist-paket";\nexport const d = [a, b, c];\n`,
+    // Ziele für Symlinks ohne Befund (unten)
+    "quelle/bild.png": "png",
+    "quelle/env": "X=1\n",
     "dist/x.ts": `"use server";\nexport async function x() { await tue(); }\n`,
     ".vercel/output/x.ts": `"use server";\nexport async function x() { await tue(); }\n`,
     [`${W}/ok/page.tsx`]: `${IMPORT}export const metadata = { robots: { index: false, follow: false } };\nexport const dynamic = "force-dynamic";\nexport default async function Seite() { if (!(await torOffen())) { return null; } return null; }\n`,
@@ -685,8 +745,13 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
   symlinkSync(join(baum, "quelle/sym"), join(baum, `${W}/sym`), "dir");
   // 66: Datei-Symlink unter der Werkbank → ebenso gemeldet
   symlinkSync(join(baum, "quelle/sym/page.tsx"), join(baum, `${W}/f66.tsx`), "file");
+  // 67: Datei-Symlink auf .ts → gemeldet
+  symlinkSync(join(baum, "quelle/x67.ts"), join(baum, `${W}/f67.ts`), "file");
+  // Negativ: Symlinks auf ein Bild (unter der Werkbank) und auf .env.local (App-Wurzel) → kein Befund
+  symlinkSync(join(baum, "quelle/bild.png"), join(baum, `${W}/bild.png`), "file");
+  symlinkSync(join(baum, "quelle/env"), join(baum, ".env.local"), "file");
 
-  const SOLL_66 = [
+  const SOLL_70 = [
     `${W}/page.tsx#default: ${G_ERST}`,
     `app/[lang]/ZINKEN/Werkbank/x/page.tsx#default: ${G_ERST}`,
     `${API}/x/route.ts#POST: ${G_ERST}`,
@@ -754,11 +819,15 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     `${W}/f64/actions.ts#a: ${G_AUSGANG}`,
     `${API}/f65/route.ts#GET: ${G_AUSGANG}`,
     `${W}/f66.tsx#datei: ${G_SYMLINK}`,
+    `${W}/f67.ts#datei: ${G_SYMLINK}`,
+    `lib/f68.ts#import @/.vercel/x: ${G_BUILD}`,
+    `lib/f69.ts#import ../dist/x: ${G_BUILD}`,
+    `lib/f70.ts#import @/lib/../Dist/x: ${G_BUILD}`,
   ].sort();
 
-  it("Fixture-Positivprobe: genau die 66 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
+  it("Fixture-Positivprobe: genau die 70 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
     const ergebnis = pruefeBaum(baum);
-    expect(ergebnis.verstoesse).toEqual(SOLL_66);
+    expect(ergebnis.verstoesse).toEqual(SOLL_70);
   });
 });
 
