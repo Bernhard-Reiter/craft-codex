@@ -3,6 +3,7 @@
 import { Root, Container, Text } from "@react-three/uikit";
 import { Card, Button } from "@react-three/uikit-apfel";
 import { ChevronLeft, ChevronRight, Play, Pause, Crosshair } from "@react-three/uikit-lucide";
+import { VI4_XR } from "../../lib/look";
 
 /**
  * Schritt-Tafel für den Zinken-Lehrgang in AR/VR — aus denselben Kit-
@@ -57,8 +58,8 @@ export function ZinkenXRTafel({
               <Text key={i} fontSize={19} color="#e4e1d8">{falte(z)}</Text>
             ))}
           </Container>
-          <Container backgroundColor="#000000" backgroundOpacity={0.25} borderRadius={14} padding={14}>
-            <Text fontSize={17} color="#ffd34d">{falte(texte.sicherheit)}</Text>
+          <Container backgroundColor={VI4_XR.brand} backgroundOpacity={0.9} borderRadius={14} padding={14}>
+            <Text fontSize={17} color={VI4_XR.papier}>{falte(texte.sicherheit)}</Text>
           </Container>
           <Text fontSize={16} color="#aeb4bf">{falte(texte.status)}</Text>
           <Container flexDirection="row" gap={10} justifyContent="space-between">

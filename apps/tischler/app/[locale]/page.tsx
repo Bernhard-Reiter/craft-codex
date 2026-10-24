@@ -5,6 +5,7 @@ import { DemoResetButton } from "../../components/DemoResetButton";
 import { SiteFooter } from "../../components/SiteFooter";
 import { SystemStatus } from "../../components/SystemStatus";
 import { Link } from "../../i18n/navigation";
+import "../_vi4/look.css";
 
 const PIECE_HREFS = ["/lernen", "/dovetail", "/voice", "/dovetail/xr"] as const;
 
@@ -25,10 +26,12 @@ export default function Page({
     cta: t(`pieces.${i}.cta`),
   }));
 
+  // VI4-Look (VOAI Paper, Navy) wie im Zinken-Lehrgang: siehe lib/look.ts und app/_vi4/look.css.
+  // Der Wrapper umschließt alles bis zur Fußzeile, damit nirgends Signalgelb übrig bleibt.
   return (
-    <>
+    <div data-look="vi4" className="vi4-flaeche">
       <main>
-        {/* Hero — CyberCraft-Statement: groß, schwarz auf weiß, gelber Marker. */}
+        {/* Hero — Statement: groß, schwarz auf weiß, Navy-Marker. */}
         <section className="cc-page" style={{ paddingTop: "3.5rem" }}>
           <p className="cc-kicker">{t("kicker")}</p>
           <h1
@@ -105,7 +108,7 @@ export default function Page({
                     fontSize: "0.8rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
-                    borderBottom: "3px solid var(--cc-yellow)",
+                    borderBottom: "3px solid var(--vi4-brand)",
                   }}
                 >
                   {p.cta} →
@@ -125,7 +128,7 @@ export default function Page({
             className="cc-card cc-card--dark"
             style={{ display: "block" }}
           >
-            <p className="cc-kicker" style={{ color: "var(--cc-yellow)" }}>
+            <p className="cc-kicker">
               <span style={{ color: "var(--cc-paper)" }}>
                 {t("vision.kicker")}
               </span>
@@ -142,7 +145,7 @@ export default function Page({
                 hl: (chunks) => <span className="cc-hl">{chunks}</span>,
               })}
             </h2>
-            <p style={{ color: "var(--cc-paper)", opacity: 0.85, margin: 0, maxWidth: "52ch", lineHeight: 1.55 }}>
+            <p style={{ color: "var(--cc-paper)", margin: 0, maxWidth: "52ch", lineHeight: 1.55 }}>
               {t("vision.body")}
             </p>
             <span
@@ -153,7 +156,8 @@ export default function Page({
                 fontSize: "0.8rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: "var(--cc-yellow)",
+                color: "var(--cc-paper)",
+                borderBottom: "3px solid var(--cc-paper)",
               }}
             >
               {t("vision.cta")}
@@ -162,6 +166,6 @@ export default function Page({
         </section>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }

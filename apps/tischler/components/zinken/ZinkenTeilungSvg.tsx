@@ -96,7 +96,7 @@ export function ZinkenTeilungSvg({
         <polygon
           key={p.id}
           points={poly(p.pts)}
-          fill="var(--cc-yellow, #f5c518)"
+          fill="var(--cc-yellow, #2c4b7a)"
           fillOpacity="0.55"
           stroke="var(--cc-ink, #1d1d1b)"
           strokeWidth="0.45"

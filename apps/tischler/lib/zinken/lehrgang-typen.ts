@@ -1,5 +1,5 @@
 import type { DovetailStep } from "@craft-codex/core";
-import type { AnrissLayer } from "../../components/AnrissFlat";
+import type { AnrissLayer } from "./anriss-layer";
 import type { KapitelId, SchrittId } from "./kapitel";
 
 /**

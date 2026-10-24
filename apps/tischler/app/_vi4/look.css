@@ -1,0 +1,271 @@
+/*
+ * VI4-Look für Craft Codex: VOAI-Paper-Form mit Navy-Akzent.
+ *
+ * Gilt NUR innerhalb von [data-look="vi4"] (siehe lib/look.ts). Jeder Selektor
+ * in dieser Datei beginnt mit diesem Attribut, ein Test prüft das
+ * (lib/look-css.test.ts). Routen ohne das Attribut sehen aus wie bisher.
+ *
+ * Werte: aus dem VOAI-Paper-Designsystem (Herkunft siehe QUELLE.md), hier nur
+ * die Werte, die wir brauchen, keine Kopie der Quelldateien. Kontraste sind
+ * nachgerechnet (WCAG 2.2 AA), lib/look-kontrast.test.ts rechnet sie nach.
+ */
+
+[data-look="vi4"] {
+  /* --- VOAI-Paper-Werte (nur die benötigten) --- */
+  --vi4-brand: #2c4b7a; /* Akzent, Links, Primär-Button — 8,77:1 auf Weiß */
+  --vi4-brand-hover: #3d5e8e; /* Hover — Weiß darauf 6,58:1 */
+  --vi4-brand-dark: #1f3a63; /* gedrückt — Weiß darauf 11,39:1 */
+  --vi4-surface: #f1f4f7; /* Karten, Panels */
+  --vi4-light: #e6eaef; /* aktive Auswahl */
+  --vi4-border: #ced0d4; /* NUR dekorative Trenner (1,54:1) */
+  --vi4-ink: #000000; /* Text 21:1 */
+  --vi4-ink-soft: #525252; /* Sekundärtext, Labels — 7,81 / 7,08 auf surface */
+  --vi4-ink-mute: #737373; /* Rahmen von Eingabefeldern (4,74:1 ≥ 3:1), kein Text auf surface */
+  --vi4-paper: #ffffff;
+  --vi4-sage: #2c7a53; /* »richtig« */
+  --vi4-radius: 8px; /* Maximum */
+  --vi4-radius-sm: 4px;
+  --vi4-kopf-h: 64px;
+
+  /* --- Bisherige Craft-Codex-Variablen im Scope auf VI4 umbiegen --- */
+  --cc-yellow: var(--vi4-brand);
+  --cc-yellow-press: var(--vi4-brand-dark);
+  --cc-yellow-deep: var(--vi4-brand);
+  --cc-black: var(--vi4-ink);
+  --cc-ink: var(--vi4-ink);
+  --cc-ink-soft: var(--vi4-ink-soft);
+  --cc-muted: var(--vi4-ink-soft); /* nicht ink-mute: muss auch auf surface AA halten */
+  --cc-paper: var(--vi4-paper);
+  --cc-paper-pure: var(--vi4-paper);
+  --cc-gray: var(--vi4-surface);
+  --cc-line: var(--vi4-ink);
+  --cc-line-soft: var(--vi4-border);
+  --cc-hair: var(--vi4-border);
+  --cc-good: var(--vi4-sage);
+  --cc-header-h: var(--vi4-kopf-h);
+  --cc-radius: var(--vi4-radius);
+  --cc-radius-sm: var(--vi4-radius-sm);
+  /* VOAI Paper: Tiefe durch Fläche und Linie, nicht durch Schatten */
+  --cc-emboss: none;
+  --cc-emboss-hover: none;
+  --color-bg: var(--vi4-paper);
+  --color-fg: var(--vi4-ink);
+  --color-muted: var(--vi4-ink-soft);
+  --color-border: var(--vi4-border);
+  --color-accent: var(--vi4-brand);
+  --color-accent-warm: var(--vi4-brand);
+  --color-card: var(--vi4-paper);
+
+  color: var(--vi4-ink);
+}
+
+/* Fläche der VI4-Seiten (Wrapper im Layout) */
+[data-look="vi4"].vi4-flaeche {
+  background: var(--vi4-paper);
+  min-height: calc(100dvh - var(--vi4-kopf-h));
+}
+
+[data-look="vi4"] ::selection {
+  background: var(--vi4-light);
+  color: var(--vi4-ink);
+}
+
+/* Fokus: Navy-Ring mit Abstand, damit er auch neben dunklen Flächen auf Papier liegt (8,77:1).
+   scroll-margin hält das fokussierte Element unter dem klebenden Kopf sichtbar (2.4.11). */
+[data-look="vi4"] :focus-visible {
+  outline: 2px solid var(--vi4-brand);
+  outline-offset: 2px;
+  scroll-margin-top: calc(var(--vi4-kopf-h) + 16px);
+}
+
+[data-look="vi4"] a:not([class]) {
+  color: var(--vi4-brand);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* --- Typografie: Headlines leicht (300), sonst max. 600 --- */
+[data-look="vi4"] h1,
+[data-look="vi4"] .cc-display {
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.07;
+}
+[data-look="vi4"] .cc-display {
+  font-size: clamp(32px, 4.4vw, 57px);
+}
+[data-look="vi4"] h2 {
+  font-weight: 500;
+}
+[data-look="vi4"] h3 {
+  font-weight: 600;
+}
+[data-look="vi4"] .cc-lead {
+  font-size: clamp(18px, 2.2vw, 24px);
+  line-height: 1.55;
+  font-weight: 400;
+}
+[data-look="vi4"] .cc-kicker {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--vi4-ink-soft);
+}
+[data-look="vi4"] .cc-tab-step {
+  font-weight: 600;
+  opacity: 1;
+}
+
+/* --- Kopf --- */
+[data-look="vi4"].cc-header {
+  height: var(--vi4-kopf-h);
+  background: var(--vi4-paper);
+  border-bottom: 1px solid var(--vi4-border);
+}
+[data-look="vi4"] .cc-logo {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+[data-look="vi4"] .cc-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px; /* Zielgröße ≥ 24 px (2.5.8) */
+  font-size: 14px;
+  color: var(--vi4-ink-soft);
+}
+[data-look="vi4"] .cc-nav a:hover {
+  background: var(--vi4-surface);
+  color: var(--vi4-ink);
+}
+[data-look="vi4"] .cc-nav a[aria-current="page"] {
+  background: var(--vi4-light);
+  color: var(--vi4-brand); /* 7,3:1 auf light */
+  font-weight: 600;
+}
+
+/* --- Bedienelemente: Gelb war Fläche hinter dunkler Schrift, Navy braucht helle Schrift --- */
+[data-look="vi4"] .cc-btn {
+  border-color: var(--vi4-brand); /* Rahmen 8,77:1 statt Haarlinie */
+  color: var(--vi4-brand);
+  font-weight: 500;
+}
+[data-look="vi4"] .cc-btn:hover:not(:disabled) {
+  background: var(--vi4-surface);
+}
+[data-look="vi4"] .cc-btn--primary {
+  background: var(--vi4-brand);
+  border-color: var(--vi4-brand);
+  color: var(--vi4-paper);
+}
+[data-look="vi4"] .cc-btn--primary:hover:not(:disabled) {
+  background: var(--vi4-brand-hover);
+  border-color: var(--vi4-brand-hover);
+}
+[data-look="vi4"] .cc-btn--primary:active:not(:disabled) {
+  background: var(--vi4-brand-dark);
+  border-color: var(--vi4-brand-dark);
+}
+[data-look="vi4"] .cc-btn:disabled {
+  color: var(--vi4-ink-soft);
+  border-color: var(--vi4-border);
+  background: var(--vi4-surface);
+}
+[data-look="vi4"] .cc-tab {
+  border-color: var(--vi4-ink-mute);
+}
+[data-look="vi4"] .cc-tab[aria-selected="true"],
+[data-look="vi4"] .cc-tab[aria-pressed="true"] {
+  background: var(--vi4-brand);
+  border-color: var(--vi4-brand);
+  color: var(--vi4-paper);
+}
+[data-look="vi4"] .cc-chip:hover:not(:disabled) {
+  background: var(--vi4-light);
+  color: var(--vi4-ink);
+}
+[data-look="vi4"] .cc-input {
+  border-color: var(--vi4-ink-mute);
+}
+[data-look="vi4"] .cc-input:focus {
+  border-color: var(--vi4-brand);
+  box-shadow: none;
+}
+[data-look="vi4"] .cc-input:focus-visible {
+  outline: 2px solid var(--vi4-brand);
+  outline-offset: 2px;
+}
+[data-look="vi4"] .cc-range::-webkit-slider-thumb {
+  background: var(--vi4-brand);
+  border-color: var(--vi4-paper);
+  box-shadow: 0 0 0 1px var(--vi4-brand);
+}
+[data-look="vi4"] .cc-range::-moz-range-thumb {
+  background: var(--vi4-brand);
+  border-color: var(--vi4-paper);
+  box-shadow: 0 0 0 1px var(--vi4-brand);
+}
+
+/* --- Flächen --- */
+[data-look="vi4"] .cc-card {
+  border-color: var(--vi4-border);
+}
+[data-look="vi4"] .cc-card--gray {
+  background: var(--vi4-surface);
+  border-color: transparent;
+}
+[data-look="vi4"] .cc-note {
+  border-left-color: var(--vi4-brand);
+  background: var(--vi4-surface);
+}
+
+/* --- Startseite (Stufe 2): Gelb war Fläche hinter dunkler Schrift, auf Navy gehört helle Schrift --- */
+[data-look="vi4"] .cc-mark,
+[data-look="vi4"] .cc-card-num {
+  background: var(--vi4-brand);
+  color: var(--vi4-paper); /* 8,77:1 */
+}
+[data-look="vi4"] .cc-hl {
+  background: linear-gradient(transparent 56%, var(--vi4-light) 56%, var(--vi4-light) 93%, transparent 93%);
+  color: var(--vi4-ink);
+}
+/* Dunkle Button-Fläche: die .cc-btn-Regel oben färbt sonst die Schrift Navy auf Schwarz.
+   Auch »Demo zurücksetzen« im Bestätigungsschritt (.cc-btn--danger) bleibt so vom ersten Schritt unterscheidbar. */
+[data-look="vi4"] .cc-btn--dark,
+[data-look="vi4"] .cc-btn--danger {
+  background: var(--vi4-ink);
+  border-color: var(--vi4-ink);
+  color: var(--vi4-paper); /* 21:1 */
+}
+[data-look="vi4"] .cc-btn--dark:hover:not(:disabled),
+[data-look="vi4"] .cc-btn--danger:hover:not(:disabled) {
+  background: var(--vi4-brand-dark); /* Weiß darauf 11,39:1 */
+  border-color: var(--vi4-brand-dark);
+}
+
+/* --- Dunkle Flächen (dunkle Karte, Fußzeile): Navy auf Schwarz trägt nicht, Akzent ist dort Papier --- */
+[data-look="vi4"] .cc-card--dark .cc-kicker,
+[data-look="vi4"] .cc-footer-meta {
+  color: var(--vi4-paper); /* 21:1 auf ink */
+}
+[data-look="vi4"] .cc-card--dark .cc-kicker::before {
+  background: var(--vi4-paper);
+}
+[data-look="vi4"] .cc-card--dark .cc-hl,
+[data-look="vi4"] .cc-footer a,
+[data-look="vi4"] .cc-footer-claim em {
+  background: none;
+  color: var(--vi4-paper);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+[data-look="vi4"] .cc-footer :focus-visible {
+  outline-color: var(--vi4-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-look="vi4"] .cc-btn,
+  [data-look="vi4"] .cc-btn:hover:not(:disabled) {
+    transition: none;
+    transform: none;
+  }
+}
