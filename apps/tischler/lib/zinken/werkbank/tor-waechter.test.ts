@@ -1,6 +1,6 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, posix, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -90,6 +90,8 @@ const G_AUSGANG = "Ausgang des Tors passt nicht zur Art (Seite null, Route 403 o
 const G_ROBOTS = "metadata ohne robots noindex";
 const G_SYMLINK = "Symlink im Baum (nicht gelesen, fail-closed)";
 const G_BUILD = "Import aus der Build-Ausgabe (dist/ oder .vercel/ im App-Wurzelordner, nicht gelesen)";
+const G_WURZEL = "Modulpfad verlässt den App-Wurzelordner (nicht gelesen, fail-closed)";
+const G_KONTEXT = "Modulpfad nicht literal und kein fester Ordner-Kontext (nicht prüfbar, fail-closed)";
 
 type Fn = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration;
 interface Export {
@@ -117,30 +119,88 @@ function zeigtAufOrdner(pfad: string): boolean {
   }
 }
 
+/** Folgt dem Symlink: zeigt er auf eine Quelldatei (auch ohne eigene Endung, z. B. lib/helfer → aktion.ts)? Tot = nein. */
+function zeigtAufQuelle(pfad: string): boolean {
+  try {
+    return istQuelle(realpathSync(pfad));
+  } catch {
+    return false;
+  }
+}
+
 /** import(…) oder require(…) */
 function istLaden(aufruf: ts.CallExpression): boolean {
   const f = aufruf.expression;
   return f.kind === ts.SyntaxKind.ImportKeyword || (ts.isIdentifier(f) && f.text === "require");
 }
 
-/** Modulpfade einer Datei, die in dist/ oder .vercel/ im App-Wurzelordner zeigen (über @/ oder relativ). */
-function buildImporte(rel: string, text: string): string[] {
-  const datei = ts.createSourceFile(rel, text, ts.ScriptTarget.Latest, true, rel.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
-  const treffer: string[] = [];
-  const pruefe = (spez: ts.Node | undefined): void => {
-    if (!spez || !ts.isStringLiteralLike(spez)) return;
-    const quelle = spez.text;
-    const ziel = quelle.startsWith("@/")
-      ? posix.normalize(quelle.slice(2))
-      : quelle.startsWith(".")
-        ? posix.join(posix.dirname(rel), quelle)
+/** Ziel eines Modulpfads relativ zur Wurzel ("/"-getrennt, per resolve): über @/, relativ zur Datei oder absolut; null = Paketname. */
+function zielRel(wurzel: string, rel: string, pfad: string): string | null {
+  const ziel = pfad.startsWith("@/")
+    ? resolve(wurzel, pfad.slice(2))
+    : pfad.startsWith(".")
+      ? resolve(wurzel, dirname(rel), pfad)
+      : isAbsolute(pfad)
+        ? resolve(pfad)
         : null;
-    if (ziel !== null && NUR_WURZEL.has((ziel.split("/")[0] ?? "").toLowerCase())) treffer.push(quelle);
+  return ziel === null ? null : relative(wurzel, ziel).split("\\").join("/");
+}
+
+/** Ziel liegt außerhalb der Wurzel (beginnt mit .. oder ist absolut, z. B. ein anderes Laufwerk). */
+function ausserhalb(r: string): boolean {
+  return r === ".." || r.startsWith("../") || isAbsolute(r);
+}
+
+/** Ziel liegt unter einem Ordner, den G_BUILD sperrt (NUR_WURZEL im App-Wurzelordner, Groß-/Kleinschreibung egal). */
+function unterBuild(r: string): boolean {
+  return NUR_WURZEL.has((r.split("/")[0] ?? "").toLowerCase());
+}
+
+/**
+ * Kontext-Import import(`<Präfix>${…}…`): Ein Bundler löst ihn über alle Dateien unter dem festen Ordner des Präfixes
+ * auf. Erlaubt nur, wenn ALLE Bedingungen gelten (sonst G_KONTEXT): (a) Template-Literal, nur bei import(); (b) das
+ * Präfix vor dem ersten ${…} ist nicht leer und endet auf "/"; (c) die festen Teile NACH dem ersten ${…} enthalten
+ * kein ".."; (d) das Präfix, per resolve relativ zum Ordner der Datei aufgelöst (".." im Präfix eingeschlossen),
+ * liegt in der Wurzel und ist nicht die Wurzel; (e) es liegt nicht unter einem G_BUILD-Ordner (unterBuild).
+ */
+function kontextOk(wurzel: string, rel: string, t: ts.TemplateExpression): boolean {
+  const praefix = t.head.text;
+  if (!praefix.endsWith("/")) return false;
+  if (t.templateSpans.some((s) => s.literal.text.includes(".."))) return false;
+  const r = zielRel(wurzel, rel, praefix);
+  if (r === null || r === "") return false;
+  if (ausserhalb(r)) return false;
+  return !unterBuild(r);
+}
+
+interface Treffer {
+  quelle: string;
+  grund: string;
+}
+
+/**
+ * Modulpfade einer Datei, die der Wächter nicht prüfen kann (fail-closed): Ziel außerhalb der Wurzel (G_WURZEL), in
+ * dist/ oder .vercel/ im App-Wurzelordner (G_BUILD) oder nicht literal (G_KONTEXT: Verkettung, Variable, jedes
+ * nicht-literale require(); import() mit Template nur nach kontextOk).
+ */
+function buildImporte(wurzel: string, rel: string, text: string): Treffer[] {
+  const datei = ts.createSourceFile(rel, text, ts.ScriptTarget.Latest, true, rel.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+  const treffer: Treffer[] = [];
+  const pruefe = (spez: ts.Node | undefined, kontext: boolean): void => {
+    if (!spez) return;
+    if (ts.isStringLiteralLike(spez)) {
+      const r = zielRel(wurzel, rel, spez.text);
+      if (r !== null && ausserhalb(r)) treffer.push({ quelle: spez.text, grund: G_WURZEL });
+      else if (r !== null && unterBuild(r)) treffer.push({ quelle: spez.text, grund: G_BUILD });
+      return;
+    }
+    if (kontext && ts.isTemplateExpression(spez) && kontextOk(wurzel, rel, spez)) return;
+    treffer.push({ quelle: spez.getText(datei), grund: G_KONTEXT });
   };
   const besuche = (k: ts.Node): void => {
-    if (ts.isImportDeclaration(k) || ts.isExportDeclaration(k)) pruefe(k.moduleSpecifier);
-    else if (ts.isExternalModuleReference(k)) pruefe(k.expression);
-    else if (ts.isCallExpression(k) && istLaden(k)) pruefe(k.arguments[0]);
+    if (ts.isImportDeclaration(k) || ts.isExportDeclaration(k)) pruefe(k.moduleSpecifier, false);
+    else if (ts.isExternalModuleReference(k)) pruefe(k.expression, false);
+    else if (ts.isCallExpression(k) && istLaden(k)) pruefe(k.arguments[0], k.expression.kind === ts.SyntaxKind.ImportKeyword);
     ts.forEachChild(k, besuche);
   };
   besuche(datei);
@@ -149,8 +209,9 @@ function buildImporte(rel: string, text: string): string[] {
 
 /**
  * Alle Quelldateien unter wurzel (ganzer Baum, fail-closed), ohne UEBERALL/NUR_WURZEL und ohne Testdateien.
- * Symlinks liest der Wächter nicht, Next folgt ihnen aber: Symlinks auf Ordner und auf Quelldateien (istQuelle)
- * landen in `symlinks` und werden gemeldet. Andere (z. B. .env.local, Bilder, Fonts) sind keine Route und bleiben
+ * Symlinks liest der Wächter nicht, Next folgt ihnen aber: Symlinks auf Ordner und auf Quelldateien (istQuelle des
+ * Namens oder des realpath, 76h) landen in `symlinks` und werden gemeldet.
+ * Andere (z. B. .env.local, Bilder, Fonts) sind keine Route und bleiben
  * ohne Befund; ein toter Link zählt nur über seinen Namen.
  */
 function sammle(wurzel: string, symlinks: string[] = []): string[] {
@@ -161,7 +222,7 @@ function sammle(wurzel: string, symlinks: string[] = []): string[] {
       const rel = relative(wurzel, pfad).split("\\").join("/");
       const ausgenommen = UEBERALL.has(eintrag.name) || (ordner === wurzel && NUR_WURZEL.has(eintrag.name));
       if (eintrag.isSymbolicLink()) {
-        if (!ausgenommen && (istQuelle(eintrag.name) || zeigtAufOrdner(pfad))) symlinks.push(rel);
+        if (!ausgenommen && (istQuelle(eintrag.name) || zeigtAufOrdner(pfad) || zeigtAufQuelle(pfad))) symlinks.push(rel);
       } else if (eintrag.isDirectory()) {
         if (!ausgenommen) laufe(pfad);
       } else if (istQuelle(eintrag.name)) {
@@ -515,7 +576,7 @@ function pruefeBaum(wurzel: string): Ergebnis {
   for (const rel of sammle(wurzel, symlinks)) {
     const art = werkbankArt(rel);
     const text = readFileSync(join(wurzel, rel), "utf8");
-    for (const quelle of buildImporte(rel, text)) ergebnis.verstoesse.push(`${rel}#import ${quelle}: ${G_BUILD}`);
+    for (const { quelle, grund } of buildImporte(wurzel, rel, text)) ergebnis.verstoesse.push(`${rel}#import ${quelle}: ${grund}`);
     if (art === "sonder") {
       ergebnis.verstoesse.push(`${rel}#datei: ${G_SONDER}`);
       continue;
@@ -618,8 +679,11 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     expect(core.verstoesse).toEqual([]);
   });
 
-  const baum = mkdtempSync(join(tmpdir(), "tor-waechter-"));
-  afterAll(() => rmSync(baum, { recursive: true, force: true }));
+  const tmp = mkdtempSync(join(tmpdir(), "tor-waechter-"));
+  afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+  // 76h: die Wurzel heißt wie die App, damit @/../tischler/… wieder in die Wurzel führt (Fälle 74/75)
+  const baum = join(tmp, "tischler");
+  mkdirSync(baum);
 
   const IMPORT = `import { torOffen } from "@/lib/zinken/werkbank/tor-server";\n`;
   const PRUEFUNG = `if (!(await torOffen())) return null;`;
@@ -720,6 +784,33 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     "lib/f68.ts": `import { x } from "@/.vercel/x";\nexport const y = x;\n`,
     "lib/f69.ts": `export { x } from "../dist/x";\n`,
     "lib/f70.ts": `export async function lade() { return import("@/lib/../Dist/x"); }\n`,
+    // 71–75 (76h 🟡A): Ziel per resolve gegen die Wurzel. Wurzel verlassen (über @/, relativ, absolut) → G_WURZEL;
+    //        hinaus und wieder hinein nach dist/ (die Wurzel heißt tischler) → G_BUILD
+    "lib/f71.ts": `import { x } from "@/../nachbar/dist/x";\nexport const y = x;\n`,
+    "lib/f72.ts": `export { x } from "../../packages/core/src/x";\n`,
+    "lib/f73.ts": `const x = require("/tmp/x");\nexport const y = x;\n`,
+    "lib/f74.ts": `import { x } from "@/../tischler/dist/x";\nexport const y = x;\n`,
+    "lib/f75.ts": `export * from "../../tischler/dist/x";\n`,
+    // 76–86, 88 (76h 🟡B): nicht-literale Modulpfade. import() mit Template nur bei festem Ordner-Kontext (a–e),
+    //        sonst wie Verkettung, Variable und jedes nicht-literale require() → G_KONTEXT
+    "lib/f76.ts": `export const a = (n: string) => import(\`../\${n}\`);\n`, // d: Präfix = Wurzel
+    "lib/f77.ts": `export const a = (n: string) => import(\`@/\${n}\`);\n`, // d: Präfix = Wurzel
+    "lib/f78.ts": `export const a = (n: string) => import(\`../../\${n}\`);\n`, // d: ../ aus der Wurzel hinaus
+    "lib/f79.ts": `export const a = (n: string) => import(\`./daten/x-\${n}.json\`);\n`, // b: Präfix endet nicht auf /
+    "lib/f80.ts": `export const a = (n: string) => import(\`\${n}\`);\n`, // b: kein Präfix
+    "lib/f81.ts": `export const a = (n: string) => import(\`./daten/\${n}/../../dist/y\`);\n`, // c: .. nach dem ersten Platzhalter
+    "lib/f82.ts": `export const a = (n: string) => import(\`../dist/\${n}\`);\n`, // e: unter dist/
+    "lib/f83.ts": `export const a = (n: string) => import('../' + n);\n`, // a: Verkettung
+    "lib/f84.ts": `export const a = (n: string) => import(n);\n`, // a: Variable
+    "lib/f85.ts": `export const a = (n: string) => require(\`./daten/\${n}.json\`);\n`, // require: immer Befund
+    "lib/f86.ts": `export const a = (n: string) => require(n);\n`, // require: immer Befund
+    "f88.ts": `export const a = (n: string) => import(\`./a/../../x/\${n}\`);\n`, // d: a/../../x/ aus der Wurzel hinaus
+    // Gutfälle 76h 🟡B (Muster wie im echten Baum): Template mit festem Datenordner, aus einem Unterordner und über @/
+    "konfig/laden.ts": `export const a = (s: string, n: string) => import(\`../daten/\${s}/\${n}.json\`);\nexport const b = (n: string) => import(\`@/daten/\${n}.json\`);\nexport const c = () => import(\`./teil\`);\n`,
+    // Gutfälle 76h 🟡A: relativ und über @/ in der Wurzel
+    "lib/ok-wurzel.ts": `import a from "./b";\nimport b from "@/lib/../lib/x";\nimport c from "../app/y";\nexport const d = [a, b, c];\n`,
+    // 87 (76h 🟡C): Ziel des endungslosen Datei-Links (unten)
+    "quelle/x87.ts": `export const x = 1;\n`,
     // Negativfälle: kein Verstoß
     // kein Build-Import: lib/dist tiefer im Baum, .vercel2, Paketname mit dist
     "lib/ok-build.ts": `import { a } from "@/lib/dist/x";\nimport { b } from "@/.vercel2/x";\nimport c from "dist-paket";\nexport const d = [a, b, c];\n`,
@@ -750,8 +841,13 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
   // Negativ: Symlinks auf ein Bild (unter der Werkbank) und auf .env.local (App-Wurzel) → kein Befund
   symlinkSync(join(baum, "quelle/bild.png"), join(baum, `${W}/bild.png`), "file");
   symlinkSync(join(baum, "quelle/env"), join(baum, ".env.local"), "file");
+  // 87 (76h 🟡C): Datei-Link OHNE Quell-Endung auf eine .ts (Bundler folgen dem realpath) → gemeldet
+  symlinkSync(join(baum, "quelle/x87.ts"), join(baum, "lib/f87"), "file");
+  // Negativ 76h: endungsloser Link auf ein Bild und ein toter Link ohne Endung → kein Befund
+  symlinkSync(join(baum, "quelle/bild.png"), join(baum, "lib/bild"), "file");
+  symlinkSync(join(baum, "fehlt.ts"), join(baum, "lib/tot"), "file");
 
-  const SOLL_70 = [
+  const SOLL_88 = [
     `${W}/page.tsx#default: ${G_ERST}`,
     `app/[lang]/ZINKEN/Werkbank/x/page.tsx#default: ${G_ERST}`,
     `${API}/x/route.ts#POST: ${G_ERST}`,
@@ -823,11 +919,29 @@ describe("Probelauf-Tor: Wächter für die Werkbank-Einstiege", () => {
     `lib/f68.ts#import @/.vercel/x: ${G_BUILD}`,
     `lib/f69.ts#import ../dist/x: ${G_BUILD}`,
     `lib/f70.ts#import @/lib/../Dist/x: ${G_BUILD}`,
+    `lib/f71.ts#import @/../nachbar/dist/x: ${G_WURZEL}`,
+    `lib/f72.ts#import ../../packages/core/src/x: ${G_WURZEL}`,
+    `lib/f73.ts#import /tmp/x: ${G_WURZEL}`,
+    `lib/f74.ts#import @/../tischler/dist/x: ${G_BUILD}`,
+    `lib/f75.ts#import ../../tischler/dist/x: ${G_BUILD}`,
+    `lib/f76.ts#import \`../\${n}\`: ${G_KONTEXT}`,
+    `lib/f77.ts#import \`@/\${n}\`: ${G_KONTEXT}`,
+    `lib/f78.ts#import \`../../\${n}\`: ${G_KONTEXT}`,
+    `lib/f79.ts#import \`./daten/x-\${n}.json\`: ${G_KONTEXT}`,
+    `lib/f80.ts#import \`\${n}\`: ${G_KONTEXT}`,
+    `lib/f81.ts#import \`./daten/\${n}/../../dist/y\`: ${G_KONTEXT}`,
+    `lib/f82.ts#import \`../dist/\${n}\`: ${G_KONTEXT}`,
+    `lib/f83.ts#import '../' + n: ${G_KONTEXT}`,
+    `lib/f84.ts#import n: ${G_KONTEXT}`,
+    `lib/f85.ts#import \`./daten/\${n}.json\`: ${G_KONTEXT}`,
+    `lib/f86.ts#import n: ${G_KONTEXT}`,
+    `lib/f87#datei: ${G_SYMLINK}`,
+    `f88.ts#import \`./a/../../x/\${n}\`: ${G_KONTEXT}`,
   ].sort();
 
-  it("Fixture-Positivprobe: genau die 70 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
+  it("Fixture-Positivprobe: genau die 88 eingebauten Fälle (Fall 26 zweimal), korrekte Formen ohne Verstoß", () => {
     const ergebnis = pruefeBaum(baum);
-    expect(ergebnis.verstoesse).toEqual(SOLL_70);
+    expect(ergebnis.verstoesse).toEqual(SOLL_88);
   });
 });
 
