@@ -11,21 +11,22 @@ import { pruefeCookie, torKonfig, TOR_COOKIE } from "./tor";
  *   @slots und Intercept-Ordnern) sowie app/api/zinken/werkbank/**.
  * - Einstieg = Default-Export, jede exportierte HTTP-Methode, jede Funktion mit "use server" (auch inline,
  *   auch als Objekt- oder static-Methode) und jeder Export einer Datei mit "use server". Gelesen wird der ganze
- *   App-Baum (ohne node_modules und .next sowie public, dist, coverage im App-Wurzelordner); in
- *   packages/core/src ist "use server" verboten.
+ *   App-Baum (ohne node_modules und .next sowie dist und .vercel im App-Wurzelordner: dist wie tsconfig exclude,
+ *   .vercel als Build-Ausgabe in .gitignore; public und coverage werden gelesen). Symlinks im Baum sind verboten
+ *   (der Wächter liest sie nicht, Next folgt ihnen). In packages/core/src ist "use server" verboten.
  * - Die ERSTE Anweisung jedes Einstiegs ist genau
  *     if (!(await torOffen())) return …;   bzw.   if (!(await torOffen())) throw …;
- *   mit genau EINER Anweisung als Ausgang und festem Wert: return; | return W | throw W, W ein reiner Wert
- *   (Literal oder Objekt/Array daraus) oder new Response(W, W) bzw. new Error(W?); Response, Error und
- *   undefined bindet die Datei dafür nicht selbst. Seite/Layout geben null
- *   zurück (kein JSX; das Code-Feld liegt unter /zinken/tor), Route-Handler 403 ohne Inhalt, Actions werfen
- *   oder geben { ok: false } zurück, bevor sie etwas lesen oder schreiben.
+ *   mit genau EINER Anweisung als Ausgang und festem Wert je Art (W ein reiner Wert: Literal oder Objekt/Array
+ *   daraus): Seite/Layout `return;` | `return null` | `return undefined` (kein JSX; das Code-Feld liegt unter
+ *   /zinken/tor), Route-Handler `return new Response(null, { status: 403, … })` (ohne Inhalt), Actions
+ *   `throw new Error(W?)` | `throw W` | `return { ok: false, … }` — bevor sie etwas lesen oder schreiben.
+ *   Response, Error und undefined bindet die Datei dafür nicht selbst.
  * - torOffen ist in der Datei nur durch den Import von hier gebunden (keine eigene Funktion, Variable, kein
  *   Parameter und keine Destrukturierung gleichen Namens).
  * - Exporte werden auf eine Funktion derselben Datei zurückgeführt (Namen nur über const); Wrapper, Re-Exporte,
  *   export *, let/var und jede andere Exportform (außer reinen Typen) sind nicht prüfbar und deshalb nicht
  *   erlaubt. Daneben in Werkbank-Dateien nur Config-Exporte als reiner Wert (metadata nur mit robots noindex,
- *   als String mit noindex oder als Objekt mit index: false; viewport, dynamic, dynamicParams, revalidate,
+ *   als String mit dem Token noindex oder als Objekt mit index: false; viewport, dynamic, dynamicParams, revalidate,
  *   fetchCache, runtime, preferredRegion, maxDuration).
  * - Next-Konventionsdateien, die kein Einstieg sind (loading, error, global-error, not-found, global-not-found,
  *   forbidden, unauthorized, opengraph-image, twitter-image, icon, apple-icon, auch mit Ziffer, sowie sitemap,
