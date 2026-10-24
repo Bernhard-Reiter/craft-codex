@@ -1,0 +1,10 @@
+{
+  "tor": {
+    "titel": "Werkbank im Probelauf",
+    "erklaerung": "Die Werkbank ist gerade nur für den Probelauf offen. Gib den Code vom Zettel ein. Leerzeichen und Groß- oder Kleinschreibung sind egal.",
+    "feld": "Code",
+    "knopf": "Öffnen",
+    "falsch": "Der Code stimmt nicht. Prüf ihn und versuch es noch einmal.",
+    "zu": "Probelauf gerade nicht aktiv"
+  }
+}
