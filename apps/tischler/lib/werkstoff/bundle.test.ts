@@ -22,8 +22,8 @@ describe("das ausgelieferte Werkstoff-Bundle stimmt in sich", () => {
     expect(ist).toBe(auftrag.modell!.glb_sha256);
   });
 
-  it("das ausgelieferte Modell ist das attestierte Fixture aus cody-cad#69 und bleibt repo-tauglich", () => {
-    expect(auftrag.modell!.glb_sha256).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
+  it("das ausgelieferte Modell ist das attestierte Fixture aus cody-cad N12 (Nut M20, Tiefe 7) und bleibt repo-tauglich", () => {
+    expect(auftrag.modell!.glb_sha256).toBe("38f11f243d97b0fc5eb4e6d6b72ea76847362032a1d95cc456324cefe201737e");
     expect(statSync(join(BUNDLE, auftrag.modell!.datei)).size).toBeLessThan(250_000);
   });
 
@@ -74,7 +74,7 @@ const kanonischerHash = (o: unknown): string => {
   return createHash("sha256").update(JSON.stringify(sortiert(o)), "utf8").digest("hex");
 };
 
-const AUFTRAG_PIN = "e55a2f50a0c6421fbbb9c0ab1ebcde915d7dc9fbd42754d5d3131f457dca59d2";
+const AUFTRAG_PIN = "21d32a834b37e8601a32f322ac06ff8f8d6fe47b5457fa71822316801c0df8d0";
 
 /**
  * Byte-Pins über die ausgelieferten Dateien — die zweite Frage.

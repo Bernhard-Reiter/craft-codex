@@ -132,7 +132,7 @@ describe("ladeSzene — Reihenfolge und Härte der Hash-Prüfung (Review craft#4
   it("der Hash läuft über die ganze Datei — das 23-KB-Fixture mit seinem echten Hash geht durch, mit gekipptem letzten Zeichen nicht", async () => {
     vi.stubGlobal("fetch", stubModell({ status: 200, buf: fixture() }));
     const gut = await auftragZu(fixture());
-    expect(gut.modell?.glb_sha256).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
+    expect(gut.modell?.glb_sha256).toBe("38f11f243d97b0fc5eb4e6d6b72ea76847362032a1d95cc456324cefe201737e");
     expect((await ladeSzene(gut))?.knoten.teile).toHaveLength(5);
     const h = gut.modell!.glb_sha256;
     const gekippt = { ...gut, modell: { ...gut.modell!, glb_sha256: h.slice(0, 63) + (h.endsWith("f") ? "0" : "f") } };
