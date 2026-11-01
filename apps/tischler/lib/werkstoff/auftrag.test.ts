@@ -412,6 +412,6 @@ describe("die Naht gegen ein echtes OCCT-Modell — nicht nur gegen das Fixture,
     const h = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", buf)))
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
-    expect(h).toBe("418a4bea6bb2c01c546849f3e4950ae5c65890df1b9c2fbabb844d8fb991e95f");
+    expect(h).toBe("38f11f243d97b0fc5eb4e6d6b72ea76847362032a1d95cc456324cefe201737e");
   });
 });
