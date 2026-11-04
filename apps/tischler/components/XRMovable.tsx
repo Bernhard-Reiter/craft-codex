@@ -3,8 +3,8 @@
 import { type ReactNode } from "react";
 import { Billboard } from "@react-three/drei";
 import { Handle, HandleTarget } from "@react-three/handle";
-import { Root, Container, Text as UIText } from "@react-three/uikit";
-import { Card } from "@react-three/uikit-apfel";
+import { Container, Text as UIText } from "@react-three/uikit";
+import { Panel } from "@react-three/uikit-horizon";
 
 /**
  * Verschiebbare Panel-Huelle im Meta-/Quest-Stil (wie die Fenster der Quest-
@@ -37,8 +37,8 @@ export function XRMovable({
       {/* Greifleiste (apfel-Glas) = der Handle */}
       <Handle targetRef="from-context" translate scale={false} rotate={false}>
         <group position={[0, griffOffsetY, 0.01]}>
-          <Root pixelSize={0.001} anchorX="center" anchorY="center">
-            <Card
+          <Container pixelSize={0.001} anchorX="center" anchorY="center">
+            <Panel
               flexDirection="row"
               alignItems="center"
               justifyContent="center"
@@ -53,8 +53,8 @@ export function XRMovable({
                 ))}
               </Container>
               <UIText fontSize={13} color="#cdd6e4">verschieben</UIText>
-            </Card>
-          </Root>
+            </Panel>
+          </Container>
         </group>
       </Handle>
     </>
