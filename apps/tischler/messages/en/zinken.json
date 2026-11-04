@@ -126,5 +126,37 @@
     "pruefen": "Check every projected line with a rule before you mark it. The headset is not a measuring tool.",
     "masseBuch": "Textbook example {b} × {d} mm",
     "masseEigen": "Your measurements from the calculator: {b} × {d} mm"
+  },
+  "spikeHolz": {
+    "meta": {
+      "title": "Spike: wood on the Quest (measurement page)",
+      "description": "Internal measurement page for the Quest 3: one board with a wood surface, frame rate over 60 seconds. Not teaching content."
+    },
+    "kicker": "Spike P6 · internal measurement page",
+    "titel": "Wood on the Quest",
+    "hinweis": "Measurement page for the Quest 3 – not teaching content",
+    "lead": "One board {b} × {d} × {l} mm with a wood surface. Put the headset on, start VR or AR, press “Start measurement” and look calmly at the board for {s} seconds. Afterwards the panel and this page show mean, 1% low, minimum, frame count and the verdict (target {ziel} Hz). “Switch surface” lets you measure plan B (baked texture).",
+    "vr": "Start VR",
+    "ar": "Start AR",
+    "nichtVerfuegbar": "WebXR is not available here. Open this page in the Quest 3 browser. Below you see the preview; a measurement here only measures this device.",
+    "vorschau": "Preview (without headset)",
+    "variante": "Surface: {name}",
+    "shader": "Shader (procedural)",
+    "textur": "Texture (baked, plan B)",
+    "wechseln": "Switch surface",
+    "start": "Start measurement ({s} s)",
+    "jetzt": "now {fps} fps",
+    "jetztLeer": "now – fps",
+    "sitzungHz": "Session frame rate: {hz} Hz",
+    "sitzungUnbekannt": "Session frame rate: unknown (no headset)",
+    "bereit": "Measurement: ready",
+    "laeuft": "Measuring: {s} of {gesamt} s",
+    "fertig": "Measurement done ({gesamt} s)",
+    "ergebnisFuer": "{name}, {modus}",
+    "ohneBrille": "without headset",
+    "ergebnis": "Mean {mittel} fps · 1% low {low} fps · minimum {min} fps · {frames} frames",
+    "ok": "≥ {ziel} Hz: OK",
+    "nichtOk": "below {ziel} Hz: NOT OK",
+    "keineDaten": "no data"
   }
 }

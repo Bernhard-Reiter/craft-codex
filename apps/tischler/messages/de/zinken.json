@@ -126,5 +126,37 @@
     "pruefen": "Prüfe jede projizierte Linie mit dem Maßstab, bevor du anreißt. Die Brille ist kein Messwerkzeug.",
     "masseBuch": "Buchbeispiel {b} × {d} mm",
     "masseEigen": "Eigene Maße aus dem Rechner: {b} × {d} mm"
+  },
+  "spikeHolz": {
+    "meta": {
+      "title": "Spike: Holz auf der Quest (Messseite)",
+      "description": "Interne Messseite für die Quest 3: ein Brett mit Holz-Oberfläche, Bildrate über 60 Sekunden. Kein Lehrinhalt."
+    },
+    "kicker": "Spike P6 · interne Messseite",
+    "titel": "Holz auf der Quest",
+    "hinweis": "Messseite für die Quest 3 – kein Lehrinhalt",
+    "lead": "Ein Brett {b} × {d} × {l} mm mit Holz-Oberfläche. Brille auf, VR oder AR starten, »Messung starten« drücken und {s} Sekunden ruhig auf das Brett schauen. Danach stehen Mittelwert, 1%-Low, Minimum, Anzahl Frames und das Urteil (Ziel {ziel} Hz) in der Tafel und hier unten. Mit »Oberfläche wechseln« misst du Plan B (gebackene Textur).",
+    "vr": "VR starten",
+    "ar": "AR starten",
+    "nichtVerfuegbar": "WebXR ist hier nicht verfügbar. Öffne die Seite im Browser der Quest 3. Unten siehst du die Vorschau; eine Messung hier misst nur dieses Gerät.",
+    "vorschau": "Vorschau (ohne Brille)",
+    "variante": "Oberfläche: {name}",
+    "shader": "Shader (prozedural)",
+    "textur": "Textur (gebacken, Plan B)",
+    "wechseln": "Oberfläche wechseln",
+    "start": "Messung starten ({s} s)",
+    "jetzt": "jetzt {fps} fps",
+    "jetztLeer": "jetzt – fps",
+    "sitzungHz": "Bildrate der Sitzung: {hz} Hz",
+    "sitzungUnbekannt": "Bildrate der Sitzung: unbekannt (keine Brille)",
+    "bereit": "Messung: bereit",
+    "laeuft": "Messung läuft: {s} von {gesamt} s",
+    "fertig": "Messung fertig ({gesamt} s)",
+    "ergebnisFuer": "{name}, {modus}",
+    "ohneBrille": "ohne Brille",
+    "ergebnis": "Mittel {mittel} fps · 1%-Low {low} fps · Minimum {min} fps · {frames} Frames",
+    "ok": "≥ {ziel} Hz: OK",
+    "nichtOk": "unter {ziel} Hz: NICHT OK",
+    "keineDaten": "keine Daten"
   }
 }
