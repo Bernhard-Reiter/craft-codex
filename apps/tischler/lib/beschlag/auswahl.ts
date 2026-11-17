@@ -10,11 +10,14 @@ import {
   buildBlumClipTopTuerLayout,
   buildBlumMontageplatteSeiteLayout,
   buildHawaCombinoLayout,
+  buildMesseUnterschrankSeiteLayout,
+  MESSE_UNTERSCHRANK,
   type HardwareLayout,
   type WorkflowDefinition,
 } from "@craft-codex/core";
 import { BLUM_CLIP_TOP_WORKFLOW } from "./blum-clip-top-workflow";
 import { HAWA_COMBINO_WORKFLOW } from "./hawa-combino-workflow";
+import { MESSE_UNTERSCHRANK_WORKFLOW } from "./messe-unterschrank-workflow";
 
 export interface Werkstueck {
   id: string;
@@ -26,7 +29,9 @@ export interface Werkstueck {
 }
 
 export interface BeschlagEintrag {
-  id: "hawa" | "blum";
+  id: "hawa" | "blum" | "messe";
+  /** Annahmen der Vorlage, sichtbar über dem Ablauf. */
+  annahmen?: readonly string[];
   label: string;
   workflow: WorkflowDefinition;
   werkstueckFuer: (stepId: string | undefined) => Werkstueck;
@@ -59,6 +64,33 @@ const BLUM_SEITE: Werkstueck = {
   layout: buildBlumMontageplatteSeiteLayout(560),
 };
 
+// Messe-Vorlage: Unterschrank 600 · 1 Tür · 1 Schubkasten (Maße aus cody-cad).
+const M = MESSE_UNTERSCHRANK;
+const MESSE_TUER: Werkstueck = {
+  id: "messe.tuer",
+  name: `Tür ${M.tuer.breite} × ${M.tuer.hoehe} (Messe-Unterschrank)`,
+  breiteMm: M.tuer.breite,
+  hoeheMm: M.tuer.hoehe,
+  layout: buildBlumClipTopTuerLayout(M.tuer.breite, M.tuer.hoehe),
+};
+const MESSE_SEITE: Werkstueck = {
+  id: "messe.seite",
+  name: `Korpusseite links ${M.korpus.tiefe} × ${M.korpus.hoehe} (Messe-Unterschrank)`,
+  breiteMm: M.korpus.tiefe,
+  hoeheMm: M.korpus.hoehe,
+  layout: buildMesseUnterschrankSeiteLayout(),
+};
+const MESSE_SEITEN_SCHRITTE = new Set(["B3.platte_schrauben", "M1.schiene_schrauben", "M2.schubkasten"]);
+
+export const MESSE: BeschlagEintrag = {
+  id: "messe",
+  label: "⭐ Messe-Unterschrank 600",
+  workflow: MESSE_UNTERSCHRANK_WORKFLOW,
+  annahmen: M.annahmen,
+  werkstueckFuer: (stepId) =>
+    stepId && MESSE_SEITEN_SCHRITTE.has(stepId) ? MESSE_SEITE : MESSE_TUER,
+};
+
 const HAWA: BeschlagEintrag = {
   id: "hawa",
   label: "Hawa Combino (Schiebetür)",
@@ -70,6 +102,7 @@ const HAWA: BeschlagEintrag = {
 export const STANDARD_BESCHLAG = HAWA;
 
 export const BESCHLAEGE: BeschlagEintrag[] = [
+  MESSE,
   HAWA,
   {
     id: "blum",

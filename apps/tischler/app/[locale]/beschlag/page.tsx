@@ -10,7 +10,7 @@
  * Texte vorerst deutsch fest verdrahtet; i18n folgt, wenn der Ablauf steht.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import {
@@ -44,6 +44,12 @@ export default function BeschlagPage() {
     setIndex(0);
     setErledigt({});
   };
+  // Direktlink: /beschlag?vorlage=messe lädt die Vorlage gleich.
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get("vorlage");
+    if (v) waehle(v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const offen = useMemo(() => openQuestions(layout), [layout]);
   const zeigtBohrungen = mayRenderDrillPoints(layout);
 
@@ -66,13 +72,20 @@ export default function BeschlagPage() {
         </p>
         <h1>{beschlag.workflow.label}</h1>
         <p className="herkunft">Werkstück: {werkstueck.name}</p>
+        {beschlag.annahmen && (
+          <ul className="herkunft">
+            {beschlag.annahmen.map((a) => (
+              <li key={a}>Annahme: {a}</li>
+            ))}
+          </ul>
+        )}
         <p className="herkunft">
           Anleitung {layout.source.document} · Seite {layout.source.page} ·
           Anschlag {layout.anschlag}
           {layout.source.crosscheck ? ` · gegengeprüft: ${layout.source.crosscheck}` : ""}
         </p>
         <p className="arlink">
-          <Link href="/beschlag/xr">🥽 In AR öffnen (Quest 3)</Link>
+          <Link href={beschlag.id === "messe" ? "/beschlag/xr?vorlage=messe" : "/beschlag/xr"}>🥽 In AR öffnen (Quest 3)</Link>
         </p>
       </header>
 
