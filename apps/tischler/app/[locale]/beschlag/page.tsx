@@ -48,7 +48,6 @@ export default function BeschlagPage() {
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const offen = useMemo(() => openQuestions(layout), [layout]);
   const zeigtBohrungen = mayRenderDrillPoints(layout);

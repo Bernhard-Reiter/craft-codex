@@ -127,7 +127,6 @@ export default function BeschlagXRPage() {
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const bohrpunkteFrei = mayRenderDrillPoints(layout);
 
