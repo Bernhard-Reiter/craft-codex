@@ -15,29 +15,35 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import {
   WorkflowController,
-  buildHawaCombinoLayout,
   openQuestions,
   mayRenderDrillPoints,
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../components/BeschlagScene";
 import { Link } from "../../../i18n/navigation";
-import { HAWA_COMBINO_WORKFLOW } from "../../../lib/beschlag/hawa-combino-workflow";
+import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
-const TUER_BREITE = 600;
-const TUER_HOEHE = 2000;
 
 export default function BeschlagPage() {
   const [index, setIndex] = useState(0);
+  const [beschlag, setBeschlag] = useState(STANDARD_BESCHLAG);
   const [erledigt, setErledigt] = useState<Record<string, boolean>>({});
 
   const controller = useMemo(
-    () => new WorkflowController(HAWA_COMBINO_WORKFLOW),
-    [],
+    () => new WorkflowController(beschlag.workflow),
+    [beschlag],
   );
   const steps = controller.getSteps();
   const schritt = steps[index];
 
-  const layout = useMemo(() => buildHawaCombinoLayout(TUER_BREITE), []);
+  const werkstueck = beschlag.werkstueckFuer(schritt?.id);
+  const layout = werkstueck.layout;
+  const waehle = (id: string) => {
+    const b = BESCHLAEGE.find((x) => x.id === id);
+    if (!b) return;
+    setBeschlag(b);
+    setIndex(0);
+    setErledigt({});
+  };
   const offen = useMemo(() => openQuestions(layout), [layout]);
   const zeigtBohrungen = mayRenderDrillPoints(layout);
 
@@ -46,7 +52,20 @@ export default function BeschlagPage() {
   return (
     <main className="beschlag">
       <header className="kopf">
-        <h1>{HAWA_COMBINO_WORKFLOW.label}</h1>
+        <p className="wahl">
+          {BESCHLAEGE.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              aria-pressed={b.id === beschlag.id}
+              onClick={() => waehle(b.id)}
+            >
+              {b.label}
+            </button>
+          ))}
+        </p>
+        <h1>{beschlag.workflow.label}</h1>
+        <p className="herkunft">Werkstück: {werkstueck.name}</p>
         <p className="herkunft">
           Anleitung {layout.source.document} · Seite {layout.source.page} ·
           Anschlag {layout.anschlag}
@@ -86,7 +105,7 @@ export default function BeschlagPage() {
           <directionalLight position={[1, 2, 3]} intensity={1.1} />
           <BeschlagScene
             layout={layout}
-            faceHeight={TUER_HOEHE}
+            faceHeight={werkstueck.hoeheMm}
             activeStepId={schritt?.id}
           />
           <OrbitControls makeDefault enablePan target={[0, 0, 0]} />
@@ -173,6 +192,26 @@ export default function BeschlagPage() {
           margin: 0 0 0.35rem;
           font-size: 1.6rem;
           line-height: 1.2;
+        }
+        .wahl {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin: 0 0 0.75rem;
+        }
+        .wahl button {
+          padding: 0.4rem 0.8rem;
+          border-radius: 999px;
+          border: 1px solid currentColor;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
+          opacity: 0.6;
+        }
+        .wahl button[aria-pressed="true"] {
+          opacity: 1;
+          font-weight: 600;
         }
         .arlink {
           margin: 0.5rem 0 0;

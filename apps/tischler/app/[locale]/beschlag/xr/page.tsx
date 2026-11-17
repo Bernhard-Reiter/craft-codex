@@ -27,7 +27,6 @@ import { XR, createXRStore, useXR } from "@react-three/xr";
 import { Root, Container, Text } from "@react-three/uikit";
 import {
   WorkflowController,
-  buildHawaCombinoLayout,
   mayRenderDrillPoints,
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../../components/BeschlagScene";
@@ -35,12 +34,10 @@ import {
   BeschlagARRegistration,
   type BeschlagRegistration,
 } from "../../../../components/BeschlagARRegistration";
-import { HAWA_COMBINO_WORKFLOW } from "../../../../lib/beschlag/hawa-combino-workflow";
+import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../../lib/beschlag/auswahl";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
 import { Link } from "../../../../i18n/navigation";
 
-const TUER_BREITE = 600;
-const TUER_HOEHE = 2000;
 
 /** RMS-Grenze in Metern, ab der die Registrierung als grob gilt. */
 const RMS_WARN_M = 0.01;
@@ -97,6 +94,7 @@ export default function BeschlagXRPage() {
   const [reg, setReg] = useState<BeschlagRegistration | null>(null);
   const [ausrichten, setAusrichten] = useState(false);
   const [index, setIndex] = useState(0);
+  const [beschlag, setBeschlag] = useState(STANDARD_BESCHLAG);
 
   const store = useMemo(
     () => createXRStore({ emulate: false, offerSession: false }),
@@ -104,13 +102,27 @@ export default function BeschlagXRPage() {
   );
 
   const controller = useMemo(
-    () => new WorkflowController(HAWA_COMBINO_WORKFLOW),
-    [],
+    () => new WorkflowController(beschlag.workflow),
+    [beschlag],
   );
   const steps = controller.getSteps();
   const schritt = steps[index];
 
-  const layout = useMemo(() => buildHawaCombinoLayout(TUER_BREITE), []);
+  const werkstueck = beschlag.werkstueckFuer(schritt?.id);
+  const layout = werkstueck.layout;
+
+  // Anderes Werkstück auf dem Tisch → die alte Ausrichtung gilt nicht mehr.
+  useEffect(() => {
+    setReg(null);
+  }, [werkstueck.id]);
+
+  const waehle = (id: string) => {
+    const b = BESCHLAEGE.find((x) => x.id === id);
+    if (!b) return;
+    setBeschlag(b);
+    setIndex(0);
+    setReg(null);
+  };
   const bohrpunkteFrei = mayRenderDrillPoints(layout);
 
   useEffect(() => {
@@ -149,6 +161,21 @@ export default function BeschlagXRPage() {
     <main className="xrseite">
       <header className="kopf">
         <h1>Beschlagmontage in AR</h1>
+        <p className="wahl">
+          {BESCHLAEGE.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              aria-pressed={b.id === beschlag.id}
+              onClick={() => waehle(b.id)}
+            >
+              {b.label}
+            </button>
+          ))}
+        </p>
+        <p>
+          Werkstück: <strong>{werkstueck.name}</strong>
+        </p>
         <p>
           {layout.article} · Anschlag {layout.anschlag} · Quelle{" "}
           {layout.source.document} S. {layout.source.page}
@@ -247,7 +274,7 @@ export default function BeschlagXRPage() {
                       />
                     ) : (
                       <TafelKnopf
-                        label={reg ? "Neu ausrichten" : "Türblatt ausrichten"}
+                        label={reg ? "Neu ausrichten" : "Werkstück ausrichten"}
                         onClick={verwerfen}
                       />
                     )}
@@ -263,7 +290,7 @@ export default function BeschlagXRPage() {
                       ? rmsGrob
                         ? `Ausrichtung grob: ±${rmsMm!.toFixed(1)} mm — bitte neu ausrichten`
                         : `Ausgerichtet: ±${rmsMm!.toFixed(1)} mm · Werkstück nicht bewegen`
-                      : "Noch nicht ausgerichtet — Maße erscheinen nach dem Ausrichten am Türblatt"}
+                      : `Noch nicht ausgerichtet — ${werkstueck.name} auflegen und ausrichten`}
                   </Text>
                 </Container>
               </Root>
@@ -271,8 +298,8 @@ export default function BeschlagXRPage() {
 
             {ausrichten && (
               <BeschlagARRegistration
-                faceWidthMm={TUER_BREITE}
-                faceHeightMm={TUER_HOEHE}
+                faceWidthMm={werkstueck.breiteMm}
+                faceHeightMm={werkstueck.hoeheMm}
                 onRegistered={(r) => {
                   setReg(r);
                   setAusrichten(false);
@@ -285,7 +312,7 @@ export default function BeschlagXRPage() {
               <group position={reg.position} quaternion={reg.quaternion}>
                 <BeschlagScene
                   layout={layout}
-                  faceHeight={TUER_HOEHE}
+                  faceHeight={werkstueck.hoeheMm}
                   activeStepId={schritt?.id}
                 />
               </group>
@@ -311,6 +338,25 @@ export default function BeschlagXRPage() {
         }
         .bedienung {
           opacity: 0.9;
+        }
+        .wahl {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+        .wahl button {
+          padding: 0.4rem 0.8rem;
+          border-radius: 999px;
+          border: 1px solid currentColor;
+          background: transparent;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
+          opacity: 0.6;
+        }
+        .wahl button[aria-pressed="true"] {
+          opacity: 1;
+          font-weight: 600;
         }
         .hinweis {
           border-left: 3px solid #8a6a1f;
