@@ -20,6 +20,7 @@ import {
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../components/BeschlagScene";
 import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
+import { MesseStueckliste } from "../../../components/MesseStueckliste";
 import { Link } from "../../../i18n/navigation";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
@@ -198,6 +199,8 @@ export default function BeschlagPage() {
           </article>
         )}
       </section>
+
+      {beschlag.id === "messe" && <MesseStueckliste />}
 
       <style jsx>{`
         .beschlag {
