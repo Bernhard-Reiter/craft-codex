@@ -15,7 +15,7 @@
  *
  * Montage-Leuchten: der aktive Schritt färbt das Teil, an dem gearbeitet
  * wird (Tür bei B1/B2, linke Korpusseite bei B3/M1, Schubkasten bei M2).
- * Bei B4 steht die Tür offen und der Schubkasten ist ausgezogen.
+ * Bei B4 und M2 steht die Tür offen und der Schubkasten ist ausgezogen.
  */
 
 import { MESSE_UNTERSCHRANK as M } from "@craft-codex/core";
@@ -35,15 +35,20 @@ const FARBE = {
 type Teil = "tuer" | "seite" | "schubkasten";
 
 /** Welches Teil bei welchem Montage-Schritt leuchtet. */
-function teilFuer(stepId: string | undefined): Teil | null {
+export function teilFuer(stepId: string | undefined): Teil | null {
   if (!stepId) return null;
-  if (stepId.startsWith("B1.") || stepId.startsWith("B2.")) return "tuer";
+  if (stepId.startsWith("B1.") || stepId.startsWith("B2.") || stepId.startsWith("B4.")) return "tuer";
   if (stepId.startsWith("B3.") || stepId.startsWith("M1.")) return "seite";
   if (stepId.startsWith("M2.")) return "schubkasten";
   return null;
 }
 
-/** Tür offen (rad) und Auszug (mm), nur beim Einclipsen B4. */
+/** Tür offen + Schubkasten heraus: beim Einclipsen (B4) und beim Schubkasten (M2), sonst wäre er verdeckt (H6). */
+export function offenFuer(stepId: string | undefined): boolean {
+  return !!stepId && (stepId.startsWith("B4.") || stepId.startsWith("M2."));
+}
+
+/** Tür offen (rad) und Auszug (mm), siehe offenFuer (B4 + M2). */
 const TUER_OFFEN = -Math.PI * 0.55;
 const AUSZUG_MM = 400; // MOVENTO NL 500, nicht ganz ausgezogen
 
@@ -73,7 +78,7 @@ function Platte({
 
 export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
   const teil = teilFuer(activeStepId);
-  const offen = activeStepId?.startsWith("B4.") ?? false;
+  const offen = offenFuer(activeStepId);
   const { breite: B, hoehe: H, tiefe: T } = M.korpus;
   const s = M.plattenstaerke;
   const fuge = (B - M.tuer.breite) / 2; // 2 mm, aus den Frontmaßen abgeleitet

@@ -1,6 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, MesseStueckliste } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, MesseStueckliste, schrittAusSpeicher } from "./MesseStueckliste";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -47,6 +47,12 @@ describe("Rückweg Bohrplan -> Stückliste", () => {
     expect(bohrplanRueckweg("?vorlage=messe&blatt=3", 5, "de")).toBe("/de/beschlag?vorlage=messe&ansicht=stueckliste");
     expect(bohrplanRueckweg("?vorlage=messe", 5, "de")).toBe("/de/beschlag?vorlage=messe");
     expect(bohrplanRueckweg("?vorlage=messe&blatt=9", 5, "de")).toBe("/de/beschlag?vorlage=messe");
+  });
+});
+
+describe("Montage-Schritt überlebt den Seitenwechsel (H3)", () => {
+  it("schrittAusSpeicher nimmt nur ganze Zahlen 0..zahl-1, sonst Schritt 1", () => {
+    expect([null, "", "abc", "-1", "6", "99", "2.5", "3", "0", "5"].map((r) => schrittAusSpeicher(r, 6))).toEqual([0, 0, 0, 0, 0, 0, 0, 3, 0, 5]);
   });
 });
 
