@@ -706,10 +706,9 @@ function DruckBlatt({ b }: { b: Blatt }) {
   );
 }
 
-/** Kurzname fürs Menü: Tür, Seite links, Seite rechts. */
+/** Name fürs Menü und die Tabellen-Überschriften: derselbe Teilname wie die Mappe (Feld name). */
 function kurzName(b: Blatt): string {
-  if (b.teil !== "Seite") return b.teil;
-  return b.gespiegelt ? "Seite rechts" : "Seite links";
+  return b.name;
 }
 
 /** Unterzeile: Maße, Tür-Anschlag nur bei Tür und Korpusseiten, Status, Lochreihen-Hinweis. */
