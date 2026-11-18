@@ -419,7 +419,7 @@ export default function BohrplanPage() {
               <h2>Herkunft</h2>
               <p>
                 Bohrungen der Blum-Teile (CLIP top 71B3550, Montageplatte 173L6100, MOVENTO
-                766H5000S), dazu Lochreihe, Ø6 Hinterstück und Kupplung Boden mit Lagen aus cody-cad. Maße aus
+                766H5000S), dazu Lochreihe, Ø6 Hinterstück und Kupplung Boden mit Lagen aus dem Bohrbild der Zeichnung. Maße aus
                 denselben Daten wie AR und Stückliste.
               </p>
               <p>{quelle(b.layout)}</p>

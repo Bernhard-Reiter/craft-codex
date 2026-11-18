@@ -3,7 +3,7 @@ import {
   MESSE_UNTERSCHRANK,
   buildMesseUnterschrankSeiteLayout,
 } from "./messe-unterschrank.js";
-import { buildBlumClipTopTuerLayout } from "./blum-clip-top.js";
+import { buildBlumClipTopTuerLayout, buildBlumMontageplatteSeiteLayout } from "./blum-clip-top.js";
 import { validateLayout, mayRenderDrillPoints, openQuestions } from "./validate.js";
 
 describe("Messe-Unterschrank 600 · 1 Tür · 1 Innenschubkasten", () => {
@@ -47,5 +47,20 @@ describe("Messe-Unterschrank 600 · 1 Tür · 1 Innenschubkasten", () => {
 
   it("jede Annahme ist als offene Frage sichtbar", () => {
     expect(openQuestions(s)).toHaveLength(s.points.length);
+  });
+
+  // Quellen 18.11.: cody-cad blum-173l6100.json »ob Spanplatten- oder Systemschraube, ist nicht belegt«,
+  // blum-766h5000s.json nennt nur »schraube« ohne Art -> keine Quelle, Schraubenart bleibt Annahme.
+  it("Schraubenart an Montageplatte und MOVENTO bleibt offen, solange keine Quelle sie nennt", () => {
+    const layouts = [
+      buildMesseUnterschrankSeiteLayout(),
+      buildBlumMontageplatteSeiteLayout(MESSE_UNTERSCHRANK.korpus.tiefe),
+    ];
+    const ankoernen = layouts.flatMap((l) => l.points.filter((p) => p.tool.startsWith("Ankörnen")));
+    expect(ankoernen.length).toBeGreaterThan(0);
+    for (const p of ankoernen) {
+      expect(p.tool).toBe("Ankörnen · Schraube (Art nicht belegt)");
+      expect(p.offen).toBeTruthy();
+    }
   });
 });
