@@ -31,6 +31,10 @@ import {
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../../components/BeschlagScene";
 import {
+  MesseSchrank,
+  MesseSchrankNebenWerkstueck,
+} from "../../../../components/MesseSchrank";
+import {
   BeschlagARRegistration,
   type BeschlagRegistration,
 } from "../../../../components/BeschlagARRegistration";
@@ -320,6 +324,16 @@ export default function BeschlagXRPage() {
                   faceHeight={werkstueck.hoeheMm}
                   activeStepId={schritt?.id}
                 />
+                {beschlag.id === "messe" && (
+                  <MesseSchrankNebenWerkstueck werkstueckBreiteMm={werkstueck.breiteMm} />
+                )}
+              </group>
+            )}
+
+            {/* ─── Messe-Unterschrank frei am Boden, solange nicht ausgerichtet ─── */}
+            {beschlag.id === "messe" && !reg && !ausrichten && (
+              <group position={[0.9, 0, -1.2]} rotation={[0, -0.4, 0]}>
+                <MesseSchrank />
               </group>
             )}
           </XR>
