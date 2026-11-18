@@ -185,9 +185,11 @@ export type Etikett = {
   position: string;
   /**
    * Bohrungen je Art, »Art ×Anzahl« wie das Bohrbild in cody-cad (cody-cad führt,
-   * Meister 1175). Ohne Bohrung: »keine Bohrung«.
+   * Meister 1175). Ohne Bohrung und ohne Anriss: »keine Bohrung«.
    */
   bohren: string[];
+  /** Anrisse je Art (Bohrbild-Art »anriss«), »Art ×Anzahl«; leer, wenn keine. */
+  anreissen: string[];
   /** Maß oder Kantenbild ist Annahme. */
   annahme: boolean;
 };
@@ -202,19 +204,27 @@ const KEINE = K(false, false, false, false);
  * kein Kantenbild belegt; hier steht die übliche Werkstatt-Wahl
  * (Korpus Vorderkante, Fronten rundum, Rückwand und Schubkastenboden ohne).
  */
-type EtikettDaten = { kanten: Kantenbild; positionen: string[]; bohren?: string[][] };
+type EtikettDaten = {
+  kanten: Kantenbild;
+  positionen: string[];
+  bohren?: string[][];
+  anreissen?: string[][];
+};
 const ETIKETT_DATEN: Record<string, EtikettDaten> = {
-  // Bohren je Stück = cody-cad korpus.bohrbild (Messe-Unterschrank), Art ohne
+  // Bohren/Anreißen je Stück = cody-cad korpus.bohrbild (Messe-Unterschrank),
+  // getrennt nach dessen Feld art (»bohrung« / »anriss«), Art ohne
   // Artikelnummer. Die Tür schlägt links an, darum Montageplatten nur links.
   "Seite Links": {
     kanten: VORN,
     positionen: ["Korpus links"],
-    bohren: [["Lochreihe ×50", "MOVENTO-Schiene ×5", "Montageplatte ×4"]],
+    bohren: [["Lochreihe ×50"]],
+    anreissen: [["MOVENTO-Schiene ×5", "Montageplatte ×4"]],
   },
   "Seite Rechts": {
     kanten: VORN,
     positionen: ["Korpus rechts"],
-    bohren: [["Lochreihe ×50", "MOVENTO-Schiene ×5"]],
+    bohren: [["Lochreihe ×50"]],
+    anreissen: [["MOVENTO-Schiene ×5"]],
   },
   "Boden Unten": { kanten: VORN, positionen: ["Korpus unten"] },
   "Boden Oben": { kanten: VORN, positionen: ["Korpus oben"] },
@@ -222,7 +232,8 @@ const ETIKETT_DATEN: Record<string, EtikettDaten> = {
   "Tür 1 Links": {
     kanten: RUNDUM,
     positionen: ["Front, Anschlag links"],
-    bohren: [["Topf ×2", "Schrauben ×4"]],
+    bohren: [["Topf ×2"]],
+    anreissen: [["Schrauben ×4"]],
   },
   "Schubkasten-Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
   "Schubkasten-Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
@@ -232,7 +243,11 @@ const ETIKETT_DATEN: Record<string, EtikettDaten> = {
     bohren: [["Ø6 für MOVENTO ×2"]],
   },
   "Schubkasten-Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
-  "Schubkasten-Boden": { kanten: KEINE, positionen: ["Schubkasten unten"], bohren: [["Kupplung ×4"]] },
+  "Schubkasten-Boden": {
+    kanten: KEINE,
+    positionen: ["Schubkasten unten"],
+    anreissen: [["Kupplung ×4"]],
+  },
 };
 
 const KEINE_BOHRUNG = ["keine Bohrung"];
@@ -244,6 +259,8 @@ export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[]
     if (z.gruppe === "Beschlag" || !z.mass) continue;
     const d = ETIKETT_DATEN[z.teil];
     for (let i = 0; i < z.anzahl; i++) {
+      const bohren = d?.bohren?.[i] ?? d?.bohren?.[0] ?? [];
+      const anreissen = d?.anreissen?.[i] ?? d?.anreissen?.[0] ?? [];
       aus.push({
         nr: aus.length + 1,
         pos: zi + 1,
@@ -253,7 +270,8 @@ export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[]
         werkstoff: z.material,
         kanten: d?.kanten ?? KEINE,
         position: d?.positionen[i] ?? d?.positionen[0] ?? "nicht belegt",
-        bohren: [...(d?.bohren?.[i] ?? d?.bohren?.[0] ?? KEINE_BOHRUNG)],
+        bohren: bohren.length || anreissen.length ? [...bohren] : [...KEINE_BOHRUNG],
+        anreissen: [...anreissen],
         // Kantenbild ist immer Annahme (siehe ETIKETT_DATEN).
         annahme: true,
       });
