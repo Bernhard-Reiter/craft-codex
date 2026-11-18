@@ -26,7 +26,7 @@ export function SiteHeader() {
   // VI4-Look nur auf den Routen aus lib/look.ts; sonst exakt das bisherige Markup (Attribut fehlt).
   const vi4 = istVi4Route(pathname);
   // Seiten in der VI4-Hülle (vi4-design) bringen ihre eigene Menüleiste mit.
-  if (pathname === "/beschlag/bohrplan" || pathname === "/beschlag") return null;
+  if (pathname === "/beschlag/bohrplan" || pathname === "/beschlag" || pathname === "/beschlag/etiketten") return null;
 
   return (
     <header className="cc-header" data-look={vi4 ? "vi4" : undefined}>
