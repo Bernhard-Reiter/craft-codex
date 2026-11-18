@@ -10,58 +10,45 @@ import {
   buildVoaiStueckliste,
   messeStuecklisteCsv,
 } from "@craft-codex/core";
-import { Link } from "../i18n/navigation";
+import { useId } from "react";
+
+/** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
+export function ladeStuecklisteCsv() {
+  lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
+}
+
+/** Datei im VOAI-Vertrag stueckliste/2, ohne Preise. Kein Aufruf an VOAI, nur ein Download. */
+export function ladeVoaiDatei() {
+  lade(JSON.stringify(buildVoaiStueckliste(), null, 2) + "\n", "application/json", "voai-stueckliste-messe-unterschrank-600.json");
+}
+
+function lade(text: string, typ: string, name: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: typ }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  // Safari/iPad braucht die URL noch kurz nach dem Klick.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export function MesseStueckliste() {
   const zeilen = buildMesseStueckliste();
+  // Steht zweimal auf der Seite (Bühne + Druck): eindeutige Id je Exemplar.
+  const titelId = useId();
   // Dieselbe Datei wie beim Knopf, nur zum Ansehen (Zeitstempel egal).
   const voai = buildVoaiStueckliste();
 
-  const herunterladen = () => {
-    // BOM, damit Excel die Umlaute richtig liest.
-    const blob = new Blob(["﻿" + messeStuecklisteCsv(zeilen)], {
-      type: "text/csv;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "stueckliste-messe-unterschrank-600.csv";
-    a.click();
-    // Safari/iPad braucht die URL noch kurz nach dem Klick.
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
-  // Datei im VOAI-Vertrag stueckliste/2, ohne Preise. Kein Aufruf an VOAI.
-  const anVoai = () => {
-    const text = JSON.stringify(buildVoaiStueckliste(), null, 2) + "\n";
-    const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "voai-stueckliste-messe-unterschrank-600.json";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
   return (
-    <section className="stueckliste" aria-labelledby="stueckliste-titel">
-      <div className="kopfzeile">
-        <h2 id="stueckliste-titel">Stückliste · Unterschrank 600</h2>
-        <button type="button" onClick={herunterladen}>
-          ⬇ CSV herunterladen
-        </button>
-        <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten drucken</Link>
-        <Link href="/beschlag/bohrplan?vorlage=messe">📐 Bohrplan</Link>
-        <button type="button" onClick={anVoai} title="JSON-Datei für den Angebots-Import in VOAI, ohne Preise">
-          ➜ An VOAI übergeben
-        </button>
-      </div>
-      <div className="rolle">
-        <table>
+    <section className="ms-stueckliste" aria-labelledby={titelId}>
+      <h2 id={titelId}>Stückliste · Unterschrank 600</h2>
+      <div className="ms-rolle">
+        <table className="ms-tab">
           <thead>
             <tr>
               <th>Gruppe</th>
               <th>Teil</th>
-              <th className="zahl">Stk.</th>
+              <th className="ms-zahl">Stk.</th>
               <th>Maß L × B × S (mm)</th>
               <th>Material</th>
               <th>Hinweis</th>
@@ -69,35 +56,35 @@ export function MesseStueckliste() {
           </thead>
           <tbody>
             {zeilen.map((z, i) => (
-              <tr key={i} className={z.annahme ? "annahme" : undefined}>
+              <tr key={i} className={z.annahme ? "ms-annahme" : undefined}>
                 <td>{z.gruppe}</td>
                 <td>{z.teil}</td>
-                <td className="zahl">{z.anzahl}</td>
+                <td className="ms-zahl">{z.anzahl}</td>
                 <td>{z.mass || "–"}</td>
                 <td>{z.material || "–"}</td>
                 <td>
-                  {z.annahme && <span className="marke">Annahme</span>} {z.hinweis}
+                  {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="fuss">
+      <p className="ms-fuss">
         Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, ohne Preise.
       </p>
 
-      <details className="voai" open>
+      <details className="ms-voai" open>
         <summary>
           Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen)
         </summary>
-        <div className="rolle">
-          <table>
+        <div className="ms-rolle">
+          <table className="ms-tab">
             <thead>
               <tr>
-                <th className="zahl">Pos.</th>
+                <th className="ms-zahl">Pos.</th>
                 <th>Position</th>
-                <th className="zahl">Menge</th>
+                <th className="ms-zahl">Menge</th>
                 <th>Einheit</th>
                 <th>Artikel</th>
               </tr>
@@ -105,17 +92,17 @@ export function MesseStueckliste() {
             <tbody>
               {voai.inhalt.positionen.map((p, i) => (
                 <tr key={p.position_ref}>
-                  <td className="zahl">{i + 1}</td>
+                  <td className="ms-zahl">{i + 1}</td>
                   <td>
                     {p.bezeichnung}
                     {p.masse_mm && (
-                      <span className="mass">
+                      <span className="ms-mass">
                         {" "}
                         · {p.masse_mm.laenge} × {p.masse_mm.breite} × {p.masse_mm.dicke} mm
                       </span>
                     )}
                   </td>
-                  <td className="zahl">{p.menge}</td>
+                  <td className="ms-zahl">{p.menge}</td>
                   <td>{p.einheit}</td>
                   <td>
                     {p.artikel_id
@@ -127,82 +114,80 @@ export function MesseStueckliste() {
             </tbody>
           </table>
         </div>
-        <p className="fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst.</p>
-        <details className="fuss">
+        <p className="ms-fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst.</p>
+        <details className="ms-fuss">
           <summary>Technik</summary>
           Format stueckliste/2 · Revision {voai.inhalt.revision} · Prüfsumme{" "}
           {voai.inhalt_sha256.slice(0, 12)}
         </details>
       </details>
 
-      <style jsx>{`
-        .stueckliste {
+      {/* Global mit Praefix ms-: die Stueckliste steht auf der Buehne und im Druck (styled-jsx-Scope reicht nicht). */}
+      <style jsx global>{`
+        .ms-stueckliste {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: var(--vi4-space-12);
         }
-        .kopfzeile {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.5rem;
-        }
-        h2 {
+        .ms-stueckliste h2 {
           margin: 0;
-          font-size: 1.2rem;
+          font-size: var(--vi4-type-1);
+          font-weight: var(--vi4-weight-medium);
         }
-        button {
-          padding: 0.45rem 0.9rem;
-          border-radius: 999px;
-          border: 1px solid currentColor;
-          background: transparent;
-          color: inherit;
-          font: inherit;
-          cursor: pointer;
-        }
-        .rolle {
+        .ms-rolle {
           overflow-x: auto;
         }
-        table {
+        .ms-tab {
           width: 100%;
           border-collapse: collapse;
-          font-size: 0.9rem;
+          font-size: var(--vi4-text-table);
         }
-        th,
-        td {
+        .ms-tab th,
+        .ms-tab td {
           text-align: left;
-          padding: 0.4rem 0.5rem;
-          border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+          padding: var(--vi4-space-4);
+          border-bottom: 1px solid var(--vi4-werk-rule);
           vertical-align: top;
         }
-        .zahl {
+        .ms-tab th {
+          font-weight: var(--vi4-weight-medium);
+        }
+        .ms-tab .ms-zahl {
           text-align: right;
+          font-variant-numeric: tabular-nums;
         }
-        tr.annahme td {
-          background: rgba(255, 140, 0, 0.1);
+        .ms-tab tr.ms-annahme td {
+          background: var(--vi4-fach-annahme-bg);
+          color: var(--vi4-fach-annahme-ink);
         }
-        .marke {
+        .ms-marke {
           display: inline-block;
-          padding: 0 0.4rem;
-          border-radius: 4px;
-          background: #e67e00;
-          color: #fff;
-          font-size: 0.75rem;
-          font-weight: 600;
+          padding: 0 var(--vi4-space-4);
+          border-radius: var(--vi4-radius-field);
+          border: 1px solid currentColor;
+          font-size: var(--vi4-text-meta);
+          font-weight: var(--vi4-weight-medium);
         }
-        .voai summary {
+        .ms-voai summary {
           cursor: pointer;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
+          font-weight: var(--vi4-weight-medium);
+          margin-bottom: var(--vi4-space-8);
         }
-        .mass {
+        .ms-mass {
           opacity: 0.7;
         }
-        .fuss {
+        .ms-fuss {
           margin: 0;
-          font-size: 0.85rem;
+          font-size: var(--vi4-text-meta);
           opacity: 0.75;
+        }
+        @media print {
+          .ms-voai {
+            break-before: page;
+          }
+          .ms-voai summary {
+            list-style: none;
+          }
         }
       `}</style>
     </section>
