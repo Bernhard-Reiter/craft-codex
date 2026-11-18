@@ -50,6 +50,7 @@ export function MesseStueckliste() {
           ⬇ CSV herunterladen
         </button>
         <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten drucken</Link>
+        <Link href="/beschlag/bohrplan?vorlage=messe">📐 Bohrplan</Link>
         <button type="button" onClick={anVoai} title="JSON-Datei für den Angebots-Import in VOAI, ohne Preise">
           ➜ An VOAI übergeben
         </button>
