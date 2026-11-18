@@ -183,3 +183,30 @@ export function MesseSchrankNebenTafel({
     </group>
   );
 }
+
+/** Bühne der 3D-Vorschau: Werkstück-Tafel ja/nein, Kamera und Drehpunkt in m. */
+export type Buehne = {
+  tafel: boolean;
+  kamera: [number, number, number];
+  ziel: [number, number, number];
+  fov: number;
+};
+
+/** Hawa/Blum wie bisher: Tafel zentriert, ein 2-m-Türblatt passt ganz ins Bild (sichtbare Höhe ≈ 2,4 m bei z = 2,9). */
+export const STANDARD_BUEHNE: Buehne = { tafel: true, kamera: [0, 0, 2.9], ziel: [0, 0, 0], fov: 45 };
+
+/**
+ * H7 Messe: keine graue Werkstück-Tafel, der Schrank steht allein (Ursprung = Mitte
+ * unten an der Front). Kamera näher und leicht von rechts oben, damit offene Tür und
+ * Kasten (M2/B4) Tiefe zeigen; Drehpunkt = halbe Korpushöhe.
+ */
+export const MESSE_BUEHNE: Buehne = {
+  tafel: false,
+  kamera: [0.75, 0.7, 1.35],
+  ziel: [0, (M.korpus.hoehe / 2) * SCALE_MM_TO_M, -0.05],
+  fov: 45,
+};
+
+export function buehneFuer(istMesse: boolean): Buehne {
+  return istMesse ? MESSE_BUEHNE : STANDARD_BUEHNE;
+}
