@@ -161,6 +161,8 @@ export type Etikett = {
   werkstoff: string;
   kanten: Kantenbild;
   position: string;
+  /** Welches Bohrplan-Blatt (/beschlag/bohrplan) für dieses Stück gilt. */
+  bohren: string;
   /** Maß oder Kantenbild ist Annahme. */
   annahme: boolean;
 };
@@ -175,18 +177,34 @@ const KEINE = K(false, false, false, false);
  * kein Kantenbild belegt; hier steht die übliche Werkstatt-Wahl
  * (Korpus Vorderkante, Fronten rundum, Rückwand und Schubkastenboden ohne).
  */
-const ETIKETT_DATEN: Record<string, { kanten: Kantenbild; positionen: string[] }> = {
-  Seite: { kanten: VORN, positionen: ["Korpus links", "Korpus rechts"] },
+type EtikettDaten = { kanten: Kantenbild; positionen: string[]; bohren?: string[] };
+const ETIKETT_DATEN: Record<string, EtikettDaten> = {
+  // Je Stück dasselbe Blatt wie im Bohrplan; die Tür schlägt links an, darum
+  // die Montageplatten nur auf der linken Seite.
+  Seite: {
+    kanten: VORN,
+    positionen: ["Korpus links", "Korpus rechts"],
+    bohren: [
+      "Blatt Korpusseite links: 2 Montageplatten + MOVENTO",
+      "Blatt Korpusseite rechts: nur MOVENTO",
+    ],
+  },
   Unterboden: { kanten: VORN, positionen: ["Korpus unten"] },
   Oberboden: { kanten: VORN, positionen: ["Korpus oben"] },
   "Rückwand": { kanten: KEINE, positionen: ["Korpus hinten"] },
-  "Tür": { kanten: RUNDUM, positionen: ["Front, Anschlag links"] },
+  "Tür": {
+    kanten: RUNDUM,
+    positionen: ["Front, Anschlag links"],
+    bohren: ["Blatt Tür: 2 Töpfe CLIP top"],
+  },
   "Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
   "Hinterstück": { kanten: VORN, positionen: ["Schubkasten hinten"] },
   "Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
   "Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
   Boden: { kanten: KEINE, positionen: ["Schubkasten unten"] },
 };
+
+const KEINE_BOHRUNG = "keine Bohrung im Bohrplan";
 
 /** Ein Etikett je Plattenteil (Beschläge und Teile ohne Maß fallen weg). */
 export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[] {
@@ -204,6 +222,7 @@ export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[]
         werkstoff: z.material,
         kanten: d?.kanten ?? KEINE,
         position: d?.positionen[i] ?? d?.positionen[0] ?? "nicht belegt",
+        bohren: d?.bohren?.[i] ?? d?.bohren?.[0] ?? KEINE_BOHRUNG,
         // Kantenbild ist immer Annahme (siehe ETIKETT_DATEN).
         annahme: true,
       });

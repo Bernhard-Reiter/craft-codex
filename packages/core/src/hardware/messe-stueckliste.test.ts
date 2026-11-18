@@ -54,6 +54,18 @@ describe("Etiketten Messe-Unterschrank", () => {
     }
   });
 
+  it("Bohren: jede Seite zeigt ihr eigenes Bohrplan-Blatt, Rest ohne Bohrung", () => {
+    const seiten = e.filter((x) => x.teil === "Seite");
+    expect(seiten.map((x) => [x.position, x.bohren])).toEqual([
+      ["Korpus links", "Blatt Korpusseite links: 2 Montageplatten + MOVENTO"],
+      ["Korpus rechts", "Blatt Korpusseite rechts: nur MOVENTO"],
+    ]);
+    expect(e.find((x) => x.teil === "Tür")!.bohren).toBe("Blatt Tür: 2 Töpfe CLIP top");
+    const rest = e.filter((x) => x.teil !== "Seite" && x.teil !== "Tür");
+    expect(rest).toHaveLength(8);
+    expect(new Set(rest.map((x) => x.bohren))).toEqual(new Set(["keine Bohrung im Bohrplan"]));
+  });
+
   it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {
     const t = (n: string) => e.find((x) => x.teil === n)!;
     expect(kantenText(t("Tür").kanten)).toBe("rundum");
