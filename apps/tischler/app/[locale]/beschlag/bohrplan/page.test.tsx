@@ -27,4 +27,15 @@ describe("Bohrplan Messe-Unterschrank", () => {
     });
     expect(container.textContent).not.toMatch(/Pos\.\s*\d/);
   });
+
+  it("Beschlag-Zeile auf Blatt 1–3 ohne alte Teilnamen (Korpusseite, Unterschrank-Tür)", () => {
+    const { container } = render(<BohrplanPage />);
+    const koepfe = [...container.querySelectorAll(".druck-blatt h2")].map((h) => h.textContent ?? "");
+    expect(koepfe.slice(0, 3)).toEqual([
+      "Tür 1 Links · Blum CLIP top BLUMOTION 110°",
+      "Seite Links · Montageplatten 173L6100 + MOVENTO 766H5000S",
+      "Seite Rechts · MOVENTO 766H5000S (spiegelbildlich)",
+    ]);
+    koepfe.forEach((k) => expect(k).not.toMatch(/Korpusseite|Unterschrank-Tür/));
+  });
 });

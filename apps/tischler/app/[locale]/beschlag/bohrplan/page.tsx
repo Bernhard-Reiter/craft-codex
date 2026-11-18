@@ -30,6 +30,8 @@ type Blatt = {
   breite: number;
   hoehe: number;
   layout: HardwareLayout;
+  /** Beschlag-Zeile im Blattkopf ohne alten Teilnamen (Druck nennt das Teil nur wie die Mappe). */
+  beschlag?: string;
   /** Annahme zum ganzen Blatt (orange), z. B. die Anzahl der Scharniere. */
   annahme?: string;
   /** Innenansicht gespiegelt: Vorderkante rechts im Bild (rechte Korpusseite). */
@@ -66,6 +68,7 @@ const BLAETTER: Blatt[] = [
     breite: M.tuer.breite,
     hoehe: M.tuer.hoehe,
     layout: buildBlumClipTopTuerLayout(M.tuer.breite, M.tuer.hoehe),
+    beschlag: "Blum CLIP top BLUMOTION 110°",
     annahme: M.annahmen[0],
   },
   {
@@ -74,6 +77,7 @@ const BLAETTER: Blatt[] = [
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
     layout: SEITE_LINKS,
+    beschlag: "Montageplatten 173L6100 + MOVENTO 766H5000S",
     lochreihe: true,
   },
   {
@@ -82,6 +86,7 @@ const BLAETTER: Blatt[] = [
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
     layout: SEITE_RECHTS,
+    beschlag: "MOVENTO 766H5000S (spiegelbildlich)",
     annahme:
       "Rechte Seite spiegelbildlich zur linken gezeichnet (Innenansicht, Vorderkante rechts im Bild). " +
       "Keine Montageplatten, weil die Tür links anschlägt.",
@@ -107,6 +112,7 @@ const BLAETTER: Blatt[] = [
 
 /** Blattkopf: Teilname wie in der Mappe, dann die Beschlag-Zeile (Name nicht doppelt, wenn sie schon damit beginnt). */
 function blattKopf(b: Blatt): string {
+  if (b.beschlag) return `${b.name} · ${b.beschlag}`;
   return b.layout.label.startsWith(b.name) ? b.layout.label : `${b.name} · ${b.layout.label}`;
 }
 
