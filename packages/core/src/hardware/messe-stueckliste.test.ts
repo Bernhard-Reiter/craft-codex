@@ -91,21 +91,30 @@ describe("Etiketten Messe-Unterschrank", () => {
     }
   });
 
-  it("Bohren wie cody-cad-Bohrbild: 5 Teile gebohrt, 6 ohne", () => {
-    const b = (teil: string, pos?: string) =>
-      e.find((x) => x.teil === teil && (!pos || x.position === pos))!.bohren;
-    expect(b("Seite Links", "Korpus links")).toEqual([
-      "Lochreihe ×50",
-      "MOVENTO-Schiene ×5",
-      "Montageplatte ×4",
-    ]);
-    expect(b("Seite Rechts", "Korpus rechts")).toEqual(["Lochreihe ×50", "MOVENTO-Schiene ×5"]);
-    expect(b("Tür 1 Links")).toEqual(["Topf ×2", "Schrauben ×4"]);
+  it("Bohren wie cody-cad-Bohrbild: 5 Teile gebohrt oder angerissen, 6 ohne", () => {
+    const x = (teil: string, pos?: string) =>
+      e.find((y) => y.teil === teil && (!pos || y.position === pos))!;
+    const b = (teil: string, pos?: string) => x(teil, pos).bohren;
+    const a = (teil: string, pos?: string) => x(teil, pos).anreissen;
+    expect(b("Seite Rechts", "Korpus rechts")).toEqual(["Lochreihe ×50"]);
+    expect(a("Seite Rechts", "Korpus rechts")).toEqual(["MOVENTO-Schiene ×5"]);
+    expect(b("Tür 1 Links")).toEqual(["Topf ×2"]);
+    expect(a("Tür 1 Links")).toEqual(["Schrauben ×4"]);
     expect(b("Schubkasten-Hinterstück")).toEqual(["Ø6 für MOVENTO ×2"]);
-    expect(b("Schubkasten-Boden")).toEqual(["Kupplung ×4"]);
+    expect(a("Schubkasten-Hinterstück")).toEqual([]);
+    // Nur Anriss: kein »keine Bohrung«, keine leere Bohren-Zeile.
+    expect(b("Schubkasten-Boden")).toEqual([]);
+    expect(a("Schubkasten-Boden")).toEqual(["Kupplung ×4"]);
+    expect(a("Rückwand")).toEqual([]);
     const keine = e.filter((x) => x.bohren.join() === "keine Bohrung").map((x) => x.teil);
     expect(keine).toHaveLength(6);
     expect(keine).toContain("Rückwand");
+  });
+
+  it("Seite Links trennt Bohren (Lochreihe) von Anreißen (MOVENTO-Schiene, Montageplatte)", () => {
+    const s = e.find((x) => x.teil === "Seite Links" && x.position === "Korpus links")!;
+    expect(s.bohren).toEqual(["Lochreihe ×50"]);
+    expect(s.anreissen).toEqual(["MOVENTO-Schiene ×5", "Montageplatte ×4"]);
   });
 
   it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {
