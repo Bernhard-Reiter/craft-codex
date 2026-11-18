@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildVoaiStueckliste, jcs, sha256Hex, VOAI_SCHEMA } from "./voai-uebergabe.js";
+import { buildVoaiStueckliste, jcs, sha256Hex, VOAI_REVISION, VOAI_SCHEMA } from "./voai-uebergabe.js";
 
 /** Golden-Vektor aus voai-waas contracts/stueckliste/2/fixtures/ok-freiposition-manuell-werkstoff-null.json */
 const GOLDEN_INHALT = {
@@ -67,5 +67,32 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
     expect(pos.filter((p) => p.typ === "artikel").map((p) => p.artikel_id)).toEqual([
       "blum:71B3550", "blum:173L6100", "blum:766H5000S", "blum:T51.7601",
     ]);
+  });
+
+  it("Blum-Artikel alle in stk, damit VOAI sie bepreist", () => {
+    const art = buildVoaiStueckliste().inhalt.positionen.filter((p) => p.typ === "artikel");
+    expect(art.map((p) => p.einheit)).toEqual(["stk", "stk", "stk", "stk"]);
+  });
+
+  it("jedes Plattenteil hat masse_mm mit Länge, Breite, Dicke > 0", () => {
+    const frei = buildVoaiStueckliste().inhalt.positionen.filter((p) => p.typ === "freiposition");
+    expect(frei).toHaveLength(11);
+    for (const p of frei) {
+      expect(p.masse_mm, p.bezeichnung ?? "").toBeDefined();
+      for (const k of ["laenge", "breite", "dicke"] as const) {
+        expect(p.masse_mm![k]).toMatch(/^[1-9]\d*$/);
+      }
+    }
+  });
+
+  it("Revision zählbar: andere Revision -> anderer Hash, ungültige wird abgelehnt", () => {
+    const t = new Date("2026-11-18T09:00:00Z");
+    const r1 = buildVoaiStueckliste(t);
+    const r2 = buildVoaiStueckliste(t, VOAI_REVISION + 1);
+    expect(r1.inhalt.revision).toBe(VOAI_REVISION);
+    expect(r2.inhalt.revision).toBe(VOAI_REVISION + 1);
+    expect(r2.inhalt_sha256).not.toBe(r1.inhalt_sha256);
+    expect(() => buildVoaiStueckliste(t, 0)).toThrow();
+    expect(() => buildVoaiStueckliste(t, 1.5)).toThrow();
   });
 });

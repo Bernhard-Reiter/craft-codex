@@ -21,13 +21,22 @@ const PROJEKT_REF = "c0dec0de-0000-4000-8000-00000000a600";
 const LISTE_REF = "c0dec0de-0000-4000-8000-00000000b600";
 const posRef = (i: number) => `c0dec0de-0000-4000-8000-${(0xc000 + i).toString(16).padStart(12, "0")}`;
 
-/** Blum-Teil in der Stückliste -> artikel_id + Einheit. */
-const BLUM: { treffer: RegExp; nr: string; einheit: "stk" | "satz" }[] = [
-  { treffer: /71B3550/, nr: "71B3550", einheit: "stk" },
-  { treffer: /173L6100/, nr: "173L6100", einheit: "stk" },
-  { treffer: /766H5000S/, nr: "766H5000S", einheit: "satz" },
-  { treffer: /T51\.7601/, nr: "T51.7601", einheit: "satz" },
+/**
+ * Blum-Teil in der Stückliste -> artikel_id. Alle als »stk«: VOAI bepreist nur stk,
+ * ein MOVENTO-Satz (Paar) bzw. ein Kupplungs-Satz zählt als 1 Stück.
+ */
+const BLUM: { treffer: RegExp; nr: string }[] = [
+  { treffer: /71B3550/, nr: "71B3550" },
+  { treffer: /173L6100/, nr: "173L6100" },
+  { treffer: /766H5000S/, nr: "766H5000S" },
+  { treffer: /T51\.7601/, nr: "T51.7601" },
 ];
+
+/**
+ * Revision der Liste. VOAI lehnt dieselbe liste_ref mit gleicher Revision und anderem
+ * Inhalt mit 409 ab -> nach jeder Maßänderung am Messe-Schrank um 1 hochzählen.
+ */
+export const VOAI_REVISION = 1;
 
 type Position = {
   position_ref: string;
@@ -71,7 +80,7 @@ function position(z: StuecklistenZeile, i: number): Position {
       typ: "artikel",
       artikel_id: b ? `blum:${b.nr}` : null,
       bezeichnung: z.teil,
-      einheit: b?.einheit ?? "stk",
+      einheit: "stk",
     };
   }
   const [laenge, breite, dicke] = z.mass.split(" × ");
@@ -149,12 +158,13 @@ export function sha256Hex(text: string): string {
   return Array.from(h, (x) => x.toString(16).padStart(8, "0")).join("");
 }
 
-/** Ganze Übergabe-Datei. `jetzt` nur für Tests fest. */
-export function buildVoaiStueckliste(jetzt = new Date()): VoaiStueckliste {
+/** Ganze Übergabe-Datei. `jetzt` nur für Tests fest, `revision` siehe VOAI_REVISION. */
+export function buildVoaiStueckliste(jetzt = new Date(), revision = VOAI_REVISION): VoaiStueckliste {
+  if (!Number.isInteger(revision) || revision < 1) throw new Error(`revision muss ganzzahlig ≥ 1 sein: ${revision}`);
   const positionen = buildMesseStueckliste()
     .map(position)
     .sort((a, b) => (a.position_ref < b.position_ref ? -1 : 1));
-  const inhalt = { projekt_ref: PROJEKT_REF, liste_ref: LISTE_REF, revision: 1, positionen };
+  const inhalt = { projekt_ref: PROJEKT_REF, liste_ref: LISTE_REF, revision, positionen };
   return {
     schema: VOAI_SCHEMA,
     inhalt,
