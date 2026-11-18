@@ -150,3 +150,76 @@ export function messeStuecklisteCsv(zeilen = buildMesseStueckliste()): string {
   );
   return [kopf.join(";"), ...reihen].join("\n") + "\n";
 }
+
+/**
+ * Kantenbild eines Plattenteils: welche Kanten bekommen Kantenband.
+ * l1/l2 = die zwei Kanten der Länge L (l1 = Sichtkante vorn bzw. oben),
+ * b1/b2 = die zwei Kanten der Breite B.
+ */
+export type Kantenbild = { l1: boolean; l2: boolean; b1: boolean; b2: boolean };
+
+export type Etikett = {
+  nr: number;
+  teil: string;
+  /** L × B × S in mm */
+  mass: string;
+  werkstoff: string;
+  kanten: Kantenbild;
+  position: string;
+  /** Maß oder Kantenbild ist Annahme. */
+  annahme: boolean;
+};
+
+const K = (l1: boolean, l2: boolean, b1: boolean, b2: boolean): Kantenbild => ({ l1, l2, b1, b2 });
+const VORN = K(true, false, false, false);
+const RUNDUM = K(true, true, true, true);
+const KEINE = K(false, false, false, false);
+
+/**
+ * Kantenbild + Position je Plattenteil. ANNAHME: in der Messe-Vorlage ist
+ * kein Kantenbild belegt; hier steht die übliche Werkstatt-Wahl
+ * (Korpus Vorderkante, Fronten rundum, Rückwand und Schubkastenboden ohne).
+ */
+const ETIKETT_DATEN: Record<string, { kanten: Kantenbild; positionen: string[] }> = {
+  Seite: { kanten: VORN, positionen: ["Korpus links", "Korpus rechts"] },
+  Unterboden: { kanten: VORN, positionen: ["Korpus unten"] },
+  Oberboden: { kanten: VORN, positionen: ["Korpus oben"] },
+  "Rückwand": { kanten: KEINE, positionen: ["Korpus hinten"] },
+  "Tür": { kanten: RUNDUM, positionen: ["Front oben, Anschlag links"] },
+  Schubkastenfront: { kanten: RUNDUM, positionen: ["Front unten"] },
+  "Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
+  "Hinterstück": { kanten: VORN, positionen: ["Schubkasten hinten"] },
+  "Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
+  "Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
+  Boden: { kanten: KEINE, positionen: ["Schubkasten unten"] },
+};
+
+/** Ein Etikett je Plattenteil (Beschläge und Teile ohne Maß fallen weg). */
+export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[] {
+  const aus: Etikett[] = [];
+  for (const z of zeilen) {
+    if (z.gruppe === "Beschlag" || !z.mass) continue;
+    const d = ETIKETT_DATEN[z.teil];
+    for (let i = 0; i < z.anzahl; i++) {
+      aus.push({
+        nr: aus.length + 1,
+        teil: z.teil,
+        mass: z.mass,
+        werkstoff: z.material,
+        kanten: d?.kanten ?? KEINE,
+        position: d?.positionen[i] ?? d?.positionen[0] ?? "nicht belegt",
+        // Kantenbild ist immer Annahme (siehe ETIKETT_DATEN).
+        annahme: true,
+      });
+    }
+  }
+  return aus;
+}
+
+/** Kantenbild als kurzer Text, z. B. »L1 vorn« oder »rundum«. */
+export function kantenText(k: Kantenbild): string {
+  const n = [k.l1 && "L1", k.l2 && "L2", k.b1 && "B1", k.b2 && "B2"].filter(Boolean);
+  if (n.length === 4) return "rundum";
+  if (n.length === 0) return "keine Kante";
+  return n.join(" + ");
+}

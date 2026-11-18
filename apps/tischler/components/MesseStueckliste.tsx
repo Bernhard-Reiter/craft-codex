@@ -6,6 +6,7 @@
  */
 
 import { buildMesseStueckliste, messeStuecklisteCsv } from "@craft-codex/core";
+import { Link } from "../i18n/navigation";
 
 export function MesseStueckliste() {
   const zeilen = buildMesseStueckliste();
@@ -31,6 +32,7 @@ export function MesseStueckliste() {
         <button type="button" onClick={herunterladen}>
           ⬇ CSV herunterladen
         </button>
+        <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten</Link>
       </div>
       <div className="rolle">
         <table>

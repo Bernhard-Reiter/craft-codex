@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { buildMesseStueckliste, messeStuecklisteCsv } from "./messe-stueckliste.js";
+import {
+  buildMesseEtiketten,
+  buildMesseStueckliste,
+  kantenText,
+  messeStuecklisteCsv,
+} from "./messe-stueckliste.js";
 
 describe("Stückliste Messe-Unterschrank", () => {
   const z = buildMesseStueckliste();
@@ -26,5 +31,34 @@ describe("Stückliste Messe-Unterschrank", () => {
     expect(csv).toContain("766H5000S");
     expect(csv).not.toMatch(/€|EUR|Preis/i);
     expect(csv.split("\n")[0]).toMatch(/^Gruppe;Teil;Anzahl/);
+  });
+});
+
+describe("Etiketten Messe-Unterschrank", () => {
+  const e = buildMesseEtiketten();
+
+  it("ein Etikett je Plattenteil, Seiten links + rechts getrennt, keine Beschläge", () => {
+    // 2 Seiten + Unter/Oberboden + Rückwand + Tür + SK-Front + 5 SK-Teile = 12
+    expect(e).toHaveLength(12);
+    expect(e.filter((x) => x.teil === "Seite").map((x) => x.position)).toEqual([
+      "Korpus links",
+      "Korpus rechts",
+    ]);
+    expect(e.some((x) => /Blum/.test(x.teil))).toBe(false);
+    expect(e.map((x) => x.nr)).toEqual(e.map((_, i) => i + 1));
+  });
+
+  it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {
+    const t = (n: string) => e.find((x) => x.teil === n)!;
+    expect(kantenText(t("Tür").kanten)).toBe("rundum");
+    expect(kantenText(t("Rückwand").kanten)).toBe("keine Kante");
+    expect(kantenText(t("Unterboden").kanten)).toBe("L1");
+    expect(e.every((x) => x.annahme)).toBe(true);
+  });
+
+  it("jedes Etikett hat eine eigene, belegte Position", () => {
+    const pos = e.map((x) => x.position);
+    expect(pos).not.toContain("nicht belegt");
+    expect(new Set(pos).size).toBe(e.length);
   });
 });
