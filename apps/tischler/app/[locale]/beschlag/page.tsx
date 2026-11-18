@@ -18,7 +18,7 @@ import { WorkflowController, openQuestions, mayRenderDrillPoints } from "@craft-
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { BeschlagScene } from "../../../components/BeschlagScene";
-import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
+import { buehneFuer, MesseSchrank } from "../../../components/MesseSchrank";
 import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, schrittAusSpeicher } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
@@ -63,6 +63,7 @@ export default function BeschlagPage() {
   const zeigtBohrungen = mayRenderDrillPoints(layout);
   const bohrungenHier = layout.points.filter((p) => p.stepId === schritt?.id);
   const istMesse = beschlag.id === "messe";
+  const buehne = buehneFuer(istMesse);
   const annahmenZahl = (beschlag.annahmen?.length ?? 0) + offen.length;
 
   // Die Hülle wird einmal gebaut; ihre Knöpfe lesen den Stand über Refs.
@@ -300,19 +301,15 @@ export default function BeschlagPage() {
         {/* Klasse der Bühne bleibt fest: huelle.js setzt vi4-buehne von außen, ein wechselndes className würde sie löschen. */}
         <div id="bs-buehne">
           {ansicht === "montage" || !istMesse ? (
-            /* Abstand so, dass ein 2-m-Türblatt ganz ins Bild passt: sichtbare Höhe ≈ 2,4 m bei z = 2,9. */
-            <Canvas camera={{ position: [0, 0, 2.9], fov: 45 }}>
+            /* Kamera nur beim Aufbau gelesen: key baut die Bühne neu, wenn zwischen Messe und Hawa/Blum gewechselt wird. */
+            <Canvas key={istMesse ? "messe" : "standard"} camera={{ position: buehne.kamera, fov: buehne.fov }}>
               <ambientLight intensity={0.75} />
               <directionalLight position={[1, 2, 3]} intensity={1.1} />
-              <BeschlagScene layout={layout} faceHeight={werkstueck.hoeheMm} activeStepId={schritt?.id} />
-              {istMesse && (
-                <MesseSchrankNebenTafel
-                  werkstueckBreiteMm={werkstueck.breiteMm}
-                  werkstueckHoeheMm={werkstueck.hoeheMm}
-                  activeStepId={schritt?.id}
-                />
+              {buehne.tafel && (
+                <BeschlagScene layout={layout} faceHeight={werkstueck.hoeheMm} activeStepId={schritt?.id} />
               )}
-              <OrbitControls makeDefault enablePan target={[0, 0, 0]} />
+              {istMesse && <MesseSchrank activeStepId={schritt?.id} />}
+              <OrbitControls makeDefault enablePan target={buehne.ziel} />
             </Canvas>
           ) : (
             <div className="papier-buehne">
