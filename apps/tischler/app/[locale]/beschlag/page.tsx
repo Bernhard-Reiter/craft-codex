@@ -19,7 +19,7 @@ import { useLocale } from "next-intl";
 import Script from "next/script";
 import { BeschlagScene } from "../../../components/BeschlagScene";
 import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
-import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei } from "../../../components/MesseStueckliste";
+import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, schrittAusSpeicher } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
 type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
@@ -41,6 +41,8 @@ const CSS = [
 
 /** Name ohne vorangestelltes Zeichen (»⭐ Messe-…« -> »Messe-…«), die Menüleiste zeigt Symbole selbst. */
 const klar = (s: string) => s.replace(/^[^\p{L}\p{N}]+/u, "");
+
+const MESSE_SCHRITT_KEY = "beschlag-messe-schritt";
 
 export default function BeschlagPage() {
   const locale = useLocale();
@@ -84,7 +86,26 @@ export default function BeschlagPage() {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
     setAnsicht(ansichtAusSuche(window.location.search));
+    // H3: Messe-Schritt überlebt Bohrplan/Etiketten/Menü (jeder Seitenwechsel lädt die Seite neu)
+    const messe = v === "messe" ? BESCHLAEGE.find((x) => x.id === "messe") : undefined;
+    if (messe) {
+      let roh: string | null = null;
+      try {
+        roh = window.sessionStorage.getItem(MESSE_SCHRITT_KEY);
+      } catch {
+        roh = null;
+      }
+      setIndex(schrittAusSpeicher(roh, new WorkflowController(messe.workflow).getSteps().length));
+    }
   }, []);
+  useEffect(() => {
+    if (beschlag.id !== "messe") return;
+    try {
+      window.sessionStorage.setItem(MESSE_SCHRITT_KEY, String(index));
+    } catch {
+      // ohne Speicher startet die Messe-Montage wieder bei Schritt 1
+    }
+  }, [index, beschlag.id]);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; Papier wird immer hell gedruckt.
   useEffect(() => {

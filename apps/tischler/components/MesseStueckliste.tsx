@@ -34,6 +34,12 @@ export function ansichtAusSuche(suche: string): "montage" | "stueckliste" {
   return q.get("vorlage") === "messe" && q.get("ansicht") === "stueckliste" ? "stueckliste" : "montage";
 }
 
+/** Gemerkter Montage-Schritt (sessionStorage, H3): ganze Zahl 0..zahl-1, sonst 0. */
+export function schrittAusSpeicher(roh: string | null, zahl: number): number {
+  const n = Number(roh);
+  return roh !== null && roh !== "" && Number.isInteger(n) && n >= 0 && n < zahl ? n : 0;
+}
+
 /** Rückweg vom Bohrplan: per »?blatt=n« geöffnet (aus der Stückliste) -> Stückliste, sonst 3D. */
 export function bohrplanRueckweg(suche: string, anzahl: number, locale: string): string {
   const basis = `/${locale}/beschlag?vorlage=messe`;
