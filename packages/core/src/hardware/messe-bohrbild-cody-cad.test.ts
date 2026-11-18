@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  MESSE_LOCHREIHE,
   MESSE_UNTERSCHRANK,
   buildMesseBodenLayout,
   buildMesseHinterstueckLayout,
@@ -31,5 +32,18 @@ describe("Messe-Bohrbild aus cody-cad", () => {
       expect(l.points.every((p) => p.offen)).toBe(true);
       expect(validateLayout(l)).toEqual([]);
     }
+  });
+
+  it("Druck nennt ein Werkstatt-Wort statt Code (kein »cody-cad«, kein »korpus.«)", () => {
+    const layouts = [buildMesseHinterstueckLayout(), buildMesseBodenLayout()];
+    const texte = [
+      MESSE_LOCHREIHE.annahme,
+      ...layouts.flatMap((l) => [l.label, l.source.document, ...l.points.map((p) => p.offen ?? "")]),
+    ];
+    for (const t of texte) expect(t).not.toMatch(/cody-cad|korpus\./);
+    expect(layouts.map((l) => l.source.document)).toEqual([
+      "Bohrbild aus der Zeichnung (Messe-Unterschrank)",
+      "Bohrbild aus der Zeichnung (Messe-Unterschrank)",
+    ]);
   });
 });

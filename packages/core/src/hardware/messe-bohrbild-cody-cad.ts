@@ -10,7 +10,7 @@
 
 import type { DrillPoint, HardwareLayout } from "./types.js";
 
-const QUELLE = { document: "cody-cad korpus.bohrbild (Messe-Unterschrank)", page: 0 } as const;
+const QUELLE = { document: "Bohrbild aus der Zeichnung (Messe-Unterschrank)", page: 0 } as const;
 
 /** Lochreihe je Korpusseite (Innenseite), wie die App sie heute rechnet. */
 export const MESSE_LOCHREIHE = {
@@ -23,7 +23,7 @@ export const MESSE_LOCHREIHE = {
   raster: 32,
   jeReihe: 25,
   // Maße stehen in der Tabellenzeile »LR«; der Satz nennt nur Herkunft und offenen Entscheid.
-  annahme: "Lochreihe nach App, Entscheid offen (Lage aus cody-cad korpus.bohrbild).",
+  annahme: "Lochreihe nach App, Entscheid offen (Lage aus dem Bohrbild der Zeichnung).",
 } as const;
 
 /** Alle Lochreihen-Bohrungen einer Korpusseite (x ab Vorderkante, y ab Unterkante). */
@@ -36,7 +36,7 @@ export function messeLochreihePunkte(): { x: number; y: number }[] {
 
 /** Schubkasten-Hinterstück 520 × 121: Ø6 für MOVENTO, Fläche hinten, y ab Unterkante. */
 export function buildMesseHinterstueckLayout(): HardwareLayout {
-  const offen = "Ø6-Lage aus cody-cad (Blum MOVENTO, Ablesung T3.5 Z. 22): 7 ab Seitenkante, 11 ab Unterkante, Annahme.";
+  const offen = "Ø6-Lage aus dem Bohrbild der Zeichnung (Blum MOVENTO, Ablesung T3.5 Z. 22): 7 ab Seitenkante, 11 ab Unterkante, Annahme.";
   const punkt = (x: number, i: number): DrillPoint => ({
     id: `oe6.${i + 1}`,
     frame: "schubkasten-hinterstueck",
@@ -64,7 +64,7 @@ export function buildMesseHinterstueckLayout(): HardwareLayout {
 
 /** Schubkasten-Boden 530 × 490: Kupplung T51.7601, Schrauben anreißen, Fläche unten, y ab Vorderkante. */
 export function buildMesseBodenLayout(): HardwareLayout {
-  const offen = "Kupplung-Lage aus cody-cad (Blum T51.7601): 16 / 36 ab Seitenkante, 8 ab Vorderkante, Annahme.";
+  const offen = "Kupplung-Lage aus dem Bohrbild der Zeichnung (Blum T51.7601): 16 / 36 ab Seitenkante, 8 ab Vorderkante, Annahme.";
   return {
     id: "messe-unterschrank-600--schubkasten-boden",
     status: "entwurf",
