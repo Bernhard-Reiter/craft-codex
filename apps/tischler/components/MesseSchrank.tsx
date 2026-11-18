@@ -197,13 +197,14 @@ export const STANDARD_BUEHNE: Buehne = { tafel: true, kamera: [0, 0, 2.9], ziel:
 
 /**
  * H7 Messe: keine graue Werkstück-Tafel, der Schrank steht allein (Ursprung = Mitte
- * unten an der Front). Kamera näher und leicht von rechts oben, damit offene Tür und
- * Kasten (M2/B4) Tiefe zeigen; Drehpunkt = halbe Korpushöhe.
+ * unten an der Front). Kamera von links oben, damit die linke Korpusseite (B3/M1)
+ * leuchtend zu sehen ist; Drehpunkt tiefer als halbe Höhe und z = 1,7, damit der
+ * ausgezogene Kasten (M2) und die offene Tür (B4/M2) ganz ins Bild passen.
  */
 export const MESSE_BUEHNE: Buehne = {
   tafel: false,
-  kamera: [0.75, 0.7, 1.35],
-  ziel: [0, (M.korpus.hoehe / 2) * SCALE_MM_TO_M, -0.05],
+  kamera: [-0.8, 0.65, 1.7],
+  ziel: [0, 0.35, -0.05],
   fov: 45,
 };
 

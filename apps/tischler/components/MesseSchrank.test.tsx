@@ -46,8 +46,39 @@ describe("Messe-Bühne (H7)", () => {
     const h = sichtHoehe(d, b.fov);
     expect(h).toBeGreaterThan(1.3 * M.korpus.hoehe * 0.001);
     expect(h).toBeLessThan(sichtHoehe(2.9, 45) * 0.7);
-    // Drehpunkt = halbe Korpushöhe; Kamera steht vor der offenen Tür (B4/M2 ragt ~Türbreite nach vorn)
-    expect(b.ziel[1]).toBeCloseTo(M.korpus.hoehe / 2 / 1000, 6);
+    // Kamera steht vor der offenen Tür (B4/M2 ragt ~Türbreite nach vorn)
     expect(b.kamera[2]).toBeGreaterThan(M.tuer.breite / 1000 + 0.3);
+  });
+
+  it("Messe: Kamera links der linken Seite (B3/M1), Kasten und offene Tür ganz im Bild", () => {
+    const b = buehneFuer(true);
+    const [B, H] = [M.korpus.breite / 1000, M.korpus.hoehe / 1000];
+    expect(b.kamera[0]).toBeLessThan(-B / 2); // sieht die Außenseite der linken Korpusseite
+    expect(b.ziel[1]).toBeLessThan(H / 2); // tiefer: Kasten unten nicht abgeschnitten
+    // Bildlage (−1..1 senkrecht) wie eine Perspektiv-Kamera mit fov senkrecht
+    const sub = (a: P3, c: P3): P3 => [a[0] - c[0], a[1] - c[1], a[2] - c[2]];
+    const dot = (a: P3, c: P3) => a[0] * c[0] + a[1] * c[1] + a[2] * c[2];
+    const norm = (a: P3): P3 => {
+      const l = Math.hypot(...a);
+      return [a[0] / l, a[1] / l, a[2] / l];
+    };
+    const f = norm(sub(b.ziel, b.kamera));
+    const r = norm([-f[2], 0, f[0]]); // f × (0,1,0)
+    const u: P3 = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
+    const t = Math.tan(((b.fov / 2) * Math.PI) / 180);
+    const bildY = (p: P3) => {
+      const d = sub(p, b.kamera);
+      return dot(d, u) / dot(d, f) / t;
+    };
+    const auszug = 0.4; // AUSZUG_MM
+    const tuerX = -B / 2 - 0.1; // offene Tür (99°) steht etwas links der Seite
+    const punkte: P3[] = [
+      [0, 0.03, auszug], // Kasten vorn unten (M2)
+      [-B / 2, 0, 0], // Korpus vorn unten links
+      [-B / 2, H, -M.korpus.tiefe / 1000], // linke Seite oben hinten (B3/M1)
+      [tuerX, H, M.tuer.breite / 1000], // Türspitze oben
+      [tuerX, 0, M.tuer.breite / 1000], // Türspitze unten
+    ];
+    for (const p of punkte) expect(Math.abs(bildY(p))).toBeLessThan(0.95);
   });
 });
