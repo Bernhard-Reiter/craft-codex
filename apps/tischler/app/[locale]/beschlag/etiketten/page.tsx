@@ -224,7 +224,7 @@ export default function EtikettenPage() {
           }
           .raster {
             max-width: none;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 4mm;
           }
           /* Papier ohne Hintergrund: Etikett-Rand sichtbar zum Ausschneiden. */

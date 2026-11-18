@@ -2,16 +2,20 @@
 
 /**
  * Bohrplan zum Messe-Unterschrank — Druckansicht, je gebohrter Platte eine
- * bemaßte Skizze + Bohrtabelle. Nur die Bohrungen der Blum-Teile, keine
- * Lochreihe. Maße aus core (dieselben Layouts wie AR/2D), keine Preise.
+ * bemaßte Skizze + Bohrtabelle. Blum-Teile + Lochreihe, Ø6 Hinterstück und
+ * Kupplung Boden (Lagen aus cody-cad). Maße aus core, keine Preise.
  * Jede Bohrung mit `offen` erscheint orange mit Quelle »Annahme«.
  */
 
 import {
   buildBlumClipTopTuerLayout,
+  buildMesseBodenLayout,
+  buildMesseHinterstueckLayout,
   buildMesseStueckliste,
   buildMesseUnterschrankSeiteLayout,
+  MESSE_LOCHREIHE,
   MESSE_UNTERSCHRANK,
+  messeLochreihePunkte,
   type HardwareLayout,
 } from "@craft-codex/core";
 import { useLocale } from "next-intl";
@@ -29,7 +33,13 @@ type Blatt = {
   annahme?: string;
   /** Innenansicht gespiegelt: Vorderkante rechts im Bild (rechte Korpusseite). */
   gespiegelt?: boolean;
+  /** Lochreihe (cody-cad) mitzeichnen: Punkte ohne Nummer, eine Zeile in der Tabelle. */
+  lochreihe?: boolean;
+  /** Bezugskante für y, wenn sie nicht Ober-/Unterkante heißt (Boden: Vorderkante unten im Blatt). */
+  yAb?: string;
 };
+
+const LOCHREIHE = messeLochreihePunkte();
 
 const SEITE_LINKS = buildMesseUnterschrankSeiteLayout();
 
@@ -61,6 +71,7 @@ const BLAETTER: Blatt[] = [
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
     layout: SEITE_LINKS,
+    lochreihe: true,
   },
   {
     teil: "Seite",
@@ -71,6 +82,20 @@ const BLAETTER: Blatt[] = [
       "Rechte Seite spiegelbildlich zur linken gezeichnet (Innenansicht, Vorderkante rechts im Bild). " +
       "Keine Montageplatten, weil die Tür links anschlägt.",
     gespiegelt: true,
+    lochreihe: true,
+  },
+  {
+    teil: "Hinterstück",
+    breite: 520,
+    hoehe: 121,
+    layout: buildMesseHinterstueckLayout(),
+  },
+  {
+    teil: "Boden",
+    breite: 530,
+    hoehe: 490,
+    layout: buildMesseBodenLayout(),
+    yAb: "Vorderkante",
   },
 ];
 
@@ -89,6 +114,7 @@ function annahmen(l: HardwareLayout): string[] {
 }
 
 function quelle(l: HardwareLayout): string {
+  if (!l.source.page) return `Quelle: ${l.source.document}`;
   return `Blum-Datenblatt ${l.source.document}, S. ${l.source.page}`;
 }
 
@@ -149,6 +175,22 @@ function Skizze({ b }: { b: Blatt }) {
       >
         {b.hoehe} mm
       </text>
+      {b.lochreihe && (
+        <g aria-label="Lochreihe">
+          {LOCHREIHE.map((q) => (
+            <circle
+              key={`${q.x}-${q.y}`}
+              cx={(b.gespiegelt ? b.breite - q.x : q.x) * s}
+              cy={(b.hoehe - q.y) * s}
+              r={3}
+              fill="none"
+              stroke="var(--vi4-fach-bohr-lochreihe)"
+              strokeWidth="1"
+              strokeDasharray="2.5 1.5"
+            />
+          ))}
+        </g>
+      )}
       {marken.map(({ p, i, cx, cy, r, lx, ly, farbe }) => (
         <g key={p.id}>
           <circle
@@ -274,7 +316,7 @@ export default function BohrplanPage() {
             id: `blatt-${i}`,
             verb: "teil",
             wort: kurzName(b),
-            kurz: () => `${b.layout.points.length} Bohrungen`,
+            kurz: () => `${b.layout.points.length + (b.lochreihe ? LOCHREIHE.length : 0)} Bohrungen`,
             an: () => nrRef.current === i,
             tun: () => setNr(i),
           })),
@@ -349,8 +391,7 @@ export default function BohrplanPage() {
               {b.layout.label}
             </h1>
             <p className="klein">
-              B {b.breite} × H {b.hoehe} mm · Tür-Anschlag {b.layout.anschlag} · Status{" "}
-              {b.layout.status.charAt(0).toUpperCase() + b.layout.status.slice(1)}
+              {kopfZeile(b)}
             </p>
             <Skizze b={b} />
           </div>
@@ -372,20 +413,14 @@ export default function BohrplanPage() {
                   </li>
                 ))}
               </ol>
-              <h2>Nicht gezeichnet</h2>
-              <ul>
-                {/* Anzahlen wie auf den Etiketten (Bohrbild cody-cad), Lage noch nicht gezeichnet. */}
-                <li>Lochreihe: 50 Bohrungen je Korpusseite, Lage folgt.</li>
-                <li>Schubkasten-Hinterstück: Ø6 für MOVENTO ×2, Lage folgt.</li>
-                <li>Schubkasten-Boden: Kupplung T51.7601 ×4, Lage folgt.</li>
-              </ul>
             </>
           ) : (
             <>
               <h2>Herkunft</h2>
               <p>
-                Nur die Bohrungen der Blum-Teile (CLIP top 71B3550, Montageplatte 173L6100, MOVENTO
-                766H5000S). Maße aus denselben Daten wie AR und Stückliste.
+                Bohrungen der Blum-Teile (CLIP top 71B3550, Montageplatte 173L6100, MOVENTO
+                766H5000S), dazu Lochreihe, Ø6 Hinterstück und Kupplung Boden mit Lagen aus cody-cad. Maße aus
+                denselben Daten wie AR und Stückliste.
               </p>
               <p>{quelle(b.layout)}</p>
               <p className="klein">Gestrichelter Kreis = Lage ist eine Annahme.</p>
@@ -399,12 +434,6 @@ export default function BohrplanPage() {
         {BLAETTER.map((d) => (
           <DruckBlatt key={d.layout.id} b={d} />
         ))}
-        <h3>Nicht gezeichnet</h3>
-        <ul>
-          <li>Lochreihe: 50 Bohrungen je Korpusseite, Lage folgt.</li>
-          <li>Schubkasten-Hinterstück: Ø6 für MOVENTO ×2, Lage folgt.</li>
-          <li>Schubkasten-Boden: Kupplung T51.7601 ×4, Lage folgt.</li>
-        </ul>
       </section>
 
       <style jsx>{`
@@ -561,7 +590,7 @@ export default function BohrplanPage() {
           #bp-druck .skizze {
             display: block;
             width: 100%;
-            max-height: 10cm;
+            max-height: 7.5cm;
           }
           #bp-druck ol,
           #bp-druck ul {
@@ -570,6 +599,10 @@ export default function BohrplanPage() {
           }
           #bp-druck .annahme-satz {
             margin-left: 0;
+          }
+          /* Papier ist breit genug: Werkzeug + Annahme-Marke in einer Zeile, damit jedes Blatt auf eine Seite passt. */
+          #bp-druck .bp-tab td:last-child {
+            white-space: nowrap;
           }
         }
       `}</style>
@@ -601,7 +634,7 @@ function Tabelle({ b }: { b: Blatt }) {
             </td>
             <td>{de(p.x)}</td>
             <td>
-              {de(p.y)} ab {p.yRef === "oberkante" ? "Oberkante" : "Unterkante"}
+              {de(p.y)} ab {b.yAb ?? (p.yRef === "oberkante" ? "Oberkante" : "Unterkante")}
             </td>
             <td>{de(p.diameter)}</td>
             {/* depth ist bei Schrauben die Schraubenlänge, darum das Werkzeug zeigen. */}
@@ -611,6 +644,23 @@ function Tabelle({ b }: { b: Blatt }) {
             </td>
           </tr>
         ))}
+        {b.lochreihe && (
+          <tr>
+            <td>
+              <b style={{ color: "var(--vi4-fach-bohr-lochreihe)" }}>LR</b>
+            </td>
+            <td>{MESSE_LOCHREIHE.abVorne.join(" / ")}</td>
+            <td>
+              {de(MESSE_LOCHREIHE.vonUnten)} bis {de(LOCHREIHE[LOCHREIHE.length - 1]?.y ?? 0)} ab Unterkante, Raster{" "}
+              {MESSE_LOCHREIHE.raster} (×{LOCHREIHE.length})
+            </td>
+            <td>{de(MESSE_LOCHREIHE.durchmesser)}</td>
+            <td>
+              Bohrer Ø{MESSE_LOCHREIHE.durchmesser}, Tiefe {MESSE_LOCHREIHE.tiefe}
+              <span className="annahme">Annahme {saetze.indexOf(MESSE_LOCHREIHE.annahme) + 1}</span>
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
   );
@@ -627,9 +677,7 @@ function DruckBlatt({ b }: { b: Blatt }) {
         {b.layout.label}
       </h2>
       <p className="klein">
-        B {b.breite} × H {b.hoehe} mm · Tür-Anschlag {b.layout.anschlag} · Status{" "}
-        {b.layout.status.charAt(0).toUpperCase() + b.layout.status.slice(1)} · ENTWURF, Bohrmaße vor dem Bohren
-        prüfen
+        {kopfZeile(b)} · ENTWURF, Bohrmaße vor dem Bohren prüfen
       </p>
       <Skizze b={b} />
       <h3>Bohrtabelle · {kurzName(b)}</h3>
@@ -657,9 +705,20 @@ function kurzName(b: Blatt): string {
   return b.gespiegelt ? "Seite rechts" : "Seite links";
 }
 
+/** Unterzeile: Maße, Tür-Anschlag nur bei Tür und Korpusseiten, Status, Lochreihen-Hinweis. */
+function kopfZeile(b: Blatt): string {
+  const anschlag = b.teil === "Tür" || b.teil === "Seite" ? ` · Tür-Anschlag ${b.layout.anschlag}` : "";
+  const status = b.layout.status.charAt(0).toUpperCase() + b.layout.status.slice(1);
+  return `B ${b.breite} × H ${b.hoehe} mm${anschlag} · Status ${status}${b.lochreihe ? " · Lochreihe nach App, Entscheid offen" : ""}`;
+}
+
 /** Blatt-Annahme + Annahmen der Bohrungen, jeder Satz einmal. */
 function annahmenAlle(b: Blatt): string[] {
-  return [...(b.annahme ? [b.annahme] : []), ...annahmen(b.layout)];
+  return [
+    ...(b.annahme ? [b.annahme] : []),
+    ...annahmen(b.layout),
+    ...(b.lochreihe ? [MESSE_LOCHREIHE.annahme] : []),
+  ];
 }
 
 function blatt(i: number): Blatt {
