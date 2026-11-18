@@ -46,6 +46,12 @@ describe("Etiketten Messe-Unterschrank", () => {
     ]);
     expect(e.some((x) => /Blum/.test(x.teil))).toBe(false);
     expect(e.map((x) => x.nr)).toEqual(e.map((_, i) => i + 1));
+    // Pos. = Zeile der Stückliste, gleiche Nummer wie in der VOAI-Vorschau.
+    const zeilen = buildMesseStueckliste();
+    for (const x of e) {
+      expect(zeilen[x.pos - 1]!.teil).toBe(x.teil);
+      expect(x.stueck).toMatch(/^\d+\/\d+$/);
+    }
   });
 
   it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {

@@ -49,7 +49,7 @@ export function MesseStueckliste() {
         <button type="button" onClick={herunterladen}>
           ⬇ CSV herunterladen
         </button>
-        <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten</Link>
+        <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten drucken</Link>
         <button type="button" onClick={anVoai} title="JSON-Datei für den Angebots-Import in VOAI, ohne Preise">
           ➜ An VOAI übergeben
         </button>
@@ -117,7 +117,11 @@ export function MesseStueckliste() {
                   </td>
                   <td className="zahl">{p.menge}</td>
                   <td>{p.einheit}</td>
-                  <td>{p.artikel_id ? p.artikel_id.replace(/^blum:/, "Blum ") : "Platte (frei)"}</td>
+                  <td>
+                    {p.artikel_id
+                      ? p.artikel_id.replace(/^blum:/, "Blum ")
+                      : (zeilen[i]?.material ?? "Platte (frei)")}
+                  </td>
                 </tr>
               ))}
             </tbody>

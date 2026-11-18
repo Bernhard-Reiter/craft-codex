@@ -46,8 +46,9 @@ export default function EtikettenPage() {
         {etiketten.map((e) => (
           <article key={e.nr} className="etikett">
             <div className="zeile1">
-              <span className="nr">#{e.nr}</span>
+              <span className="nr">Pos. {e.pos}</span>
               <strong>{e.teil}</strong>
+              {e.stueck !== "1/1" && <span className="nr">{e.stueck}</span>}
             </div>
             <div className="mass">{e.mass} mm</div>
             <div className="werkstoff">{e.werkstoff}</div>

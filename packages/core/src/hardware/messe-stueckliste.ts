@@ -160,6 +160,10 @@ export type Kantenbild = { l1: boolean; l2: boolean; b1: boolean; b2: boolean };
 
 export type Etikett = {
   nr: number;
+  /** Zeile in der Stückliste (= Pos. in der VOAI-Vorschau). */
+  pos: number;
+  /** z. B. »1/2« bei zwei gleichen Teilen. */
+  stueck: string;
   teil: string;
   /** L × B × S in mm */
   mass: string;
@@ -197,12 +201,14 @@ const ETIKETT_DATEN: Record<string, { kanten: Kantenbild; positionen: string[] }
 /** Ein Etikett je Plattenteil (Beschläge und Teile ohne Maß fallen weg). */
 export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[] {
   const aus: Etikett[] = [];
-  for (const z of zeilen) {
+  for (const [zi, z] of zeilen.entries()) {
     if (z.gruppe === "Beschlag" || !z.mass) continue;
     const d = ETIKETT_DATEN[z.teil];
     for (let i = 0; i < z.anzahl; i++) {
       aus.push({
         nr: aus.length + 1,
+        pos: zi + 1,
+        stueck: `${i + 1}/${z.anzahl}`,
         teil: z.teil,
         mass: z.mass,
         werkstoff: z.material,
