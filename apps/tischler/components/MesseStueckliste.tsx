@@ -14,6 +14,8 @@ import { Link } from "../i18n/navigation";
 
 export function MesseStueckliste() {
   const zeilen = buildMesseStueckliste();
+  // Dieselbe Datei wie beim Knopf, nur zum Ansehen (Zeitstempel egal).
+  const voai = buildVoaiStueckliste();
 
   const herunterladen = () => {
     // BOM, damit Excel die Umlaute richtig liest.
@@ -84,6 +86,46 @@ export function MesseStueckliste() {
         Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, ohne Preise.
       </p>
 
+      <details className="voai" open>
+        <summary>
+          Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen, Revision{" "}
+          {voai.inhalt.revision}, Prüfsumme {voai.inhalt_sha256.slice(0, 12)})
+        </summary>
+        <div className="rolle">
+          <table>
+            <thead>
+              <tr>
+                <th className="zahl">Pos.</th>
+                <th>Position</th>
+                <th className="zahl">Menge</th>
+                <th>Einheit</th>
+                <th>Artikel</th>
+              </tr>
+            </thead>
+            <tbody>
+              {voai.inhalt.positionen.map((p, i) => (
+                <tr key={p.position_ref}>
+                  <td className="zahl">{i + 1}</td>
+                  <td>
+                    {p.bezeichnung}
+                    {p.masse_mm && (
+                      <span className="mass">
+                        {" "}
+                        · {p.masse_mm.laenge} × {p.masse_mm.breite} × {p.masse_mm.dicke} mm
+                      </span>
+                    )}
+                  </td>
+                  <td className="zahl">{p.menge}</td>
+                  <td>{p.einheit}</td>
+                  <td>{p.artikel_id ? p.artikel_id.replace(/^blum:/, "Blum ") : "Platte (frei)"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst. Format stueckliste/2.</p>
+      </details>
+
       <style jsx>{`
         .stueckliste {
           display: flex;
@@ -139,6 +181,14 @@ export function MesseStueckliste() {
           color: #fff;
           font-size: 0.75rem;
           font-weight: 600;
+        }
+        .voai summary {
+          cursor: pointer;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+        }
+        .mass {
+          opacity: 0.7;
         }
         .fuss {
           margin: 0;
