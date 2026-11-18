@@ -57,7 +57,9 @@ export default function EtikettenPage() {
               <div>
                 <div>Kante: {kantenText(e.kanten)}</div>
                 <div>Position: {e.position}</div>
-                <div>Bohren: {e.bohren}</div>
+                {e.bohren.map((b) => (
+                  <div key={b}>Bohren: {b}</div>
+                ))}
                 {e.annahme && <div className="marke">Annahme</div>}
               </div>
             </div>

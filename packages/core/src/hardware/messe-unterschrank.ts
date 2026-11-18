@@ -117,6 +117,7 @@ export function buildMesseUnterschrankSeiteLayout(): HardwareLayout {
 
   const m = BLUM_MOVENTO;
   const yLinie = PLATTE + m.schraublinieUeberBoden;
+  const offeneX = m.schrauben.filter((s) => s.x < KORPUS.tiefe && !s.bestaetigt).map((s) => s.x);
   const schiene: DrillPoint[] = m.schrauben
     .filter((s) => s.x < KORPUS.tiefe)
     .map((s) => ({
@@ -132,7 +133,10 @@ export function buildMesseUnterschrankSeiteLayout(): HardwareLayout {
       offen:
         `Schraublinie ${m.schraublinieUeberBoden} über OK Unterboden ist eine Annahme ` +
         `(Blum-Konfigurator), Boden ${PLATTE} aus dem Demo-Katalog.` +
-        (s.bestaetigt ? "" : ` Der Abstand ${s.x} ab Vorderkante ist nicht bestätigt.`),
+        // Ein Satz für die ganze Gruppe (im Bohrplan nur einmal gezeigt).
+        (offeneX.length
+          ? ` Abstände ${offeneX.join(" / ")} ab Vorderkante nicht bestätigt.`
+          : ""),
     }));
 
   return {

@@ -103,7 +103,7 @@ export default function BeschlagPage() {
             <ul>
               {offen.map((o) => (
                 <li key={o.pointId}>
-                  <code>{o.pointId}</code> — {o.frage}
+                  {o.frage}
                 </li>
               ))}
             </ul>

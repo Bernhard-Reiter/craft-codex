@@ -62,9 +62,11 @@ const TUER_FRAME = "door.faceA.topLeft";
 const SEITE_FRAME = "carcass.left.inner.frontTop";
 
 const LAGE_OFFEN =
-  "Lage nicht belegt: Bohrmitte 22,5 mm ab Anschlagkante und 100 mm ab " +
-  "Ober-/Unterkante sind Werkstatt-Annahmen (tischlerei-standard.json, " +
-  "FreeCAD-Test). Bernhard bestätigt — dann WERKSTATT_LAGE.bestaetigt = true.";
+  "Lage noch nicht vom Tischler bestätigt: Bohrmitte 22,5 mm ab Anschlagkante " +
+  "und 100 mm ab Ober-/Unterkante sind Werkstatt-Annahmen.";
+
+/** Zahl mit deutschem Komma (22,5 statt 22.5). */
+const de = (n: number) => String(n).replace(".", ",");
 
 function lageBestaetigt(): boolean {
   return (
@@ -92,7 +94,9 @@ function scharnier(
       diameter: b.topfDurchmesser,
       // Untergrenze des belegten Bereichs 10,5–13; der Bereich steht im Werkzeug.
       depth: b.topfTiefeMin,
-      tool: `Forstner Ø ${b.topfDurchmesser} · Tiefe ${b.topfTiefeMin}–${b.topfTiefeMax} mm`,
+      tool:
+        `Forstner Ø ${b.topfDurchmesser} · ` +
+        `Tiefe ${de(b.topfTiefeMin)}–${de(b.topfTiefeMax)} mm`,
       stepId: "B1.topf_bohren",
       ...(offen ? { offen } : {}),
     },

@@ -79,6 +79,14 @@ function posVon(teil: string): number | undefined {
   return i < 0 ? undefined : i + 1;
 }
 
+/** Zahl mit deutschem Komma (22,5 statt 22.5). */
+const de = (n: number) => String(n).replace(".", ",");
+
+/** Jeder Annahme-Satz nur einmal je Blatt; die Zeile trägt nur die Nummer. */
+function annahmen(l: HardwareLayout): string[] {
+  return [...new Set(l.points.flatMap((p) => (p.offen ? [p.offen] : [])))];
+}
+
 function quelle(l: HardwareLayout): string {
   return `Blum-Datenblatt ${l.source.document}, S. ${l.source.page}`;
 }
@@ -143,6 +151,7 @@ export default function BohrplanPage() {
       {BLAETTER.map((b) => {
         const xFrom = b.layout.chains.find((c) => c.axis === "x")?.from ?? "linke Kante";
         const pos = posVon(b.teil);
+        const saetze = annahmen(b.layout);
         return (
           <section key={b.layout.id} className="blatt">
             <h2>
@@ -172,21 +181,34 @@ export default function BohrplanPage() {
                 </thead>
                 <tbody>
                   {b.layout.points.map((p, i) => (
-                    <tr key={p.id} className={p.offen ? "offen" : undefined}>
+                    <tr key={p.id}>
                       <td>{i + 1}</td>
-                      <td>{p.x}</td>
+                      <td>{de(p.x)}</td>
                       <td>
-                        {p.y} ab {p.yRef === "oberkante" ? "Oberkante" : "Unterkante"}
+                        {de(p.y)} ab {p.yRef === "oberkante" ? "Oberkante" : "Unterkante"}
                       </td>
-                      <td>{p.diameter}</td>
+                      <td>{de(p.diameter)}</td>
                       {/* depth ist bei Schrauben die Schraubenlänge, darum das Werkzeug zeigen. */}
                       <td>{p.tool}</td>
-                      <td>{p.offen ? <>Annahme: {p.offen}</> : quelle(b.layout)}</td>
+                      <td>
+                        {p.offen ? (
+                          <span className="o">Annahme {saetze.indexOf(p.offen) + 1}</span>
+                        ) : (
+                          quelle(b.layout)
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            {saetze.length > 0 && (
+              <ol className="annahmen o">
+                {saetze.map((t) => (
+                  <li key={t}>Annahme: {t}</li>
+                ))}
+              </ol>
+            )}
           </section>
         );
       })}
@@ -194,7 +216,10 @@ export default function BohrplanPage() {
       <section className="blatt">
         <h2>Nicht gezeichnet</h2>
         <ul className="o">
-          <li>Kupplung T51.7601: keine Bohrdaten in der Vorlage.</li>
+          {/* Anzahlen wie auf den Etiketten (Bohrbild cody-cad), Lage noch nicht gezeichnet. */}
+          <li>Lochreihe: 50 Bohrungen je Korpusseite, Lage folgt.</li>
+          <li>Schubkasten-Hinterstück: Ø6 für MOVENTO ×2, Lage folgt.</li>
+          <li>Schubkasten-Boden: Kupplung T51.7601 ×4, Lage folgt.</li>
         </ul>
       </section>
 
@@ -268,8 +293,9 @@ export default function BohrplanPage() {
           border-bottom: 1px solid rgba(127, 127, 127, 0.3);
           vertical-align: top;
         }
-        tr.offen td {
-          color: ${ORANGE};
+        .annahmen {
+          margin: 0.5rem 0 0;
+          font-size: 0.85rem;
         }
         @media print {
           .knoepfe {

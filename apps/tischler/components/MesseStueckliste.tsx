@@ -89,8 +89,7 @@ export function MesseStueckliste() {
 
       <details className="voai" open>
         <summary>
-          Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen, Revision{" "}
-          {voai.inhalt.revision}, Prüfsumme {voai.inhalt_sha256.slice(0, 12)})
+          Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen)
         </summary>
         <div className="rolle">
           <table>
@@ -128,7 +127,12 @@ export function MesseStueckliste() {
             </tbody>
           </table>
         </div>
-        <p className="fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst. Format stueckliste/2.</p>
+        <p className="fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst.</p>
+        <details className="fuss">
+          <summary>Technik</summary>
+          Format stueckliste/2 · Revision {voai.inhalt.revision} · Prüfsumme{" "}
+          {voai.inhalt_sha256.slice(0, 12)}
+        </details>
       </details>
 
       <style jsx>{`

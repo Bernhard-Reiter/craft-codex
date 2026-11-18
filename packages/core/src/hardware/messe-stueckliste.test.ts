@@ -19,6 +19,10 @@ describe("Stückliste Messe-Unterschrank", () => {
     expect(teil("Schubkastenfront")).toBeUndefined();
   });
 
+  it("Messe-Ansicht ohne Werkstatt-Wörter (C-Befund G1)", () => {
+    expect(z.map((r) => r.hinweis).join(" ")).not.toMatch(/cody-cad|Meister|Bernhard|\.json/);
+  });
+
   it("Schubkastenteile sauber in Name und Maß getrennt", () => {
     expect(teil("Vorderstück")?.mass).toBe("520 × 121 × 16");
     expect(teil("Boden")?.mass).toBe("530 × 490 × 16");
@@ -54,16 +58,21 @@ describe("Etiketten Messe-Unterschrank", () => {
     }
   });
 
-  it("Bohren: jede Seite zeigt ihr eigenes Bohrplan-Blatt, Rest ohne Bohrung", () => {
-    const seiten = e.filter((x) => x.teil === "Seite");
-    expect(seiten.map((x) => [x.position, x.bohren])).toEqual([
-      ["Korpus links", "Blatt Korpusseite links: 2 Montageplatten + MOVENTO"],
-      ["Korpus rechts", "Blatt Korpusseite rechts: nur MOVENTO"],
+  it("Bohren wie cody-cad-Bohrbild: 5 Teile gebohrt, 6 ohne", () => {
+    const b = (teil: string, pos?: string) =>
+      e.find((x) => x.teil === teil && (!pos || x.position === pos))!.bohren;
+    expect(b("Seite", "Korpus links")).toEqual([
+      "Lochreihe ×50",
+      "MOVENTO-Schiene ×5",
+      "Montageplatte ×4",
     ]);
-    expect(e.find((x) => x.teil === "Tür")!.bohren).toBe("Blatt Tür: 2 Töpfe CLIP top");
-    const rest = e.filter((x) => x.teil !== "Seite" && x.teil !== "Tür");
-    expect(rest).toHaveLength(8);
-    expect(new Set(rest.map((x) => x.bohren))).toEqual(new Set(["keine Bohrung im Bohrplan"]));
+    expect(b("Seite", "Korpus rechts")).toEqual(["Lochreihe ×50", "MOVENTO-Schiene ×5"]);
+    expect(b("Tür")).toEqual(["Topf ×2", "Schrauben ×4"]);
+    expect(b("Hinterstück")).toEqual(["Ø6 für MOVENTO ×2"]);
+    expect(b("Boden")).toEqual(["Kupplung ×4"]);
+    const keine = e.filter((x) => x.bohren.join() === "keine Bohrung").map((x) => x.teil);
+    expect(keine).toHaveLength(6);
+    expect(keine).toContain("Rückwand");
   });
 
   it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {

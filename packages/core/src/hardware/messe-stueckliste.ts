@@ -34,7 +34,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
       mass: fmt(m.korpus.hoehe, m.korpus.tiefe, P),
       material: `Platte ${P} mm (Demo-Katalog)`,
       annahme: false,
-      hinweis: "Korpus 600 × 850 × 575, Freigabe Meister",
+      hinweis: "Korpus 600 × 850 × 575",
     },
     {
       gruppe: "Korpus",
@@ -70,7 +70,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
       mass: fmt(m.tuer.hoehe, m.tuer.breite, P),
       material: `Platte ${P} mm (Demo-Katalog)`,
       annahme: true,
-      hinweis: "über die ganze Höhe, Schubkasten innen dahinter (wie cody-cad)",
+      hinweis: "über die ganze Höhe, Schubkasten innen dahinter",
     },
     ...m.schubkastenTeile.map((t): StuecklistenZeile => {
       const i = t.search(/ \d/);
@@ -83,7 +83,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
         mass,
         material: "Platte 16 mm",
         annahme: false,
-        hinweis: "Holzschubkasten H 150 / LW 562 (cody-cad B2a)",
+        hinweis: "Holzschubkasten H 150 / LW 562",
       };
     }),
     {
@@ -161,8 +161,11 @@ export type Etikett = {
   werkstoff: string;
   kanten: Kantenbild;
   position: string;
-  /** Welches Bohrplan-Blatt (/beschlag/bohrplan) für dieses Stück gilt. */
-  bohren: string;
+  /**
+   * Bohrungen je Art, »Art ×Anzahl« wie das Bohrbild in cody-cad (cody-cad führt,
+   * Meister 1175). Ohne Bohrung: »keine Bohrung«.
+   */
+  bohren: string[];
   /** Maß oder Kantenbild ist Annahme. */
   annahme: boolean;
 };
@@ -177,16 +180,16 @@ const KEINE = K(false, false, false, false);
  * kein Kantenbild belegt; hier steht die übliche Werkstatt-Wahl
  * (Korpus Vorderkante, Fronten rundum, Rückwand und Schubkastenboden ohne).
  */
-type EtikettDaten = { kanten: Kantenbild; positionen: string[]; bohren?: string[] };
+type EtikettDaten = { kanten: Kantenbild; positionen: string[]; bohren?: string[][] };
 const ETIKETT_DATEN: Record<string, EtikettDaten> = {
-  // Je Stück dasselbe Blatt wie im Bohrplan; die Tür schlägt links an, darum
-  // die Montageplatten nur auf der linken Seite.
+  // Bohren je Stück = cody-cad korpus.bohrbild (Messe-Unterschrank), Art ohne
+  // Artikelnummer. Die Tür schlägt links an, darum Montageplatten nur links.
   Seite: {
     kanten: VORN,
     positionen: ["Korpus links", "Korpus rechts"],
     bohren: [
-      "Blatt Korpusseite links: 2 Montageplatten + MOVENTO",
-      "Blatt Korpusseite rechts: nur MOVENTO",
+      ["Lochreihe ×50", "MOVENTO-Schiene ×5", "Montageplatte ×4"],
+      ["Lochreihe ×50", "MOVENTO-Schiene ×5"],
     ],
   },
   Unterboden: { kanten: VORN, positionen: ["Korpus unten"] },
@@ -195,16 +198,20 @@ const ETIKETT_DATEN: Record<string, EtikettDaten> = {
   "Tür": {
     kanten: RUNDUM,
     positionen: ["Front, Anschlag links"],
-    bohren: ["Blatt Tür: 2 Töpfe CLIP top"],
+    bohren: [["Topf ×2", "Schrauben ×4"]],
   },
   "Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
-  "Hinterstück": { kanten: VORN, positionen: ["Schubkasten hinten"] },
+  "Hinterstück": {
+    kanten: VORN,
+    positionen: ["Schubkasten hinten"],
+    bohren: [["Ø6 für MOVENTO ×2"]],
+  },
   "Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
   "Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
-  Boden: { kanten: KEINE, positionen: ["Schubkasten unten"] },
+  Boden: { kanten: KEINE, positionen: ["Schubkasten unten"], bohren: [["Kupplung ×4"]] },
 };
 
-const KEINE_BOHRUNG = "keine Bohrung im Bohrplan";
+const KEINE_BOHRUNG = ["keine Bohrung"];
 
 /** Ein Etikett je Plattenteil (Beschläge und Teile ohne Maß fallen weg). */
 export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[] {
@@ -222,7 +229,7 @@ export function buildMesseEtiketten(zeilen = buildMesseStueckliste()): Etikett[]
         werkstoff: z.material,
         kanten: d?.kanten ?? KEINE,
         position: d?.positionen[i] ?? d?.positionen[0] ?? "nicht belegt",
-        bohren: d?.bohren?.[i] ?? d?.bohren?.[0] ?? KEINE_BOHRUNG,
+        bohren: [...(d?.bohren?.[i] ?? d?.bohren?.[0] ?? KEINE_BOHRUNG)],
         // Kantenbild ist immer Annahme (siehe ETIKETT_DATEN).
         annahme: true,
       });
