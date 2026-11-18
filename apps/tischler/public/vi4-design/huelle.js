@@ -1,4 +1,4 @@
-// VI4-Hülle 0.4.0 · Baustein der Plattform (VI4 Craft CAD). Werkfläche: VI4Huelle.baue, Menüleiste: VI4Huelle.menue (unten). Ein Modul ruft VI4Huelle.baue({...}) mit:
+// VI4-Hülle 0.5.0 · Baustein der Plattform (VI4 Craft CAD). Werkfläche: VI4Huelle.baue, Menüleiste: VI4Huelle.menue (unten). Ein Modul ruft VI4Huelle.baue({...}) mit:
 //   wurzel, buehne, karteLinks, karteRechts   CSS-Wähler der vorhandenen Elemente des Moduls
 //   links, rechts, unten                      Listen von Knöpfen: { id, verb, wort, kurz(), warn(), karte, tun(), an() }
 //      verb  -> Symbol aus symbole.json (Web: Phosphor light); nie ein Symbol direkt
@@ -114,13 +114,25 @@
   // menues: { datei:[…], … } Einträge { t, kbd, tun, aus(), an(), art:'haken'|'radio' } oder '-'.
   // Die Hülle ergänzt Standard-Einträge selbst: Bearbeiten = Rückgängig/Wiederholen, Darstellung = Hell/Dunkel/Automatisch
   // (thema:{ wahl(), setze(w) }), Hilfe = Tasten. Ein leeres Menü zeigt »Hier gibt es noch nichts«.
+  // Norm 0.5.0 (Bernhard 18.11.: »Umschalten zwischen den Arbeitsumgebungen und alles in einer Zeile«): Platz 0 ganz links =
+  //   Logo + Umschalter Raum · Einrichtung · Korpus · Layout. umgebung:{ aktiv, tun(ziel)?, plattform? }. Ohne tun wechselt die Hülle
+  //   so: im Rahmen der Plattform (gleiche Herkunft) window.parent.plattform.oeffne(ziel), sonst postMessage
+  //   { format:'vi4-umgebung/1', ziel } an die Elternseite; allein geöffnet Sprung auf `${plattform}#${ziel}`.
+  //   Mit Platz 0 gibt es keine eigene Kopfzeile mehr, weder im Modul noch in der Plattform: eine Zeile, volle Arbeitsfläche.
   const MENUES = [['datei', 'Datei'], ['bearbeiten', 'Bearbeiten'], ['einfuegen', 'Einfügen'], ['ansicht', 'Ansicht'], ['darstellung', 'Darstellung'], ['hilfe', 'Hilfe']];
+  const UMGEBUNGEN = [['raum', 'Raum'], ['einrichtung', 'Einrichtung'], ['korpus', 'Korpus'], ['layout', 'Layout']];
   function menue(c) {
     const leiste = $(c.ziel);
     leiste.classList.add('vi4-menue'); leiste.setAttribute('aria-label', 'Menüleiste');
     const sym = v => `<i class="ph-light ${symbol(v)}" aria-hidden="true"></i>`;
     const vl = c.verlauf || {};
-    leiste.innerHTML =
+    const U = c.umgebung;
+    leiste.classList.toggle('vi4-m-mit-umgebung', !!U);
+    leiste.innerHTML = (U
+      ? `<span class="vi4-m-logo" title="VI4 Craft CAD"><span class="vi4-logo-bild" role="img" aria-label="VI4"></span></span>
+       <div class="vi4-m-umgebung" role="group" aria-label="Arbeitsumgebung">${UMGEBUNGEN.map(([id, w]) =>
+         `<button type="button" data-u="${id}" aria-pressed="${id === U.aktiv}" aria-label="${w}" title="${w}">${sym(id)}<span>${w}</span></button>`).join('')}</div>
+       <span class="vi4-m-trenn" aria-hidden="true"></span>` : '') +
       `<button type="button" class="vi4-m-name" data-m="name"${c.name && c.name.menue ? ' aria-haspopup="menu" aria-expanded="false"' : ''}><b></b><span></span>${c.name && c.name.menue ? sym('aufklappen') : ''}</button>
        <span class="vi4-m-trenn" aria-hidden="true"></span>
        <button type="button" class="vi4-m-alle" data-m="alle" aria-haspopup="menu" aria-expanded="false">${sym('menue')}<span>Menü</span></button>
@@ -183,7 +195,17 @@
       liste.style.top = Math.max(8, Math.min(r.bottom + 4, innerHeight - liste.offsetHeight - 8)) + 'px';
       const erster = liste.querySelector('.vi4-m-eintrag:not(:disabled)'); if (erster) erster.focus();
     };
+    const wechsle = ziel => {
+      if (!U || ziel === U.aktiv) return;
+      if (U.tun) return U.tun(ziel);
+      if (window.parent !== window) {
+        try { const p = window.parent.plattform; if (p && p.oeffne) return p.oeffne(ziel); } catch (x) { /* fremde Herkunft */ }
+        return window.parent.postMessage({ format: 'vi4-umgebung/1', ziel }, '*');
+      }
+      location.href = (U.plattform || '/plattform.html') + '#' + ziel;
+    };
     leiste.addEventListener('click', e => {
+      const u = e.target.closest('[data-u]'); if (u) return wechsle(u.dataset.u);
       const k = e.target.closest('[data-m]'); const a = e.target.closest('[data-a]');
       if (a) { const x = c.ansicht[+a.dataset.a]; if (x.tun) x.tun(); return setTimeout(stand, 0); }
       if (!k) return;
@@ -223,5 +245,5 @@
   // symbole.json liegt neben huelle.js; baue() und menue() warten auf die Liste
   const hier = (document.currentScript && document.currentScript.src) || '';
   const bereit = fetch(new URL('symbole.json', hier || location.href)).then(r => r.json()).then(j => { SYMBOLE = j; });
-  window.VI4Huelle = { baue: c => bereit.then(() => baue(c)), menue: c => bereit.then(() => menue(c)), version: '0.4.0' };
+  window.VI4Huelle = { baue: c => bereit.then(() => baue(c)), menue: c => bereit.then(() => menue(c)), version: '0.5.0' };
 })();

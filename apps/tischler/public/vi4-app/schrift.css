@@ -1,0 +1,5 @@
+/* Craft Codex · genau EINE Variable nach vi4-tokens.css (PC-Bedingung 18.11.):
+   Plus Jakarta Sans kommt ueber next/font (Familienname in --font-sans am <html>). */
+:root {
+  --vi4-font: var(--font-sans), system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

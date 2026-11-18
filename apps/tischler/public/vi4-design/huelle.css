@@ -1,4 +1,4 @@
-/* VI4-Hülle · Baustein der Plattform (VI4 Craft CAD), Paket 0.4.0 (18.11.2026). Teile: 1 Rahmen, 2 Werkfläche, 3 Menüleiste, 4 Standard-Werkzeuge.
+/* VI4-Hülle · Baustein der Plattform (VI4 Craft CAD), Paket 0.5.0 (18.11.2026). Teile: 1 Rahmen, 2 Werkfläche, 3 Menüleiste, 4 Standard-Werkzeuge.
    Zwei Teile, nur Rollen-Variablen (--vi4-*, --vi4-werk-*, --vi4-fach-*, --vi4-huelle-*), keine festen Farben:
    1. RAHMEN = Kopf mit Marke + Reitern, Unterzeile, Fläche. Vorbild 1:1 plattform.html/.css (KÜCHE-PROBE, von Bernhard
       abgenommen 18.11. 09:20); gleiche Maße, gleiche Werte, nur Klassen vi4-* statt pl-* und Farben als Rollen.
@@ -18,8 +18,8 @@ html:has(body.vi4-rahmen) { height:100%; }
   background:var(--vi4-werk-kopf); border-bottom:1px solid var(--vi4-werk-kopf-kante); overflow-x:auto; scrollbar-width:none; }
 .vi4-kopf::-webkit-scrollbar { display:none; }
 .vi4-marke { display:flex; align-items:center; gap:var(--vi4-space-8); flex:0 0 auto; }
-/* Logo A (CI 4.0, vi4-logo.svg im Paket) als Maske: die Farbe kommt aus der Rolle. Hell Navy auf weißem Logofeld mit
-   13 px Freiraum (CI .brand-mark); dunkel weiß ohne Feld (Bernhard 18.11.; das CI hätte auch dunkel ein weißes Feld). */
+/* Logo A (CI 4.0, vi4-logo.svg im Paket) als Maske: die Farbe kommt aus der Rolle. Freigestellt in beiden Themen
+   (Bernhard 18.11.: hell Navy ohne weißes Feld, dunkel weiß ohne Feld; das CI hätte ein weißes Feld), 13 px Freiraum bleibt. */
 .vi4-logo { display:flex; align-items:center; justify-content:center; flex:none; height:var(--vi4-huelle-kopf); padding:0 var(--vi4-space-13); background:var(--vi4-werk-logo-flaeche); }
 .vi4-logo img { display:block; width:52px; height:32px; object-fit:contain; }
 .vi4-logo-bild { display:block; width:52px; height:32px; background:var(--vi4-werk-logo);
@@ -122,6 +122,7 @@ body.vi4-rechts-auf .vi4-schiene.rechts .vi4-wort { display:none; }
 /* ===== 3. MENÜLEISTE (Norm 0.4.0, Bernhard 18.11.: »Menüleiste und Standard-Tools überall dasselbe Design, an derselben Stelle«) =====
    Eine Zeile unter dem Kopf der Plattform, in jedem Designer gleich. Werte 1:1 aus planung14.css (.topbar.kopf, .kopf-name,
    .menueleiste, .kopf-symbol, .meldung, .blick-wahl, .speichern, .menue9). Feste Reihenfolge der Plätze, links nach rechts:
+     0 Logo + Raum · Einrichtung · Korpus · Layout (Norm 0.5.0) │
      1 Name ▾ │ 2 Datei · Bearbeiten · Einfügen · Ansicht · Darstellung · Hilfe │ 3 Rückgängig · Wiederholen │
      4 Eigenes des Designers · 5 Meldung (füllt) · 6 Ansicht 3D/Vorne/Oben/Seite · 7 Schließen · 8 Hauptknopf (ganz rechts)
    Ein Designer darf einen Platz leer lassen, nie umstellen. huelle.js (VI4Huelle.menue) baut die Plätze; Abweichung von planung14:
@@ -130,6 +131,18 @@ body.vi4-rechts-auf .vi4-schiene.rechts .vi4-wort { display:none; }
   min-width:0; padding:0 var(--vi4-space-12); overflow:hidden; background:var(--vi4-werk-kopf); border-bottom:1px solid var(--vi4-werk-kopf-kante);
   color:var(--vi4-werk-ink); font-family:var(--vi4-font); font-size:var(--vi4-text-table); line-height:1.3; }
 .vi4-menue button { font:inherit; color:inherit; border:0; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+/* Platz 0 (Norm 0.5.0): Logo + Umschalter der Arbeitsumgebungen. Eine Zeile statt Kopf + Menüleiste (Bernhard 18.11.).
+   Gedrückt = Navy wie die Reiter der Plattform; ab 1800 px alle Wörter, darunter nur das Wort der aktiven Umgebung. */
+.vi4-m-logo { display:flex; align-items:center; flex:none; align-self:stretch; padding:0 var(--vi4-space-4) 0 var(--vi4-space-4); background:var(--vi4-werk-logo-flaeche); }
+.vi4-m-logo .vi4-logo-bild { width:46px; height:28px; }
+.vi4-m-umgebung { display:flex; flex:none; gap:2px; padding:2px; border-radius:var(--vi4-radius-button); background:var(--vi4-werk-segment); }
+.vi4-m-umgebung button { display:inline-flex; align-items:center; gap:6px; height:32px; min-width:36px; padding:0 10px; justify-content:center;
+  border-radius:var(--vi4-radius-field); color:var(--vi4-werk-muted); white-space:nowrap; }
+.vi4-m-umgebung button i { font-size:var(--vi4-icon-control); }
+.vi4-m-umgebung button:hover { color:var(--vi4-werk-ink); background:var(--vi4-werk-subtle); }
+.vi4-m-umgebung button[aria-pressed="true"] { background:var(--vi4-werk-brand); color:var(--vi4-werk-on-brand); font-weight:var(--vi4-weight-medium);
+  box-shadow:var(--vi4-shadow-toolbar-pressed); cursor:default; }
+@media (max-width:1799px) { .vi4-m-umgebung button:not([aria-pressed="true"]) span { display:none; } .vi4-m-umgebung button:not([aria-pressed="true"]) { padding:0 8px; } }
 .vi4-menue i { font-size:var(--vi4-icon-small); }
 .vi4-m-name { display:inline-flex; align-items:center; gap:6px; flex:0 1 auto; min-width:0; max-width:320px; height:32px; padding:0 var(--vi4-space-8);
   border-radius:var(--vi4-radius-button); color:var(--vi4-werk-muted); white-space:nowrap; }
@@ -183,6 +196,7 @@ body.vi4-rechts-auf .vi4-schiene.rechts .vi4-wort { display:none; }
 @media (max-width:900px) { .vi4-m-ansicht { display:none; } .vi4-m-name { max-width:160px; } }
 html.finger .vi4-menue :is(.vi4-m-leiste > button, .vi4-m-alle, .vi4-m-name, .vi4-m-zu, .vi4-m-haupt) { height:var(--vi4-touch-target); min-width:var(--vi4-touch-target); }
 html.finger .vi4-m-ansicht button { height:var(--vi4-touch-target); }
+html.finger .vi4-m-umgebung button { height:40px; min-width:var(--vi4-touch-target); }
 html.finger .vi4-m-eintrag { min-height:var(--vi4-touch-target); }
 
 /* ===== 4. STANDARD-WERKZEUGE (Norm 0.4.0): feste Plätze auf der Werkfläche =====

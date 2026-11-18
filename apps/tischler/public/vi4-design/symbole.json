@@ -1,11 +1,12 @@
 {
  "meta": {
-  "version": "0.4.0",
+  "version": "0.5.0",
   "stand": "2026-11-18",
   "regel": "Ein Verb, ein Symbol, überall. Web = Phosphor light (Klasse ph-light ph-<web>), iPad = SF Symbol.",
   "pruefung_web": "alle web-Namen in der Phosphor-Schrift vorhanden (geprüft 18.11.)",
   "pruefung_ios": "SF-Namen aus dem Gedächtnis, am iPad NICHT geprüft (Schritt 7, Sitzung IPAD)",
-  "notiz_0_4_0": "Menüleiste: rueckgaengig, wiederholen, speichern, aufklappen, menue (web-Namen in der Phosphor-Schrift geprüft 18.11.)"
+  "notiz_0_4_0": "Menüleiste: rueckgaengig, wiederholen, speichern, aufklappen, menue (web-Namen in der Phosphor-Schrift geprüft 18.11.)",
+  "notiz_0_5_0": "Umschalter der Arbeitsumgebungen: raum, einrichtung, layout (korpus gab es schon); web-Namen in der Phosphor-Schrift geprüft 18.11."
  },
  "verben": {
   "korpus": {
@@ -119,6 +120,18 @@
   "menue": {
    "web": "list",
    "ios": "line.3.horizontal"
+  },
+  "raum": {
+   "web": "house-line",
+   "ios": "house"
+  },
+  "einrichtung": {
+   "web": "armchair",
+   "ios": "sofa"
+  },
+  "layout": {
+   "web": "layout",
+   "ios": "rectangle.3.group"
   }
  }
 }

@@ -1,4 +1,4 @@
-/* VI4-Design-Paket 0.4.0 · Rollen der Werkfläche (werk), Fachfarben (fach), Herkunft eines Maßes (mass) · generiert aus quelle/tokens.json mit werkzeug/bau.py, nicht von Hand ändern. */
+/* VI4-Design-Paket 0.5.0 · Rollen der Werkfläche (werk), Fachfarben (fach), Herkunft eines Maßes (mass) · generiert aus quelle/tokens.json mit werkzeug/bau.py, nicht von Hand ändern. */
 :root, [data-theme="light"], [data-theme="auto"]{
   --vi4-werk-ink:#161B21;
   --vi4-werk-muted:#566372;
@@ -21,14 +21,14 @@
   --vi4-werk-danger-bg:#FBEAEA;
   --vi4-werk-on-danger:#FFFFFF;
   --vi4-werk-karte:#FFFFFF;
-  --vi4-werk-leiste:#F7F7F7;
-  --vi4-werk-buehne-oben:#EFEFEF;
-  --vi4-werk-buehne-unten:#E8E8E8;
+  --vi4-werk-leiste:#FCFCFC;
+  --vi4-werk-buehne-oben:#FAFAFA;
+  --vi4-werk-buehne-unten:#FAFAFA;
   --vi4-werk-schleier:rgba(22,27,33,.28);
   --vi4-werk-scroll:#C8C8C8;
-  --vi4-werk-kopf:#F3F3F3;
-  --vi4-werk-kopf-kante:#DFDFDF;
-  --vi4-werk-flaeche:#EDEDED;
+  --vi4-werk-kopf:#FAFAFA;
+  --vi4-werk-kopf-kante:#E6E6E6;
+  --vi4-werk-flaeche:#FAFAFA;
   --vi4-werk-shadow-field:inset 1px 2px 4px rgba(22,27,33,.15), inset 0 4px 8px -5px rgba(22,27,33,.20), inset -1px -1px 3px rgba(255,255,255,.90);
   --vi4-werk-shadow-field-focus:inset 1px 2px 5px rgba(44,75,122,.30), inset 0 4px 8px -4px rgba(44,75,122,.28), inset -1px -1px 3px rgba(255,255,255,.90);
   --vi4-werk-shadow-button:inset 0 1px 3px rgba(22,27,33,.08), inset 0 -1px 2px rgba(255,255,255,.75);
@@ -36,7 +36,7 @@
   --vi4-werk-shadow-button-pressed:inset 0 2px 5px rgba(9,20,37,.32), inset 0 -1px 3px rgba(255,255,255,.12);
   --vi4-werk-shadow-overlay:0 3px 8px rgba(22,27,33,.06), 0 12px 28px -10px rgba(22,27,33,.16);
   --vi4-werk-logo:#2C4B7A;
-  --vi4-werk-logo-flaeche:#FFFFFF;
+  --vi4-werk-logo-flaeche:transparent;
   --vi4-werk-segment:#E5E5E5;
   --vi4-fach-bohr-topf:#2C4B7A;
   --vi4-fach-bohr-duebel:#2F7F78;
