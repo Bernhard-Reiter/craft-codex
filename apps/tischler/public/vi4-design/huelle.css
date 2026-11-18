@@ -1,0 +1,201 @@
+/* VI4-Hülle · Baustein der Plattform (VI4 Craft CAD), Paket 0.4.0 (18.11.2026). Teile: 1 Rahmen, 2 Werkfläche, 3 Menüleiste, 4 Standard-Werkzeuge.
+   Zwei Teile, nur Rollen-Variablen (--vi4-*, --vi4-werk-*, --vi4-fach-*, --vi4-huelle-*), keine festen Farben:
+   1. RAHMEN = Kopf mit Marke + Reitern, Unterzeile, Fläche. Vorbild 1:1 plattform.html/.css (KÜCHE-PROBE, von Bernhard
+      abgenommen 18.11. 09:20); gleiche Maße, gleiche Werte, nur Klassen vi4-* statt pl-* und Farben als Rollen.
+   2. WERKFLÄCHE = Bühne über alles, Leisten links / rechts mit Symbol + Wort + Kurzstand, schwebende Karten
+      (Anordnung nach planung14). Klassen setzt huelle.js; ein Modul braucht nur VI4Huelle.baue({...}).
+   Läuft ein Modul im Rahmen der Plattform (iframe), setzt huelle.js html.vi4-im-rahmen: Elemente mit .vi4-nur-allein
+   (z. B. die eigene Marke des Moduls) verschwinden, die Plattform zeigt sie schon. */
+
+/* ===== 1. RAHMEN ===== */
+body.vi4-rahmen { height:100%; margin:0; display:flex; flex-direction:column; overflow:hidden; background:var(--vi4-werk-flaeche); color:var(--vi4-ink);
+  font-family:var(--vi4-font); font-size:var(--vi4-text-control); line-height:var(--vi4-line-control); -webkit-text-size-adjust:100%; }
+html:has(body.vi4-rahmen) { height:100%; }
+.vi4-rahmen button { font:inherit; color:inherit; border:0; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+
+.vi4-kopf { flex:0 0 auto; min-height:var(--vi4-huelle-kopf); display:flex; align-items:center; gap:var(--vi4-space-12);
+  padding:0 var(--vi4-space-12) 0 0; padding-top:env(safe-area-inset-top, 0px);
+  background:var(--vi4-werk-kopf); border-bottom:1px solid var(--vi4-werk-kopf-kante); overflow-x:auto; scrollbar-width:none; }
+.vi4-kopf::-webkit-scrollbar { display:none; }
+.vi4-marke { display:flex; align-items:center; gap:var(--vi4-space-8); flex:0 0 auto; }
+/* Logo A (CI 4.0, vi4-logo.svg im Paket) als Maske: die Farbe kommt aus der Rolle. Hell Navy auf weißem Logofeld mit
+   13 px Freiraum (CI .brand-mark); dunkel weiß ohne Feld (Bernhard 18.11.; das CI hätte auch dunkel ein weißes Feld). */
+.vi4-logo { display:flex; align-items:center; justify-content:center; flex:none; height:var(--vi4-huelle-kopf); padding:0 var(--vi4-space-13); background:var(--vi4-werk-logo-flaeche); }
+.vi4-logo img { display:block; width:52px; height:32px; object-fit:contain; }
+.vi4-logo-bild { display:block; width:52px; height:32px; background:var(--vi4-werk-logo);
+  -webkit-mask:url("vi4-logo.svg") center / contain no-repeat; mask:url("vi4-logo.svg") center / contain no-repeat; }
+.vi4-name { font-size:16px; font-weight:var(--vi4-weight-medium); letter-spacing:var(--vi4-tracking-heading); white-space:nowrap; }
+.vi4-vorschau { font-size:var(--vi4-text-meta); color:var(--vi4-muted); white-space:nowrap; }
+
+.vi4-reiter, .vi4-unter { display:flex; gap:var(--vi4-space-4); flex:0 0 auto; }
+.vi4-reiter button, .vi4-unter button { min-height:var(--vi4-touch-target); min-width:var(--vi4-touch-target); padding:0 var(--vi4-space-16); white-space:nowrap;
+  border-radius:var(--vi4-radius-button); background:var(--vi4-surface); box-shadow:var(--vi4-shadow-toolbar);
+  transition:box-shadow var(--vi4-duration-fast) var(--vi4-ease); }
+.vi4-reiter button:hover, .vi4-unter button:hover { box-shadow:var(--vi4-shadow-toolbar-hover); }
+.vi4-reiter button[aria-pressed="true"], .vi4-unter button[aria-pressed="true"] { background:var(--vi4-brand); color:var(--vi4-on-brand); box-shadow:var(--vi4-shadow-toolbar-pressed); }
+.vi4-reiter button:focus-visible, .vi4-unter button:focus-visible { outline:0; text-decoration:underline; text-underline-offset:4px; box-shadow:var(--vi4-shadow-field-focus); }
+.vi4-reiter button[aria-pressed="true"]:focus-visible, .vi4-unter button[aria-pressed="true"]:focus-visible { box-shadow:var(--vi4-shadow-button-pressed-focus); }
+
+.vi4-hinweis { flex:1 1 auto; min-width:0; margin:0; font-size:var(--vi4-text-label); color:var(--vi4-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:right; }
+.vi4-hinweis[data-art="rot"] { color:var(--vi4-danger); }
+
+.vi4-unter { min-height:var(--vi4-huelle-unter); align-items:center; padding:0 var(--vi4-space-12); background:var(--vi4-werk-kopf); border-bottom:1px solid var(--vi4-werk-kopf-kante); overflow-x:auto; scrollbar-width:none; }
+.vi4-unter[hidden] { display:none; }
+.vi4-unter button { padding:0 var(--vi4-space-12); font-size:var(--vi4-text-label); }
+
+/* »kommt«: Platz für etwas, das noch nicht gebaut ist (Reiter, Unterzeile, Leistenknopf) */
+.vi4-kommt { margin-left:var(--vi4-space-5); padding:1px var(--vi4-space-5); border-radius:var(--vi4-radius-field); font-size:var(--vi4-text-meta); color:var(--vi4-muted); background:var(--vi4-selection-subtle); }
+.vi4-unter button[aria-pressed="true"] .vi4-kommt, .vi4-reiter button[aria-pressed="true"] .vi4-kommt { color:var(--vi4-on-brand); background:transparent; box-shadow:inset 0 0 0 1px currentColor; }
+
+/* Fläche unter dem Kopf: trägt ein Modul (iframe gleicher Herkunft) oder eine leere Seite mit »kommt« */
+.vi4-flaeche { position:relative; flex:1 1 auto; min-height:0; }
+.vi4-flaeche > iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:var(--vi4-werk-flaeche); }
+.vi4-leer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:var(--vi4-space-24); background:var(--vi4-werk-flaeche); text-align:center; }
+.vi4-leer[hidden] { display:none; }
+.vi4-leer h1 { margin:0; font-size:var(--vi4-type-1); font-weight:var(--vi4-weight-medium); letter-spacing:var(--vi4-tracking-heading); line-height:var(--vi4-line-heading); }
+.vi4-leer-marke { display:inline-block; margin:var(--vi4-space-12) 0; padding:var(--vi4-space-3) var(--vi4-space-12); border-radius:var(--vi4-radius-field); color:var(--vi4-muted); background:var(--vi4-selection-subtle); }
+.vi4-leer p { max-width:46ch; margin-left:auto; margin-right:auto; color:var(--vi4-muted); }
+
+/* Plan aus dem Kern (dunkle Linien): in beiden Themen auf Papier */
+.vi4-plan-papier { background:var(--vi4-fach-plan-papier); color:var(--vi4-fach-plan-text); }
+
+@media (max-width:900px) { .vi4-vorschau { display:none; } .vi4-reiter button { padding:0 var(--vi4-space-12); } }
+@media (max-width:560px) { .vi4-name { display:none; } .vi4-hinweis { display:none; } }
+
+/* Im Rahmen der Plattform: was die Plattform schon zeigt, blendet das Modul aus */
+html.vi4-im-rahmen .vi4-nur-allein { display:none !important; }
+
+/* ===== 2. WERKFLÄCHE ===== */
+/* Die Hülle besitzt die ANORDNUNG: Lage, Anzeige, Rand und Kartenfläche tragen !important, weil Module ihre Bereiche oft über
+   IDs gestalten (#werk, #mitte, #links …) und eine ID jede Klasse schlägt. Farben und Inhalt der Karten bleiben beim Modul. */
+.vi4-werk { position:relative !important; display:block !important; min-height:0; }
+.vi4-buehne { position:absolute !important; inset:0 !important; background:linear-gradient(180deg, var(--vi4-werk-buehne-oben) 0%, var(--vi4-werk-buehne-unten) 100%); }
+
+/* Karten */
+.vi4-karte-links, .vi4-karte-rechts { position:absolute !important; top:var(--vi4-huelle-rand); bottom:var(--vi4-huelle-rand); z-index:5; border:0 !important;
+  background:var(--vi4-werk-karte) !important; border-radius:var(--vi4-radius-card); box-shadow:var(--vi4-werk-shadow-overlay); overflow:hidden; }
+.vi4-karte-links { left:calc(var(--vi4-huelle-rand) + var(--vi4-huelle-schiene) + 10px); width:var(--vi4-huelle-karte-links); }
+.vi4-karte-rechts { right:calc(var(--vi4-huelle-rand) + var(--vi4-huelle-schiene) + 10px); width:var(--vi4-huelle-karte-rechts); }
+body:not(.vi4-links-auf) .vi4-karte-links, body:not(.vi4-rechts-auf) .vi4-karte-rechts { display:none !important; }
+.vi4-karte-zu { position:absolute; top:8px; right:8px; z-index:2; display:grid; place-items:center; width:32px; height:32px; border:0;
+  border-radius:var(--vi4-radius-button); background:var(--vi4-werk-karte); color:var(--vi4-werk-muted); cursor:pointer; font-size:18px; }
+.vi4-karte-zu:hover { background:var(--vi4-werk-hover); color:var(--vi4-werk-ink); }
+
+/* Leisten */
+.vi4-schiene { position:absolute; top:var(--vi4-huelle-rand); bottom:var(--vi4-huelle-rand); z-index:6; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.vi4-schiene.links { left:var(--vi4-huelle-rand); align-items:flex-start; }
+.vi4-schiene.rechts { right:var(--vi4-huelle-rand); align-items:flex-end; }
+.vi4-gruppe { display:flex; flex-direction:column; gap:2px; pointer-events:auto; }
+.vi4-schiene .unten { margin-top:auto; }
+.vi4-knopf { display:flex; align-items:center; gap:10px; padding:0; border:0; background:none; color:var(--vi4-werk-ink); cursor:pointer; font:inherit; text-align:left; }
+.vi4-schiene.rechts .vi4-knopf { flex-direction:row-reverse; text-align:right; }
+/* Symbolfeld = CI 4.0 ».tool«: vertiefter Toolbar-Schatten, Symbol 24 px, Radius des Knopfs; gedrückt Navy;
+   Tastatur-Fokus = Feld-Fokus-Schatten + 4-px-Marker unten (CI states.keyboardFocus), kein Umriss. */
+.vi4-sym { position:relative; flex:none; display:grid; place-items:center; width:var(--vi4-huelle-schiene); height:var(--vi4-huelle-knopf-hoehe);
+  background:var(--vi4-werk-karte); box-shadow:var(--vi4-shadow-toolbar); font-size:24px; border-radius:var(--vi4-radius-button);
+  transition:box-shadow var(--vi4-duration-fast) var(--vi4-ease); }
+.vi4-gruppe .vi4-knopf:not(:first-child) .vi4-sym { border-top-left-radius:0; border-top-right-radius:0; }
+.vi4-gruppe .vi4-knopf:not(:last-child) .vi4-sym { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+.vi4-knopf:hover .vi4-sym { background:var(--vi4-werk-hover); box-shadow:var(--vi4-shadow-toolbar-hover); }
+.vi4-knopf[aria-pressed="true"] .vi4-sym, .vi4-knopf:active:not([data-kommt]) .vi4-sym { background:var(--vi4-werk-brand); color:var(--vi4-werk-on-brand); box-shadow:var(--vi4-shadow-toolbar-pressed); }
+.vi4-knopf:focus-visible { outline:0; }
+.vi4-knopf:focus-visible .vi4-sym { box-shadow:var(--vi4-shadow-field-focus); }
+.vi4-knopf[aria-pressed="true"]:focus-visible .vi4-sym { box-shadow:var(--vi4-shadow-button-pressed-focus); }
+.vi4-knopf:focus-visible .vi4-sym::before { content:""; position:absolute; bottom:3px; left:calc(50% - 2px); width:4px; height:4px; border-radius:1px; background:currentColor; }
+.vi4-knopf:focus-visible .vi4-wort { text-decoration:underline; text-underline-offset:4px; }
+.vi4-wort { display:flex; flex-direction:column; line-height:1.2; font-size:14px; white-space:nowrap; text-shadow:0 0 6px var(--vi4-werk-buehne-oben); }
+.vi4-wort small { font-size:12px; color:var(--vi4-werk-muted); }
+.vi4-wort small.warn { color:var(--vi4-werk-danger); }
+/* Ist eine Karte offen, liegen ihre Wörter darunter: auf dieser Seite nur noch die Symbole */
+body.vi4-links-auf .vi4-schiene.links .vi4-wort,
+body.vi4-rechts-auf .vi4-schiene.rechts .vi4-wort { display:none; }
+/* Leistenknopf »kommt« (z. B. »Erfassen« mit LiDAR im Raumdesigner): steht da, tut nichts */
+.vi4-knopf[data-kommt] { cursor:default; }
+.vi4-knopf[data-kommt] .vi4-sym { color:var(--vi4-werk-muted); box-shadow:none; background:var(--vi4-werk-subtle); }
+.vi4-knopf[data-kommt]:hover .vi4-sym { background:var(--vi4-werk-subtle); }
+
+/* Befehlszeile (Platz der Plattform; ein Modul ohne Befehle lässt sie weg) */
+.vi4-befehl { position:absolute; left:50%; bottom:var(--vi4-huelle-rand); transform:translateX(-50%); z-index:6; width:min(720px, 60%);
+  display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--vi4-werk-karte); border-radius:var(--vi4-radius-card);
+  box-shadow:var(--vi4-werk-shadow-overlay); color:var(--vi4-werk-muted); font-size:14px; }
+
+/* ===== 3. MENÜLEISTE (Norm 0.4.0, Bernhard 18.11.: »Menüleiste und Standard-Tools überall dasselbe Design, an derselben Stelle«) =====
+   Eine Zeile unter dem Kopf der Plattform, in jedem Designer gleich. Werte 1:1 aus planung14.css (.topbar.kopf, .kopf-name,
+   .menueleiste, .kopf-symbol, .meldung, .blick-wahl, .speichern, .menue9). Feste Reihenfolge der Plätze, links nach rechts:
+     1 Name ▾ │ 2 Datei · Bearbeiten · Einfügen · Ansicht · Darstellung · Hilfe │ 3 Rückgängig · Wiederholen │
+     4 Eigenes des Designers · 5 Meldung (füllt) · 6 Ansicht 3D/Vorne/Oben/Seite · 7 Schließen · 8 Hauptknopf (ganz rechts)
+   Ein Designer darf einen Platz leer lassen, nie umstellen. huelle.js (VI4Huelle.menue) baut die Plätze; Abweichung von planung14:
+   Hover = --vi4-werk-subtle statt --vi4-hover (der ist hell gleich der Kopffläche #F3F3F3, der Hover war dort unsichtbar). */
+.vi4-menue { flex:0 0 auto; display:flex; align-items:center; gap:var(--vi4-space-8); height:var(--vi4-huelle-menue); min-height:var(--vi4-huelle-menue);
+  min-width:0; padding:0 var(--vi4-space-12); overflow:hidden; background:var(--vi4-werk-kopf); border-bottom:1px solid var(--vi4-werk-kopf-kante);
+  color:var(--vi4-werk-ink); font-family:var(--vi4-font); font-size:var(--vi4-text-table); line-height:1.3; }
+.vi4-menue button { font:inherit; color:inherit; border:0; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.vi4-menue i { font-size:var(--vi4-icon-small); }
+.vi4-m-name { display:inline-flex; align-items:center; gap:6px; flex:0 1 auto; min-width:0; max-width:320px; height:32px; padding:0 var(--vi4-space-8);
+  border-radius:var(--vi4-radius-button); color:var(--vi4-werk-muted); white-space:nowrap; }
+.vi4-m-name b { color:var(--vi4-werk-ink); font-weight:var(--vi4-weight-medium); }
+.vi4-m-name span { overflow:hidden; text-overflow:ellipsis; }
+.vi4-m-trenn { flex:0 0 1px; width:1px; height:24px; background:var(--vi4-werk-kopf-kante); }
+.vi4-m-leiste { display:flex; align-items:center; gap:var(--vi4-space-8); flex:none; }
+.vi4-m-leiste > button, .vi4-m-alle { height:32px; padding:0 10px; border-radius:var(--vi4-radius-button); white-space:nowrap; }
+.vi4-m-alle { display:none; align-items:center; gap:6px; flex:none; }
+.vi4-m-symbol { display:inline-grid; place-items:center; flex:0 0 36px; width:36px; height:44px; border-radius:var(--vi4-radius-button); }
+.vi4-m-symbol i { font-size:var(--vi4-icon-control); }
+.vi4-m-symbol:disabled { opacity:.4; cursor:default; }
+.vi4-menue :is(.vi4-m-name, .vi4-m-leiste > button, .vi4-m-alle, .vi4-m-symbol:not(:disabled), .vi4-m-zu):hover,
+.vi4-menue [aria-expanded="true"] { background:var(--vi4-werk-subtle); }
+.vi4-m-mitte { display:flex; align-items:center; gap:var(--vi4-space-8); flex:0 1 auto; min-width:0; }
+.vi4-m-mitte:empty { display:none; }
+.vi4-m-meldung { flex:1 1 0; min-width:0; display:flex; align-items:center; justify-content:flex-end; gap:var(--vi4-space-8); margin:0;
+  font-size:var(--vi4-text-label); color:var(--vi4-werk-muted); white-space:nowrap; overflow:hidden; }
+.vi4-m-ansicht { display:flex; flex:none; gap:2px; padding:2px; border-radius:var(--vi4-radius-button); background:var(--vi4-werk-segment); }
+.vi4-m-ansicht:empty { display:none; }
+.vi4-m-ansicht button { height:28px; padding:0 10px; border-radius:var(--vi4-radius-field); color:var(--vi4-werk-muted); font-size:var(--vi4-text-label); white-space:nowrap; }
+.vi4-m-ansicht button:hover { color:var(--vi4-werk-ink); }
+.vi4-m-ansicht button[aria-pressed="true"] { background:var(--vi4-werk-soft); color:var(--vi4-werk-ink); font-weight:var(--vi4-weight-medium); box-shadow:var(--vi4-werk-shadow-button); }
+.vi4-m-zu { display:inline-flex; align-items:center; gap:var(--vi4-space-8); flex:none; height:32px; padding:0 var(--vi4-space-12); border-radius:var(--vi4-radius-button);
+  background:var(--vi4-werk-karte) !important; box-shadow:var(--vi4-shadow-toolbar); white-space:nowrap; }
+.vi4-m-zu kbd { font:inherit; font-size:var(--vi4-text-meta); color:var(--vi4-werk-muted); }
+.vi4-m-haupt { display:inline-flex; align-items:center; gap:var(--vi4-space-8); flex:none; height:32px; padding:0 var(--vi4-space-12); border-radius:var(--vi4-radius-button);
+  background:var(--vi4-werk-brand) !important; color:var(--vi4-werk-on-brand) !important; white-space:nowrap; text-decoration:none; }
+.vi4-m-haupt:hover { filter:brightness(1.08); }
+.vi4-m-haupt:active { filter:brightness(.92); }
+.vi4-m-zu[hidden], .vi4-m-haupt[hidden], .vi4-m-platz[hidden] { display:none !important; }
+.vi4-menue :is(button, a):focus-visible { outline:2px solid var(--vi4-focus); outline-offset:-2px; }
+.vi4-menue .vi4-m-haupt:focus-visible { outline-offset:2px; }
+/* Aufklapp-Liste der Menüs (planung14 .menue9 + Vorlage .menu-option) */
+.vi4-m-liste { position:fixed; z-index:60; min-width:220px; max-height:calc(100dvh - 64px); padding:6px; overflow:auto; overscroll-behavior:contain;
+  background:var(--vi4-werk-karte); color:var(--vi4-werk-ink); border-radius:var(--vi4-radius-dropdown); box-shadow:var(--vi4-werk-shadow-overlay);
+  font-family:var(--vi4-font); font-size:var(--vi4-text-table); }
+.vi4-m-liste[hidden] { display:none; }
+.vi4-m-eintrag { position:relative; display:flex; align-items:center; gap:10px; width:100%; min-height:var(--vi4-control-height-compact);
+  padding:6px var(--vi4-space-12) 6px 34px; border:0; border-radius:var(--vi4-radius-field); background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+.vi4-m-eintrag:hover { background:var(--vi4-werk-hover); }
+.vi4-m-eintrag[aria-checked="true"]::before { content:"✓"; position:absolute; left:var(--vi4-space-12); color:var(--vi4-werk-brand); }
+.vi4-m-eintrag:disabled { opacity:.6; cursor:default; }
+.vi4-m-eintrag kbd { margin-left:auto; padding-left:16px; color:var(--vi4-werk-muted); font:inherit; font-size:12px; }
+.vi4-m-eintrag:focus-visible { outline:0; color:var(--vi4-werk-on-brand); background:var(--vi4-werk-brand); text-decoration:underline; text-underline-offset:4px; }
+.vi4-m-eintrag:focus-visible::before, .vi4-m-eintrag:focus-visible kbd { color:inherit; }
+.vi4-m-liste .vi4-m-strich { height:1px; margin:6px 4px; background:var(--vi4-werk-rule); }
+.vi4-m-liste .vi4-m-titel { padding:6px var(--vi4-space-12) 2px; font-size:var(--vi4-text-meta); color:var(--vi4-werk-muted); }
+/* Schmal: erst die Menüwörter in »Menü« zusammenfassen, dann den Ansicht-Umschalter weglassen (Stufen wie planung14 pf12) */
+@media (max-width:1280px) { .vi4-m-leiste, .vi4-m-leiste + .vi4-m-trenn { display:none; } .vi4-m-alle { display:inline-flex; } }
+@media (max-width:900px) { .vi4-m-ansicht { display:none; } .vi4-m-name { max-width:160px; } }
+html.finger .vi4-menue :is(.vi4-m-leiste > button, .vi4-m-alle, .vi4-m-name, .vi4-m-zu, .vi4-m-haupt) { height:var(--vi4-touch-target); min-width:var(--vi4-touch-target); }
+html.finger .vi4-m-ansicht button { height:var(--vi4-touch-target); }
+html.finger .vi4-m-eintrag { min-height:var(--vi4-touch-target); }
+
+/* ===== 4. STANDARD-WERKZEUGE (Norm 0.4.0): feste Plätze auf der Werkfläche =====
+   Leiste links oben  : Eingabe des Designers (Planung/Bauteile · Korpus/Parameter · Wählen/Wand …)
+   Leiste links, darunter eigene Gruppe: Suchen (Taste /)
+   Leiste links unten : Messen zuerst, dann die Ansichts-Werkzeuge des Designers (Schnitt, Isolieren · Fronten, Röntgen, Bohrungen)
+   Leiste rechts      : Infos (Auswahl, Prüfung, Stückliste …), Verlauf zuletzt
+   unten Mitte        : Befehlszeile (.vi4-befehl); ein Designer ohne Befehle lässt den Platz frei
+   huelle.js ordnet Knöpfe mit diesen Verben selbst an den richtigen Platz (standard: suchen, messen), egal wo das Modul sie nennt. */
+
+/* Finger (iPad): Ziele mindestens 44 px, Wörter bleiben */
+html.finger .vi4-sym { min-height:var(--vi4-touch-target); min-width:var(--vi4-touch-target); }
+@media (max-width:1100px) {
+  :root { --vi4-huelle-karte-links:340px; --vi4-huelle-karte-rechts:calc(100vw - 2 * var(--vi4-huelle-rand) - 2 * var(--vi4-huelle-schiene) - 20px); }
+  .vi4-wort { display:none; }
+}

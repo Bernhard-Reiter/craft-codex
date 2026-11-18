@@ -1,0 +1,124 @@
+{
+ "meta": {
+  "version": "0.4.0",
+  "stand": "2026-11-18",
+  "regel": "Ein Verb, ein Symbol, überall. Web = Phosphor light (Klasse ph-light ph-<web>), iPad = SF Symbol.",
+  "pruefung_web": "alle web-Namen in der Phosphor-Schrift vorhanden (geprüft 18.11.)",
+  "pruefung_ios": "SF-Namen aus dem Gedächtnis, am iPad NICHT geprüft (Schritt 7, Sitzung IPAD)",
+  "notiz_0_4_0": "Menüleiste: rueckgaengig, wiederholen, speichern, aufklappen, menue (web-Namen in der Phosphor-Schrift geprüft 18.11.)"
+ },
+ "verben": {
+  "korpus": {
+   "web": "cube",
+   "ios": "cube"
+  },
+  "parameter": {
+   "web": "sliders-horizontal",
+   "ios": "slider.horizontal.3"
+  },
+  "suchen": {
+   "web": "magnifying-glass",
+   "ios": "magnifyingglass"
+  },
+  "stueckliste": {
+   "web": "list-bullets",
+   "ios": "list.bullet"
+  },
+  "beschlag": {
+   "web": "wrench",
+   "ios": "wrench.adjustable"
+  },
+  "teil": {
+   "web": "puzzle-piece",
+   "ios": "puzzlepiece"
+  },
+  "material": {
+   "web": "drop",
+   "ios": "drop"
+  },
+  "materialpass": {
+   "web": "identification-card",
+   "ios": "person.text.rectangle"
+  },
+  "herkunft": {
+   "web": "book-open-text",
+   "ios": "book"
+  },
+  "geaendert": {
+   "web": "clock-counter-clockwise",
+   "ios": "clock.arrow.circlepath"
+  },
+  "fronten": {
+   "web": "door",
+   "ios": "door.left.hand.closed"
+  },
+  "roentgen": {
+   "web": "cube-transparent",
+   "ios": "cube.transparent"
+  },
+  "bohrungen": {
+   "web": "circle-dashed",
+   "ios": "circle.dashed"
+  },
+  "ansicht": {
+   "web": "arrows-out",
+   "ios": "arrow.up.left.and.arrow.down.right"
+  },
+  "schliessen": {
+   "web": "x",
+   "ios": "xmark"
+  },
+  "thema": {
+   "web": "circle-half",
+   "ios": "circle.lefthalf.filled"
+  },
+  "messen": {
+   "web": "ruler",
+   "ios": "ruler"
+  },
+  "erfassen": {
+   "web": "scan",
+   "ios": "viewfinder"
+  },
+  "merken": {
+   "web": "bookmark-simple",
+   "ios": "bookmark"
+  },
+  "fertig": {
+   "web": "check",
+   "ios": "checkmark"
+  },
+  "dazu": {
+   "web": "plus",
+   "ios": "plus"
+  },
+  "zuruecksetzen": {
+   "web": "arrow-counter-clockwise",
+   "ios": "arrow.counterclockwise"
+  },
+  "warnung": {
+   "web": "warning",
+   "ios": "exclamationmark.triangle"
+  },
+  "rueckgaengig": {
+   "web": "arrow-u-up-left",
+   "ios": "arrow.uturn.backward"
+  },
+  "wiederholen": {
+   "web": "arrow-u-up-right",
+   "ios": "arrow.uturn.forward"
+  },
+  "speichern": {
+   "web": "export",
+   "ios": "square.and.arrow.up"
+  },
+  "aufklappen": {
+   "web": "caret-down",
+   "ios": "chevron.down"
+  },
+  "menue": {
+   "web": "list",
+   "ios": "line.3.horizontal"
+  }
+ }
+}

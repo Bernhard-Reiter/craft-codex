@@ -1,0 +1,16 @@
+{
+ "name": "VI4 Design-Paket",
+ "version": "0.4.0",
+ "stand": "2026-11-18",
+ "quelle_tokens_sha256": "45e52f15390ca83f02a3c618c1a17be71557bbf4ec76a056e27d3e7e92a75cee",
+ "leitquelle_sha12": "8762d825bdbe",
+ "dateien": {
+  "bruecke-korpus.css": "04bf089ebc0efc3b51cabbcf051cebe1ea8cc2273636ebde0f526302561c1798",
+  "huelle.css": "f51883a0a09031bcb1396b069d36376ae7178b65069b738e90a05e8aa351bed4",
+  "huelle.js": "b686b3dcfe99fedda03041d70aff59bbf78dd78fe3d8fbdfb907b6091fb52958",
+  "symbole.json": "2fbb8dec3aa73f782eb0cb997fdf95349e2d358d76302c370859d4fcafe442dd",
+  "vi4-logo.svg": "e26a67b4018cc6a73c291a8ce8a6471be2afd6a7c3158d65e38d8cd7bbe91a22",
+  "vi4-rollen.css": "9cd90071751645ef5cb288c6df3ee2b1ddb4725fe13634e802686c13d88267f7",
+  "vi4-tokens.css": "8762d825bdbee0c0092a16136a94ba344d20ecef8a6e7be0f6c021a7499e5e2d"
+ }
+}
