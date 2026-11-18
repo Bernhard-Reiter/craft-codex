@@ -28,6 +28,18 @@ export function blattAusSuche(suche: string, anzahl: number): number | undefined
   return Number.isInteger(n) && n >= 1 && n <= anzahl ? n - 1 : undefined;
 }
 
+/** Start-Ansicht der Beschlag-Seite aus »?ansicht=stueckliste« (nur Messe-Vorlage); sonst 3D. */
+export function ansichtAusSuche(suche: string): "montage" | "stueckliste" {
+  const q = new URLSearchParams(suche);
+  return q.get("vorlage") === "messe" && q.get("ansicht") === "stueckliste" ? "stueckliste" : "montage";
+}
+
+/** Rückweg vom Bohrplan: per »?blatt=n« geöffnet (aus der Stückliste) -> Stückliste, sonst 3D. */
+export function bohrplanRueckweg(suche: string, anzahl: number, locale: string): string {
+  const basis = `/${locale}/beschlag?vorlage=messe`;
+  return blattAusSuche(suche, anzahl) === undefined ? basis : `${basis}&ansicht=stueckliste`;
+}
+
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
   lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");

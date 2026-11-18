@@ -20,7 +20,7 @@ import {
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
-import { blattAusSuche } from "../../../../components/MesseStueckliste";
+import { blattAusSuche, bohrplanRueckweg } from "../../../../components/MesseStueckliste";
 
 const M = MESSE_UNTERSCHRANK;
 
@@ -292,8 +292,9 @@ export default function BohrplanPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Aus der Stückliste (»?blatt=n«) zurück in die Stückliste, sonst in die 3D-Montage.
     const zurueck = () => {
-      window.location.href = `/${locale}/beschlag?vorlage=messe`;
+      window.location.href = bohrplanRueckweg(window.location.search, BLAETTER.length, locale);
     };
     void H.menue({
       ziel: "#bp-menue",

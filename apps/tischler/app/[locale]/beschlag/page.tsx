@@ -19,7 +19,7 @@ import { useLocale } from "next-intl";
 import Script from "next/script";
 import { BeschlagScene } from "../../../components/BeschlagScene";
 import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
-import { MesseStueckliste, ladeStuecklisteCsv, ladeVoaiDatei } from "../../../components/MesseStueckliste";
+import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
 type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
@@ -79,10 +79,11 @@ export default function BeschlagPage() {
     setErledigt({});
     if (b.id !== "messe") setAnsicht("montage");
   };
-  // Direktlink: /beschlag?vorlage=messe lädt die Vorlage gleich.
+  // Direktlink: /beschlag?vorlage=messe lädt die Vorlage gleich; »&ansicht=stueckliste« öffnet die Stückliste.
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
+    setAnsicht(ansichtAusSuche(window.location.search));
   }, []);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; Papier wird immer hell gedruckt.

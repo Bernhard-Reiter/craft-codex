@@ -1,6 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { blattAusSuche, MesseStueckliste } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, MesseStueckliste } from "./MesseStueckliste";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -32,5 +32,20 @@ describe("MesseStueckliste Druck", () => {
     }
     expect([1, 2, 3, 4, 5].map((n) => blattAusSuche(`?vorlage=messe&blatt=${n}`, 5))).toEqual([0, 1, 2, 3, 4]);
     expect(["", "?blatt=0", "?blatt=6", "?blatt=x"].map((q) => blattAusSuche(q, 5))).toEqual([undefined, undefined, undefined, undefined]);
+  });
+});
+
+describe("Rückweg Bohrplan -> Stückliste", () => {
+  it("?ansicht=stueckliste öffnet nur bei der Messe-Vorlage die Stückliste, der Rückweg aus ?blatt=n führt dorthin", () => {
+    expect(ansichtAusSuche("?vorlage=messe&ansicht=stueckliste")).toBe("stueckliste");
+    expect(["", "?vorlage=messe", "?ansicht=stueckliste", "?vorlage=clip&ansicht=stueckliste"].map(ansichtAusSuche)).toEqual([
+      "montage",
+      "montage",
+      "montage",
+      "montage",
+    ]);
+    expect(bohrplanRueckweg("?vorlage=messe&blatt=3", 5, "de")).toBe("/de/beschlag?vorlage=messe&ansicht=stueckliste");
+    expect(bohrplanRueckweg("?vorlage=messe", 5, "de")).toBe("/de/beschlag?vorlage=messe");
+    expect(bohrplanRueckweg("?vorlage=messe&blatt=9", 5, "de")).toBe("/de/beschlag?vorlage=messe");
   });
 });
