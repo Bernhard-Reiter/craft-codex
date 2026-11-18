@@ -37,6 +37,7 @@ describe("Messe-Unterschrank 600 · 1 Tür · 1 Innenschubkasten", () => {
     const m = s.points.filter((p) => p.stepId === "M1.schiene_schrauben");
     expect(m.map((p) => p.x)).toEqual([37, 243, 261, 293, 357]);
     expect(new Set(m.map((p) => `${p.yRef}:${p.y}`))).toEqual(new Set(["unterkante:57"]));
+    expect(m.every((p) => p.offen?.includes("OK Boden Unten") && !p.offen.includes("Unterboden"))).toBe(true);
   });
 
   it("untere Montageplatte sitzt auf der unteren Scharnierhöhe der Tür", () => {

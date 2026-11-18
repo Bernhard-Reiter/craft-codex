@@ -198,6 +198,13 @@ export function MesseStueckliste() {
           opacity: 0.75;
         }
         @media print {
+          /* Druck auf 2 Seiten: Tabelle eine Stufe kleiner, keine Zeile über den Seitenumbruch. */
+          .ms-tab {
+            font-size: var(--vi4-text-meta);
+          }
+          .ms-tab tr {
+            break-inside: avoid;
+          }
           /* Maß in einer Zeile: sonst wird jede Platten-Zeile 3 hoch und die Liste läuft auf Seite 2. */
           .ms-masszelle {
             white-space: nowrap;

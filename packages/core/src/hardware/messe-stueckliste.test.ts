@@ -19,6 +19,7 @@ describe("Stückliste Messe-Unterschrank", () => {
     expect(teil("Tür 1 Links")?.mass).toBe("846 × 596 × 19");
     expect(teil("Boden Oben")).toMatchObject({ mass: "562 × 575 × 19", annahme: false });
     expect(teil("Rückwand")).toMatchObject({ mass: "812 × 562 × 19", annahme: false });
+    expect(z.filter((r) => r.hinweis?.includes("3D-Szene"))).toEqual([]);
     expect(teil("Schubkastenfront")).toBeUndefined();
   });
 

@@ -16,6 +16,7 @@ describe("MesseStueckliste Druck", () => {
     const druck = css.slice(css.indexOf("@media print"));
     expect(css.indexOf("@media print")).toBeGreaterThan(-1);
     expect(druck).toMatch(/\.ms-masszelle\s*\{\s*white-space:\s*nowrap;?\s*\}/);
+    expect(druck).toMatch(/\.ms-tab\s*\{\s*font-size:\s*var\(--vi4-text-meta\);?\s*\}[\s\S]*\.ms-tab tr\s*\{\s*break-inside:\s*avoid;?\s*\}/);
     expect(css.slice(0, css.indexOf("@media print"))).not.toContain("ms-masszelle");
   });
 });

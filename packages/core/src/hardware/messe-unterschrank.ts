@@ -131,7 +131,7 @@ export function buildMesseUnterschrankSeiteLayout(): HardwareLayout {
       tool: "Ankörnen · Schraube (Art nicht belegt)",
       stepId: "M1.schiene_schrauben",
       offen:
-        `Schraublinie ${m.schraublinieUeberBoden} über OK Unterboden ist eine Annahme ` +
+        `Schraublinie ${m.schraublinieUeberBoden} über OK Boden Unten ist eine Annahme ` +
         `(Blum-Konfigurator), Boden ${PLATTE} aus dem Demo-Katalog.` +
         // Ein Satz für die ganze Gruppe (im Bohrplan nur einmal gezeigt).
         (offeneX.length

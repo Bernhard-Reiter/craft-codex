@@ -74,7 +74,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
       mass: fmt(lichteBreite, m.korpus.tiefe, P),
       material: korpus,
       annahme: false,
-      hinweis: "zwischen den Seiten, wie in der 3D-Szene",
+      hinweis: "zwischen den Seiten",
     },
     {
       gruppe: "Korpus",
@@ -83,7 +83,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
       mass: fmt(m.korpus.hoehe - 2 * P, lichteBreite, P),
       material: korpus,
       annahme: false,
-      hinweis: "19 zwischen Seiten und Böden, wie in der 3D-Szene",
+      hinweis: "zwischen Seiten und Böden eingesetzt",
     },
     {
       gruppe: "Front",
