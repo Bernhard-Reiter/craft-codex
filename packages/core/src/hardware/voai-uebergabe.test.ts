@@ -51,7 +51,7 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
     for (const p of d.inhalt.positionen) {
       expect(p.position_ref).toMatch(UUID);
       expect(p.menge).toMatch(DEZ);
-      expect(["stk", "satz"]).toContain(p.einheit);
+      expect(["stk", "satz", "m"]).toContain(p.einheit);
       expect(POS_KEYS).toEqual(expect.arrayContaining(Object.keys(p)));
       if (p.typ === "artikel") expect(p.artikel_id).toMatch(ARTIKEL);
       else expect(p.artikel_id).toBeNull();
@@ -61,9 +61,9 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
     expect(d.inhalt_sha256).toBe(sha256Hex(jcs({ schema: d.schema, inhalt: d.inhalt })));
   });
 
-  it("15 Positionen wie die Mappe: 11 Plattenteile + 4 Blum-Artikel (keine Schubkastenfront)", () => {
+  it("16 Positionen: 11 Plattenteile wie die Mappe + 1 Kante + 4 Blum-Artikel (keine Schubkastenfront)", () => {
     const pos = buildVoaiStueckliste().inhalt.positionen;
-    expect(pos).toHaveLength(15);
+    expect(pos).toHaveLength(16);
     expect(pos.filter((p) => p.typ === "artikel").map((p) => p.artikel_id)).toEqual([
       "blum:173L6100", "blum:71B3550", "blum:766H5000S", "blum:T51.7601",
     ]);
@@ -75,7 +75,7 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
   });
 
   it("jedes Plattenteil hat masse_mm mit Länge, Breite, Dicke > 0", () => {
-    const frei = buildVoaiStueckliste().inhalt.positionen.filter((p) => p.typ === "freiposition");
+    const frei = buildVoaiStueckliste().inhalt.positionen.filter((p) => p.typ === "freiposition" && p.einheit === "stk");
     expect(frei).toHaveLength(11);
     for (const p of frei) {
       expect(p.masse_mm, p.bezeichnung ?? "").toBeDefined();
@@ -83,6 +83,37 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
         expect(p.masse_mm![k]).toMatch(/^[1-9]\d*$/);
       }
     }
+  });
+
+  it("Mengen für VOAI ohne Preis: Einheit je Gruppe, Werkstoff-Aufbau, Kante in Metern (wie cody-cad)", () => {
+    const pos = buildVoaiStueckliste().inhalt.positionen;
+    const kurz = (p: (typeof pos)[number]) => (p.bezeichnung ?? "").split(",")[0]!.split(" · ")[0]!;
+    const zeile = pos.map((p) => [kurz(p), p.einheit, p.menge, p.werkstoff?.aufbau.id ?? "-",
+      p.herkunft.art === "regel" ? p.herkunft.regel_ref : "manuell"].join(" | "));
+    expect(zeile.filter((z) => z.includes("demo-aufbau-19")).sort()).toEqual([
+      "Boden Oben | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+      "Boden Unten | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+      "Rückwand | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+      "Seite Links | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+      "Seite Rechts | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+      "Tür 1 Links | stk | 1 | demo-aufbau-19 | korpus-zuschnitt/1",
+    ]);
+    for (const p of pos.filter((x) => x.werkstoff)) expect(p.werkstoff).toEqual({
+      aufbau: { katalog: "demo", id: "demo-aufbau-19", revision: 1 }, klasse: "platte",
+    });
+    // Schubkasten Eiche: kein Aufbau im Katalog -> manuell, werkstoff null.
+    expect(zeile.filter((z) => z.startsWith("Schubkasten-"))).toHaveLength(5);
+    expect(zeile.filter((z) => z.startsWith("Schubkasten-")).every((z) => z.endsWith("| stk | 1 | - | manuell"))).toBe(true);
+    // Kante: Seiten 2×850 + Böden 2×562 + Tür rundum 2×(846+596) = 5708 mm, Rückwand ohne.
+    const kante = pos.filter((p) => p.einheit === "m");
+    expect(kante.map((p) => [p.menge, p.herkunft.art === "regel" && p.herkunft.regel_ref, p.werkstoff, p.masse_mm])).toEqual([
+      ["5.708", "korpus-kante/1", null, undefined],
+    ]);
+    expect(kante[0]!.bezeichnung).toMatch(/^Kante 19 mm · .*Annahme/);
+    expect(pos.filter((p) => p.typ === "artikel").every((p) => p.einheit === "stk" && p.werkstoff === null)).toBe(true);
+    // Kein Preis-Schlüssel, nirgends (Vertrag + ADR-0044: den Preis rechnet VOAI).
+    const schluessel = JSON.stringify(pos).match(/"[a-z_]+":/g) ?? [];
+    expect(schluessel.filter((k) => /preis|price|betrag|eur|summe/i.test(k))).toEqual([]);
   });
 
   it("Revision zählbar: andere Revision -> anderer Hash, ungültige wird abgelehnt", () => {
