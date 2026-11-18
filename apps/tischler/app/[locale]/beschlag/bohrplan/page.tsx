@@ -26,6 +26,25 @@ type Blatt = {
   layout: HardwareLayout;
   /** Annahme zum ganzen Blatt (orange), z. B. die Anzahl der Scharniere. */
   annahme?: string;
+  /** Innenansicht gespiegelt: Vorderkante rechts im Bild (rechte Korpusseite). */
+  gespiegelt?: boolean;
+};
+
+const SEITE_LINKS = buildMesseUnterschrankSeiteLayout();
+
+/**
+ * Rechte Korpusseite = dieselben MOVENTO-Bohrungen wie links, ab Vorderkante
+ * gemessen. Keine Montageplatten: die Tür schlägt links an. Keine neuen Maße.
+ */
+const SEITE_RECHTS: HardwareLayout = {
+  ...SEITE_LINKS,
+  id: "messe-unterschrank-600--korpusseite-rechts",
+  label: "Korpusseite rechts: MOVENTO 766H5000S (spiegelbildlich)",
+  article: "Blum 766H5000S",
+  points: SEITE_LINKS.points.filter((p) => p.id.startsWith("movento.")),
+  chains: SEITE_LINKS.chains
+    .filter((c) => c.axis === "x")
+    .map((c) => ({ ...c, segments: [], total: 0 })),
 };
 
 const BLAETTER: Blatt[] = [
@@ -40,7 +59,17 @@ const BLAETTER: Blatt[] = [
     teil: "Seite",
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
-    layout: buildMesseUnterschrankSeiteLayout(),
+    layout: SEITE_LINKS,
+  },
+  {
+    teil: "Seite",
+    breite: M.korpus.tiefe,
+    hoehe: M.korpus.hoehe,
+    layout: SEITE_RECHTS,
+    annahme:
+      "Rechte Seite spiegelbildlich zur linken gezeichnet (Innenansicht, Vorderkante rechts im Bild). " +
+      "Keine Montageplatten, weil die Tür links anschlägt.",
+    gespiegelt: true,
   },
 ];
 
@@ -70,13 +99,14 @@ function Skizze({ b }: { b: Blatt }) {
       <rect x="0" y="0" width={w} height={h} fill="none" stroke="currentColor" strokeWidth="1" />
       <text x={w / 2} y={-6} fontSize="9" textAnchor="middle">
         {b.breite} mm · x ab {xFrom}
+        {b.gespiegelt ? " (rechts im Bild)" : ""}
       </text>
       <text x={-8} y={h / 2} fontSize="9" textAnchor="middle" transform={`rotate(-90 ${-8} ${h / 2})`}>
         {b.hoehe} mm
       </text>
       {b.layout.points.map((p, i) => {
         const cy = (p.yRef === "oberkante" ? p.y : b.hoehe - p.y) * s;
-        const cx = p.x * s;
+        const cx = (b.gespiegelt ? b.breite - p.x : p.x) * s;
         const farbe = p.offen ? ORANGE : "currentColor";
         return (
           <g key={p.id}>
@@ -164,7 +194,6 @@ export default function BohrplanPage() {
       <section className="blatt">
         <h2>Nicht gezeichnet</h2>
         <ul className="o">
-          <li>Korpusseite rechts: MOVENTO spiegelbildlich zur linken Seite (Annahme, eigenes Bild fehlt).</li>
           <li>Kupplung T51.7601: keine Bohrdaten in der Vorlage.</li>
         </ul>
       </section>
