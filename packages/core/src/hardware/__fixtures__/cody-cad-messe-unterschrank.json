@@ -1,0 +1,350 @@
+{
+  "schema": "stueckliste/2",
+  "inhalt": {
+    "projekt_ref": "ba85ca9b-4df2-520f-bbcc-21158402decc",
+    "liste_ref": "9fbe14e7-e292-5256-b068-ae043e503a5f",
+    "revision": 1,
+    "positionen": [
+      {
+        "position_ref": "0fc0d7c8-9c8f-58fc-8e96-ed7e47d7e09f",
+        "typ": "artikel",
+        "artikel_id": "blum:173L6100",
+        "bezeichnung": "CLIP Kreuzmontageplatte 37/32, Distanz 0 mm, zum Anschrauben · Anzahl nach Türhöhe (Annahme Blum-Faustregel, bitte bestätigen)",
+        "menge": "2",
+        "einheit": "stk",
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-scharnier/1"
+        },
+        "programm": "CLIP top",
+        "werkstoff": null
+      },
+      {
+        "position_ref": "14096fad-6fb2-5798-a4c0-3ff415f4f2ce",
+        "typ": "artikel",
+        "artikel_id": "blum:766H5000S",
+        "bezeichnung": "MOVENTO Führung, Vollauszug, 70 kg, Nennlänge 500",
+        "menge": "1",
+        "einheit": "satz",
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-schubkasten/1"
+        },
+        "programm": "MOVENTO",
+        "werkstoff": null
+      },
+      {
+        "position_ref": "172c4f1c-e610-56b9-b6fc-bc46d4a16a70",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Boden Unten",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "562",
+          "breite": "575",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_91589b778ffbd986"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "3003f275-afa5-5a0a-a9a9-d69c3c5599e4",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Tür 1 Links",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "846",
+          "breite": "596",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_875aed0f5b334701"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "4241d453-3d20-5b60-8910-263d332fd5e6",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Schubkasten-Seite links · Eiche natur geölt · Freigabe annahme, bitte bestätigen",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "490",
+          "breite": "150",
+          "dicke": "16"
+        },
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "manuell"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
+        "position_ref": "7d84d6bd-42ae-5125-84b0-8d3ae8874fb6",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Rückwand",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "812",
+          "breite": "562",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_8ec185aaa692a417"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "86a19211-e90b-5fd9-bd87-fed2c3074943",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Seite Links",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "850",
+          "breite": "575",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_0ae22dd8d3ee63ff"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "98225736-557d-5558-bddd-9056f5ab7a4b",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Schubkasten-Hinterstück · Eiche natur geölt · Freigabe annahme, bitte bestätigen",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "520",
+          "breite": "121",
+          "dicke": "16"
+        },
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "manuell"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
+        "position_ref": "abb88b7c-e507-5dc7-b08e-ee3e3cbdba87",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Schubkasten-Seite rechts · Eiche natur geölt · Freigabe annahme, bitte bestätigen",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "490",
+          "breite": "150",
+          "dicke": "16"
+        },
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "manuell"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
+        "position_ref": "cad8f2d5-08a1-58ae-89b8-5ca087a99570",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Seite Rechts",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "850",
+          "breite": "575",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_f7d88cdd07518258"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "ce3ac89c-b013-5d7f-9c9d-13e445778139",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Schubkasten-Vorderstück · Eiche natur geölt · Freigabe annahme, bitte bestätigen",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "520",
+          "breite": "121",
+          "dicke": "16"
+        },
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "manuell"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
+        "position_ref": "ce7f0b5f-fc73-5398-808f-65cbbced663d",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Boden Oben",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "562",
+          "breite": "575",
+          "dicke": "19"
+        },
+        "teil_refs": [
+          "teil_1da5ff947276297b"
+        ],
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-zuschnitt/1"
+        },
+        "programm": null,
+        "werkstoff": {
+          "aufbau": {
+            "katalog": "demo",
+            "id": "demo-aufbau-19",
+            "revision": 1
+          },
+          "klasse": "platte"
+        }
+      },
+      {
+        "position_ref": "d0a6a799-35ec-5598-905e-5ec35289e2ea",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Schubkasten-Boden · Eiche natur geölt · Freigabe annahme, bitte bestätigen",
+        "menge": "1",
+        "einheit": "stk",
+        "masse_mm": {
+          "laenge": "530",
+          "breite": "490",
+          "dicke": "16"
+        },
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "manuell"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
+        "position_ref": "dfb4040d-37b6-544a-b17e-3c1dccb25562",
+        "typ": "artikel",
+        "artikel_id": "blum:71B3550",
+        "bezeichnung": "CLIP top BLUMOTION 110° Scharnier, Topf zum Schrauben, Eckanschlag · Anzahl nach Türhöhe (Annahme Blum-Faustregel, bitte bestätigen)",
+        "menge": "2",
+        "einheit": "stk",
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-scharnier/1"
+        },
+        "programm": "CLIP top BLUMOTION",
+        "werkstoff": null
+      },
+      {
+        "position_ref": "f5b16b97-5a23-5d57-bc2e-27c978fe99b9",
+        "typ": "artikel",
+        "artikel_id": "blum:T51.7601",
+        "bezeichnung": "MOVENTO Kupplung, links und rechts",
+        "menge": "1",
+        "einheit": "satz",
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-schubkasten/1"
+        },
+        "programm": "MOVENTO",
+        "werkstoff": null
+      }
+    ]
+  },
+  "export": {
+    "cody_cad_version": "0.1.0",
+    "erzeugt_am": "2026-11-18T08:11:55Z"
+  },
+  "inhalt_sha256": "ac8baa476f9c5bda8cec49b67deebe2193a1b9312a8f0b0b3d7f44081f6928f8"
+}
