@@ -5,7 +5,11 @@
  * Werte nur aus MESSE_UNTERSCHRANK (core), Annahmen markiert, keine Preise.
  */
 
-import { buildMesseStueckliste, messeStuecklisteCsv } from "@craft-codex/core";
+import {
+  buildMesseStueckliste,
+  buildVoaiStueckliste,
+  messeStuecklisteCsv,
+} from "@craft-codex/core";
 import { Link } from "../i18n/navigation";
 
 export function MesseStueckliste() {
@@ -25,6 +29,17 @@ export function MesseStueckliste() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  // Datei im VOAI-Vertrag stueckliste/2, ohne Preise. Kein Aufruf an VOAI.
+  const anVoai = () => {
+    const text = JSON.stringify(buildVoaiStueckliste(), null, 2) + "\n";
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "voai-stueckliste-messe-unterschrank-600.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   return (
     <section className="stueckliste" aria-labelledby="stueckliste-titel">
       <div className="kopfzeile">
@@ -33,6 +48,9 @@ export function MesseStueckliste() {
           ⬇ CSV herunterladen
         </button>
         <Link href="/beschlag/etiketten?vorlage=messe">🏷 Etiketten</Link>
+        <button type="button" onClick={anVoai} title="JSON-Datei für den Angebots-Import in VOAI, ohne Preise">
+          ➜ An VOAI übergeben
+        </button>
       </div>
       <div className="rolle">
         <table>
