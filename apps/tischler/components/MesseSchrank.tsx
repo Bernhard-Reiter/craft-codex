@@ -10,8 +10,8 @@
  *
  * Aufbau wie in der Demo-Vorlage: Seiten über die volle Höhe, Unter- und
  * Oberboden zwischen den Seiten, Rückwand 19 zwischen (Demo, synthetisch).
- * Fronten mit Fuge 2 aufliegend. Tür oben, Schubkasten unten (Annahme wie
- * in PR 79).
+ * Tür mit Fuge 2 aufliegend über die ganze Höhe, Schubkasten als Innenauszug
+ * dahinter ohne eigene Front (wie cody-cad, Meister 1172 18.11.2026).
  *
  * Montage-Leuchten: der aktive Schritt färbt das Teil, an dem gearbeitet
  * wird (Tür bei B1/B2, linke Korpusseite bei B3/M1, Schubkasten bei M2).
@@ -80,8 +80,7 @@ export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
   const innen = B - 2 * s;
   const fz = s / 2; // Fronten liegen vor dem Korpus
 
-  const tuerMitteY = H - fuge - M.tuer.hoehe / 2;
-  const skMitteY = fuge + M.schubkastenFront.hoehe / 2;
+  const tuerMitteY = fuge + M.tuer.hoehe / 2;
 
   return (
     <group scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}>
@@ -104,7 +103,7 @@ export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
         pos={[0, H / 2, -T + s / 2]}
         farbe={FARBE.rueckwand}
       />
-      {/* Tür oben, Anschlag links: dreht um die linke Kante */}
+      {/* Tür über die ganze Höhe (wie cody-cad), Anschlag links: dreht um die linke Kante */}
       <group position={[-M.tuer.breite / 2, tuerMitteY, s]} rotation={[0, offen ? TUER_OFFEN : 0, 0]}>
         <Platte
           groesse={[M.tuer.breite, M.tuer.hoehe, s]}
@@ -114,23 +113,12 @@ export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
         />
         <Platte
           groesse={[12, 120, 20]}
-          pos={[M.tuer.breite - 40, -M.tuer.hoehe / 2 + 120, 10]}
+          pos={[M.tuer.breite - 40, M.tuer.hoehe / 2 - 120, 10]}
           farbe={FARBE.griff}
         />
       </group>
-      {/* Schubkasten unten: Front + Kasten (H 150) fahren zusammen aus */}
+      {/* Innenschubkasten hinter der Tür (H 150, keine eigene Front): fährt bei offener Tür aus */}
       <group position={[0, 0, offen ? AUSZUG_MM : 0]}>
-        <Platte
-          groesse={[M.schubkastenFront.breite, M.schubkastenFront.hoehe, s]}
-          pos={[0, skMitteY, fz]}
-          farbe={FARBE.front}
-          leuchtet={teil === "schubkasten"}
-        />
-        <Platte
-          groesse={[160, 12, 20]}
-          pos={[0, skMitteY + M.schubkastenFront.hoehe / 2 - 40, s + 10]}
-          farbe={FARBE.griff}
-        />
         <Platte
           groesse={[innen - 32, 150, 490]}
           pos={[0, s + 10 + 75, -245]}

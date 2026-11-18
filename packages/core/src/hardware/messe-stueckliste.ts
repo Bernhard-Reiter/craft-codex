@@ -70,16 +70,7 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
       mass: fmt(m.tuer.hoehe, m.tuer.breite, P),
       material: `Platte ${P} mm (Demo-Katalog)`,
       annahme: true,
-      hinweis: "Höhe folgt aus der Schubkastenfront (Annahme)",
-    },
-    {
-      gruppe: "Front",
-      teil: "Schubkastenfront",
-      anzahl: 1,
-      mass: fmt(m.schubkastenFront.hoehe, m.schubkastenFront.breite, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
-      annahme: true,
-      hinweis: "Fronthöhe nicht belegt, Bernhard sagt das Maß",
+      hinweis: "über die ganze Höhe, Schubkasten innen dahinter (wie cody-cad)",
     },
     ...m.schubkastenTeile.map((t): StuecklistenZeile => {
       const i = t.search(/ \d/);
@@ -189,8 +180,7 @@ const ETIKETT_DATEN: Record<string, { kanten: Kantenbild; positionen: string[] }
   Unterboden: { kanten: VORN, positionen: ["Korpus unten"] },
   Oberboden: { kanten: VORN, positionen: ["Korpus oben"] },
   "Rückwand": { kanten: KEINE, positionen: ["Korpus hinten"] },
-  "Tür": { kanten: RUNDUM, positionen: ["Front oben, Anschlag links"] },
-  Schubkastenfront: { kanten: RUNDUM, positionen: ["Front unten"] },
+  "Tür": { kanten: RUNDUM, positionen: ["Front, Anschlag links"] },
   "Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
   "Hinterstück": { kanten: VORN, positionen: ["Schubkasten hinten"] },
   "Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },

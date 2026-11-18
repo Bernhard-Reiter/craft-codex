@@ -6,12 +6,18 @@ import {
 import { buildBlumClipTopTuerLayout } from "./blum-clip-top.js";
 import { validateLayout, mayRenderDrillPoints, openQuestions } from "./validate.js";
 
-describe("Messe-Unterschrank 600 · 1 Tür · 1 Schubkasten", () => {
+describe("Messe-Unterschrank 600 · 1 Tür · 1 Innenschubkasten", () => {
   const v = MESSE_UNTERSCHRANK;
 
-  it("Fronten aus Korpus minus Fugen (2 außen je Kante, 2 Mitte)", () => {
-    expect(v.tuer.breite).toBe(596);
-    expect(v.tuer.hoehe + 2 + v.schubkastenFront.hoehe).toBe(846);
+  it("eine Tür über die ganze Höhe wie cody-cad: 596 × 846, keine Schubkastenfront", () => {
+    expect(v.tuer).toEqual({ breite: 596, hoehe: 846 });
+    expect(v.schubkastenInnen).toBe(true);
+    expect(v).not.toHaveProperty("schubkastenFront");
+  });
+
+  it("Montageplatten wie cody-cad-Bohrbild: 86/118 + 732/764 (symmetrisch, ab Ober- = ab Unterkante)", () => {
+    const y = s.points.filter((p) => p.id.startsWith("platte.")).map((p) => p.y);
+    expect(y).toEqual([86, 118, 732, 764]);
   });
 
   it("Tür passt für zwei CLIP-top-Scharniere", () => {

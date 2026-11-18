@@ -1,5 +1,5 @@
 /**
- * Messe-Vorlage »Unterschrank 600, eine Tür, ein Schubkasten«
+ * Messe-Vorlage »Unterschrank 600, eine Tür, ein Innenschubkasten«
  * (Blum CLIP top an der Tür, Blum MOVENTO unter dem Schubkasten).
  *
  * Gleicher Schrank wie in der App (Stolperliste Ziel 2, Punkt 7), damit
@@ -11,7 +11,11 @@
  *   Korpus 600 × 850 × 575 (ohne Sockel, ohne Front): daten/demo/
  *     korpus-vorlagen.json »demo-unterschrank«, freigabe meister
  *     (Bernhard 18.09.2026).
- *   Fugen 2 mm außen je Kante, 2 mm Mitte: daten/standards/
+ *   Aufbau wie cody-cad (führt, Meister 1172 18.11.2026): EINE Tür über die
+ *     ganze Höhe (Fach 1 leftdoor), der Schubkasten sitzt als Innenauszug
+ *     hinter der Tür, ohne eigene Front (cody-cad App 7d61005e,
+ *     kern/protokoll/korpus_stueckliste.py demo_messe_unterschrank_eingaben).
+ *   Fugen 2 mm außen je Kante: daten/standards/
  *     tischlerei-standard.json, freigabe meister (Bernhard 22.09.2026).
  *   Plattenstärke 19: demo-aufbau-19 (Demo-Katalog, synthetisch).
  *   MOVENTO 766H5000S, NL 500: daten/beschlaege/blum-766h5000s.json
@@ -23,25 +27,22 @@
  *     (B2a, Ablesung T3.7).
  *
  * NICHT BELEGT (als Annahme markiert)
- *   Die Aufteilung der Front (wie hoch ist die Schubkastenfront?) und dass
- *   der Schubkasten unten sitzt. cody-cad kennt MOVENTO nur über dem
- *   Unterboden (movento_unten), darum ist die Tür oben.
+ *   Zwei Scharniere bei Tür 846: Blum-Faustregel (bis 900 mm Höhe zwei),
+ *   keine Blum-Unterlage mit Seite (cody-cad SCHARNIERE_JE_HOEHE, auch dort
+ *   Annahme). Platz auf der Bandseite für den Innenauszug hinter der Tür
+ *   (CLIP top 110°, Eckanschlag) ist nicht geprüft.
  */
 
 import { BLUM_CLIP_TOP, WERKSTATT_LAGE } from "./blum-clip-top.js";
 import type { DrillPoint, HardwareLayout } from "./types.js";
 
 const FUGE_AUSSEN = 2;
-const FUGE_MITTE = 2;
 const PLATTE = 19;
-
-/** Annahme: Höhe der Schubkastenfront. Bernhard sagt das Maß. */
-const SCHUBKASTEN_FRONT_ANNAHME = 200;
 
 const KORPUS = { breite: 600, hoehe: 850, tiefe: 575 } as const;
 const FRONT_BREITE = KORPUS.breite - 2 * FUGE_AUSSEN;
-const FRONT_HOEHE_GESAMT = KORPUS.hoehe - 2 * FUGE_AUSSEN;
-const TUER_HOEHE = FRONT_HOEHE_GESAMT - FUGE_MITTE - SCHUBKASTEN_FRONT_ANNAHME;
+/** Eine Tür über die ganze Höhe (wie cody-cad): 850 − 2 × 2 = 846. */
+const TUER_HOEHE = KORPUS.hoehe - 2 * FUGE_AUSSEN;
 
 export const BLUM_MOVENTO = {
   artikel: "Blum MOVENTO 766H5000S",
@@ -61,11 +62,12 @@ export const BLUM_MOVENTO = {
 
 export const MESSE_UNTERSCHRANK = {
   id: "messe-unterschrank-600",
-  name: "Unterschrank 600 · 1 Tür · 1 Schubkasten",
+  name: "Unterschrank 600 · 1 Tür · 1 Innenschubkasten",
   korpus: KORPUS,
   plattenstaerke: PLATTE,
   tuer: { breite: FRONT_BREITE, hoehe: TUER_HOEHE },
-  schubkastenFront: { breite: FRONT_BREITE, hoehe: SCHUBKASTEN_FRONT_ANNAHME },
+  /** Innenauszug hinter der Tür, keine eigene Front (wie cody-cad). */
+  schubkastenInnen: true,
   /** Holzschubkasten bei H 150 / LW 562 (cody-cad B2a, Ablesung T3.7). */
   schubkastenTeile: [
     "Vorderstück 520 × 121 × 16",
@@ -75,8 +77,8 @@ export const MESSE_UNTERSCHRANK = {
     "Boden 530 × 490 × 16",
   ],
   annahmen: [
-    `Schubkastenfront ${SCHUBKASTEN_FRONT_ANNAHME} mm hoch, Tür darüber ${TUER_HOEHE} mm. Die Aufteilung ist nicht belegt.`,
-    "Schubkasten unten, Tür oben (cody-cad setzt MOVENTO nur über den Unterboden).",
+    `Zwei Scharniere bei Tür ${TUER_HOEHE} mm: Blum-Faustregel, keine Blum-Unterlage mit Seite.`,
+    "Innenschubkasten hinter der Tür: Platz auf der Bandseite (CLIP top 110°, Eckanschlag) nicht geprüft.",
     "Plattenstärke 19 aus dem Demo-Katalog, Unterboden zwischen den Seiten.",
   ],
 } as const;

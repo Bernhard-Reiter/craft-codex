@@ -13,10 +13,10 @@ describe("Stückliste Messe-Unterschrank", () => {
   it("Korpus und Fronten aus den Vorlagen-Maßen", () => {
     expect(teil("Seite")).toMatchObject({ anzahl: 2, mass: "850 × 575 × 19" });
     expect(teil("Unterboden")).toMatchObject({ mass: "562 × 575 × 19", annahme: true });
-    expect(teil("Tür")?.mass).toBe("644 × 596 × 19");
+    expect(teil("Tür")?.mass).toBe("846 × 596 × 19");
     expect(teil("Oberboden")).toMatchObject({ mass: "562 × 575 × 19", annahme: true });
     expect(teil("Rückwand")).toMatchObject({ mass: "562 × 812 × 19", annahme: true });
-    expect(teil("Schubkastenfront")).toMatchObject({ mass: "200 × 596 × 19", annahme: true });
+    expect(teil("Schubkastenfront")).toBeUndefined();
   });
 
   it("Schubkastenteile sauber in Name und Maß getrennt", () => {
@@ -38,8 +38,8 @@ describe("Etiketten Messe-Unterschrank", () => {
   const e = buildMesseEtiketten();
 
   it("ein Etikett je Plattenteil, Seiten links + rechts getrennt, keine Beschläge", () => {
-    // 2 Seiten + Unter/Oberboden + Rückwand + Tür + SK-Front + 5 SK-Teile = 12
-    expect(e).toHaveLength(12);
+    // 2 Seiten + Unter/Oberboden + Rückwand + Tür + 5 SK-Teile = 11 (Innenschubkasten, keine SK-Front)
+    expect(e).toHaveLength(11);
     expect(e.filter((x) => x.teil === "Seite").map((x) => x.position)).toEqual([
       "Korpus links",
       "Korpus rechts",

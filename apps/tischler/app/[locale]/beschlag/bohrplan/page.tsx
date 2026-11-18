@@ -19,7 +19,14 @@ import { Link } from "../../../../i18n/navigation";
 const M = MESSE_UNTERSCHRANK;
 const ORANGE = "#e67e00";
 
-type Blatt = { teil: string; breite: number; hoehe: number; layout: HardwareLayout };
+type Blatt = {
+  teil: string;
+  breite: number;
+  hoehe: number;
+  layout: HardwareLayout;
+  /** Annahme zum ganzen Blatt (orange), z. B. die Anzahl der Scharniere. */
+  annahme?: string;
+};
 
 const BLAETTER: Blatt[] = [
   {
@@ -27,6 +34,7 @@ const BLAETTER: Blatt[] = [
     breite: M.tuer.breite,
     hoehe: M.tuer.hoehe,
     layout: buildBlumClipTopTuerLayout(M.tuer.breite, M.tuer.hoehe),
+    annahme: M.annahmen[0],
   },
   {
     teil: "Seite",
@@ -114,6 +122,11 @@ export default function BohrplanPage() {
             <p className="klein">
               {b.breite} × {b.hoehe} mm · Anschlag {b.layout.anschlag} · Status {b.layout.status}
             </p>
+            {b.annahme && (
+              <p className="klein" style={{ color: ORANGE }}>
+                Annahme: {b.annahme}
+              </p>
+            )}
             <div className="inhalt">
               <Skizze b={b} />
               <table>

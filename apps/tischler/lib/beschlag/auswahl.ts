@@ -64,7 +64,7 @@ const BLUM_SEITE: Werkstueck = {
   layout: buildBlumMontageplatteSeiteLayout(560),
 };
 
-// Messe-Vorlage: Unterschrank 600 · 1 Tür · 1 Schubkasten (Maße aus cody-cad).
+// Messe-Vorlage: Unterschrank 600 · 1 Tür · 1 Innenschubkasten (Maße aus cody-cad).
 const M = MESSE_UNTERSCHRANK;
 const MESSE_TUER: Werkstueck = {
   id: "messe.tuer",
