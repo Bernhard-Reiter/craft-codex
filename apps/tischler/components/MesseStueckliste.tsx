@@ -152,7 +152,7 @@ export function MesseStueckliste() {
                   <td>
                     {p.artikel_id
                       ? p.artikel_id.replace(/^blum:/, "Blum ")
-                      : (zeilen[i]?.material ?? "Platte (frei)")}
+                      : (zeilen[i]?.material ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
                   </td>
                 </tr>
               ))}

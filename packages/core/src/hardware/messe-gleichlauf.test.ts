@@ -45,9 +45,9 @@ describe("Gleichlauf Messe-Unterschrank: craft-codex = cody-cad", () => {
     expect(artikel(unsere)).toEqual(artikel(ihre));
   });
 
-  it("Kante: cody-cad führt 5,708 m (Annahme), craft-codex bewusst keine Kanten-Zeile — Lücke bleibt sichtbar", () => {
+  it("Kante: beide 5,708 m (Annahme, Kantenbild der Etiketten = cody-cad korpus_kanten)", () => {
     const kante = (pos: Pos[]) => pos.filter((p) => p.typ === "freiposition" && !p.masse_mm && p.einheit === "m").map((p) => p.menge);
     expect(kante(ihre)).toEqual(["5.708"]);
-    expect(kante(unsere)).toEqual([]);
+    expect(kante(unsere)).toEqual(["5.708"]);
   });
 });
