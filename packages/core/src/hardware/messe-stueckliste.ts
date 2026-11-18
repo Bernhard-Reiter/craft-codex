@@ -245,3 +245,15 @@ export function kantenText(k: Kantenbild): string {
   if (n.length === 0) return "keine Kante";
   return n.join(" + ");
 }
+
+/**
+ * Teile in der Reihenfolge der Blätter im Bohrplan-Druck (beschlag/bohrplan,
+ * BLAETTER): Tür, Korpusseite links, Korpusseite rechts, Hinterstück, Boden.
+ */
+export const MESSE_BOHRPLAN_TEILE = ["Tür", "Seite", "Seite", "Hinterstück", "Boden"] as const;
+
+/** Verweis für die Stückliste, z. B. »Bohrplan Blatt 2 + 3 von 5«; ohne Bohrplan-Blatt undefined. */
+export function bohrplanBlattVerweis(teil: string): string | undefined {
+  const n = MESSE_BOHRPLAN_TEILE.flatMap((t, i) => (t === teil ? [i + 1] : []));
+  return n.length ? `Bohrplan Blatt ${n.join(" + ")} von ${MESSE_BOHRPLAN_TEILE.length}` : undefined;
+}

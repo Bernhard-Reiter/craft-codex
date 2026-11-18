@@ -6,6 +6,7 @@
  */
 
 import {
+  bohrplanBlattVerweis,
   buildMesseStueckliste,
   buildVoaiStueckliste,
   messeStuecklisteCsv,
@@ -64,6 +65,9 @@ export function MesseStueckliste() {
                 <td>{z.material || "–"}</td>
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
+                  {bohrplanBlattVerweis(z.teil) && (
+                    <span className="ms-blatt">{bohrplanBlattVerweis(z.teil)}</span>
+                  )}
                 </td>
               </tr>
             ))}
@@ -167,6 +171,12 @@ export function MesseStueckliste() {
           border: 1px solid currentColor;
           font-size: var(--vi4-text-meta);
           font-weight: var(--vi4-weight-medium);
+        }
+        .ms-blatt {
+          display: block;
+          font-size: var(--vi4-text-meta);
+          font-weight: var(--vi4-weight-medium);
+          white-space: nowrap;
         }
         .ms-voai summary {
           cursor: pointer;

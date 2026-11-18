@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  bohrplanBlattVerweis,
   buildMesseEtiketten,
   buildMesseStueckliste,
   kantenText,
@@ -87,5 +88,26 @@ describe("Etiketten Messe-Unterschrank", () => {
     const pos = e.map((x) => x.position);
     expect(pos).not.toContain("nicht belegt");
     expect(new Set(pos).size).toBe(e.length);
+  });
+
+  it("jedes gebohrte Teil verweist auf sein Bohrplan-Blatt, ungebohrte nicht", () => {
+    const verweise = Object.fromEntries(
+      buildMesseStueckliste().flatMap((r) => {
+        const v = bohrplanBlattVerweis(r.teil);
+        return v ? [[r.teil, v]] : [];
+      }),
+    );
+    expect(verweise).toEqual({
+      "Tür": "Bohrplan Blatt 1 von 5",
+      Seite: "Bohrplan Blatt 2 + 3 von 5",
+      "Hinterstück": "Bohrplan Blatt 4 von 5",
+      Boden: "Bohrplan Blatt 5 von 5",
+    });
+    const gebohrt = new Set(
+      buildMesseEtiketten()
+        .filter((e) => e.bohren.join() !== "keine Bohrung")
+        .map((e) => e.teil),
+    );
+    expect(new Set(Object.keys(verweise))).toEqual(gebohrt);
   });
 });
