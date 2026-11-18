@@ -3,8 +3,8 @@
  *
  * Rechnet NUR aus den Maßen in MESSE_UNTERSCHRANK, keine neuen Maße und
  * keine Preise. Was in der Vorlage nicht belegt ist, steht hier mit
- * `annahme: true`. Was gar keine Maße hat (Oberboden, Rückwand), steht
- * als Zeile ohne Maß mit Vermerk »nicht belegt«.
+ * `annahme: true`. Oberboden und Rückwand folgen der 3D-Szene
+ * (MesseSchrank.tsx, Demo) und sind ebenfalls Annahme.
  */
 
 import { BLUM_MOVENTO, MESSE_UNTERSCHRANK } from "./messe-unterschrank.js";
@@ -47,21 +47,21 @@ export function buildMesseStueckliste(): StuecklistenZeile[] {
     },
     {
       gruppe: "Korpus",
-      teil: "Oberboden / Traversen",
+      teil: "Oberboden",
       anzahl: 1,
-      mass: "",
-      material: "",
+      mass: fmt(lichteBreite, m.korpus.tiefe, P),
+      material: `Platte ${P} mm (Demo-Katalog)`,
       annahme: true,
-      hinweis: "nicht belegt, kein Maß in der Vorlage",
+      hinweis: "zwischen den Seiten, wie in der 3D-Szene (Annahme)",
     },
     {
       gruppe: "Korpus",
       teil: "Rückwand",
       anzahl: 1,
-      mass: "",
-      material: "",
+      mass: fmt(lichteBreite, m.korpus.hoehe - 2 * P, P),
+      material: `Platte ${P} mm (Demo-Katalog)`,
       annahme: true,
-      hinweis: "nicht belegt, kein Maß in der Vorlage",
+      hinweis: "19 zwischen Seiten und Böden, wie in der 3D-Szene (Annahme)",
     },
     {
       gruppe: "Front",

@@ -9,6 +9,8 @@ describe("Stückliste Messe-Unterschrank", () => {
     expect(teil("Seite")).toMatchObject({ anzahl: 2, mass: "850 × 575 × 19" });
     expect(teil("Unterboden")).toMatchObject({ mass: "562 × 575 × 19", annahme: true });
     expect(teil("Tür")?.mass).toBe("644 × 596 × 19");
+    expect(teil("Oberboden")).toMatchObject({ mass: "562 × 575 × 19", annahme: true });
+    expect(teil("Rückwand")).toMatchObject({ mass: "562 × 812 × 19", annahme: true });
     expect(teil("Schubkastenfront")).toMatchObject({ mass: "200 × 596 × 19", annahme: true });
   });
 

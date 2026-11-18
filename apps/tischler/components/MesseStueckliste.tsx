@@ -20,7 +20,8 @@ export function MesseStueckliste() {
     a.href = url;
     a.download = "stueckliste-messe-unterschrank-600.csv";
     a.click();
-    URL.revokeObjectURL(url);
+    // Safari/iPad braucht die URL noch kurz nach dem Klick.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
