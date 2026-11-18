@@ -325,7 +325,10 @@ export default function BeschlagXRPage() {
                   activeStepId={schritt?.id}
                 />
                 {beschlag.id === "messe" && (
-                  <MesseSchrankNebenWerkstueck werkstueckBreiteMm={werkstueck.breiteMm} />
+                  <MesseSchrankNebenWerkstueck
+                    werkstueckBreiteMm={werkstueck.breiteMm}
+                    activeStepId={schritt?.id}
+                  />
                 )}
               </group>
             )}
@@ -333,7 +336,7 @@ export default function BeschlagXRPage() {
             {/* ─── Messe-Unterschrank frei am Boden, solange nicht ausgerichtet ─── */}
             {beschlag.id === "messe" && !reg && !ausrichten && (
               <group position={[0.9, 0, -1.2]} rotation={[0, -0.4, 0]}>
-                <MesseSchrank />
+                <MesseSchrank activeStepId={schritt?.id} />
               </group>
             )}
           </XR>

@@ -19,6 +19,7 @@ import {
   mayRenderDrillPoints,
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../components/BeschlagScene";
+import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
 import { Link } from "../../../i18n/navigation";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
@@ -120,6 +121,13 @@ export default function BeschlagPage() {
             faceHeight={werkstueck.hoeheMm}
             activeStepId={schritt?.id}
           />
+          {beschlag.id === "messe" && (
+            <MesseSchrankNebenTafel
+              werkstueckBreiteMm={werkstueck.breiteMm}
+              werkstueckHoeheMm={werkstueck.hoeheMm}
+              activeStepId={schritt?.id}
+            />
+          )}
           <OrbitControls makeDefault enablePan target={[0, 0, 0]} />
         </Canvas>
       </div>

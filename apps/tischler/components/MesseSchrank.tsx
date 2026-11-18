@@ -12,6 +12,10 @@
  * Oberboden zwischen den Seiten, Rückwand 19 zwischen (Demo, synthetisch).
  * Fronten mit Fuge 2 aufliegend. Tür oben, Schubkasten unten (Annahme wie
  * in PR 79).
+ *
+ * Montage-Leuchten: der aktive Schritt färbt das Teil, an dem gearbeitet
+ * wird (Tür bei B1/B2, linke Korpusseite bei B3/M1, Schubkasten bei M2).
+ * Bei B4 steht die Tür offen und der Schubkasten ist ausgezogen.
  */
 
 import { MESSE_UNTERSCHRANK as M } from "@craft-codex/core";
@@ -24,26 +28,52 @@ const FARBE = {
   front: "#f4efe4",
   kante: "#3a3428",
   griff: "#7a7468",
+  kasten: "#e6dcc6",
+  leuchten: "#ff8a00",
 };
+
+type Teil = "tuer" | "seite" | "schubkasten";
+
+/** Welches Teil bei welchem Montage-Schritt leuchtet. */
+function teilFuer(stepId: string | undefined): Teil | null {
+  if (!stepId) return null;
+  if (stepId.startsWith("B1.") || stepId.startsWith("B2.")) return "tuer";
+  if (stepId.startsWith("B3.") || stepId.startsWith("M1.")) return "seite";
+  if (stepId.startsWith("M2.")) return "schubkasten";
+  return null;
+}
+
+/** Tür offen (rad) und Auszug (mm), nur beim Einclipsen B4. */
+const TUER_OFFEN = -Math.PI * 0.55;
+const AUSZUG_MM = 400; // MOVENTO NL 500, nicht ganz ausgezogen
 
 function Platte({
   groesse,
   pos,
   farbe,
+  leuchtet = false,
 }: {
   groesse: [number, number, number];
   pos: [number, number, number];
   farbe: string;
+  leuchtet?: boolean;
 }) {
   return (
     <mesh position={pos}>
       <boxGeometry args={groesse} />
-      <meshStandardMaterial color={farbe} roughness={0.8} />
+      <meshStandardMaterial
+        color={leuchtet ? FARBE.leuchten : farbe}
+        emissive={leuchtet ? FARBE.leuchten : "#000000"}
+        emissiveIntensity={leuchtet ? 0.6 : 0}
+        roughness={0.8}
+      />
     </mesh>
   );
 }
 
-export function MesseSchrank() {
+export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
+  const teil = teilFuer(activeStepId);
+  const offen = activeStepId?.startsWith("B4.") ?? false;
   const { breite: B, hoehe: H, tiefe: T } = M.korpus;
   const s = M.plattenstaerke;
   const fuge = (B - M.tuer.breite) / 2; // 2 mm, aus den Frontmaßen abgeleitet
@@ -55,13 +85,14 @@ export function MesseSchrank() {
 
   return (
     <group scale={[SCALE_MM_TO_M, SCALE_MM_TO_M, SCALE_MM_TO_M]}>
-      {/* Seiten */}
+      {/* Seiten (k = −1 ist links) */}
       {[-1, 1].map((k) => (
         <Platte
           key={k}
           groesse={[s, H, T]}
           pos={[k * (B / 2 - s / 2), H / 2, -T / 2]}
           farbe={FARBE.korpus}
+          leuchtet={k === -1 && teil === "seite"}
         />
       ))}
       {/* Unter- und Oberboden zwischen den Seiten */}
@@ -73,28 +104,40 @@ export function MesseSchrank() {
         pos={[0, H / 2, -T + s / 2]}
         farbe={FARBE.rueckwand}
       />
-      {/* Tür oben, Anschlag links */}
-      <Platte
-        groesse={[M.tuer.breite, M.tuer.hoehe, s]}
-        pos={[0, tuerMitteY, fz]}
-        farbe={FARBE.front}
-      />
-      <Platte
-        groesse={[12, 120, 20]}
-        pos={[M.tuer.breite / 2 - 40, tuerMitteY - M.tuer.hoehe / 2 + 120, s + 10]}
-        farbe={FARBE.griff}
-      />
-      {/* Schubkastenfront unten */}
-      <Platte
-        groesse={[M.schubkastenFront.breite, M.schubkastenFront.hoehe, s]}
-        pos={[0, skMitteY, fz]}
-        farbe={FARBE.front}
-      />
-      <Platte
-        groesse={[160, 12, 20]}
-        pos={[0, skMitteY + M.schubkastenFront.hoehe / 2 - 40, s + 10]}
-        farbe={FARBE.griff}
-      />
+      {/* Tür oben, Anschlag links: dreht um die linke Kante */}
+      <group position={[-M.tuer.breite / 2, tuerMitteY, s]} rotation={[0, offen ? TUER_OFFEN : 0, 0]}>
+        <Platte
+          groesse={[M.tuer.breite, M.tuer.hoehe, s]}
+          pos={[M.tuer.breite / 2, 0, fz - s]}
+          farbe={FARBE.front}
+          leuchtet={teil === "tuer"}
+        />
+        <Platte
+          groesse={[12, 120, 20]}
+          pos={[M.tuer.breite - 40, -M.tuer.hoehe / 2 + 120, 10]}
+          farbe={FARBE.griff}
+        />
+      </group>
+      {/* Schubkasten unten: Front + Kasten (H 150) fahren zusammen aus */}
+      <group position={[0, 0, offen ? AUSZUG_MM : 0]}>
+        <Platte
+          groesse={[M.schubkastenFront.breite, M.schubkastenFront.hoehe, s]}
+          pos={[0, skMitteY, fz]}
+          farbe={FARBE.front}
+          leuchtet={teil === "schubkasten"}
+        />
+        <Platte
+          groesse={[160, 12, 20]}
+          pos={[0, skMitteY + M.schubkastenFront.hoehe / 2 - 40, s + 10]}
+          farbe={FARBE.griff}
+        />
+        <Platte
+          groesse={[innen - 32, 150, 490]}
+          pos={[0, s + 10 + 75, -245]}
+          farbe={FARBE.kasten}
+          leuchtet={teil === "schubkasten"}
+        />
+      </group>
     </group>
   );
 }
@@ -111,15 +154,39 @@ const LUFT_MM = 300;
 export function MesseSchrankNebenWerkstueck({
   werkstueckBreiteMm,
   werkstueckDickeMm = M.plattenstaerke,
+  activeStepId,
 }: {
   werkstueckBreiteMm: number;
   werkstueckDickeMm?: number;
+  activeStepId?: string;
 }) {
   const x = (werkstueckBreiteMm / 2 + LUFT_MM + M.korpus.breite / 2) * SCALE_MM_TO_M;
   const z = -werkstueckDickeMm * SCALE_MM_TO_M;
   return (
     <group position={[x, 0, z]} rotation={[Math.PI / 2, 0, 0]}>
-      <MesseSchrank />
+      <MesseSchrank activeStepId={activeStepId} />
+    </group>
+  );
+}
+
+/**
+ * Browser-Vorschau: das Werkstück steht aufrecht (zentriert, y oben), der
+ * Schrank steht rechts daneben, Unterkanten bündig.
+ */
+export function MesseSchrankNebenTafel({
+  werkstueckBreiteMm,
+  werkstueckHoeheMm,
+  activeStepId,
+}: {
+  werkstueckBreiteMm: number;
+  werkstueckHoeheMm: number;
+  activeStepId?: string;
+}) {
+  const x = (werkstueckBreiteMm / 2 + LUFT_MM + M.korpus.breite / 2) * SCALE_MM_TO_M;
+  const y = (-werkstueckHoeheMm / 2) * SCALE_MM_TO_M;
+  return (
+    <group position={[x, y, 0]}>
+      <MesseSchrank activeStepId={activeStepId} />
     </group>
   );
 }
