@@ -11,7 +11,6 @@ import {
   buildBlumClipTopTuerLayout,
   buildMesseBodenLayout,
   buildMesseHinterstueckLayout,
-  buildMesseStueckliste,
   buildMesseUnterschrankSeiteLayout,
   MESSE_LOCHREIHE,
   MESSE_UNTERSCHRANK,
@@ -26,6 +25,8 @@ const M = MESSE_UNTERSCHRANK;
 
 type Blatt = {
   teil: string;
+  /** Teilname wie in der Werkstatt-Mappe (cody-cad), steht im Blattkopf statt einer Pos.-Nummer. */
+  name: string;
   breite: number;
   hoehe: number;
   layout: HardwareLayout;
@@ -61,6 +62,7 @@ const SEITE_RECHTS: HardwareLayout = {
 const BLAETTER: Blatt[] = [
   {
     teil: "Tür",
+    name: "Tür 1 Links",
     breite: M.tuer.breite,
     hoehe: M.tuer.hoehe,
     layout: buildBlumClipTopTuerLayout(M.tuer.breite, M.tuer.hoehe),
@@ -68,6 +70,7 @@ const BLAETTER: Blatt[] = [
   },
   {
     teil: "Seite",
+    name: "Seite Links",
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
     layout: SEITE_LINKS,
@@ -75,6 +78,7 @@ const BLAETTER: Blatt[] = [
   },
   {
     teil: "Seite",
+    name: "Seite Rechts",
     breite: M.korpus.tiefe,
     hoehe: M.korpus.hoehe,
     layout: SEITE_RECHTS,
@@ -86,12 +90,14 @@ const BLAETTER: Blatt[] = [
   },
   {
     teil: "Hinterstück",
+    name: "Schubkasten-Hinterstück",
     breite: 520,
     hoehe: 121,
     layout: buildMesseHinterstueckLayout(),
   },
   {
     teil: "Boden",
+    name: "Schubkasten-Boden",
     breite: 530,
     hoehe: 490,
     layout: buildMesseBodenLayout(),
@@ -99,10 +105,9 @@ const BLAETTER: Blatt[] = [
   },
 ];
 
-/** Pos. wie in Stückliste, Etikett und VOAI-Vorschau. */
-function posVon(teil: string): number | undefined {
-  const i = buildMesseStueckliste().findIndex((z) => z.teil === teil);
-  return i < 0 ? undefined : i + 1;
+/** Blattkopf: Teilname wie in der Mappe, dann die Beschlag-Zeile (Name nicht doppelt, wenn sie schon damit beginnt). */
+function blattKopf(b: Blatt): string {
+  return b.layout.label.startsWith(b.name) ? b.layout.label : `${b.name} · ${b.layout.label}`;
 }
 
 /** Zahl mit deutschem Komma (22,5 statt 22.5). */
@@ -364,7 +369,6 @@ export default function BohrplanPage() {
   }, [skript, locale]);
 
   const b = blatt(nr);
-  const pos = posVon(b.teil);
 
   return (
     <>
@@ -387,8 +391,7 @@ export default function BohrplanPage() {
         <div id="bp-buehne">
           <div className="blatt vi4-plan-papier">
             <h1>
-              {pos ? `Pos. ${pos} · ` : ""}
-              {b.layout.label}
+              {blattKopf(b)}
             </h1>
             <p className="klein">
               {kopfZeile(b)}
@@ -668,13 +671,11 @@ function Tabelle({ b }: { b: Blatt }) {
 
 /** Ein Blatt fürs Papier: Kopf, Skizze, Bohrtabelle, Annahmen, Herkunft. */
 function DruckBlatt({ b }: { b: Blatt }) {
-  const pos = posVon(b.teil);
   const saetze = annahmenAlle(b);
   return (
     <article className="druck-blatt">
       <h2>
-        {pos ? `Pos. ${pos} · ` : ""}
-        {b.layout.label}
+        {blattKopf(b)}
       </h2>
       <p className="klein">
         {kopfZeile(b)} · ENTWURF, Bohrmaße vor dem Bohren prüfen
