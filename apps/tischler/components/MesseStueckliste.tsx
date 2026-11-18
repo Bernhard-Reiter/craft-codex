@@ -40,6 +40,11 @@ export function bohrplanRueckweg(suche: string, anzahl: number, locale: string):
   return blattAusSuche(suche, anzahl) === undefined ? basis : `${basis}&ansicht=stueckliste`;
 }
 
+/** Menü-Text zum Rückweg: nennt das Ziel von bohrplanRueckweg. */
+export function bohrplanRueckwegText(suche: string, anzahl: number): string {
+  return blattAusSuche(suche, anzahl) === undefined ? "Zurück zur Montage" : "Zurück zur Stückliste";
+}
+
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
   lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
@@ -115,7 +120,8 @@ export function MesseStueckliste() {
 
       <details className="ms-voai" open>
         <summary>
-          Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen)
+          Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei) ·{" "}
+          {voai.inhalt.positionen.length} Positionen
         </summary>
         <div className="ms-rolle">
           <table className="ms-tab">
