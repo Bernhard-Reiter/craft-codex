@@ -20,6 +20,7 @@ import {
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
+import { blattAusSuche } from "../../../../components/MesseStueckliste";
 
 const M = MESSE_UNTERSCHRANK;
 
@@ -272,6 +273,12 @@ export default function BohrplanPage() {
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
     };
+  }, []);
+
+  // Direktlink aus der Stückliste: »?blatt=n« öffnet Blatt n (1-basiert).
+  useEffect(() => {
+    const i = blattAusSuche(window.location.search, BLAETTER.length);
+    if (i !== undefined) setNr(i);
   }, []);
 
   useEffect(() => {
