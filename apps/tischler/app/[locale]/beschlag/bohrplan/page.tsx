@@ -20,7 +20,7 @@ import {
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
-import { blattAusSuche, bohrplanRueckweg } from "../../../../components/MesseStueckliste";
+import { blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText } from "../../../../components/MesseStueckliste";
 
 const M = MESSE_UNTERSCHRANK;
 
@@ -303,7 +303,7 @@ export default function BohrplanPage() {
       umgebung: { aktiv: "layout", tun: () => undefined },
       name: { titel: "Bohrplan", zusatz: () => kurzName(blatt(nrRef.current)) },
       menues: {
-        datei: [{ t: "Drucken", kbd: "Strg P", tun: () => window.print() }, "-", { t: "Zurück zur Montage", tun: zurueck }],
+        datei: [{ t: "Drucken", kbd: "Strg P", tun: () => window.print() }, "-", { t: bohrplanRueckwegText(window.location.search, BLAETTER.length), tun: zurueck }],
         ansicht: BLAETTER.map((b, i) => ({
           t: kurzName(b),
           art: "radio",

@@ -39,7 +39,7 @@
         "position_ref": "172c4f1c-e610-56b9-b6fc-bc46d4a16a70",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Boden Unten",
+        "bezeichnung": "Boden Unten · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -69,7 +69,7 @@
         "position_ref": "3003f275-afa5-5a0a-a9a9-d69c3c5599e4",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Tür 1 Links",
+        "bezeichnung": "Tür 1 Links · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -118,7 +118,7 @@
         "position_ref": "7d84d6bd-42ae-5125-84b0-8d3ae8874fb6",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Rückwand",
+        "bezeichnung": "Rückwand · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -148,7 +148,7 @@
         "position_ref": "86a19211-e90b-5fd9-bd87-fed2c3074943",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Seite Links",
+        "bezeichnung": "Seite Links · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -213,10 +213,25 @@
         "werkstoff": null
       },
       {
+        "position_ref": "b0210b28-8f90-5bdd-9206-3f521236baae",
+        "typ": "freiposition",
+        "artikel_id": null,
+        "bezeichnung": "Kante 19 mm · Demo-Träger 19 roh (synthetisch) · Annahme: Kanten-Regel noch nicht freigegeben, bitte bestätigen",
+        "menge": "5.708",
+        "einheit": "m",
+        "katalog_snapshot_sha256": null,
+        "herkunft": {
+          "art": "regel",
+          "regel_ref": "korpus-kante/1"
+        },
+        "programm": null,
+        "werkstoff": null
+      },
+      {
         "position_ref": "cad8f2d5-08a1-58ae-89b8-5ca087a99570",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Seite Rechts",
+        "bezeichnung": "Seite Rechts · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -265,7 +280,7 @@
         "position_ref": "ce7f0b5f-fc73-5398-808f-65cbbced663d",
         "typ": "freiposition",
         "artikel_id": null,
-        "bezeichnung": "Boden Oben",
+        "bezeichnung": "Boden Oben · Demo-Träger 19 roh (synthetisch)",
         "menge": "1",
         "einheit": "stk",
         "masse_mm": {
@@ -346,5 +361,5 @@
     "cody_cad_version": "0.1.0",
     "erzeugt_am": "2026-11-18T08:11:55Z"
   },
-  "inhalt_sha256": "ac8baa476f9c5bda8cec49b67deebe2193a1b9312a8f0b0b3d7f44081f6928f8"
+  "inhalt_sha256": "9a896c0f94b53466cbc8947c98281fdc38a782c839f3cd9dc96af076e35d10b0"
 }

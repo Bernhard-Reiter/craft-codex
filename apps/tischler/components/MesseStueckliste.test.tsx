@@ -1,6 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, MesseStueckliste } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, MesseStueckliste } from "./MesseStueckliste";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -47,5 +47,19 @@ describe("Rückweg Bohrplan -> Stückliste", () => {
     expect(bohrplanRueckweg("?vorlage=messe&blatt=3", 5, "de")).toBe("/de/beschlag?vorlage=messe&ansicht=stueckliste");
     expect(bohrplanRueckweg("?vorlage=messe", 5, "de")).toBe("/de/beschlag?vorlage=messe");
     expect(bohrplanRueckweg("?vorlage=messe&blatt=9", 5, "de")).toBe("/de/beschlag?vorlage=messe");
+  });
+});
+
+describe("Texte nennen das Ziel", () => {
+  it("Menü-Text zum Rückweg und Überschrift der VOAI-Vorschau (G1, N3)", () => {
+    expect([bohrplanRueckwegText("?vorlage=messe&blatt=3", 5), bohrplanRueckwegText("?vorlage=messe", 5), bohrplanRueckwegText("?blatt=9", 5)]).toEqual([
+      "Zurück zur Stückliste",
+      "Zurück zur Montage",
+      "Zurück zur Montage",
+    ]);
+    const { container } = render(<MesseStueckliste />);
+    const kopf = container.querySelector(".ms-voai summary")?.textContent ?? "";
+    expect(kopf).toContain("Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei)");
+    expect(container.textContent).not.toContain("das bekommt VOAI");
   });
 });
