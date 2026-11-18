@@ -10,9 +10,23 @@ import {
   buildMesseStueckliste,
   buildVoaiStueckliste,
   gruppeAnzeige,
+  MESSE_BOHRPLAN_TEILE,
   messeStuecklisteCsv,
 } from "@craft-codex/core";
+import { useLocale } from "next-intl";
 import { useId } from "react";
+
+/** Link auf das Bohrplan-Blatt des Teils (erstes Blatt, 1-basiert); ohne Blatt undefined. */
+export function bohrplanBlattLink(teil: string, locale: string): string | undefined {
+  const n = (MESSE_BOHRPLAN_TEILE as readonly string[]).indexOf(teil) + 1;
+  return n ? `/${locale}/beschlag/bohrplan?vorlage=messe&blatt=${n}` : undefined;
+}
+
+/** Blatt-Index (0-basiert) aus »?blatt=n«; ungültig oder fehlend = undefined. */
+export function blattAusSuche(suche: string, anzahl: number): number | undefined {
+  const n = Number(new URLSearchParams(suche).get("blatt"));
+  return Number.isInteger(n) && n >= 1 && n <= anzahl ? n - 1 : undefined;
+}
 
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
@@ -35,6 +49,7 @@ function lade(text: string, typ: string, name: string) {
 }
 
 export function MesseStueckliste() {
+  const locale = useLocale();
   const zeilen = buildMesseStueckliste();
   // Steht zweimal auf der Seite (Bühne + Druck): eindeutige Id je Exemplar.
   const titelId = useId();
@@ -72,7 +87,9 @@ export function MesseStueckliste() {
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
                   {bohrplanBlattVerweis(z.teil) && (
-                    <span className="ms-blatt">{bohrplanBlattVerweis(z.teil)}</span>
+                    <a className="ms-blatt" href={bohrplanBlattLink(z.teil, locale)}>
+                      {bohrplanBlattVerweis(z.teil)}
+                    </a>
                   )}
                 </td>
               </tr>
