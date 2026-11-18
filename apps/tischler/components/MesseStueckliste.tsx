@@ -51,6 +51,11 @@ export function bohrplanRueckwegText(suche: string, anzahl: number): string {
   return blattAusSuche(suche, anzahl) === undefined ? "Zurück zur Montage" : "Zurück zur Stückliste";
 }
 
+/** Rückweg aus der AR-Montage zur Desktop-Ansicht: bei der Messe-Vorlage bleibt sie geladen (Link ohne Locale, i18n-Link setzt sie). */
+export function xrRueckweg(beschlagId: string): string {
+  return beschlagId === "messe" ? "/beschlag?vorlage=messe" : "/beschlag";
+}
+
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
   lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
