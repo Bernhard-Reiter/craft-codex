@@ -41,6 +41,7 @@ import {
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../../lib/beschlag/auswahl";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
 import { Link } from "../../../../i18n/navigation";
+import { xrRueckweg } from "../../../../components/MesseStueckliste";
 
 
 /** RMS-Grenze in Metern, ab der die Registrierung als grob gilt. */
@@ -205,7 +206,7 @@ export default function BeschlagXRPage() {
           <p className="hinweis">
             Dieses Gerät kann kein immersives AR ({support.reason ?? "immersive-ar nicht unterstützt"}).
             Am besten mit der Quest 3 über https öffnen — oder zur{" "}
-            <Link href="/beschlag">Desktop-Ansicht</Link>.
+            <Link href={xrRueckweg(beschlag.id)}>Desktop-Ansicht</Link>.
           </p>
         )}
         {support?.ar && (
@@ -214,7 +215,7 @@ export default function BeschlagXRPage() {
           </button>
         )}
         <p className="zurueck">
-          <Link href="/beschlag">← Desktop-Ansicht</Link>
+          <Link href={xrRueckweg(beschlag.id)}>← Desktop-Ansicht</Link>
         </p>
       </header>
 
