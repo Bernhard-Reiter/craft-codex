@@ -9,6 +9,7 @@ import {
   bohrplanBlattVerweis,
   buildMesseStueckliste,
   buildVoaiStueckliste,
+  gruppeAnzeige,
   messeStuecklisteCsv,
 } from "@craft-codex/core";
 import { useId } from "react";
@@ -47,6 +48,7 @@ export function MesseStueckliste() {
         <table className="ms-tab">
           <thead>
             <tr>
+              <th className="ms-zahl">Pos.</th>
               <th>Gruppe</th>
               <th>Teil</th>
               <th className="ms-zahl">Stk.</th>
@@ -58,11 +60,15 @@ export function MesseStueckliste() {
           <tbody>
             {zeilen.map((z, i) => (
               <tr key={i} className={z.annahme ? "ms-annahme" : undefined}>
-                <td>{z.gruppe}</td>
+                <td className="ms-zahl">{i + 1}</td>
+                <td>{gruppeAnzeige(z)}</td>
                 <td>{z.teil}</td>
                 <td className="ms-zahl">{z.anzahl}</td>
                 <td>{z.mass || "–"}</td>
-                <td>{z.material || "–"}</td>
+                <td>
+                  {z.artikel && <span className="ms-mass">Blum {z.artikel} · </span>}
+                  {z.material || "–"}
+                </td>
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
                   {bohrplanBlattVerweis(z.teil) && (

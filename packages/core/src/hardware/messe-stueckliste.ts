@@ -2,12 +2,11 @@
  * Stückliste für den Messe-Unterschrank (IHM Ziel 2).
  *
  * Rechnet NUR aus den Maßen in MESSE_UNTERSCHRANK, keine neuen Maße und
- * keine Preise. Was in der Vorlage nicht belegt ist, steht hier mit
- * `annahme: true`. Oberboden und Rückwand folgen der 3D-Szene
- * (MesseSchrank.tsx, Demo) und sind ebenfalls Annahme.
+ * keine Preise. Namen, Reihenfolge (Pos. 1–15), Werkstoff und Annahme-Marke
+ * folgen der Werkstatt-Mappe (cody-cad führt); Annahme = `annahme: true`.
  */
 
-import { BLUM_MOVENTO, MESSE_UNTERSCHRANK } from "./messe-unterschrank.js";
+import { MESSE_UNTERSCHRANK } from "./messe-unterschrank.js";
 
 export type StuecklistenZeile = {
   gruppe: "Korpus" | "Front" | "Schubkasten" | "Beschlag";
@@ -18,6 +17,8 @@ export type StuecklistenZeile = {
   material: string;
   annahme: boolean;
   hinweis: string;
+  /** Blum-Artikelnummer bei Beschlägen (Spalte »Artikel« der Mappe). */
+  artikel?: string;
 };
 
 const m = MESSE_UNTERSCHRANK;
@@ -26,104 +27,125 @@ const fmt = (a: number, b: number, c: number) => `${a} × ${b} × ${c}`;
 
 export function buildMesseStueckliste(): StuecklistenZeile[] {
   const lichteBreite = m.korpus.breite - 2 * P;
+  // Reihenfolge, Namen, Werkstoff und Marke (Annahme oder nicht) wie die Werkstatt-Mappe
+  // (cody-cad führt, Meister 1185 G3): Pos. = Zeile, 1–11 Platten, 12–15 Beschläge.
+  const korpus = `Demo-Träger ${P} roh (synthetisch)`;
+  const eiche = "Eiche natur geölt";
+  const sk = (name: string) => {
+    const t = m.schubkastenTeile.find((x) => x.startsWith(`${name} `));
+    if (!t) throw new Error(`Schubkastenteil ${name} fehlt`);
+    return t.slice(name.length + 1);
+  };
+  const schubkasten = (name: string): StuecklistenZeile => ({
+    gruppe: "Schubkasten",
+    teil: `Schubkasten-${name}`,
+    anzahl: 1,
+    mass: sk(name),
+    material: eiche,
+    annahme: true,
+    hinweis: "Holzschubkasten H 150 / LW 562",
+  });
+  const blumHinweis = "Anzahl nach Türhöhe (Annahme Blum-Faustregel, bitte bestätigen)";
   const zeilen: StuecklistenZeile[] = [
+    ...(["Links", "Rechts"] as const).map(
+      (seite): StuecklistenZeile => ({
+        gruppe: "Korpus",
+        teil: `Seite ${seite}`,
+        anzahl: 1,
+        mass: fmt(m.korpus.hoehe, m.korpus.tiefe, P),
+        material: korpus,
+        annahme: false,
+        hinweis: "Korpus 600 × 850 × 575",
+      }),
+    ),
     {
       gruppe: "Korpus",
-      teil: "Seite",
-      anzahl: 2,
-      mass: fmt(m.korpus.hoehe, m.korpus.tiefe, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
+      teil: "Boden Unten",
+      anzahl: 1,
+      mass: fmt(lichteBreite, m.korpus.tiefe, P),
+      material: korpus,
       annahme: false,
-      hinweis: "Korpus 600 × 850 × 575",
+      hinweis: "zwischen den Seiten",
     },
     {
       gruppe: "Korpus",
-      teil: "Unterboden",
+      teil: "Boden Oben",
       anzahl: 1,
       mass: fmt(lichteBreite, m.korpus.tiefe, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
-      annahme: true,
-      hinweis: "Unterboden zwischen den Seiten (Annahme)",
-    },
-    {
-      gruppe: "Korpus",
-      teil: "Oberboden",
-      anzahl: 1,
-      mass: fmt(lichteBreite, m.korpus.tiefe, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
-      annahme: true,
-      hinweis: "zwischen den Seiten, wie in der 3D-Szene (Annahme)",
+      material: korpus,
+      annahme: false,
+      hinweis: "zwischen den Seiten, wie in der 3D-Szene",
     },
     {
       gruppe: "Korpus",
       teil: "Rückwand",
       anzahl: 1,
-      mass: fmt(lichteBreite, m.korpus.hoehe - 2 * P, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
-      annahme: true,
-      hinweis: "19 zwischen Seiten und Böden, wie in der 3D-Szene (Annahme)",
+      mass: fmt(m.korpus.hoehe - 2 * P, lichteBreite, P),
+      material: korpus,
+      annahme: false,
+      hinweis: "19 zwischen Seiten und Böden, wie in der 3D-Szene",
     },
     {
       gruppe: "Front",
-      teil: "Tür",
+      teil: "Tür 1 Links",
       anzahl: 1,
       mass: fmt(m.tuer.hoehe, m.tuer.breite, P),
-      material: `Platte ${P} mm (Demo-Katalog)`,
-      annahme: true,
+      material: korpus,
+      annahme: false,
       hinweis: "über die ganze Höhe, Schubkasten innen dahinter",
     },
-    ...m.schubkastenTeile.map((t): StuecklistenZeile => {
-      const i = t.search(/ \d/);
-      const name = t.slice(0, i);
-      const mass = t.slice(i + 1);
-      return {
-        gruppe: "Schubkasten",
-        teil: name,
-        anzahl: 1,
-        mass,
-        material: "Platte 16 mm",
-        annahme: false,
-        hinweis: "Holzschubkasten H 150 / LW 562",
-      };
-    }),
+    schubkasten("Seite links"),
+    schubkasten("Seite rechts"),
+    schubkasten("Hinterstück"),
+    schubkasten("Vorderstück"),
+    schubkasten("Boden"),
     {
       gruppe: "Beschlag",
-      teil: "Blum CLIP top BLUMOTION 110° 71B3550",
-      anzahl: 2,
-      mass: "",
-      material: "Topfband",
-      annahme: false,
-      hinweis: "zwei Scharniere an der Tür, Anschlag links",
-    },
-    {
-      gruppe: "Beschlag",
-      teil: "Blum Kreuzmontageplatte 173L6100",
+      teil: "CLIP Kreuzmontageplatte 37/32, Distanz 0 mm, zum Anschrauben",
+      artikel: "173L6100",
       anzahl: 2,
       mass: "",
       material: "Montageplatte",
       annahme: false,
-      hinweis: "auf der linken Korpusseite",
+      hinweis: `auf der linken Korpusseite · ${blumHinweis}`,
     },
     {
       gruppe: "Beschlag",
-      teil: `${BLUM_MOVENTO.artikel} NL ${BLUM_MOVENTO.nennlaenge}`,
+      teil: "CLIP top BLUMOTION 110° Scharnier, Topf zum Schrauben, Eckanschlag",
+      artikel: "71B3550",
+      anzahl: 2,
+      mass: "",
+      material: "Topfband",
+      annahme: false,
+      hinweis: `zwei Scharniere an der Tür, Anschlag links · ${blumHinweis}`,
+    },
+    {
+      gruppe: "Beschlag",
+      teil: "MOVENTO Führung, Vollauszug, 70 kg, Nennlänge 500",
+      artikel: "766H5000S",
       anzahl: 1,
       mass: "",
-      material: "Unterflurführung (Paar)",
+      material: "Unterflurführung (1 Satz)",
       annahme: false,
       hinweis: "Schraubpunkte außer 37 nicht bestätigt",
     },
     {
       gruppe: "Beschlag",
-      teil: BLUM_MOVENTO.kupplung,
+      teil: "MOVENTO Kupplung, links und rechts",
+      artikel: "T51.7601",
       anzahl: 1,
       mass: "",
-      material: "Kupplung (Satz)",
+      material: "Kupplung (1 Satz)",
       annahme: false,
       hinweis: "",
     },
   ];
   return zeilen;
+}
+
+/** Gruppe für die Anzeige; leer, wenn der Teilname sie schon trägt (»Schubkasten-Boden«). */
+export function gruppeAnzeige(z: StuecklistenZeile): string {
+  return z.teil.startsWith(z.gruppe) ? "" : z.gruppe;
 }
 
 const csvFeld = (s: string | number) => {
@@ -133,9 +155,9 @@ const csvFeld = (s: string | number) => {
 
 /** CSV mit Semikolon (Excel DE), erste Zeile = Kopf. */
 export function messeStuecklisteCsv(zeilen = buildMesseStueckliste()): string {
-  const kopf = ["Gruppe", "Teil", "Anzahl", "Maß L × B × S (mm)", "Material", "Annahme", "Hinweis"];
-  const reihen = zeilen.map((z) =>
-    [z.gruppe, z.teil, z.anzahl, z.mass, z.material, z.annahme ? "ja" : "", z.hinweis]
+  const kopf = ["Pos.", "Gruppe", "Teil", "Artikel", "Anzahl", "Maß L × B × S (mm)", "Material", "Annahme", "Hinweis"];
+  const reihen = zeilen.map((z, i) =>
+    [i + 1, gruppeAnzeige(z), z.teil, z.artikel ?? "", z.anzahl, z.mass, z.material, z.annahme ? "ja" : "", z.hinweis]
       .map(csvFeld)
       .join(";"),
   );
@@ -184,31 +206,33 @@ type EtikettDaten = { kanten: Kantenbild; positionen: string[]; bohren?: string[
 const ETIKETT_DATEN: Record<string, EtikettDaten> = {
   // Bohren je Stück = cody-cad korpus.bohrbild (Messe-Unterschrank), Art ohne
   // Artikelnummer. Die Tür schlägt links an, darum Montageplatten nur links.
-  Seite: {
+  "Seite Links": {
     kanten: VORN,
-    positionen: ["Korpus links", "Korpus rechts"],
-    bohren: [
-      ["Lochreihe ×50", "MOVENTO-Schiene ×5", "Montageplatte ×4"],
-      ["Lochreihe ×50", "MOVENTO-Schiene ×5"],
-    ],
+    positionen: ["Korpus links"],
+    bohren: [["Lochreihe ×50", "MOVENTO-Schiene ×5", "Montageplatte ×4"]],
   },
-  Unterboden: { kanten: VORN, positionen: ["Korpus unten"] },
-  Oberboden: { kanten: VORN, positionen: ["Korpus oben"] },
+  "Seite Rechts": {
+    kanten: VORN,
+    positionen: ["Korpus rechts"],
+    bohren: [["Lochreihe ×50", "MOVENTO-Schiene ×5"]],
+  },
+  "Boden Unten": { kanten: VORN, positionen: ["Korpus unten"] },
+  "Boden Oben": { kanten: VORN, positionen: ["Korpus oben"] },
   "Rückwand": { kanten: KEINE, positionen: ["Korpus hinten"] },
-  "Tür": {
+  "Tür 1 Links": {
     kanten: RUNDUM,
     positionen: ["Front, Anschlag links"],
     bohren: [["Topf ×2", "Schrauben ×4"]],
   },
-  "Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
-  "Hinterstück": {
+  "Schubkasten-Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
+  "Schubkasten-Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
+  "Schubkasten-Hinterstück": {
     kanten: VORN,
     positionen: ["Schubkasten hinten"],
     bohren: [["Ø6 für MOVENTO ×2"]],
   },
-  "Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
-  "Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
-  Boden: { kanten: KEINE, positionen: ["Schubkasten unten"], bohren: [["Kupplung ×4"]] },
+  "Schubkasten-Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
+  "Schubkasten-Boden": { kanten: KEINE, positionen: ["Schubkasten unten"], bohren: [["Kupplung ×4"]] },
 };
 
 const KEINE_BOHRUNG = ["keine Bohrung"];
@@ -248,11 +272,17 @@ export function kantenText(k: Kantenbild): string {
 
 /**
  * Teile in der Reihenfolge der Blätter im Bohrplan-Druck (beschlag/bohrplan,
- * BLAETTER): Tür, Korpusseite links, Korpusseite rechts, Hinterstück, Boden.
+ * BLAETTER), Namen wie die Mappe.
  */
-export const MESSE_BOHRPLAN_TEILE = ["Tür", "Seite", "Seite", "Hinterstück", "Boden"] as const;
+export const MESSE_BOHRPLAN_TEILE = [
+  "Tür 1 Links",
+  "Seite Links",
+  "Seite Rechts",
+  "Schubkasten-Hinterstück",
+  "Schubkasten-Boden",
+] as const;
 
-/** Verweis für die Stückliste, z. B. »Bohrplan Blatt 2 + 3 von 5«; ohne Bohrplan-Blatt undefined. */
+/** Verweis für die Stückliste, z. B. »Bohrplan Blatt 2 von 5«; ohne Bohrplan-Blatt undefined. */
 export function bohrplanBlattVerweis(teil: string): string | undefined {
   const n = MESSE_BOHRPLAN_TEILE.flatMap((t, i) => (t === teil ? [i + 1] : []));
   return n.length ? `Bohrplan Blatt ${n.join(" + ")} von ${MESSE_BOHRPLAN_TEILE.length}` : undefined;

@@ -61,11 +61,11 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
     expect(d.inhalt_sha256).toBe(sha256Hex(jcs({ schema: d.schema, inhalt: d.inhalt })));
   });
 
-  it("14 Positionen: 10 Plattenteile + 4 Blum-Artikel (keine Schubkastenfront)", () => {
+  it("15 Positionen wie die Mappe: 11 Plattenteile + 4 Blum-Artikel (keine Schubkastenfront)", () => {
     const pos = buildVoaiStueckliste().inhalt.positionen;
-    expect(pos).toHaveLength(14);
+    expect(pos).toHaveLength(15);
     expect(pos.filter((p) => p.typ === "artikel").map((p) => p.artikel_id)).toEqual([
-      "blum:71B3550", "blum:173L6100", "blum:766H5000S", "blum:T51.7601",
+      "blum:173L6100", "blum:71B3550", "blum:766H5000S", "blum:T51.7601",
     ]);
   });
 
@@ -76,7 +76,7 @@ describe("Übergabe an VOAI (stueckliste/2)", () => {
 
   it("jedes Plattenteil hat masse_mm mit Länge, Breite, Dicke > 0", () => {
     const frei = buildVoaiStueckliste().inhalt.positionen.filter((p) => p.typ === "freiposition");
-    expect(frei).toHaveLength(10);
+    expect(frei).toHaveLength(11);
     for (const p of frei) {
       expect(p.masse_mm, p.bezeichnung ?? "").toBeDefined();
       for (const k of ["laenge", "breite", "dicke"] as const) {

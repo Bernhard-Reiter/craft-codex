@@ -35,8 +35,9 @@ const BLUM: { treffer: RegExp; nr: string }[] = [
 /**
  * Revision der Liste. VOAI lehnt dieselbe liste_ref mit gleicher Revision und anderem
  * Inhalt mit 409 ab -> nach jeder Maßänderung am Messe-Schrank um 1 hochzählen.
+ * 2: 15 Positionen mit den Namen der Werkstatt-Mappe (G3).
  */
-export const VOAI_REVISION = 1;
+export const VOAI_REVISION = 2;
 
 type Position = {
   position_ref: string;
@@ -74,7 +75,7 @@ function position(z: StuecklistenZeile, i: number): Position {
     werkstoff: null,
   };
   if (z.gruppe === "Beschlag") {
-    const b = BLUM.find((x) => x.treffer.test(z.teil));
+    const b = BLUM.find((x) => x.treffer.test(z.artikel ?? ""));
     return {
       ...basis,
       typ: "artikel",
@@ -84,7 +85,7 @@ function position(z: StuecklistenZeile, i: number): Position {
     };
   }
   const [laenge, breite, dicke] = z.mass.split(" × ");
-  const text = `${z.gruppe} ${z.teil}${z.annahme ? " (Annahme)" : ""}, ${z.material}`;
+  const text = `${z.teil}${z.annahme ? " (Annahme)" : ""}, ${z.material}`;
   return {
     ...basis,
     typ: "freiposition",
