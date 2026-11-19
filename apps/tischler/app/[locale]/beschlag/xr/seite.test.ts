@@ -87,3 +87,19 @@ describe("ohne AR nur ein ruhiger Satz (A3)", () => {
     expect(SEITE).not.toContain("Prüfe WebXR-Unterstützung");
   });
 });
+
+describe("Montage-Schritt in AR (A2)", () => {
+  it("bei ?vorlage=messe übernimmt die AR-Seite den gemerkten Montage-Schritt (gleicher Schlüssel wie die Montage)", () => {
+    const MONTAGE = readFileSync(join(__dirname, "..", "page.tsx"), "utf8");
+    for (const q of [SEITE, MONTAGE]) {
+      // ein Schlüssel für beide Seiten, aus MesseStueckliste — kein eigener String je Seite
+      expect(q).not.toContain('"beschlag-messe-schritt"');
+      expect(q).toMatch(/import \{[^}]*MESSE_SCHRITT_KEY[^}]*\} from "[./]+\/components\/MesseStueckliste"/);
+    }
+    expect(SEITE).toContain("sessionStorage.getItem(MESSE_SCHRITT_KEY)");
+    expect(SEITE).toMatch(/setIndex\(schrittAusSpeicher\(roh, /);
+    // nach waehle(v) (setzt Schritt 0), sonst gewönne die 0
+    expect(SEITE.indexOf("if (v) waehle(v);")).toBeGreaterThan(0);
+    expect(SEITE.indexOf("setIndex(schrittAusSpeicher(")).toBeGreaterThan(SEITE.indexOf("if (v) waehle(v);"));
+  });
+});

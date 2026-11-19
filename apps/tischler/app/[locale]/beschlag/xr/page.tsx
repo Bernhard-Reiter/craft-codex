@@ -46,7 +46,7 @@ import {
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../../lib/beschlag/auswahl";
 import { detectXRSupport, type XRSupport } from "../../../../lib/xr/support";
 import { Link } from "../../../../i18n/navigation";
-import { xrRueckweg } from "../../../../components/MesseStueckliste";
+import { MESSE_SCHRITT_KEY, schrittAusSpeicher, xrRueckweg } from "../../../../components/MesseStueckliste";
 
 
 type Thema = "light" | "dark" | "auto";
@@ -158,6 +158,17 @@ export default function BeschlagXRPage() {
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
+    // A2: Messe-AR beginnt beim Schritt, den die Montage gemerkt hat (sonst stünde immer Schritt 1 »Tür« da).
+    const messe = v === "messe" ? BESCHLAEGE.find((x) => x.id === "messe") : undefined;
+    if (messe) {
+      let roh: string | null = null;
+      try {
+        roh = window.sessionStorage.getItem(MESSE_SCHRITT_KEY);
+      } catch {
+        roh = null;
+      }
+      setIndex(schrittAusSpeicher(roh, new WorkflowController(messe.workflow).getSteps().length));
+    }
   }, []);
   const bohrpunkteFrei = mayRenderDrillPoints(layout);
 

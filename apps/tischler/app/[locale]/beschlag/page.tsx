@@ -19,7 +19,7 @@ import { useLocale } from "next-intl";
 import Script from "next/script";
 import { BeschlagScene } from "../../../components/BeschlagScene";
 import { buehneFuer, MesseSchrank } from "../../../components/MesseSchrank";
-import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, schrittAusSpeicher } from "../../../components/MesseStueckliste";
+import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, MESSE_SCHRITT_KEY, schrittAusSpeicher } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
 type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
@@ -41,8 +41,6 @@ const CSS = [
 
 /** Name ohne vorangestelltes Zeichen (»⭐ Messe-…« -> »Messe-…«), die Menüleiste zeigt Symbole selbst. */
 const klar = (s: string) => s.replace(/^[^\p{L}\p{N}]+/u, "");
-
-const MESSE_SCHRITT_KEY = "beschlag-messe-schritt";
 
 export default function BeschlagPage() {
   const locale = useLocale();
