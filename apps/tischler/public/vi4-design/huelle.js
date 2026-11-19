@@ -23,8 +23,18 @@
     return 'ph-' + s.web;
   }
 
+  // Listener an document/window merkt sich die Hülle, damit abbau() sie beim Verlassen der Seite wieder abmeldet
+  // (Next-Link ohne Neuladen: sonst hängen die alten Tasten-Handler an der nächsten Seite).
+  function abmelder() {
+    const weg = [];
+    return {
+      an(ziel, typ, fn, opt) { ziel.addEventListener(typ, fn, opt); weg.push(() => ziel.removeEventListener(typ, fn, opt)); },
+      abbau() { weg.splice(0).forEach(f => f()); },
+    };
+  }
+
   function baue(c) {
-    const b = document.body, wurzel = $(c.wurzel);
+    const b = document.body, wurzel = $(c.wurzel), ab = abmelder();
     b.classList.add('vi4-huelle');
     wurzel.classList.add('vi4-werk');
     $(c.buehne).classList.add('vi4-buehne');
@@ -85,7 +95,7 @@
       if (k.tun) k.tun();
       setTimeout(stand, 0);
     });
-    document.addEventListener('keydown', e => {
+    ab.an(document, 'keydown', e => {
       const feld = /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '');
       if (e.key === 'Escape' && !(c.escFrei && !c.escFrei())) {
         if (offen('rechts')) setze('rechts', false); else if (offen('links')) setze('links', false);
@@ -101,7 +111,8 @@
     if (st.links) { const k = alle.find(x => x.karte === 'links'); setze('links', true, st.linksId || (k && k.id)); }
     if (st.rechts) { const k = alle.find(x => x.karte === 'rechts'); setze('rechts', true, st.rechtsId || (k && k.id)); }
     stand();
-    return { stand, setze, offen };
+    const abbau = () => { ab.abbau(); beob.disconnect(); clearTimeout(beob.t); };
+    return { stand, setze, offen, abbau };
   }
 
   // ===== MENÜLEISTE (Norm 0.4.0) =====
@@ -122,7 +133,7 @@
   const MENUES = [['datei', 'Datei'], ['bearbeiten', 'Bearbeiten'], ['einfuegen', 'Einfügen'], ['ansicht', 'Ansicht'], ['darstellung', 'Darstellung'], ['hilfe', 'Hilfe']];
   const UMGEBUNGEN = [['raum', 'Raum'], ['einrichtung', 'Einrichtung'], ['korpus', 'Korpus'], ['layout', 'Layout']];
   function menue(c) {
-    const leiste = $(c.ziel);
+    const leiste = $(c.ziel), ab = abmelder();
     leiste.classList.add('vi4-menue'); leiste.setAttribute('aria-label', 'Menüleiste');
     const sym = v => `<i class="ph-light ${symbol(v)}" aria-hidden="true"></i>`;
     const vl = c.verlauf || {};
@@ -218,16 +229,16 @@
       const b = e.target.closest('.vi4-m-eintrag'); if (!b || b.disabled) return;
       const x = aktuell[+b.dataset.i]; zu(true); if (x && x.tun) x.tun(); setTimeout(stand, 0);
     });
-    document.addEventListener('pointerdown', e => { if (offen && !liste.contains(e.target) && !offen.contains(e.target)) zu(); });
+    ab.an(document, 'pointerdown', e => { if (offen && !liste.contains(e.target) && !offen.contains(e.target)) zu(); });
     // Esc und Pfeile im offenen Menü kommen vor allen anderen Tasten der Seite (Fangphase am Fenster)
-    window.addEventListener('keydown', e => {
+    ab.an(window, 'keydown', e => {
       if (!offen) return;
       const reihe = [...liste.querySelectorAll('.vi4-m-eintrag:not(:disabled)')], i = reihe.indexOf(document.activeElement);
       if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); zu(true); }
       else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation();
         const n = reihe[(i + (e.key === 'ArrowDown' ? 1 : -1) + reihe.length) % reihe.length]; if (n) n.focus(); }
     }, true);
-    window.addEventListener('resize', () => zu());
+    ab.an(window, 'resize', () => zu());
 
     function stand() {
       if (c.name) { platz('.vi4-m-name b').textContent = c.name.titel || ''; platz('.vi4-m-name span').textContent = c.name.zusatz ? c.name.zusatz() : ''; }
@@ -239,7 +250,8 @@
     const beob = new MutationObserver(() => { clearTimeout(beob.t); beob.t = setTimeout(stand, 30); });
     for (const s of c.beobachte || []) { const el = $(s); if (el) beob.observe(el, { subtree: true, childList: true, characterData: true, attributes: true }); }
     stand();
-    return { stand, zu };
+    const abbau = () => { ab.abbau(); beob.disconnect(); clearTimeout(beob.t); };
+    return { stand, zu, abbau };
   }
 
   // symbole.json liegt neben huelle.js; baue() und menue() warten auf die Liste

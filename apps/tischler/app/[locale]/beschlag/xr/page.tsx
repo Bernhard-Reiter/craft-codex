@@ -56,8 +56,8 @@ import { MESSE_SCHRITT_KEY, schrittAusSpeicher, xrRueckweg } from "../../../../c
 
 type Thema = "light" | "dark" | "auto";
 type Vi4 = {
-  baue: (c: unknown) => Promise<unknown>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  baue: (c: unknown) => Promise<{ abbau: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 
 // Reihenfolge zählt (gleiche precedence): Schrift direkt NACH den Tokens, Phosphor für die Symbole.
@@ -219,11 +219,15 @@ export default function BeschlagXRPage() {
   beschlagRef.current = beschlag;
   const menue = useRef<{ stand: () => void } | null>(null);
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
 
   useEffect(() => {
+    const abbauListe = abbauen.current;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     return () => {
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -255,9 +259,12 @@ export default function BeschlagXRPage() {
       schliessen: { wort: "Schließen", verb: "schliessen", tun: zurueck },
     }).then((m) => {
       menue.current = m;
+      abbauen.current.push(m.abbau);
     });
     // Ohne Karten: huelle.js überspringt fehlende Karten-Wähler, die Schienen bleiben leer.
-    void H.baue({ wurzel: "#xr-werk", buehne: "#xr-buehne", links: [], rechts: [] });
+    void H.baue({ wurzel: "#xr-werk", buehne: "#xr-buehne", links: [], rechts: [] }).then((h) => {
+      abbauen.current.push(h.abbau);
+    });
   }, [skript, locale]);
 
   // Vorlage gewechselt → Name in der Menüleiste nachziehen.
