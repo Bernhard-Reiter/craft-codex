@@ -55,6 +55,18 @@ describe("AR-Seite in der VI4-Hülle (A1)", () => {
   it("der Rückweg-Link »← Desktop-Ansicht« bleibt (Video-Treiber, 0080aee)", () => {
     expect(SEITE).toContain("<Link href={xrRueckweg(beschlag.id)}>← Desktop-Ansicht</Link>");
   });
+
+  it("Platz 0 wie die Montage: Umgebung korpus (G2)", () => {
+    expect(SEITE).toContain('umgebung: { aktiv: "korpus"');
+    expect(SEITE).not.toContain('aktiv: "layout"');
+  });
+
+  it("Name in der Leiste ohne Stern, Label nie roh (G1)", () => {
+    expect(SEITE).toContain('titel: "Montage in AR"');
+    expect(SEITE).toContain("zusatz: () => klar(beschlagRef.current.label)");
+    expect(SEITE).not.toMatch(/zusatz: \(\) => beschlagRef\.current\.label/);
+    expect(SEITE).toContain('s.replace(/^[^\\p{L}\\p{N}]+/u, "")');
+  });
 });
 
 describe("ohne AR nur ein ruhiger Satz (A3)", () => {
