@@ -139,6 +139,7 @@ export default function BeschlagXRPage() {
   const [support, setSupport] = useState<XRSupport | null>(null);
   const [reg, setReg] = useState<BeschlagRegistration | null>(null);
   const [ausrichten, setAusrichten] = useState(false);
+  const [arFehler, setArFehler] = useState(false);
   const [index, setIndex] = useState(0);
   const [beschlag, setBeschlag] = useState(STANDARD_BESCHLAG);
 
@@ -284,13 +285,16 @@ export default function BeschlagXRPage() {
     try {
       // Ausrichten startet aktiv: wer AR öffnet, will zuerst ausrichten —
       // die Tafel ist trotzdem sofort bedienbar (Trigger ≠ Griff-Taste).
+      setArFehler(false);
       setAusrichten(true);
       const session = await store.enterAR();
       if (!session) {
         console.warn("[XR] enterAR returned no session — denied or unsupported");
+        setArFehler(true);
       }
     } catch (e) {
       console.error("[XR] enterAR failed:", e);
+      setArFehler(true);
     }
   };
 
@@ -324,7 +328,7 @@ export default function BeschlagXRPage() {
                     aria-pressed={b.id === beschlag.id}
                     onClick={() => waehle(b.id)}
                   >
-                    {b.label}
+                    {klar(b.label)}
                   </button>
                 ))}
               </p>
@@ -342,7 +346,7 @@ export default function BeschlagXRPage() {
               </p>
               {!bohrpunkteFrei && (
                 <p className="hinweis">
-                  Bohrbild noch nicht freigegeben — in AR erscheinen die Maßketten
+                  Vorschau · Maße vor dem Bohren nachmessen — in AR erscheinen die Maßketten
                   zum Nachmessen, keine Bohrpunkte.
                 </p>
               )}
@@ -356,6 +360,11 @@ export default function BeschlagXRPage() {
                 <button type="button" className="arknopf" onClick={enterAR}>
                   AR starten
                 </button>
+              )}
+              {arFehler && (
+                <p className="hinweis" role="alert">
+                  AR konnte nicht starten – Headset prüfen
+                </p>
               )}
               <p className="zurueck">
                 <Link href={xrRueckweg(beschlag.id)}>← Desktop-Ansicht</Link>
@@ -436,7 +445,7 @@ export default function BeschlagXRPage() {
 
                         {ausrichten && (
                           <Text fontSize={9} color="#ffed00">
-                            Ausrichten läuft: Kreuz auf die Ecke, GRIFF-Taste drücken
+                            Ausrichten läuft: Kreuz auf die Ecke, Griff-Taste drücken
                           </Text>
                         )}
                         <Text fontSize={9} color={reg ? (rmsGrob ? "#ff6b5e" : "#4ade80") : "#9a9aa2"}>

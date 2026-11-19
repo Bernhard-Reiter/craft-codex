@@ -79,7 +79,7 @@ export const MESSE_UNTERSCHRANK = {
   annahmen: [
     `Zwei Scharniere bei Tür ${TUER_HOEHE} mm: Blum-Faustregel, keine Blum-Unterlage mit Seite.`,
     "Innenschubkasten hinter der Tür: Platz auf der Bandseite (CLIP top 110°, Eckanschlag) nicht geprüft.",
-    "Plattenstärke 19 aus dem Demo-Katalog, Unterboden zwischen den Seiten.",
+    "Plattenstärke 19 mm angenommen, Unterboden zwischen den Seiten.",
   ],
 } as const;
 
@@ -132,7 +132,7 @@ export function buildMesseUnterschrankSeiteLayout(): HardwareLayout {
       stepId: "M1.schiene_schrauben",
       offen:
         `Schraublinie ${m.schraublinieUeberBoden} über OK Boden Unten ist eine Annahme ` +
-        `(Blum-Konfigurator), Boden ${PLATTE} aus dem Demo-Katalog.` +
+        `(Blum-Konfigurator), Boden ${PLATTE} mm angenommen.` +
         // Ein Satz für die ganze Gruppe (im Bohrplan nur einmal gezeigt).
         (offeneX.length
           ? ` Abstände ${offeneX.join(" / ")} ab Vorderkante nicht bestätigt.`

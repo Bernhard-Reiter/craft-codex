@@ -22,6 +22,14 @@ export function bohrplanBlattLink(teil: string, locale: string): string | undefi
   return n ? `/${locale}/beschlag/bohrplan?vorlage=messe&blatt=${n}` : undefined;
 }
 
+/**
+ * Material nur für die Anzeige: »Demo-Träger 19 roh (synthetisch)« -> »Platte 19 mm roh«.
+ * Die core-Daten (VOAI-Schlüssel, Gleichlauf mit der cody-cad-Datei) bleiben unverändert.
+ */
+export function materialAnzeige(material: string | undefined): string | undefined {
+  return material?.replace(/Demo-Träger (\d+) roh \(synthetisch\)/g, "Platte $1 mm roh");
+}
+
 /** Blatt-Index (0-basiert) aus »?blatt=n«; ungültig oder fehlend = undefined. */
 export function blattAusSuche(suche: string, anzahl: number): number | undefined {
   const n = Number(new URLSearchParams(suche).get("blatt"));
@@ -113,7 +121,7 @@ export function MesseStueckliste() {
                 <td className="ms-masszelle">{z.mass || "–"}</td>
                 <td>
                   {z.artikel && <span className="ms-mass">Blum {z.artikel} · </span>}
-                  {z.material || "–"}
+                  {materialAnzeige(z.material) || "–"}
                 </td>
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
@@ -129,12 +137,12 @@ export function MesseStueckliste() {
         </table>
       </div>
       <p className="ms-fuss">
-        Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, die Kalkulation macht VOAI.
+        Orange markiert = Annahme, noch nicht belegt.
       </p>
 
       <details className="ms-voai" open>
         <summary>
-          Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei) ·{" "}
+          Vorschau der Exportdatei ·{" "}
           {voai.inhalt.positionen.length} Positionen
         </summary>
         <div className="ms-rolle">
@@ -153,7 +161,7 @@ export function MesseStueckliste() {
                 <tr key={p.position_ref}>
                   <td className="ms-zahl">{i + 1}</td>
                   <td>
-                    {p.bezeichnung}
+                    {materialAnzeige(p.bezeichnung ?? undefined)}
                     {p.masse_mm && (
                       <span className="ms-mass">
                         {" "}
@@ -166,14 +174,14 @@ export function MesseStueckliste() {
                   <td>
                     {p.artikel_id
                       ? p.artikel_id.replace(/^blum:/, "Blum ")
-                      : (zeilen[i]?.material ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
+                      : (materialAnzeige(zeilen[i]?.material) ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="ms-fuss">Die Datei trägt nur Teile und Maße, rechnen tut VOAI selbst.</p>
+        <p className="ms-fuss">Die Datei enthält Teile und Maße.</p>
         <details className="ms-fuss">
           <summary>Technik</summary>
           Format stueckliste/2 · Revision {voai.inhalt.revision} · Prüfsumme{" "}

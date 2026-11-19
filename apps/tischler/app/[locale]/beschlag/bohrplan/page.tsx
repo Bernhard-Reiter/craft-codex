@@ -410,8 +410,8 @@ export default function BohrplanPage() {
           (sonst NotFoundError beim Verlassen der Seite). */}
       <div hidden>
         {/* Mit Platz 0 (Hülle 0.5.0) bleibt der Meldung bei 1366 px kaum Raum: kurz, Satz im Tooltip + auf Papier. */}
-        <span id="bp-meldung" className="entwurf" title="ENTWURF · Bohrmaße vor dem Bohren prüfen">
-          ENTWURF
+        <span id="bp-meldung" className="entwurf" title="Vorschau · Maße vor dem Bohren nachmessen">
+          VORSCHAU
         </span>
       </div>
 
@@ -706,7 +706,7 @@ function DruckBlatt({ b }: { b: Blatt }) {
         {blattKopf(b)}
       </h2>
       <p className="klein">
-        {kopfZeile(b)} · ENTWURF, Bohrmaße vor dem Bohren prüfen
+        {kopfZeile(b)} · Vorschau · Maße vor dem Bohren nachmessen
       </p>
       <Skizze b={b} />
       <h3>Bohrtabelle · {kurzName(b)}</h3>

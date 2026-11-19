@@ -1,6 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, MesseStueckliste, schrittAusSpeicher, xrRueckweg } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, materialAnzeige, MesseStueckliste, schrittAusSpeicher, xrRueckweg } from "./MesseStueckliste";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -72,17 +72,27 @@ describe("Texte nennen das Ziel", () => {
     ]);
     const { container } = render(<MesseStueckliste />);
     const kopf = container.querySelector(".ms-voai summary")?.textContent ?? "";
-    expect(kopf).toContain("Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei)");
+    expect(kopf).toContain("Vorschau der Exportdatei");
     expect(container.textContent).not.toContain("das bekommt VOAI");
   });
 
-  it("sichtbarer Text nennt das Wort Preis nicht, VOAI rechnet (Holper Szene 2/5, kein »kein Preis« = gratis)", () => {
+  it("Material nur in der Anzeige als »Platte 19 mm roh«, auch in der Kanten-Position der Vorschau (A1 b1)", () => {
+    expect(materialAnzeige("Demo-Träger 19 roh (synthetisch)")).toBe("Platte 19 mm roh");
+    expect(materialAnzeige("Kante 19 mm · Demo-Träger 19 roh (synthetisch) · Annahme")).toBe("Kante 19 mm · Platte 19 mm roh · Annahme");
+    expect(materialAnzeige("Eiche")).toBe("Eiche");
+    expect(materialAnzeige(undefined)).toBeUndefined();
+    const { container } = render(<MesseStueckliste />);
+    expect(container.textContent ?? "").not.toMatch(/Demo-Träger|synthetisch/);
+    expect(container.textContent ?? "").toContain("Platte 19 mm roh");
+  });
+
+  it("sichtbarer Text nennt weder Preis noch Angebot oder Kalkulation (Holper Szene 2/5, kein »kein Preis« = gratis)", () => {
     const { container } = render(<MesseStueckliste />);
     const fuss = [...container.querySelectorAll("p.ms-fuss")].map((p) => p.textContent ?? "");
     expect(fuss).toEqual([
-      "Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, die Kalkulation macht VOAI.",
-      "Die Datei trägt nur Teile und Maße, rechnen tut VOAI selbst.",
+      "Orange markiert = Annahme, noch nicht belegt.",
+      "Die Datei enthält Teile und Maße.",
     ]);
-    expect(container.textContent ?? "").not.toMatch(/preis/i);
+    expect(container.textContent ?? "").not.toMatch(/preis|angebot|kalkulation/i);
   });
 });

@@ -57,9 +57,9 @@ function AxisGizmo() {
 }
 
 const PROMPTS = [
-  "Punkt 1/3 — OBERE LINKE Ecke der Beschlagfläche",
-  "Punkt 2/3 — OBERE RECHTE Ecke (entlang der Oberkante)",
-  "Punkt 3/3 — UNTERE LINKE Ecke (entlang der linken Kante)",
+  "Punkt 1/3 — obere linke Ecke der Beschlagfläche",
+  "Punkt 2/3 — obere rechte Ecke (entlang der Oberkante)",
+  "Punkt 3/3 — untere linke Ecke (entlang der linken Kante)",
 ];
 
 export function BeschlagARRegistration({
@@ -161,7 +161,7 @@ export function BeschlagARRegistration({
           maxWidth={0.7}
         >
           {probeSpace
-            ? `Kreuz auf die Ecke, dann GRIFF-Taste (seitlich) drücken\n${PROMPTS[promptIndex]}`
+            ? `Kreuz auf die Ecke, dann Griff-Taste (seitlich) drücken\n${PROMPTS[promptIndex]}`
             : "Ausrichten braucht einen Controller"}
         </Text>
       </Billboard>

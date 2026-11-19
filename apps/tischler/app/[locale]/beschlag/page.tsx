@@ -303,9 +303,9 @@ export default function BeschlagPage() {
           id="bs-meldung"
           className="entwurf"
           hidden={zeigtBohrungen && annahmenZahl === 0}
-          title={zeigtBohrungen ? "ENTWURF · enthält Annahmen" : "ENTWURF · Bohrbild noch nicht freigegeben"}
+          title={zeigtBohrungen ? "Vorschau · enthält Annahmen" : "Vorschau · Maße vor dem Bohren nachmessen"}
         >
-          ENTWURF
+          VORSCHAU
         </span>
       </div>
 
@@ -393,7 +393,7 @@ export default function BeschlagPage() {
               <h2>Annahmen · {klar(beschlag.label)}</h2>
               {!zeigtBohrungen && (
                 <p className="warnung" role="status">
-                  <strong>Bohrbild noch nicht freigegeben.</strong> Die Maße stammen unverändert aus der
+                  <strong>Vorschau · Maße vor dem Bohren nachmessen.</strong> Die Maße stammen unverändert aus der
                   Herstellervorlage und gehen rechnerisch auf. Die genaue Lage einzelner Bohrungen ist noch nicht
                   bestätigt — deshalb zeigt die Ansicht die Maße zum Nachmessen, aber keine Bohrpunkte.
                 </p>
