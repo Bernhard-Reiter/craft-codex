@@ -34,6 +34,9 @@ export function ansichtAusSuche(suche: string): "montage" | "stueckliste" {
   return q.get("vorlage") === "messe" && q.get("ansicht") === "stueckliste" ? "stueckliste" : "montage";
 }
 
+/** sessionStorage-Schlüssel des Messe-Montage-Schritts; Montage schreibt, Montage + AR-Seite lesen (A2). */
+export const MESSE_SCHRITT_KEY = "beschlag-messe-schritt";
+
 /** Gemerkter Montage-Schritt (sessionStorage, H3): ganze Zahl 0..zahl-1, sonst 0. */
 export function schrittAusSpeicher(roh: string | null, zahl: number): number {
   const n = Number(roh);
