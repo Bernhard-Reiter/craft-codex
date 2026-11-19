@@ -75,4 +75,14 @@ describe("Texte nennen das Ziel", () => {
     expect(kopf).toContain("Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei)");
     expect(container.textContent).not.toContain("das bekommt VOAI");
   });
+
+  it("sichtbarer Text nennt das Wort Preis nicht, VOAI rechnet (Holper Szene 2/5, kein »kein Preis« = gratis)", () => {
+    const { container } = render(<MesseStueckliste />);
+    const fuss = [...container.querySelectorAll("p.ms-fuss")].map((p) => p.textContent ?? "");
+    expect(fuss).toEqual([
+      "Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, die Kalkulation macht VOAI.",
+      "Die Datei trägt nur Teile und Maße, rechnen tut VOAI selbst.",
+    ]);
+    expect(container.textContent ?? "").not.toMatch(/preis/i);
+  });
 });

@@ -129,7 +129,7 @@ export function MesseStueckliste() {
         </table>
       </div>
       <p className="ms-fuss">
-        Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, ohne Preise.
+        Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, die Kalkulation macht VOAI.
       </p>
 
       <details className="ms-voai" open>
@@ -173,7 +173,7 @@ export function MesseStueckliste() {
             </tbody>
           </table>
         </div>
-        <p className="ms-fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst.</p>
+        <p className="ms-fuss">Die Datei trägt nur Teile und Maße, rechnen tut VOAI selbst.</p>
         <details className="ms-fuss">
           <summary>Technik</summary>
           Format stueckliste/2 · Revision {voai.inhalt.revision} · Prüfsumme{" "}
