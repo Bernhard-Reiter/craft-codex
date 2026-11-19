@@ -1,3 +1,9 @@
 # gitleaks false positives — obvious dummy fixtures, never real secrets
 # PR #34: counting-pattern dummy bearer token in a unit test (pre-allow-marker commit)
 e77d6e53141d4e55c2568bc34e738dec6b6e0a5c:apps/tischler/lib/security/bearer-auth.test.ts:generic-api-key:4
+# PR #80: Fehlalarme, Zweitlesung C (gitleaks-pr80-v1.md 37d587c1fb76), Bernhard »gitleaks 1«
+# bohrplan/page.tsx Z.179: Liste kurzer CSS-Dateinamen (»…tokens.css«), kein Wert
+2b112228175b8a0ba0ecc5878766a7da5211c494:apps/tischler/app/[locale]/beschlag/bohrplan/page.tsx:generic-api-key:179
+# vi4-design/MANIFEST.json Z.5: sha256-Pruefsumme des VI4-Pakets (64 hex), Fassung 0.4.0 und 0.5.0
+2b112228175b8a0ba0ecc5878766a7da5211c494:apps/tischler/public/vi4-design/MANIFEST.json:generic-api-key:5
+057fc88c3b810907343d8246f594054c7ea5ec16:apps/tischler/public/vi4-design/MANIFEST.json:generic-api-key:5
