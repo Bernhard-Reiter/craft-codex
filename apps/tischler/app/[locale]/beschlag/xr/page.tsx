@@ -25,8 +25,8 @@
 
 import { useLocale } from "next-intl";
 import Script from "next/script";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { XR, createXRStore, useXR } from "@react-three/xr";
 import { Root, Container, Text } from "@react-three/uikit";
@@ -36,8 +36,13 @@ import {
 } from "@craft-codex/core";
 import { BeschlagScene } from "../../../../components/BeschlagScene";
 import {
+  MESSE_AR_PLATZ,
+  MESSE_BUEHNE,
   MesseSchrank,
   MesseSchrankNebenWerkstueck,
+  STANDARD_BUEHNE,
+  blickAmPlatz,
+  type Buehne,
 } from "../../../../components/MesseSchrank";
 import {
   BeschlagARRegistration,
@@ -75,6 +80,16 @@ const RMS_WARN_M = 0.01;
 
 /** Startpose der schwebenden Tafel: vor dem Nutzer, auf Augen-/Arbeitshöhe. */
 const TAFEL_POS: [number, number, number] = [0, 1.2, -0.75];
+
+/** Desktop-Vorschau: Kamera setzen und aufs Ziel richten (in der Quest führt das Headset die Kamera). */
+function VorschauBlick({ buehne }: { buehne: Buehne }) {
+  const camera = useThree((s) => s.camera);
+  useLayoutEffect(() => {
+    camera.position.set(...buehne.kamera);
+    camera.lookAt(...buehne.ziel);
+  }, [camera, buehne]);
+  return null;
+}
 
 /** Meldet dem Parent, wenn die XR-Session endet (Transformation verwerfen). */
 function SessionWatcher({ onEnded }: { onEnded: () => void }) {
@@ -141,6 +156,9 @@ export default function BeschlagXRPage() {
 
   const werkstueck = beschlag.werkstueckFuer(schritt?.id);
   const layout = werkstueck.layout;
+  const istMesse = beschlag.id === "messe";
+  // Video 9: Messe-Vorschau mit dem Montage-Blick auf den Schrank an seinem Quest-Platz.
+  const vorschau = useMemo(() => (istMesse ? blickAmPlatz(MESSE_BUEHNE) : STANDARD_BUEHNE), [istMesse]);
 
   // Anderes Werkstück auf dem Tisch → die alte Ausrichtung gilt nicht mehr.
   useEffect(() => {
@@ -330,7 +348,8 @@ export default function BeschlagXRPage() {
             </section>
 
             <div className="buehne" aria-hidden>
-              <Canvas camera={{ position: [0, 0, 2.9], fov: 45 }}>
+              <Canvas camera={{ position: vorschau.kamera, fov: vorschau.fov }}>
+                <VorschauBlick buehne={vorschau} />
                 <XR store={store}>
                   <SessionWatcher onEnded={() => setReg(null)} />
                   <ambientLight intensity={0.8} />
@@ -446,7 +465,7 @@ export default function BeschlagXRPage() {
 
                   {/* ─── Messe-Unterschrank frei am Boden, solange nicht ausgerichtet ─── */}
                   {beschlag.id === "messe" && !reg && !ausrichten && (
-                    <group position={[0.9, 0, -1.2]} rotation={[0, -0.4, 0]}>
+                    <group position={MESSE_AR_PLATZ.position} rotation={[0, MESSE_AR_PLATZ.drehungY, 0]}>
                       <MesseSchrank activeStepId={schritt?.id} />
                     </group>
                   )}

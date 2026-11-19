@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { MESSE_AR_PLATZ, MESSE_BUEHNE, blickAmPlatz } from "../../../../components/MesseSchrank";
 
 /**
  * AR-Seite der Beschlagmontage (wort-19-156, Cs GELB zu Video 6):
@@ -110,5 +111,36 @@ describe("Montage-Schritt in AR (A2)", () => {
     const vor = SEITE.lastIndexOf("useEffect(", i);
     expect(SEITE.slice(vor, i)).toContain('if (beschlag.id !== "messe") return;');
     expect(SEITE.slice(i, i + 250)).toContain("}, [index, beschlag.id]);");
+  });
+});
+
+describe("Messe-Vorschau der AR-Seite (Video 9, C PW11)", () => {
+  it("sieht die linke Korpusseite wie die Montage, der Quest-Platz bleibt", () => {
+    // Platz und Drehung des freien Schranks unverändert (Quest), nur aus der Konstante
+    expect(MESSE_AR_PLATZ).toEqual({ position: [0.9, 0, -1.2], drehungY: -0.4 });
+    expect(SEITE).toContain("<group position={MESSE_AR_PLATZ.position} rotation={[0, MESSE_AR_PLATZ.drehungY, 0]}>");
+    expect(SEITE).not.toContain("position: [0, 0, 2.9]");
+    expect(SEITE).toContain("blickAmPlatz(MESSE_BUEHNE)");
+    expect(SEITE).toContain("<VorschauBlick buehne={vorschau} />");
+
+    const { kamera, ziel } = blickAmPlatz(MESSE_BUEHNE);
+    const [px, , pz] = MESSE_AR_PLATZ.position;
+    const th = MESSE_AR_PLATZ.drehungY;
+    // Mitte der linken Seite (x = −0,3 m, y 0,425, z −0,29) in Welt, Außennormale −x gedreht
+    const welt = (x: number, y: number, z: number) => [
+      x * Math.cos(th) + z * Math.sin(th) + px, y, -x * Math.sin(th) + z * Math.cos(th) + pz,
+    ];
+    const mitte = welt(-0.3, 0.425, -0.29);
+    const normale = [-Math.cos(th), 0, Math.sin(th)];
+    const zurKamera = kamera.map((v, i) => v - mitte[i]!);
+    const abstand = Math.hypot(...zurKamera);
+    const zuwendung = normale.reduce((s, v, i) => s + v * zurKamera[i]! / abstand, 0);
+    expect(zuwendung).toBeGreaterThan(0.2); // vorher (Kamera 0/0/2,9) etwa −0,23: Seite weggedreht
+    expect(abstand).toBeLessThan(2.5); // vorher etwa 4,6 m: Schrank winzig
+    // Kamera und Ziel = Montage-Blick, im Schrank-Rahmen
+    const [kx, ky, kz] = MESSE_BUEHNE.kamera;
+    const [zx, zy, zz] = MESSE_BUEHNE.ziel;
+    expect(Math.hypot(...kamera.map((v, i) => v - welt(kx, ky, kz)[i]!))).toBeLessThan(1e-9);
+    expect(Math.hypot(...ziel.map((v, i) => v - welt(zx, zy, zz)[i]!))).toBeLessThan(1e-9);
   });
 });

@@ -211,3 +211,27 @@ export const MESSE_BUEHNE: Buehne = {
 export function buehneFuer(istMesse: boolean): Buehne {
   return istMesse ? MESSE_BUEHNE : STANDARD_BUEHNE;
 }
+
+/** Platz des freien Messe-Schranks auf der AR-Seite (in der Quest: am Boden rechts vorn, leicht zur Mitte gedreht). */
+export const MESSE_AR_PLATZ: { position: [number, number, number]; drehungY: number } = {
+  position: [0.9, 0, -1.2],
+  drehungY: -0.4,
+};
+
+/**
+ * Video 9 (C PW11): die AR-Desktop-Vorschau sah den gedrehten Schrank aus 4,2 m,
+ * die leuchtende linke Seite zeigte von der Kamera weg. Hier wird der Montage-Blick
+ * in den Rahmen des Schranks gesetzt (gleiche Drehung um y wie die Group in three.js),
+ * so sieht die Vorschau den Schrank wie die Montage. Der Platz in der Quest bleibt.
+ */
+export function blickAmPlatz(b: Buehne, platz = MESSE_AR_PLATZ): Buehne {
+  const c = Math.cos(platz.drehungY);
+  const s = Math.sin(platz.drehungY);
+  const [px, py, pz] = platz.position;
+  const welt = ([x, y, z]: [number, number, number]): [number, number, number] => [
+    x * c + z * s + px,
+    y + py,
+    -x * s + z * c + pz,
+  ];
+  return { ...b, kamera: welt(b.kamera), ziel: welt(b.ziel) };
+}
