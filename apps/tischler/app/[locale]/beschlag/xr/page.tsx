@@ -67,6 +67,9 @@ const CSS = [
 /** Ruhiger Satz ohne AR (Mac, iPad): kein Technik-Wort auf der Seite (nicht exportieren: Next-Seiten erlauben keine Zusatz-Exporte). */
 const OHNE_AR_SATZ = "AR läuft auf der Quest 3 — hier die Desktop-Ansicht.";
 
+/** Zeichen vor dem Namen weg (⭐ der Messe-Vorlage), wie beschlag/page.tsx Z.43. */
+const klar = (s: string) => s.replace(/^[^\p{L}\p{N}]+/u, "");
+
 /** RMS-Grenze in Metern, ab der die Registrierung als grob gilt. */
 const RMS_WARN_M = 0.01;
 
@@ -198,8 +201,9 @@ export default function BeschlagXRPage() {
     };
     void H.menue({
       ziel: "#xr-menue",
-      umgebung: { aktiv: "layout", tun: () => undefined },
-      name: { titel: "Beschlagmontage in AR", zusatz: () => beschlagRef.current.label },
+      // Platz 0 wie die Montage (beschlag/page.tsx): AR ist Montage am Schrank = »Korpus«.
+      umgebung: { aktiv: "korpus", tun: () => undefined },
+      name: { titel: "Montage in AR", zusatz: () => klar(beschlagRef.current.label) },
       menues: {
         datei: [{ t: "Zurück zur Montage", tun: zurueck }],
       },
