@@ -7,3 +7,5 @@ e77d6e53141d4e55c2568bc34e738dec6b6e0a5c:apps/tischler/lib/security/bearer-auth.
 # vi4-design/MANIFEST.json Z.5: sha256-Pruefsumme des VI4-Pakets (64 hex), Fassung 0.4.0 und 0.5.0
 2b112228175b8a0ba0ecc5878766a7da5211c494:apps/tischler/public/vi4-design/MANIFEST.json:generic-api-key:5
 057fc88c3b810907343d8246f594054c7ea5ec16:apps/tischler/public/vi4-design/MANIFEST.json:generic-api-key:5
+# vi4-design/MANIFEST.json Z.14: sha256-Pruefsumme der Datei vi4-tokens.css (64 hex), lokaler gitleaks-Lauf gl-meta-pr80
+2b112228175b8a0ba0ecc5878766a7da5211c494:apps/tischler/public/vi4-design/MANIFEST.json:generic-api-key:14
