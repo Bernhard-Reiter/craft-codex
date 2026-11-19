@@ -254,10 +254,12 @@ export default function BohrplanPage() {
   const gebaut = useRef(false);
   // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
   const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell (Foto + Messe)
   useEffect(() => {
     const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     // Papier ist weiß: zum Drucken immer hell, danach wieder die gewählte Darstellung.
@@ -272,6 +274,7 @@ export default function BohrplanPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      verlassen.current = true;
       abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
@@ -296,6 +299,11 @@ export default function BohrplanPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     // Aus der Stückliste (»?blatt=n«) zurück in die Stückliste, sonst in die 3D-Montage.
     const zurueck = () => {
       window.location.href = bohrplanRueckweg(window.location.search, BLAETTER.length, locale);
@@ -327,7 +335,7 @@ export default function BohrplanPage() {
       haupt: { wort: "Drucken", tun: () => window.print() },
     }).then((m) => {
       leiste.current = m;
-      abbauen.current.push(m.abbau);
+      merke(m);
     });
     void H.baue({
       wurzel: "#bp-werk",
@@ -384,7 +392,7 @@ export default function BohrplanPage() {
       start: { links: true, linksId: "bohrungen" },
     }).then((h) => {
       huelle.current = h;
-      abbauen.current.push(h.abbau);
+      merke(h);
     });
   }, [skript, locale]);
 

@@ -73,6 +73,7 @@ export default function BeschlagPage() {
   const gebaut = useRef(false);
   // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
   const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   const waehle = (id: string) => {
     const b = BESCHLAEGE.find((x) => x.id === id);
@@ -111,6 +112,7 @@ export default function BeschlagPage() {
   // Rahmen der Hülle: ganze Fläche, Thema hell; Papier wird immer hell gedruckt.
   useEffect(() => {
     const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     const hell = () => {
@@ -124,6 +126,7 @@ export default function BeschlagPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      verlassen.current = true;
       abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
@@ -140,6 +143,11 @@ export default function BeschlagPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     const geh = (pfad: string) => {
       window.location.href = `/${locale}${pfad}`;
     };
@@ -196,7 +204,7 @@ export default function BeschlagPage() {
       },
     }).then((m) => {
       leiste.current = m;
-      abbauen.current.push(m.abbau);
+      merke(m);
     });
     void H.baue({
       wurzel: "#bs-werk",
@@ -277,7 +285,7 @@ export default function BeschlagPage() {
       start: { links: true, linksId: "schritt" },
     }).then((h) => {
       huelle.current = h;
-      abbauen.current.push(h.abbau);
+      merke(h);
     });
   }, [skript, locale]);
 

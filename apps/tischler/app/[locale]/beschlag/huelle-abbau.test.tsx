@@ -71,7 +71,17 @@ describe("VI4-Hülle abbau() (Bau-Wort 5)", () => {
       const q = readFileSync(join(__dirname, s), "utf8");
       expect(q, s).toContain("const abbauListe = abbauen.current;");
       expect(q, s).toContain("abbauListe.splice(0).forEach((f) => f());");
-      expect(q.match(/abbauen\.current\.push\([mh]\.abbau\)/g), s).toHaveLength(2);
+      expect(q.match(/merke\([mh]\);/g), s).toHaveLength(2);
+    }
+  });
+
+  it("wer die Seite verlässt, bevor menue()/baue() fertig sind, baut sofort ab statt zu merken (PM-GELB)", () => {
+    for (const s of SEITEN) {
+      const q = readFileSync(join(__dirname, s), "utf8");
+      expect(q, s).toContain("const verlassen = useRef(false);");
+      expect(q, s).toContain("verlassen.current = false;"); // beim Einrichten (StrictMode baut zweimal auf)
+      expect(q, s).toContain("verlassen.current = true;"); // im Aufräumen
+      expect(q, s).toMatch(/if \(verlassen\.current\) t\.abbau\(\);\s+else abbauen\.current\.push\(t\.abbau\);/);
     }
   });
 });

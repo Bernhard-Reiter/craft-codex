@@ -221,12 +221,15 @@ export default function BeschlagXRPage() {
   const gebaut = useRef(false);
   // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
   const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   useEffect(() => {
     const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     return () => {
+      verlassen.current = true;
       abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
@@ -238,6 +241,11 @@ export default function BeschlagXRPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     const zurueck = () => {
       window.location.href = `/${locale}${xrRueckweg(beschlagRef.current.id)}`;
     };
@@ -259,11 +267,11 @@ export default function BeschlagXRPage() {
       schliessen: { wort: "Schließen", verb: "schliessen", tun: zurueck },
     }).then((m) => {
       menue.current = m;
-      abbauen.current.push(m.abbau);
+      merke(m);
     });
     // Ohne Karten: huelle.js überspringt fehlende Karten-Wähler, die Schienen bleiben leer.
     void H.baue({ wurzel: "#xr-werk", buehne: "#xr-buehne", links: [], rechts: [] }).then((h) => {
-      abbauen.current.push(h.abbau);
+      merke(h);
     });
   }, [skript, locale]);
 
