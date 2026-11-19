@@ -67,9 +67,16 @@ export function xrRueckweg(beschlagId: string): string {
   return beschlagId === "messe" ? "/beschlag?vorlage=messe" : "/beschlag";
 }
 
+/** CSV-Text der Stückliste, Material wie in der Tafel (materialAnzeige), core-Daten unverändert. */
+export function stuecklisteCsvText(): string {
+  return messeStuecklisteCsv(
+    buildMesseStueckliste().map((z) => ({ ...z, material: materialAnzeige(z.material) ?? z.material })),
+  );
+}
+
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
-  lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
+  lade("\uFEFF" + stuecklisteCsvText(), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
 }
 
 /** Datei im VOAI-Vertrag stueckliste/2, ohne Preise. Kein Aufruf an VOAI, nur ein Download. */

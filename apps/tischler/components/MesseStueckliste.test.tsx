@@ -1,6 +1,7 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, materialAnzeige, MesseStueckliste, schrittAusSpeicher, xrRueckweg } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, materialAnzeige, MesseStueckliste, schrittAusSpeicher, stuecklisteCsvText, xrRueckweg } from "./MesseStueckliste";
+import { buildMesseStueckliste, messeStuecklisteCsv } from "@craft-codex/core";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -84,6 +85,14 @@ describe("Texte nennen das Ziel", () => {
     const { container } = render(<MesseStueckliste />);
     expect(container.textContent ?? "").not.toMatch(/Demo-Träger|synthetisch/);
     expect(container.textContent ?? "").toContain("Platte 19 mm roh");
+  });
+
+  it("CSV-Download zeigt das Material wie die Tafel, ohne »synthetisch«; core-Schlüssel bleibt (A2, Blatt b2 Stelle 5)", () => {
+    const csv = stuecklisteCsvText();
+    expect(csv).not.toMatch(/synthetisch|Demo-Träger/);
+    expect(csv).toContain("Platte 19 mm roh");
+    expect(csv.split("\n").length).toBe(messeStuecklisteCsv(buildMesseStueckliste()).split("\n").length);
+    expect(messeStuecklisteCsv(buildMesseStueckliste())).toContain("Demo-Träger 19 roh (synthetisch)");
   });
 
   it("sichtbarer Text nennt weder Preis noch Angebot oder Kalkulation (Holper Szene 2/5, kein »kein Preis« = gratis)", () => {

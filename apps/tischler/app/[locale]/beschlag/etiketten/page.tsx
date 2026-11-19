@@ -7,6 +7,7 @@
  */
 
 import { buildMesseEtiketten, kantenText, type Kantenbild } from "@craft-codex/core";
+import { materialAnzeige } from "../../../../components/MesseStueckliste";
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
@@ -146,7 +147,7 @@ export default function EtikettenPage() {
                   {e.stueck !== "1/1" && <span className="nr">{e.stueck}</span>}
                 </div>
                 <div className="mass">{e.mass} mm</div>
-                <div className="werkstoff">{e.werkstoff}</div>
+                <div className="werkstoff">{materialAnzeige(e.werkstoff)}</div>
                 <div className="unten">
                   <KantenSkizze k={e.kanten} />
                   <div>

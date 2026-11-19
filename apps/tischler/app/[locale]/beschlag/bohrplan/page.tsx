@@ -706,7 +706,7 @@ function DruckBlatt({ b }: { b: Blatt }) {
         {blattKopf(b)}
       </h2>
       <p className="klein">
-        {kopfZeile(b)} · Vorschau · Maße vor dem Bohren nachmessen
+        {kopfZeile(b)} · Maße vor dem Bohren nachmessen
       </p>
       <Skizze b={b} />
       <h3>Bohrtabelle · {kurzName(b)}</h3>
