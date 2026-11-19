@@ -170,6 +170,15 @@ export default function BeschlagXRPage() {
       setIndex(schrittAusSpeicher(roh, new WorkflowController(messe.workflow).getSteps().length));
     }
   }, []);
+  // Rückweg AR -> Montage: Messe-Schritt zurückschreiben (Muster wie Montage), dann landet die Montage beim selben Schritt.
+  useEffect(() => {
+    if (beschlag.id !== "messe") return;
+    try {
+      window.sessionStorage.setItem(MESSE_SCHRITT_KEY, String(index));
+    } catch {
+      // ohne Speicher startet die Montage wieder bei Schritt 1
+    }
+  }, [index, beschlag.id]);
   const bohrpunkteFrei = mayRenderDrillPoints(layout);
 
   useEffect(() => {

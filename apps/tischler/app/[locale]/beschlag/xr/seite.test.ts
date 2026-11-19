@@ -102,4 +102,13 @@ describe("Montage-Schritt in AR (A2)", () => {
     expect(SEITE.indexOf("if (v) waehle(v);")).toBeGreaterThan(0);
     expect(SEITE.indexOf("setIndex(schrittAusSpeicher(")).toBeGreaterThan(SEITE.indexOf("if (v) waehle(v);"));
   });
+
+  it("schreibt den Schritt bei der Messe-Vorlage zurück, damit der Rückweg zur Montage beim selben Schritt landet", () => {
+    const i = SEITE.indexOf("sessionStorage.setItem(MESSE_SCHRITT_KEY, String(index))");
+    expect(i).toBeGreaterThan(0);
+    // nur für die Messe-Vorlage, und bei jedem Schrittwechsel neu
+    const vor = SEITE.lastIndexOf("useEffect(", i);
+    expect(SEITE.slice(vor, i)).toContain('if (beschlag.id !== "messe") return;');
+    expect(SEITE.slice(i, i + 250)).toContain("}, [index, beschlag.id]);");
+  });
 });
