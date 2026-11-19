@@ -1,0 +1,32 @@
+/* Brücke Korpusgenerator → VI4-Paket 0.2.0 (18.11.2026).
+   Die alten Namen aus korpus-schnell/web/stil.css zeigen hier auf die Rollen des Pakets (vi4-tokens.css + vi4-rollen.css).
+   Laden NACH stil.css. Wähler »:root, :root[data-theme]«: schlägt »:root« und »:root[data-theme="dark"]« in stil.css
+   (gleiche Spezifität, später geladen). Hell / dunkel entscheiden die Rollen selbst, deshalb ein Block für beide Themen.
+   Bleibt bei stil.css: --links / --rechts (Maße des Moduls), --pfeil (Bild), color-scheme.
+   Sichtbare Änderung: Bühne hell = Werkfläche der Planung (#EFEFEF / #E8E8E8 statt #FAFAFA / #F1F1F1). */
+:root, :root[data-theme] {
+  --font: var(--vi4-font);
+  --ink: var(--vi4-werk-ink); --muted: var(--vi4-werk-muted);
+  --brand: var(--vi4-werk-brand); --brand-hover: var(--vi4-werk-brand-hover); --brand-active: var(--vi4-werk-brand-active);
+  --paper: var(--vi4-werk-paper); --soft: var(--vi4-werk-soft); --hover: var(--vi4-werk-hover); --subtle: var(--vi4-werk-subtle);
+  --rule: var(--vi4-werk-rule); --rule-strong: var(--vi4-werk-rule-strong);
+  --success: var(--vi4-werk-success); --warning: var(--vi4-werk-warning); --warning-bg: var(--vi4-werk-warning-bg);
+  --danger: var(--vi4-werk-danger); --danger-bg: var(--vi4-werk-danger-bg);
+  --shadow-field: var(--vi4-werk-shadow-field); --shadow-field-focus: var(--vi4-werk-shadow-field-focus);
+  --shadow-button: var(--vi4-werk-shadow-button); --shadow-button-hover: var(--vi4-werk-shadow-button-hover);
+  --shadow-button-pressed: var(--vi4-werk-shadow-button-pressed); --shadow-overlay: var(--vi4-werk-shadow-overlay);
+  --r-field: var(--vi4-radius-field); --r-button: var(--vi4-radius-button); --r-card: var(--vi4-radius-card); --r-dialog: var(--vi4-radius-dialog);
+  --ease: var(--vi4-ease);
+  --on-brand: var(--vi4-werk-on-brand); --on-brand-leise: var(--vi4-werk-on-brand-leise); --on-danger: var(--vi4-werk-on-danger);
+  --warning-ink: var(--vi4-werk-warning-ink);
+  --annahme-bg: var(--vi4-fach-annahme-bg); --annahme-ink: var(--vi4-fach-annahme-ink);
+  --gewaehlt-bg: var(--vi4-fach-gewaehlt-bg); --ueber-bg: var(--vi4-fach-ueber-bg);
+  --geaendert-bg: var(--vi4-fach-geaendert-bg); --geaendert-gewaehlt-bg: var(--vi4-fach-geaendert-gewaehlt-bg); --geaendert-ink: var(--vi4-fach-geaendert-ink);
+  --karte-f: var(--vi4-werk-karte); --leiste-f: var(--vi4-werk-leiste);
+  --buehne-oben: var(--vi4-werk-buehne-oben); --buehne-unten: var(--vi4-werk-buehne-unten);
+  --schleier: var(--vi4-werk-schleier); --scroll: var(--vi4-werk-scroll);
+  --bb-papier: var(--vi4-fach-bb-papier); --bb-platte: var(--vi4-fach-bb-platte); --bb-rand: var(--vi4-fach-bb-rand);
+  --bb-kante: var(--vi4-fach-bb-kante); --bb-strich: var(--vi4-fach-bb-strich); --bb-loch-rand: var(--vi4-fach-bb-loch-rand);
+  --bohr-topf: var(--vi4-fach-bohr-topf); --bohr-duebel: var(--vi4-fach-bohr-duebel); --bohr-montageplatte: var(--vi4-fach-bohr-montageplatte);
+  --bohr-lochreihe: var(--vi4-fach-bohr-lochreihe); --bohr-sonst: var(--vi4-fach-bohr-sonst);
+}
