@@ -22,10 +22,10 @@ import { buehneFuer, MesseSchrank } from "../../../components/MesseSchrank";
 import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, MESSE_SCHRITT_KEY, schrittAusSpeicher } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
-type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
+type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void; abbau: () => void };
 type Vi4 = {
   baue: (c: unknown) => Promise<Huelle>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 type Thema = "light" | "dark" | "auto";
 type Ansicht = "montage" | "stueckliste";
@@ -71,6 +71,8 @@ export default function BeschlagPage() {
   const huelle = useRef<Huelle | null>(null);
   const leiste = useRef<{ stand: () => void } | null>(null);
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
 
   const waehle = (id: string) => {
     const b = BESCHLAEGE.find((x) => x.id === id);
@@ -108,6 +110,7 @@ export default function BeschlagPage() {
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; Papier wird immer hell gedruckt.
   useEffect(() => {
+    const abbauListe = abbauen.current;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     const hell = () => {
@@ -121,6 +124,7 @@ export default function BeschlagPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -192,6 +196,7 @@ export default function BeschlagPage() {
       },
     }).then((m) => {
       leiste.current = m;
+      abbauen.current.push(m.abbau);
     });
     void H.baue({
       wurzel: "#bs-werk",
@@ -272,6 +277,7 @@ export default function BeschlagPage() {
       start: { links: true, linksId: "schritt" },
     }).then((h) => {
       huelle.current = h;
+      abbauen.current.push(h.abbau);
     });
   }, [skript, locale]);
 

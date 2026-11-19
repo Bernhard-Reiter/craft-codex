@@ -37,8 +37,8 @@ function KantenSkizze({ k }: { k: Kantenbild }) {
 
 type Thema = "light" | "dark" | "auto";
 type Vi4 = {
-  baue: (c: unknown) => Promise<unknown>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  baue: (c: unknown) => Promise<{ abbau: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 
 // Reihenfolge zählt (gleiche precedence): Schrift direkt NACH den Tokens, Phosphor für die Symbole.
@@ -56,9 +56,12 @@ export default function EtikettenPage() {
   const [skript, setSkript] = useState(false);
   const themaRef = useRef<Thema>("light");
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; zum Drucken immer hell.
   useEffect(() => {
+    const abbauListe = abbauen.current;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     const hell = () => {
@@ -72,6 +75,7 @@ export default function EtikettenPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -101,9 +105,13 @@ export default function EtikettenPage() {
       },
       schliessen: { wort: "Schließen", verb: "schliessen", tun: zurueck },
       haupt: { wort: "Drucken", tun: () => window.print() },
+    }).then((m) => {
+      abbauen.current.push(m.abbau);
     });
     // Ohne Karten: huelle.js Z.31/33 überspringt fehlende Karten-Wähler, die Schienen bleiben leer.
-    void H.baue({ wurzel: "#et-werk", buehne: "#et-buehne", links: [], rechts: [] });
+    void H.baue({ wurzel: "#et-werk", buehne: "#et-buehne", links: [], rechts: [] }).then((h) => {
+      abbauen.current.push(h.abbau);
+    });
   }, [skript, locale]);
 
   return (
