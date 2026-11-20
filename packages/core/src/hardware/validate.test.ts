@@ -298,3 +298,54 @@ describe("mirrorLayout", () => {
     expect(validateLayout(mirrorLayout(original))).toEqual([]);
   });
 });
+
+// W2a K1–K3 (Fund-Liste 4ed51c2509ea): y nie geprüft, NaN fiel durch jeden
+// Vergleich, NaN-Segment ließ die Maßkette aufgehen. Nach diesen Zahlen wird
+// gebohrt — ein kaputter Wert muss einen Befund geben, kein stilles Grün.
+describe("validateLayout — Randwerte und NaN (K1–K3)", () => {
+  const regeln = (l: HardwareLayout) => validateLayout(l).map((i) => i.rule);
+
+  it("K1: lehnt y < 0 ab", () => {
+    expect(regeln(layout({ points: [punkt({ y: -1 })] }))).toContain("point.outsideFace");
+  });
+
+  it("K1: y = 0 bleibt erlaubt", () => {
+    expect(regeln(layout({ points: [punkt({ y: 0 })] }))).toEqual([]);
+  });
+
+  it.each([
+    ["diameter", { diameter: Number.NaN }, "point.diameter"],
+    ["depth", { depth: Number.NaN }, "point.depth"],
+    ["x", { x: Number.NaN }, "point.outsideFace"],
+    ["y", { y: Number.NaN }, "point.outsideFace"],
+  ] as const)("K2: NaN in %s gibt einen Befund", (_feld, over, regel) => {
+    expect(regeln(layout({ points: [punkt(over)] }))).toContain(regel);
+  });
+
+  it("K2: NaN in faceWidth gibt einen Befund", () => {
+    expect(regeln(layout({ faceWidth: Number.NaN }))).toContain("layout.faceWidth");
+  });
+
+  it("K3: NaN-Segment lässt die Maßkette nicht aufgehen", () => {
+    const l = layout({
+      chains: [
+        {
+          id: "k1",
+          axis: "y",
+          from: "Oberkante",
+          segments: [
+            { label: "19", value: 19 },
+            { label: "?", value: Number.NaN },
+          ],
+          total: 19,
+        },
+      ],
+    });
+    expect(regeln(l)).toContain("chain.sumMismatch");
+  });
+
+  it("K1–K3: ein Bohrbild mit solchem Befund darf keine Bohrpunkte zeigen", () => {
+    expect(mayRenderDrillPoints(layout({ points: [punkt({ y: -5 })] }))).toBe(false);
+    expect(mayRenderDrillPoints(layout({ points: [punkt({ depth: Number.NaN })] }))).toBe(false);
+  });
+});
