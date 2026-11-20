@@ -10,8 +10,8 @@ import {
   sha256Hex,
 } from "@craft-codex/core";
 import { afterAll, describe, expect, it } from "vitest";
-import { materialAnzeige, stuecklisteCsvText } from "../../components/MesseStueckliste";
-import { BLAETTER, LOCHREIHE } from "./bohrplan-blaetter";
+import { materialAnzeige, stuecklisteCsvText } from "./MesseStueckliste";
+import { BLAETTER, LOCHREIHE } from "../lib/beschlag/bohrplan-blaetter";
 
 /**
  * Unterschrank-Beleg 600 (1 Tür CLIP top, 1 Innenschubkasten MOVENTO): EIN
