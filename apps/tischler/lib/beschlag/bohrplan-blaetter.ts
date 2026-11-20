@@ -54,6 +54,11 @@ export const SEITE_RECHTS: HardwareLayout = {
     .map((c) => ({ ...c, segments: [], total: 0 })),
 };
 
+// Breite aus dem Bohrbild selbst (A7): eine Quelle, sonst druckt das Blatt
+// nach einer Kern-Änderung das alte Maß neben neuen Bohrungen.
+const HINTERSTUECK = buildMesseHinterstueckLayout();
+const BODEN = buildMesseBodenLayout();
+
 export const BLAETTER: Blatt[] = [
   {
     teil: "Tür",
@@ -89,16 +94,16 @@ export const BLAETTER: Blatt[] = [
   {
     teil: "Hinterstück",
     name: "Schubkasten-Hinterstück",
-    breite: 520,
+    breite: HINTERSTUECK.faceWidth,
     hoehe: 121,
-    layout: buildMesseHinterstueckLayout(),
+    layout: HINTERSTUECK,
   },
   {
     teil: "Boden",
     name: "Schubkasten-Boden",
-    breite: 530,
+    breite: BODEN.faceWidth,
     hoehe: 490,
-    layout: buildMesseBodenLayout(),
+    layout: BODEN,
     yAb: "Vorderkante",
   },
 ];
