@@ -17,7 +17,13 @@
  * http im LAN (kein sicherer Kontext), und core läuft auch im Browser.
  */
 
-import { buildMesseEtiketten, buildMesseStueckliste, KORPUS_MATERIAL, type StuecklistenZeile } from "./messe-stueckliste.js";
+import {
+  buildMesseEtiketten,
+  buildMesseStueckliste,
+  KORPUS_MATERIAL,
+  type Kantenbild,
+  type StuecklistenZeile,
+} from "./messe-stueckliste.js";
 import { MESSE_UNTERSCHRANK } from "./messe-unterschrank.js";
 
 export const VOAI_SCHEMA = "stueckliste/2";
@@ -96,6 +102,37 @@ export type VoaiStueckliste = {
   inhalt_sha256: string;
 };
 
+/**
+ * Vertragsmuster dezimal_positiv aus stueckliste/2, wörtlich (Schema `$defs.dezimal_positiv.pattern`).
+ * Als Konstante im Code, weil core im Browser läuft und keine Test-Fixture lädt;
+ * ein Test hält es gleich mit dem gepinnten Schema.
+ */
+export const DEZIMAL_POSITIV = /^([1-9][0-9]{0,11}(\.[0-9]{0,5}[1-9])?|0\.[0-9]{0,5}[1-9])(?![\s\S])/;
+
+/**
+ * »L × B × S« in mm, streng: genau drei positive Dezimalzahlen wie im Vertrag
+ * (dezimal_positiv), getrennt durch » × «. Sonst Abbruch: Die Messe-Daten sind
+ * Code-Konstanten, ein falsches Maß ist ein Programmfehler, und eine VOAI-Datei
+ * mit fehlendem, gekürztem oder ungültigem Maß soll gar nicht entstehen.
+ */
+export function masseAusText(text: string, teil: string): { laenge: string; breite: string; dicke: string } {
+  const teile = text.split(" × ");
+  if (teile.length !== 3 || !teile.every((t) => DEZIMAL_POSITIV.test(t))) {
+    throw new Error(`Maß von ${teil} ist kein »L × B × S« in mm: ${text}`);
+  }
+  const [laenge, breite, dicke] = teile as [string, string, string];
+  return { laenge, breite, dicke };
+}
+
+/** Kanten-Länge netto in mm aus dem Kantenbild (l1/l2 = Länge, b1/b2 = Breite); 0 ohne Kante. */
+export function kantenMm(mass: string, k: Kantenbild, teil: string): { mm: number; dicke: string } {
+  if (!k.l1 && !k.l2 && !k.b1 && !k.b2) return { mm: 0, dicke: "" };
+  const m = masseAusText(mass, teil);
+  const l = Number(m.laenge);
+  const b = Number(m.breite);
+  return { mm: (k.l1 ? l : 0) + (k.l2 ? l : 0) + (k.b1 ? b : 0) + (k.b2 ? b : 0), dicke: m.dicke };
+}
+
 function position(z: StuecklistenZeile, i: number): Position {
   const basis = {
     position_ref: posRef(i),
@@ -115,7 +152,7 @@ function position(z: StuecklistenZeile, i: number): Position {
       einheit: "stk",
     };
   }
-  const [laenge, breite, dicke] = z.mass.split(" × ");
+  const masse_mm = masseAusText(z.mass, z.teil);
   const text = `${z.teil}${z.annahme ? " (Annahme)" : ""}, ${z.material}`;
   const werkstoff = WERKSTOFF[z.material];
   if (!werkstoff && z.gruppe !== "Schubkasten") {
@@ -128,7 +165,7 @@ function position(z: StuecklistenZeile, i: number): Position {
     artikel_id: null,
     bezeichnung: text.normalize("NFC").slice(0, 200),
     einheit: "stk",
-    ...(laenge && breite && dicke ? { masse_mm: { laenge, breite, dicke } } : {}),
+    masse_mm,
   };
 }
 
@@ -145,15 +182,16 @@ function meter(mm: number): string {
 function kanten(zeilen: StuecklistenZeile[], ab: number): Position[] {
   const summe = new Map<string, { material: string; dicke: string; mm: number }>();
   for (const e of buildMesseEtiketten(zeilen)) {
+    const k = e.kanten;
+    // Ohne Kante nichts zu zählen; das Maß prüft schon position().
+    if (!k.l1 && !k.l2 && !k.b1 && !k.b2) continue;
+    // Kanten nur je Platten-Teil mit Aufbau, wie cody-cad korpus_etiketten.py (führt).
     if (!WERKSTOFF[e.werkstoff]) {
-      // Nur Schubkasten (Eiche) hat bewusst keinen Aufbau, jede andere Platte ist ein Fehler.
-      if (zeilen[e.pos - 1]?.gruppe === "Schubkasten") continue;
-      throw new Error(`Kein Werkstoff für Platte ${e.teil} (${e.werkstoff}) im Demo-Katalog`);
+      throw new Error(
+        `Kante an ${e.teil} ohne Aufbau (${e.werkstoff}): Kanten nur je Platten-Teil mit Aufbau, wie cody-cad`,
+      );
     }
-    const [l, b, dicke] = e.mass.split(" × ");
-    const mm = (e.kanten.l1 ? 1 : 0) * Number(l) + (e.kanten.l2 ? 1 : 0) * Number(l)
-      + (e.kanten.b1 ? 1 : 0) * Number(b) + (e.kanten.b2 ? 1 : 0) * Number(b);
-    if (!mm || !dicke) continue;
+    const { mm, dicke } = kantenMm(e.mass, k, e.teil);
     const key = `${e.werkstoff}|${dicke}`;
     const alt = summe.get(key) ?? { material: e.werkstoff, dicke, mm: 0 };
     summe.set(key, { ...alt, mm: alt.mm + mm });
