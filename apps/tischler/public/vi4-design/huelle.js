@@ -16,8 +16,12 @@
   catch (e) { document.documentElement.classList.add('vi4-im-rahmen'); }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let SYMBOLE = null;
+  // symbole.json fehlt (404/offline): Menü und Werkfläche bleiben bedienbar, nur ohne Symbole (das Wort steht als Text daneben).
+  // Kein Fragezeichen und keine Warnung je Verb, sondern genau ein console.error beim Laden und eine Meldung in der Leiste.
+  let symboleFehlen = false;
 
   function symbol(verb) {
+    if (symboleFehlen) return '';
     const s = SYMBOLE && SYMBOLE.verben[verb];
     if (!s) { console.warn('[vi4-huelle] Verb ohne Symbol:', verb); return 'ph-question'; }
     return 'ph-' + s.web;
@@ -162,6 +166,12 @@
     const platz = s => leiste.querySelector(s);
     for (const s of c.mitte || []) { const el = $(s); if (el) platz('.vi4-m-mitte').appendChild(el); }
     for (const s of c.meldung || []) { const el = $(s); if (el) platz('.vi4-m-meldung').appendChild(el); }
+    // Eigenes Element anhängen, nie innerHTML: die Meldungen der Seite bleiben stehen.
+    if (symboleFehlen) {
+      const fehlt = document.createElement('span');
+      fehlt.className = 'vi4-m-symbole-fehlen'; fehlt.textContent = 'Symbole nicht geladen';
+      platz('.vi4-m-meldung').appendChild(fehlt);
+    }
     platz('.vi4-m-ansicht').innerHTML = (c.ansicht || []).map((a, i) => `<button type="button" data-a="${i}" aria-pressed="false">${esc(a.wort)}</button>`).join('');
     // Schließen + Hauptknopf: vorhandenes Element umhängen oder neu bauen
     const knopfIn = (art, k, klasse) => {
@@ -254,8 +264,12 @@
     return { stand, zu, abbau };
   }
 
-  // symbole.json liegt neben huelle.js; baue() und menue() warten auf die Liste
+  // symbole.json liegt neben huelle.js; baue() und menue() warten auf die Liste. bereit lehnt nie ab:
+  // !r.ok, Netzfehler oder kaputtes JSON -> symboleFehlen (Text statt Symbol), sonst hinge jede Seite an einer Ablehnung.
   const hier = (document.currentScript && document.currentScript.src) || '';
-  const bereit = fetch(new URL('symbole.json', hier || location.href)).then(r => r.json()).then(j => { SYMBOLE = j; });
+  const bereit = fetch(new URL('symbole.json', hier || location.href))
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(j => { if (!j || !j.verben) throw new Error('symbole.json ohne verben'); SYMBOLE = j; })
+    .catch(e => { symboleFehlen = true; console.error('[vi4-huelle] Symbole nicht geladen, Menü zeigt nur Text:', e); });
   window.VI4Huelle = { baue: c => bereit.then(() => baue(c)), menue: c => bereit.then(() => menue(c)), version: '0.5.0' };
 })();
