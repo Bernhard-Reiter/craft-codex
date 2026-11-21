@@ -25,11 +25,17 @@ const m = MESSE_UNTERSCHRANK;
 const P = m.plattenstaerke;
 const fmt = (a: number, b: number, c: number) => `${a} × ${b} × ${c}`;
 
+/**
+ * Werkstoff-Text der Korpus- und Front-Platten. Eine Quelle: die VOAI-Übergabe
+ * nimmt genau diesen Text als Schlüssel ihrer WERKSTOFF-Tabelle.
+ */
+export const KORPUS_MATERIAL = `Demo-Träger ${P} roh (synthetisch)`;
+
 export function buildMesseStueckliste(): StuecklistenZeile[] {
   const lichteBreite = m.korpus.breite - 2 * P;
   // Reihenfolge, Namen, Werkstoff und Marke (Annahme oder nicht) wie die Werkstatt-Mappe
   // (cody-cad führt, Meister 1185 G3): Pos. = Zeile, 1–11 Platten, 12–15 Beschläge.
-  const korpus = `Demo-Träger ${P} roh (synthetisch)`;
+  const korpus = KORPUS_MATERIAL;
   const eiche = "Eiche natur geölt";
   const sk = (name: string) => {
     const t = m.schubkastenTeile.find((x) => x.startsWith(`${name} `));

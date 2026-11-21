@@ -17,7 +17,8 @@
  * http im LAN (kein sicherer Kontext), und core läuft auch im Browser.
  */
 
-import { buildMesseEtiketten, buildMesseStueckliste, type StuecklistenZeile } from "./messe-stueckliste.js";
+import { buildMesseEtiketten, buildMesseStueckliste, KORPUS_MATERIAL, type StuecklistenZeile } from "./messe-stueckliste.js";
+import { MESSE_UNTERSCHRANK } from "./messe-unterschrank.js";
 
 export const VOAI_SCHEMA = "stueckliste/2";
 
@@ -53,10 +54,14 @@ type Werkstoff = {
 /**
  * Werkstoff je Stücklisten-Material. demo-aufbau-19 r1 -> Träger demo-traeger-19,
  * typ spanplatte -> Klasse platte (cody-cad daten/demo/werkstoffe, kern/bauteil/klasse.py).
- * Material ohne Eintrag (Eiche) bleibt werkstoff null.
+ * Material ohne Eintrag (Eiche) bleibt werkstoff null, aber nur im Schubkasten:
+ * eine Korpus- oder Front-Platte ohne Eintrag ist ein Fehler (nie still weglassen).
+ * Schlüssel ist KORPUS_MATERIAL selbst (eine Quelle für den Text). Der Katalog
+ * kennt nur 19 mm, darum prüft buildVoaiStueckliste die Plattenstärke vorher.
  */
+const DEMO_PLATTE = 19;
 const WERKSTOFF: Record<string, Werkstoff> = {
-  "Demo-Träger 19 roh (synthetisch)": {
+  [KORPUS_MATERIAL]: {
     aufbau: { katalog: "demo", id: "demo-aufbau-19", revision: 1 },
     klasse: "platte",
   },
@@ -113,6 +118,9 @@ function position(z: StuecklistenZeile, i: number): Position {
   const [laenge, breite, dicke] = z.mass.split(" × ");
   const text = `${z.teil}${z.annahme ? " (Annahme)" : ""}, ${z.material}`;
   const werkstoff = WERKSTOFF[z.material];
+  if (!werkstoff && z.gruppe !== "Schubkasten") {
+    throw new Error(`Kein Werkstoff für Platte ${z.teil} (${z.material}) im Demo-Katalog`);
+  }
   return {
     ...basis,
     ...(werkstoff ? { herkunft: { art: "regel" as const, regel_ref: REGEL_ZUSCHNITT }, werkstoff } : {}),
@@ -137,7 +145,11 @@ function meter(mm: number): string {
 function kanten(zeilen: StuecklistenZeile[], ab: number): Position[] {
   const summe = new Map<string, { material: string; dicke: string; mm: number }>();
   for (const e of buildMesseEtiketten(zeilen)) {
-    if (!WERKSTOFF[e.werkstoff]) continue;
+    if (!WERKSTOFF[e.werkstoff]) {
+      // Nur Schubkasten (Eiche) hat bewusst keinen Aufbau, jede andere Platte ist ein Fehler.
+      if (zeilen[e.pos - 1]?.gruppe === "Schubkasten") continue;
+      throw new Error(`Kein Werkstoff für Platte ${e.teil} (${e.werkstoff}) im Demo-Katalog`);
+    }
     const [l, b, dicke] = e.mass.split(" × ");
     const mm = (e.kanten.l1 ? 1 : 0) * Number(l) + (e.kanten.l2 ? 1 : 0) * Number(l)
       + (e.kanten.b1 ? 1 : 0) * Number(b) + (e.kanten.b2 ? 1 : 0) * Number(b);
@@ -228,6 +240,10 @@ export function sha256Hex(text: string): string {
 /** Ganze Übergabe-Datei. `jetzt` nur für Tests fest, `revision` siehe VOAI_REVISION. */
 export function buildVoaiStueckliste(jetzt = new Date(), revision = VOAI_REVISION): VoaiStueckliste {
   if (!Number.isInteger(revision) || revision < 1) throw new Error(`revision muss ganzzahlig ≥ 1 sein: ${revision}`);
+  // Tor: der Demo-Katalog kennt nur demo-aufbau-19. Bei anderer Stärke laut statt
+  // still (sonst zeigte KORPUS_MATERIAL »Demo-Träger P …« falsch auf den 19er-Aufbau).
+  const P: number = MESSE_UNTERSCHRANK.plattenstaerke;
+  if (P !== DEMO_PLATTE) throw new Error(`Kein Werkstoff für Plattenstärke ${P} im Demo-Katalog`);
   const zeilen = buildMesseStueckliste();
   const positionen = [...zeilen.map(position), ...kanten(zeilen, zeilen.length)]
     .sort((a, b) => (a.position_ref < b.position_ref ? -1 : 1));

@@ -25,7 +25,9 @@ describe("VI4-Hülle abbau() (Bau-Wort 5)", () => {
   it("menue() und baue() melden ihre Listener an document/window und den Beobachter wieder ab", async () => {
     document.body.innerHTML = '<div id="m"></div><div id="w"></div><div id="b"></div><div id="beo"></div>';
     const symbole = JSON.parse(readFileSync(join(VI4, "symbole.json"), "utf8"));
-    vi.stubGlobal("fetch", async () => ({ json: async () => symbole }));
+    // ok: true, sonst liefe der Test seit A1 still über den Fallback ohne Symbole (huelle-symbole.test.tsx).
+    vi.stubGlobal("fetch", async () => ({ ok: true, status: 200, json: async () => symbole }));
+    const fehler = vi.spyOn(console, "error");
     const an: Eintrag[] = [];
     const ab: Eintrag[] = [];
     for (const ziel of [document, window] as EventTarget[]) {
@@ -47,6 +49,9 @@ describe("VI4-Hülle abbau() (Bau-Wort 5)", () => {
     const m = await H.menue({ ziel: "#m", beobachte: ["#beo"] });
     const h = await H.baue({ wurzel: "#w", buehne: "#b", links: [], rechts: [], beobachte: ["#beo"] });
 
+    // Gegenprobe Fallback: Symbole geladen -> keine Meldung, kein console.error
+    expect(document.body.textContent).not.toContain("Symbole nicht geladen");
+    expect(fehler).not.toHaveBeenCalled();
     // document keydown (baue), document pointerdown + window keydown in der Fangphase + window resize (menue)
     expect(an.map(([z, t, , f]) => `${z === window ? "window" : "document"} ${t}${f ? " fang" : ""}`).sort()).toEqual(
       ["document keydown", "document pointerdown", "window keydown fang", "window resize"],
