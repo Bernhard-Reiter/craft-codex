@@ -1,6 +1,7 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, MesseStueckliste } from "./MesseStueckliste";
+import { ansichtAusSuche, blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText, materialAnzeige, MesseStueckliste, schrittAusSpeicher, stuecklisteCsvText, xrRueckweg } from "./MesseStueckliste";
+import { buildMesseStueckliste, messeStuecklisteCsv } from "@craft-codex/core";
 
 vi.mock("next-intl", () => ({ useLocale: () => "de" }));
 
@@ -50,6 +51,19 @@ describe("Rückweg Bohrplan -> Stückliste", () => {
   });
 });
 
+describe("Montage-Schritt überlebt den Seitenwechsel (H3)", () => {
+  it("schrittAusSpeicher nimmt nur ganze Zahlen 0..zahl-1, sonst Schritt 1", () => {
+    expect([null, "", "abc", "-1", "6", "99", "2.5", "3", "0", "5"].map((r) => schrittAusSpeicher(r, 6))).toEqual([0, 0, 0, 0, 0, 0, 0, 3, 0, 5]);
+  });
+});
+
+describe("Rückweg AR -> Desktop (Ziel 3, Kette am Stück)", () => {
+  it("xrRueckweg hält nur die Messe-Vorlage, andere Beschläge gehen auf /beschlag", () => {
+    expect(xrRueckweg("messe")).toBe("/beschlag?vorlage=messe");
+    expect(["clip", "hawa", ""].map(xrRueckweg)).toEqual(["/beschlag", "/beschlag", "/beschlag"]);
+  });
+});
+
 describe("Texte nennen das Ziel", () => {
   it("Menü-Text zum Rückweg und Überschrift der VOAI-Vorschau (G1, N3)", () => {
     expect([bohrplanRueckwegText("?vorlage=messe&blatt=3", 5), bohrplanRueckwegText("?vorlage=messe", 5), bohrplanRueckwegText("?blatt=9", 5)]).toEqual([
@@ -59,7 +73,35 @@ describe("Texte nennen das Ziel", () => {
     ]);
     const { container } = render(<MesseStueckliste />);
     const kopf = container.querySelector(".ms-voai summary")?.textContent ?? "";
-    expect(kopf).toContain("Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei)");
+    expect(kopf).toContain("Vorschau der Exportdatei");
     expect(container.textContent).not.toContain("das bekommt VOAI");
+  });
+
+  it("Material nur in der Anzeige als »Platte 19 mm roh«, auch in der Kanten-Position der Vorschau (A1 b1)", () => {
+    expect(materialAnzeige("Demo-Träger 19 roh (synthetisch)")).toBe("Platte 19 mm roh");
+    expect(materialAnzeige("Kante 19 mm · Demo-Träger 19 roh (synthetisch) · Annahme")).toBe("Kante 19 mm · Platte 19 mm roh · Annahme");
+    expect(materialAnzeige("Eiche")).toBe("Eiche");
+    expect(materialAnzeige(undefined)).toBeUndefined();
+    const { container } = render(<MesseStueckliste />);
+    expect(container.textContent ?? "").not.toMatch(/Demo-Träger|synthetisch/);
+    expect(container.textContent ?? "").toContain("Platte 19 mm roh");
+  });
+
+  it("CSV-Download zeigt das Material wie die Tafel, ohne »synthetisch«; core-Schlüssel bleibt (A2, Blatt b2 Stelle 5)", () => {
+    const csv = stuecklisteCsvText();
+    expect(csv).not.toMatch(/synthetisch|Demo-Träger/);
+    expect(csv).toContain("Platte 19 mm roh");
+    expect(csv.split("\n").length).toBe(messeStuecklisteCsv(buildMesseStueckliste()).split("\n").length);
+    expect(messeStuecklisteCsv(buildMesseStueckliste())).toContain("Demo-Träger 19 roh (synthetisch)");
+  });
+
+  it("sichtbarer Text nennt weder Preis noch Angebot oder Kalkulation (Holper Szene 2/5, kein »kein Preis« = gratis)", () => {
+    const { container } = render(<MesseStueckliste />);
+    const fuss = [...container.querySelectorAll("p.ms-fuss")].map((p) => p.textContent ?? "");
+    expect(fuss).toEqual([
+      "Orange markiert = Annahme, noch nicht belegt.",
+      "Die Datei enthält Teile und Maße.",
+    ]);
+    expect(container.textContent ?? "").not.toMatch(/preis|angebot|kalkulation/i);
   });
 });

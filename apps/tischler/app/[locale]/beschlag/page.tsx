@@ -18,14 +18,14 @@ import { WorkflowController, openQuestions, mayRenderDrillPoints } from "@craft-
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { BeschlagScene } from "../../../components/BeschlagScene";
-import { MesseSchrankNebenTafel } from "../../../components/MesseSchrank";
-import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei } from "../../../components/MesseStueckliste";
+import { buehneFuer, MesseSchrank } from "../../../components/MesseSchrank";
+import { MesseStueckliste, ansichtAusSuche, ladeStuecklisteCsv, ladeVoaiDatei, MESSE_SCHRITT_KEY, schrittAusSpeicher } from "../../../components/MesseStueckliste";
 import { BESCHLAEGE, STANDARD_BESCHLAG } from "../../../lib/beschlag/auswahl";
 
-type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
+type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void; abbau: () => void };
 type Vi4 = {
   baue: (c: unknown) => Promise<Huelle>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 type Thema = "light" | "dark" | "auto";
 type Ansicht = "montage" | "stueckliste";
@@ -61,6 +61,7 @@ export default function BeschlagPage() {
   const zeigtBohrungen = mayRenderDrillPoints(layout);
   const bohrungenHier = layout.points.filter((p) => p.stepId === schritt?.id);
   const istMesse = beschlag.id === "messe";
+  const buehne = buehneFuer(istMesse);
   const annahmenZahl = (beschlag.annahmen?.length ?? 0) + offen.length;
 
   // Die Hülle wird einmal gebaut; ihre Knöpfe lesen den Stand über Refs.
@@ -70,6 +71,9 @@ export default function BeschlagPage() {
   const huelle = useRef<Huelle | null>(null);
   const leiste = useRef<{ stand: () => void } | null>(null);
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   const waehle = (id: string) => {
     const b = BESCHLAEGE.find((x) => x.id === id);
@@ -84,10 +88,31 @@ export default function BeschlagPage() {
     const v = new URLSearchParams(window.location.search).get("vorlage");
     if (v) waehle(v);
     setAnsicht(ansichtAusSuche(window.location.search));
+    // H3: Messe-Schritt überlebt Bohrplan/Etiketten/Menü (jeder Seitenwechsel lädt die Seite neu)
+    const messe = v === "messe" ? BESCHLAEGE.find((x) => x.id === "messe") : undefined;
+    if (messe) {
+      let roh: string | null = null;
+      try {
+        roh = window.sessionStorage.getItem(MESSE_SCHRITT_KEY);
+      } catch {
+        roh = null;
+      }
+      setIndex(schrittAusSpeicher(roh, new WorkflowController(messe.workflow).getSteps().length));
+    }
   }, []);
+  useEffect(() => {
+    if (beschlag.id !== "messe") return;
+    try {
+      window.sessionStorage.setItem(MESSE_SCHRITT_KEY, String(index));
+    } catch {
+      // ohne Speicher startet die Messe-Montage wieder bei Schritt 1
+    }
+  }, [index, beschlag.id]);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; Papier wird immer hell gedruckt.
   useEffect(() => {
+    const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     const hell = () => {
@@ -101,6 +126,8 @@ export default function BeschlagPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      verlassen.current = true;
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -116,6 +143,11 @@ export default function BeschlagPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     const geh = (pfad: string) => {
       window.location.href = `/${locale}${pfad}`;
     };
@@ -172,6 +204,7 @@ export default function BeschlagPage() {
       },
     }).then((m) => {
       leiste.current = m;
+      merke(m);
     });
     void H.baue({
       wurzel: "#bs-werk",
@@ -252,6 +285,7 @@ export default function BeschlagPage() {
       start: { links: true, linksId: "schritt" },
     }).then((h) => {
       huelle.current = h;
+      merke(h);
     });
   }, [skript, locale]);
 
@@ -269,9 +303,9 @@ export default function BeschlagPage() {
           id="bs-meldung"
           className="entwurf"
           hidden={zeigtBohrungen && annahmenZahl === 0}
-          title={zeigtBohrungen ? "ENTWURF · enthält Annahmen" : "ENTWURF · Bohrbild noch nicht freigegeben"}
+          title={zeigtBohrungen ? "Vorschau · enthält Annahmen" : "Vorschau · Maße vor dem Bohren nachmessen"}
         >
-          ENTWURF
+          VORSCHAU
         </span>
       </div>
 
@@ -279,19 +313,15 @@ export default function BeschlagPage() {
         {/* Klasse der Bühne bleibt fest: huelle.js setzt vi4-buehne von außen, ein wechselndes className würde sie löschen. */}
         <div id="bs-buehne">
           {ansicht === "montage" || !istMesse ? (
-            /* Abstand so, dass ein 2-m-Türblatt ganz ins Bild passt: sichtbare Höhe ≈ 2,4 m bei z = 2,9. */
-            <Canvas camera={{ position: [0, 0, 2.9], fov: 45 }}>
+            /* Kamera nur beim Aufbau gelesen: key baut die Bühne neu, wenn zwischen Messe und Hawa/Blum gewechselt wird. */
+            <Canvas key={istMesse ? "messe" : "standard"} camera={{ position: buehne.kamera, fov: buehne.fov }}>
               <ambientLight intensity={0.75} />
               <directionalLight position={[1, 2, 3]} intensity={1.1} />
-              <BeschlagScene layout={layout} faceHeight={werkstueck.hoeheMm} activeStepId={schritt?.id} />
-              {istMesse && (
-                <MesseSchrankNebenTafel
-                  werkstueckBreiteMm={werkstueck.breiteMm}
-                  werkstueckHoeheMm={werkstueck.hoeheMm}
-                  activeStepId={schritt?.id}
-                />
+              {buehne.tafel && (
+                <BeschlagScene layout={layout} faceHeight={werkstueck.hoeheMm} activeStepId={schritt?.id} />
               )}
-              <OrbitControls makeDefault enablePan target={[0, 0, 0]} />
+              {istMesse && <MesseSchrank activeStepId={schritt?.id} />}
+              <OrbitControls makeDefault enablePan target={buehne.ziel} />
             </Canvas>
           ) : (
             <div className="papier-buehne">
@@ -363,7 +393,7 @@ export default function BeschlagPage() {
               <h2>Annahmen · {klar(beschlag.label)}</h2>
               {!zeigtBohrungen && (
                 <p className="warnung" role="status">
-                  <strong>Bohrbild noch nicht freigegeben.</strong> Die Maße stammen unverändert aus der
+                  <strong>Vorschau · Maße vor dem Bohren nachmessen.</strong> Die Maße stammen unverändert aus der
                   Herstellervorlage und gehen rechnerisch auf. Die genaue Lage einzelner Bohrungen ist noch nicht
                   bestätigt — deshalb zeigt die Ansicht die Maße zum Nachmessen, aber keine Bohrpunkte.
                 </p>

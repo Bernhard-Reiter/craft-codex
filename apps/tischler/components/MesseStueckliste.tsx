@@ -22,6 +22,14 @@ export function bohrplanBlattLink(teil: string, locale: string): string | undefi
   return n ? `/${locale}/beschlag/bohrplan?vorlage=messe&blatt=${n}` : undefined;
 }
 
+/**
+ * Material nur für die Anzeige: »Demo-Träger 19 roh (synthetisch)« -> »Platte 19 mm roh«.
+ * Die core-Daten (VOAI-Schlüssel, Gleichlauf mit der cody-cad-Datei) bleiben unverändert.
+ */
+export function materialAnzeige(material: string | undefined): string | undefined {
+  return material?.replace(/Demo-Träger (\d+) roh \(synthetisch\)/g, "Platte $1 mm roh");
+}
+
 /** Blatt-Index (0-basiert) aus »?blatt=n«; ungültig oder fehlend = undefined. */
 export function blattAusSuche(suche: string, anzahl: number): number | undefined {
   const n = Number(new URLSearchParams(suche).get("blatt"));
@@ -32,6 +40,15 @@ export function blattAusSuche(suche: string, anzahl: number): number | undefined
 export function ansichtAusSuche(suche: string): "montage" | "stueckliste" {
   const q = new URLSearchParams(suche);
   return q.get("vorlage") === "messe" && q.get("ansicht") === "stueckliste" ? "stueckliste" : "montage";
+}
+
+/** sessionStorage-Schlüssel des Messe-Montage-Schritts; Montage schreibt, Montage + AR-Seite lesen (A2). */
+export const MESSE_SCHRITT_KEY = "beschlag-messe-schritt";
+
+/** Gemerkter Montage-Schritt (sessionStorage, H3): ganze Zahl 0..zahl-1, sonst 0. */
+export function schrittAusSpeicher(roh: string | null, zahl: number): number {
+  const n = Number(roh);
+  return roh !== null && roh !== "" && Number.isInteger(n) && n >= 0 && n < zahl ? n : 0;
 }
 
 /** Rückweg vom Bohrplan: per »?blatt=n« geöffnet (aus der Stückliste) -> Stückliste, sonst 3D. */
@@ -45,9 +62,21 @@ export function bohrplanRueckwegText(suche: string, anzahl: number): string {
   return blattAusSuche(suche, anzahl) === undefined ? "Zurück zur Montage" : "Zurück zur Stückliste";
 }
 
+/** Rückweg aus der AR-Montage zur Desktop-Ansicht: bei der Messe-Vorlage bleibt sie geladen (Link ohne Locale, i18n-Link setzt sie). */
+export function xrRueckweg(beschlagId: string): string {
+  return beschlagId === "messe" ? "/beschlag?vorlage=messe" : "/beschlag";
+}
+
+/** CSV-Text der Stückliste, Material wie in der Tafel (materialAnzeige), core-Daten unverändert. */
+export function stuecklisteCsvText(): string {
+  return messeStuecklisteCsv(
+    buildMesseStueckliste().map((z) => ({ ...z, material: materialAnzeige(z.material) ?? z.material })),
+  );
+}
+
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
-  lade("\uFEFF" + messeStuecklisteCsv(buildMesseStueckliste()), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
+  lade("\uFEFF" + stuecklisteCsvText(), "text/csv;charset=utf-8", "stueckliste-messe-unterschrank-600.csv");
 }
 
 /** Datei im VOAI-Vertrag stueckliste/2, ohne Preise. Kein Aufruf an VOAI, nur ein Download. */
@@ -99,7 +128,7 @@ export function MesseStueckliste() {
                 <td className="ms-masszelle">{z.mass || "–"}</td>
                 <td>
                   {z.artikel && <span className="ms-mass">Blum {z.artikel} · </span>}
-                  {z.material || "–"}
+                  {materialAnzeige(z.material) || "–"}
                 </td>
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
@@ -115,12 +144,12 @@ export function MesseStueckliste() {
         </table>
       </div>
       <p className="ms-fuss">
-        Orange markiert = Annahme, noch nicht belegt. Maße nur aus der Messe-Vorlage, ohne Preise.
+        Orange markiert = Annahme, noch nicht belegt.
       </p>
 
       <details className="ms-voai" open>
         <summary>
-          Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei) ·{" "}
+          Vorschau der Exportdatei ·{" "}
           {voai.inhalt.positionen.length} Positionen
         </summary>
         <div className="ms-rolle">
@@ -139,7 +168,7 @@ export function MesseStueckliste() {
                 <tr key={p.position_ref}>
                   <td className="ms-zahl">{i + 1}</td>
                   <td>
-                    {p.bezeichnung}
+                    {materialAnzeige(p.bezeichnung ?? undefined)}
                     {p.masse_mm && (
                       <span className="ms-mass">
                         {" "}
@@ -152,14 +181,14 @@ export function MesseStueckliste() {
                   <td>
                     {p.artikel_id
                       ? p.artikel_id.replace(/^blum:/, "Blum ")
-                      : (zeilen[i]?.material ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
+                      : (materialAnzeige(zeilen[i]?.material) ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="ms-fuss">Kein Preis in der Datei, VOAI setzt die Preise selbst.</p>
+        <p className="ms-fuss">Die Datei enthält Teile und Maße.</p>
         <details className="ms-fuss">
           <summary>Technik</summary>
           Format stueckliste/2 · Revision {voai.inhalt.revision} · Prüfsumme{" "}

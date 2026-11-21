@@ -7,6 +7,7 @@
  */
 
 import { buildMesseEtiketten, kantenText, type Kantenbild } from "@craft-codex/core";
+import { materialAnzeige } from "../../../../components/MesseStueckliste";
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
@@ -37,8 +38,8 @@ function KantenSkizze({ k }: { k: Kantenbild }) {
 
 type Thema = "light" | "dark" | "auto";
 type Vi4 = {
-  baue: (c: unknown) => Promise<unknown>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  baue: (c: unknown) => Promise<{ abbau: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 
 // Reihenfolge zählt (gleiche precedence): Schrift direkt NACH den Tokens, Phosphor für die Symbole.
@@ -56,9 +57,14 @@ export default function EtikettenPage() {
   const [skript, setSkript] = useState(false);
   const themaRef = useRef<Thema>("light");
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell; zum Drucken immer hell.
   useEffect(() => {
+    const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     const hell = () => {
@@ -72,6 +78,8 @@ export default function EtikettenPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      verlassen.current = true;
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -82,6 +90,11 @@ export default function EtikettenPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     const zurueck = () => {
       window.location.href = `/${locale}/beschlag?vorlage=messe`;
     };
@@ -101,9 +114,13 @@ export default function EtikettenPage() {
       },
       schliessen: { wort: "Schließen", verb: "schliessen", tun: zurueck },
       haupt: { wort: "Drucken", tun: () => window.print() },
+    }).then((m) => {
+      merke(m);
     });
     // Ohne Karten: huelle.js Z.31/33 überspringt fehlende Karten-Wähler, die Schienen bleiben leer.
-    void H.baue({ wurzel: "#et-werk", buehne: "#et-buehne", links: [], rechts: [] });
+    void H.baue({ wurzel: "#et-werk", buehne: "#et-buehne", links: [], rechts: [] }).then((h) => {
+      merke(h);
+    });
   }, [skript, locale]);
 
   return (
@@ -130,7 +147,7 @@ export default function EtikettenPage() {
                   {e.stueck !== "1/1" && <span className="nr">{e.stueck}</span>}
                 </div>
                 <div className="mass">{e.mass} mm</div>
-                <div className="werkstoff">{e.werkstoff}</div>
+                <div className="werkstoff">{materialAnzeige(e.werkstoff)}</div>
                 <div className="unten">
                   <KantenSkizze k={e.kanten} />
                   <div>

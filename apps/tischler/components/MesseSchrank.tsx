@@ -15,7 +15,7 @@
  *
  * Montage-Leuchten: der aktive Schritt färbt das Teil, an dem gearbeitet
  * wird (Tür bei B1/B2, linke Korpusseite bei B3/M1, Schubkasten bei M2).
- * Bei B4 steht die Tür offen und der Schubkasten ist ausgezogen.
+ * Bei B4 und M2 steht die Tür offen und der Schubkasten ist ausgezogen.
  */
 
 import { MESSE_UNTERSCHRANK as M } from "@craft-codex/core";
@@ -35,15 +35,20 @@ const FARBE = {
 type Teil = "tuer" | "seite" | "schubkasten";
 
 /** Welches Teil bei welchem Montage-Schritt leuchtet. */
-function teilFuer(stepId: string | undefined): Teil | null {
+export function teilFuer(stepId: string | undefined): Teil | null {
   if (!stepId) return null;
-  if (stepId.startsWith("B1.") || stepId.startsWith("B2.")) return "tuer";
+  if (stepId.startsWith("B1.") || stepId.startsWith("B2.") || stepId.startsWith("B4.")) return "tuer";
   if (stepId.startsWith("B3.") || stepId.startsWith("M1.")) return "seite";
   if (stepId.startsWith("M2.")) return "schubkasten";
   return null;
 }
 
-/** Tür offen (rad) und Auszug (mm), nur beim Einclipsen B4. */
+/** Tür offen + Schubkasten heraus: beim Einclipsen (B4) und beim Schubkasten (M2), sonst wäre er verdeckt (H6). */
+export function offenFuer(stepId: string | undefined): boolean {
+  return !!stepId && (stepId.startsWith("B4.") || stepId.startsWith("M2."));
+}
+
+/** Tür offen (rad) und Auszug (mm), siehe offenFuer (B4 + M2). */
 const TUER_OFFEN = -Math.PI * 0.55;
 const AUSZUG_MM = 400; // MOVENTO NL 500, nicht ganz ausgezogen
 
@@ -73,7 +78,7 @@ function Platte({
 
 export function MesseSchrank({ activeStepId }: { activeStepId?: string }) {
   const teil = teilFuer(activeStepId);
-  const offen = activeStepId?.startsWith("B4.") ?? false;
+  const offen = offenFuer(activeStepId);
   const { breite: B, hoehe: H, tiefe: T } = M.korpus;
   const s = M.plattenstaerke;
   const fuge = (B - M.tuer.breite) / 2; // 2 mm, aus den Frontmaßen abgeleitet
@@ -177,4 +182,56 @@ export function MesseSchrankNebenTafel({
       <MesseSchrank activeStepId={activeStepId} />
     </group>
   );
+}
+
+/** Bühne der 3D-Vorschau: Werkstück-Tafel ja/nein, Kamera und Drehpunkt in m. */
+export type Buehne = {
+  tafel: boolean;
+  kamera: [number, number, number];
+  ziel: [number, number, number];
+  fov: number;
+};
+
+/** Hawa/Blum wie bisher: Tafel zentriert, ein 2-m-Türblatt passt ganz ins Bild (sichtbare Höhe ≈ 2,4 m bei z = 2,9). */
+export const STANDARD_BUEHNE: Buehne = { tafel: true, kamera: [0, 0, 2.9], ziel: [0, 0, 0], fov: 45 };
+
+/**
+ * H7 Messe: keine graue Werkstück-Tafel, der Schrank steht allein (Ursprung = Mitte
+ * unten an der Front). Kamera von links oben, damit die linke Korpusseite (B3/M1)
+ * leuchtend zu sehen ist; Drehpunkt tiefer als halbe Höhe und z = 1,7, damit der
+ * ausgezogene Kasten (M2) und die offene Tür (B4/M2) ganz ins Bild passen.
+ */
+export const MESSE_BUEHNE: Buehne = {
+  tafel: false,
+  kamera: [-0.8, 0.65, 1.7],
+  ziel: [0, 0.35, -0.05],
+  fov: 45,
+};
+
+export function buehneFuer(istMesse: boolean): Buehne {
+  return istMesse ? MESSE_BUEHNE : STANDARD_BUEHNE;
+}
+
+/** Platz des freien Messe-Schranks auf der AR-Seite (in der Quest: am Boden rechts vorn, leicht zur Mitte gedreht). */
+export const MESSE_AR_PLATZ: { position: [number, number, number]; drehungY: number } = {
+  position: [0.9, 0, -1.2],
+  drehungY: -0.4,
+};
+
+/**
+ * Video 9 (C PW11): die AR-Desktop-Vorschau sah den gedrehten Schrank aus 4,2 m,
+ * die leuchtende linke Seite zeigte von der Kamera weg. Hier wird der Montage-Blick
+ * in den Rahmen des Schranks gesetzt (gleiche Drehung um y wie die Group in three.js),
+ * so sieht die Vorschau den Schrank wie die Montage. Der Platz in der Quest bleibt.
+ */
+export function blickAmPlatz(b: Buehne, platz = MESSE_AR_PLATZ): Buehne {
+  const c = Math.cos(platz.drehungY);
+  const s = Math.sin(platz.drehungY);
+  const [px, py, pz] = platz.position;
+  const welt = ([x, y, z]: [number, number, number]): [number, number, number] => [
+    x * c + z * s + px,
+    y + py,
+    -x * s + z * c + pz,
+  ];
+  return { ...b, kamera: welt(b.kamera), ziel: welt(b.ziel) };
 }

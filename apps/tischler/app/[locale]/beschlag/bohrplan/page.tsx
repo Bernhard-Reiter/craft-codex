@@ -7,109 +7,12 @@
  * Jede Bohrung mit `offen` erscheint orange mit Quelle »Annahme«.
  */
 
-import {
-  buildBlumClipTopTuerLayout,
-  buildMesseBodenLayout,
-  buildMesseHinterstueckLayout,
-  buildMesseUnterschrankSeiteLayout,
-  MESSE_LOCHREIHE,
-  MESSE_UNTERSCHRANK,
-  messeLochreihePunkte,
-  type HardwareLayout,
-} from "@craft-codex/core";
+import { MESSE_LOCHREIHE, type HardwareLayout } from "@craft-codex/core";
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText } from "../../../../components/MesseStueckliste";
-
-const M = MESSE_UNTERSCHRANK;
-
-type Blatt = {
-  teil: string;
-  /** Teilname wie in der Werkstatt-Mappe (cody-cad), steht im Blattkopf statt einer Pos.-Nummer. */
-  name: string;
-  breite: number;
-  hoehe: number;
-  layout: HardwareLayout;
-  /** Beschlag-Zeile im Blattkopf ohne alten Teilnamen (Druck nennt das Teil nur wie die Mappe). */
-  beschlag?: string;
-  /** Annahme zum ganzen Blatt (orange), z. B. die Anzahl der Scharniere. */
-  annahme?: string;
-  /** Innenansicht gespiegelt: Vorderkante rechts im Bild (rechte Korpusseite). */
-  gespiegelt?: boolean;
-  /** Lochreihe (cody-cad) mitzeichnen: Punkte ohne Nummer, eine Zeile in der Tabelle. */
-  lochreihe?: boolean;
-  /** Bezugskante für y, wenn sie nicht Ober-/Unterkante heißt (Boden: Vorderkante unten im Blatt). */
-  yAb?: string;
-};
-
-const LOCHREIHE = messeLochreihePunkte();
-
-const SEITE_LINKS = buildMesseUnterschrankSeiteLayout();
-
-/**
- * Rechte Korpusseite = dieselben MOVENTO-Bohrungen wie links, ab Vorderkante
- * gemessen. Keine Montageplatten: die Tür schlägt links an. Keine neuen Maße.
- */
-const SEITE_RECHTS: HardwareLayout = {
-  ...SEITE_LINKS,
-  id: "messe-unterschrank-600--korpusseite-rechts",
-  label: "Korpusseite rechts: MOVENTO 766H5000S (spiegelbildlich)",
-  article: "Blum 766H5000S",
-  points: SEITE_LINKS.points.filter((p) => p.id.startsWith("movento.")),
-  chains: SEITE_LINKS.chains
-    .filter((c) => c.axis === "x")
-    .map((c) => ({ ...c, segments: [], total: 0 })),
-};
-
-const BLAETTER: Blatt[] = [
-  {
-    teil: "Tür",
-    name: "Tür 1 Links",
-    breite: M.tuer.breite,
-    hoehe: M.tuer.hoehe,
-    layout: buildBlumClipTopTuerLayout(M.tuer.breite, M.tuer.hoehe),
-    beschlag: "Blum CLIP top BLUMOTION 110°",
-    annahme: M.annahmen[0],
-  },
-  {
-    teil: "Seite",
-    name: "Seite Links",
-    breite: M.korpus.tiefe,
-    hoehe: M.korpus.hoehe,
-    layout: SEITE_LINKS,
-    beschlag: "Montageplatten 173L6100 + MOVENTO 766H5000S",
-    lochreihe: true,
-  },
-  {
-    teil: "Seite",
-    name: "Seite Rechts",
-    breite: M.korpus.tiefe,
-    hoehe: M.korpus.hoehe,
-    layout: SEITE_RECHTS,
-    beschlag: "MOVENTO 766H5000S (spiegelbildlich)",
-    annahme:
-      "Rechte Seite spiegelbildlich zur linken gezeichnet (Innenansicht, Vorderkante rechts im Bild). " +
-      "Keine Montageplatten, weil die Tür links anschlägt.",
-    gespiegelt: true,
-    lochreihe: true,
-  },
-  {
-    teil: "Hinterstück",
-    name: "Schubkasten-Hinterstück",
-    breite: 520,
-    hoehe: 121,
-    layout: buildMesseHinterstueckLayout(),
-  },
-  {
-    teil: "Boden",
-    name: "Schubkasten-Boden",
-    breite: 530,
-    hoehe: 490,
-    layout: buildMesseBodenLayout(),
-    yAb: "Vorderkante",
-  },
-];
+import { BLAETTER, LOCHREIHE, type Blatt } from "../../../../lib/beschlag/bohrplan-blaetter";
 
 /** Blattkopf: Teilname wie in der Mappe, dann die Beschlag-Zeile (Name nicht doppelt, wenn sie schon damit beginnt). */
 function blattKopf(b: Blatt): string {
@@ -225,10 +128,10 @@ function Skizze({ b }: { b: Blatt }) {
   );
 }
 
-type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void };
+type Huelle = { stand: () => void; setze: (s: "links" | "rechts", auf: boolean, id?: string) => void; abbau: () => void };
 type Vi4 = {
   baue: (c: unknown) => Promise<Huelle>;
-  menue: (c: unknown) => Promise<{ stand: () => void }>;
+  menue: (c: unknown) => Promise<{ stand: () => void; abbau: () => void }>;
 };
 type Thema = "light" | "dark" | "auto";
 
@@ -252,9 +155,14 @@ export default function BohrplanPage() {
   const huelle = useRef<Huelle | null>(null);
   const leiste = useRef<{ stand: () => void } | null>(null);
   const gebaut = useRef(false);
+  // abbau() der Hülle beim Verlassen (Next-Link ohne Neuladen), sonst bleiben ihre Tasten-Handler an document/window
+  const abbauen = useRef<Array<() => void>>([]);
+  const verlassen = useRef(false);
 
   // Rahmen der Hülle: ganze Fläche, Thema hell (Foto + Messe)
   useEffect(() => {
+    const abbauListe = abbauen.current;
+    verlassen.current = false;
     document.body.classList.add("vi4-rahmen");
     document.documentElement.dataset.theme = themaRef.current;
     // Papier ist weiß: zum Drucken immer hell, danach wieder die gewählte Darstellung.
@@ -269,6 +177,8 @@ export default function BohrplanPage() {
     return () => {
       window.removeEventListener("beforeprint", hell);
       window.removeEventListener("afterprint", zurueck);
+      verlassen.current = true;
+      abbauListe.splice(0).forEach((f) => f());
       document.body.classList.remove("vi4-rahmen", "vi4-huelle", "vi4-links-auf", "vi4-rechts-auf");
       delete document.documentElement.dataset.theme;
       document.querySelectorAll(".vi4-m-liste").forEach((el) => el.remove());
@@ -292,6 +202,11 @@ export default function BohrplanPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Seite schon verlassen, bevor menue()/baue() fertig sind? Dann gleich abbauen statt merken.
+    const merke = (t: { abbau: () => void }) => {
+      if (verlassen.current) t.abbau();
+      else abbauen.current.push(t.abbau);
+    };
     // Aus der Stückliste (»?blatt=n«) zurück in die Stückliste, sonst in die 3D-Montage.
     const zurueck = () => {
       window.location.href = bohrplanRueckweg(window.location.search, BLAETTER.length, locale);
@@ -323,6 +238,7 @@ export default function BohrplanPage() {
       haupt: { wort: "Drucken", tun: () => window.print() },
     }).then((m) => {
       leiste.current = m;
+      merke(m);
     });
     void H.baue({
       wurzel: "#bp-werk",
@@ -379,6 +295,7 @@ export default function BohrplanPage() {
       start: { links: true, linksId: "bohrungen" },
     }).then((h) => {
       huelle.current = h;
+      merke(h);
     });
   }, [skript, locale]);
 
@@ -396,8 +313,8 @@ export default function BohrplanPage() {
           (sonst NotFoundError beim Verlassen der Seite). */}
       <div hidden>
         {/* Mit Platz 0 (Hülle 0.5.0) bleibt der Meldung bei 1366 px kaum Raum: kurz, Satz im Tooltip + auf Papier. */}
-        <span id="bp-meldung" className="entwurf" title="ENTWURF · Bohrmaße vor dem Bohren prüfen">
-          ENTWURF
+        <span id="bp-meldung" className="entwurf" title="Vorschau · Maße vor dem Bohren nachmessen">
+          VORSCHAU
         </span>
       </div>
 
@@ -692,7 +609,7 @@ function DruckBlatt({ b }: { b: Blatt }) {
         {blattKopf(b)}
       </h2>
       <p className="klein">
-        {kopfZeile(b)} · ENTWURF, Bohrmaße vor dem Bohren prüfen
+        {kopfZeile(b)} · Maße vor dem Bohren nachmessen
       </p>
       <Skizze b={b} />
       <h3>Bohrtabelle · {kurzName(b)}</h3>

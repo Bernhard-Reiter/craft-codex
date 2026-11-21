@@ -38,4 +38,15 @@ describe("Bohrplan Messe-Unterschrank", () => {
     ]);
     koepfe.forEach((k) => expect(k).not.toMatch(/Korpusseite|Unterschrank-Tür/));
   });
+
+  it("Druckzeile unter dem Blattkopf nennt »Status« genau 1x (kein »Entwurf · Vorschau« doppelt, Blatt b2 (4))", () => {
+    const { container } = render(<BohrplanPage />);
+    const zeilen = [...container.querySelectorAll(".druck-blatt > h2 + p.klein")].map((p) => p.textContent ?? "");
+    expect(zeilen).toHaveLength(MAPPE_NAMEN.length);
+    zeilen.forEach((z) => {
+      expect(z.match(/Status/g) ?? []).toHaveLength(1);
+      expect(z).not.toMatch(/Vorschau|ENTWURF/);
+      expect(z).toContain("Maße vor dem Bohren nachmessen");
+    });
+  });
 });
