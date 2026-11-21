@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cody-cad.vi4.me/contracts/stueckliste/2/stueckliste.schema.json",
+  "title": "Stückliste — Vertrag stueckliste/2",
+  "description": "Technische Stückliste aus Cody CAD, preisfrei und pseudonym — stueckliste/1 plus den Pflichtschlüssel werkstoff je Position (null oder {aufbau: {katalog, id, revision}, klasse}). Eine freiposition aus korpus-zuschnitt/<n> trägt das Objekt, ein artikel trägt null, eine manuelle oder Katalog-Freiposition darf beides. Datei zuerst: die Liste ist ohne VOAI vollständig; Übertragung nur durch Nutzeraktion. inhalt_sha256 = SHA-256 über die RFC-8785-Kanonform von {schema, inhalt} mit schema stueckliste/2, werkstoff in der Domäne (contracts/stueckliste/2/hash.md). Verboten im Dokument (Schemafehler durch additionalProperties:false): tenant_id, Preise, Kundendaten, Geometrie, Kommandohistorie. Alle Mengen und Maße sind Dezimalstrings, keine JSON-Floats; JSON-Zahlen sind nur inhalt.revision und werkstoff.aufbau.revision, beide Ganzzahl (1.0 lehnt die Fachregel ab).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "inhalt", "export", "inhalt_sha256"],
+  "properties": {
+    "schema": { "const": "stueckliste/2" },
+    "inhalt": { "$ref": "#/$defs/inhalt" },
+    "export": { "$ref": "#/$defs/export" },
+    "inhalt_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "description": "UUID klein geschrieben (RFC 4122 Textform). Pseudonym, nie ein Name."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "description": "SHA-256 als 64 Hex-Zeichen, klein."
+    },
+    "dezimal_positiv": {
+      "type": "string",
+      "pattern": "^([1-9][0-9]{0,11}(\\.[0-9]{0,5}[1-9])?|0\\.[0-9]{0,5}[1-9])(?![\\s\\S])",
+      "description": "Kanonischer Dezimalstring > 0: Punkt als Trenner, keine führende Null vor Ziffern, keine nachgestellte Null, höchstens 6 Nachkommastellen, höchstens 12 Vorkommastellen. Beispiele: \"2\", \"1.25\", \"0.000001\". Nicht: \"0\", \"2.0\", \"02\", \".5\", \"1e3\"."
+    },
+    "artikel_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,40}:[A-Za-z0-9][A-Za-z0-9._/-]{0,60}(?![\\s\\S])",
+      "description": "hersteller:artikelnummer wie kern.beschlag (article_id); Trennung nur am ersten Doppelpunkt. Synthetische Kataloge heißen demo:*."
+    },
+    "einheit": {
+      "type": "string",
+      "enum": ["stk", "m", "m2", "m3", "kg", "satz", "pack"]
+    },
+    "masse_mm": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Nennmaße der Position in Millimetern als Dezimalstrings. Kein Geometriemodell — nur die drei Zahlen, die auf einer Schnittliste stehen.",
+      "properties": {
+        "laenge": { "$ref": "#/$defs/dezimal_positiv" },
+        "breite": { "$ref": "#/$defs/dezimal_positiv" },
+        "dicke": { "$ref": "#/$defs/dezimal_positiv" }
+      },
+      "minProperties": 1
+    },
+    "herkunft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["art"],
+      "properties": {
+        "art": { "type": "string", "enum": ["katalog", "manuell", "regel"] },
+        "regel_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*/[0-9]+(?![\\s\\S])",
+          "description": "Name/Version der Regel, z. B. beschlagbedarf/2. Pflicht bei art = regel."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "art": { "const": "regel" } } },
+          "then": { "required": ["regel_ref"] },
+          "else": { "not": { "required": ["regel_ref"] } }
+        }
+      ]
+    },
+    "teil_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}(?![\\s\\S])",
+      "description": "Pseudonyme Kennung eines Werkstücks/Teils in Cody CAD (keine Namen, keine Geometrie). Sortiert nach Codepunkten, ohne Doppelte (Fachregel)."
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position_ref",
+        "typ",
+        "artikel_id",
+        "bezeichnung",
+        "menge",
+        "einheit",
+        "katalog_snapshot_sha256",
+        "herkunft",
+        "programm",
+        "werkstoff"
+      ],
+      "properties": {
+        "position_ref": { "$ref": "#/$defs/uuid" },
+        "typ": { "type": "string", "enum": ["artikel", "freiposition"] },
+        "artikel_id": { "oneOf": [{ "$ref": "#/$defs/artikel_id" }, { "type": "null" }] },
+        "bezeichnung": {
+          "oneOf": [{ "type": "string", "minLength": 1, "maxLength": 200 }, { "type": "null" }],
+          "description": "Klartext der Position. Pflicht bei freiposition; bei artikel optional (der Katalog kennt den Namen)."
+        },
+        "menge": { "$ref": "#/$defs/dezimal_positiv" },
+        "einheit": { "$ref": "#/$defs/einheit" },
+        "masse_mm": { "$ref": "#/$defs/masse_mm" },
+        "teil_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/teil_ref" },
+          "uniqueItems": true,
+          "maxItems": 5000
+        },
+        "katalog_snapshot_sha256": {
+          "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }],
+          "description": "Prüfsumme des Katalogstands, aus dem der Artikel stammt. Pflicht bei herkunft.art = katalog, sonst null."
+        },
+        "herkunft": { "$ref": "#/$defs/herkunft" },
+        "programm": {
+          "oneOf": [{ "type": "string", "minLength": 1, "maxLength": 100 }, { "type": "null" }],
+          "description": "Programm-/Serienname des Herstellers, null = unbekannt (kein Platzhalter)."
+        },
+        "werkstoff": {
+          "oneOf": [{ "$ref": "#/$defs/werkstoff" }, { "type": "null" }],
+          "description": "Werkstoff der Position: Katalog-Aufbau und Werkstoffklasse, explizit (kein Leser parst die bezeichnung). Pflicht bei freiposition aus korpus-zuschnitt/<n>, null bei artikel, sonst frei."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "typ": { "const": "artikel" } } },
+          "then": { "properties": { "artikel_id": { "$ref": "#/$defs/artikel_id" } } }
+        },
+        {
+          "if": { "properties": { "typ": { "const": "freiposition" } } },
+          "then": {
+            "properties": {
+              "artikel_id": { "type": "null" },
+              "bezeichnung": { "type": "string" },
+              "katalog_snapshot_sha256": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "herkunft": { "properties": { "art": { "const": "katalog" } } } } },
+          "then": { "properties": { "katalog_snapshot_sha256": { "$ref": "#/$defs/sha256" } } },
+          "else": { "properties": { "katalog_snapshot_sha256": { "type": "null" } } }
+        },
+        {
+          "if": {
+            "required": ["typ", "herkunft"],
+            "properties": {
+              "typ": { "const": "freiposition" },
+              "herkunft": {
+                "required": ["regel_ref"],
+                "properties": { "regel_ref": { "pattern": "^korpus-zuschnitt/[0-9]+(?![\\s\\S])" } }
+              }
+            }
+          },
+          "then": { "properties": { "werkstoff": { "$ref": "#/$defs/werkstoff" } } }
+        },
+        {
+          "if": { "required": ["typ"], "properties": { "typ": { "const": "artikel" } } },
+          "then": { "properties": { "werkstoff": { "type": "null" } } }
+        }
+      ]
+    },
+    "aufbau": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["katalog", "id", "revision"],
+      "description": "Katalog-Verweis des Werkstoffs, dreiteilig wie bauteil/1 $defs.verweis und buildplan/3 $defs.aufbau_ref (der wirksame Aufbau des Plan-Teils). Keine Stammdaten, nur die Adresse.",
+      "properties": {
+        "katalog": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,40}(?![\\s\\S])" },
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}(?![\\s\\S])" },
+        "revision": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+      }
+    },
+    "klasse": {
+      "type": "string",
+      "enum": ["platte", "massivholz", "metall", "glas"]
+    },
+    "werkstoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aufbau", "klasse"],
+      "description": "Werkstoff einer Position. klasse ist explizit, gleich der Klasse des Aufbaus im Plan (ADR-0041 §2); bezeichnung bleibt Anzeige.",
+      "properties": {
+        "aufbau": { "$ref": "#/$defs/aufbau" },
+        "klasse": { "$ref": "#/$defs/klasse" }
+      }
+    },
+    "inhalt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projekt_ref", "liste_ref", "revision", "positionen"],
+      "properties": {
+        "projekt_ref": { "$ref": "#/$defs/uuid" },
+        "liste_ref": { "$ref": "#/$defs/uuid" },
+        "revision": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "positionen": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/position" },
+          "minItems": 1,
+          "maxItems": 5000
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cody_cad_version", "erzeugt_am"],
+      "properties": {
+        "cody_cad_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?(?![\\s\\S])" },
+        "erzeugt_am": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z(?![\\s\\S])",
+          "description": "RFC 3339, UTC, Sekundengenau, Suffix Z."
+        }
+      }
+    }
+  }
+}

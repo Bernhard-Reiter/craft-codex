@@ -5,14 +5,19 @@
  * KEINE Preise: der Vertrag verbietet jedes preis-Feld, VOAI setzt Preise
  * aus der eigenen Preisliste. Kein Aufruf an VOAI, nur eine Datei.
  *
- * Plattenteile = freiposition (herkunft manuell, werkstoff null),
+ * Wie cody-cad kern/protokoll/korpus_stueckliste.py (führt, Meister 1201 wort-4-037):
+ * Platten mit Katalog-Aufbau = freiposition stk + masse_mm, Regel korpus-zuschnitt/1,
+ * werkstoff = Aufbau + Klasse (VOAI rechnet die Fläche selbst: Länge × Breite × Menge);
+ * Platten ohne Aufbau (Schubkasten Eiche) = freiposition manuell, werkstoff null;
+ * Kanten = EINE freiposition je Aufbau + Dicke in »m« (Laufmeter netto aus dem
+ * Kantenbild der Etiketten), Regel korpus-kante/1, »Annahme« in der Bezeichnung;
  * Blum-Beschläge = artikel mit artikel_id »blum:<nr>«.
  * inhalt_sha256 = hex(SHA-256(UTF-8(JCS({schema, inhalt})))).
  * SHA-256 ist hier selbst gerechnet: crypto.subtle fehlt im Browser über
  * http im LAN (kein sicherer Kontext), und core läuft auch im Browser.
  */
 
-import { buildMesseStueckliste, type StuecklistenZeile } from "./messe-stueckliste.js";
+import { buildMesseEtiketten, buildMesseStueckliste, type StuecklistenZeile } from "./messe-stueckliste.js";
 
 export const VOAI_SCHEMA = "stueckliste/2";
 
@@ -36,8 +41,29 @@ const BLUM: { treffer: RegExp; nr: string }[] = [
  * Revision der Liste. VOAI lehnt dieselbe liste_ref mit gleicher Revision und anderem
  * Inhalt mit 409 ab -> nach jeder Maßänderung am Messe-Schrank um 1 hochzählen.
  * 2: 15 Positionen mit den Namen der Werkstatt-Mappe (G3).
+ * 3: Platten mit Werkstoff (demo-aufbau-19), Kante in m (16 Positionen).
  */
-export const VOAI_REVISION = 2;
+export const VOAI_REVISION = 3;
+
+type Werkstoff = {
+  aufbau: { katalog: string; id: string; revision: number };
+  klasse: "platte";
+};
+
+/**
+ * Werkstoff je Stücklisten-Material. demo-aufbau-19 r1 -> Träger demo-traeger-19,
+ * typ spanplatte -> Klasse platte (cody-cad daten/demo/werkstoffe, kern/bauteil/klasse.py).
+ * Material ohne Eintrag (Eiche) bleibt werkstoff null.
+ */
+const WERKSTOFF: Record<string, Werkstoff> = {
+  "Demo-Träger 19 roh (synthetisch)": {
+    aufbau: { katalog: "demo", id: "demo-aufbau-19", revision: 1 },
+    klasse: "platte",
+  },
+};
+
+const REGEL_ZUSCHNITT = "korpus-zuschnitt/1";
+const REGEL_KANTE = "korpus-kante/1";
 
 type Position = {
   position_ref: string;
@@ -45,12 +71,12 @@ type Position = {
   artikel_id: string | null;
   bezeichnung: string | null;
   menge: string;
-  einheit: "stk" | "satz";
+  einheit: "stk" | "satz" | "m";
   masse_mm?: { laenge: string; breite: string; dicke: string };
   katalog_snapshot_sha256: null;
-  herkunft: { art: "manuell" };
+  herkunft: { art: "manuell" } | { art: "regel"; regel_ref: string };
   programm: null;
-  werkstoff: null;
+  werkstoff: Werkstoff | null;
 };
 
 export type VoaiStueckliste = {
@@ -86,14 +112,54 @@ function position(z: StuecklistenZeile, i: number): Position {
   }
   const [laenge, breite, dicke] = z.mass.split(" × ");
   const text = `${z.teil}${z.annahme ? " (Annahme)" : ""}, ${z.material}`;
+  const werkstoff = WERKSTOFF[z.material];
   return {
     ...basis,
+    ...(werkstoff ? { herkunft: { art: "regel" as const, regel_ref: REGEL_ZUSCHNITT }, werkstoff } : {}),
     typ: "freiposition",
     artikel_id: null,
     bezeichnung: text.normalize("NFC").slice(0, 200),
     einheit: "stk",
     ...(laenge && breite && dicke ? { masse_mm: { laenge, breite, dicke } } : {}),
   };
+}
+
+/** Millimeter (ganzzahlig) -> Meter als Dezimalstring ohne Endnullen (5708 -> »5.708«). */
+function meter(mm: number): string {
+  return (mm / 1000).toFixed(3).replace(/\.?0+$/, "");
+}
+
+/**
+ * Kanten-Positionen: Laufmeter netto je Material mit Aufbau und Dicke, aus dem
+ * Kantenbild der Etiketten (l1/l2 = Länge, b1/b2 = Breite). Das Kantenbild ist
+ * Annahme, darum steht »Annahme« in der Bezeichnung (wie cody-cad).
+ */
+function kanten(zeilen: StuecklistenZeile[], ab: number): Position[] {
+  const summe = new Map<string, { material: string; dicke: string; mm: number }>();
+  for (const e of buildMesseEtiketten(zeilen)) {
+    if (!WERKSTOFF[e.werkstoff]) continue;
+    const [l, b, dicke] = e.mass.split(" × ");
+    const mm = (e.kanten.l1 ? 1 : 0) * Number(l) + (e.kanten.l2 ? 1 : 0) * Number(l)
+      + (e.kanten.b1 ? 1 : 0) * Number(b) + (e.kanten.b2 ? 1 : 0) * Number(b);
+    if (!mm || !dicke) continue;
+    const key = `${e.werkstoff}|${dicke}`;
+    const alt = summe.get(key) ?? { material: e.werkstoff, dicke, mm: 0 };
+    summe.set(key, { ...alt, mm: alt.mm + mm });
+  }
+  return [...summe.values()].map((k, j) => ({
+    position_ref: posRef(ab + j),
+    typ: "freiposition",
+    artikel_id: null,
+    bezeichnung: `Kante ${k.dicke} mm · ${k.material} · Annahme: Kanten-Regel noch nicht freigegeben, bitte bestätigen`
+      .normalize("NFC")
+      .slice(0, 200),
+    menge: meter(k.mm),
+    einheit: "m",
+    katalog_snapshot_sha256: null,
+    herkunft: { art: "regel", regel_ref: REGEL_KANTE },
+    programm: null,
+    werkstoff: null,
+  }));
 }
 
 /** Kanonisches JSON nach RFC 8785 (reicht für Strings, Ganzzahlen, null, bool). */
@@ -162,8 +228,8 @@ export function sha256Hex(text: string): string {
 /** Ganze Übergabe-Datei. `jetzt` nur für Tests fest, `revision` siehe VOAI_REVISION. */
 export function buildVoaiStueckliste(jetzt = new Date(), revision = VOAI_REVISION): VoaiStueckliste {
   if (!Number.isInteger(revision) || revision < 1) throw new Error(`revision muss ganzzahlig ≥ 1 sein: ${revision}`);
-  const positionen = buildMesseStueckliste()
-    .map(position)
+  const zeilen = buildMesseStueckliste();
+  const positionen = [...zeilen.map(position), ...kanten(zeilen, zeilen.length)]
     .sort((a, b) => (a.position_ref < b.position_ref ? -1 : 1));
   const inhalt = { projekt_ref: PROJEKT_REF, liste_ref: LISTE_REF, revision, positionen };
   return {

@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { buildVoaiStueckliste } from "./voai-uebergabe.js";
-// Kopie der cody-cad-Messe-Datei (voai-Fixture messe-unterschrank.json, sha12 871e87925baf, 18.11.2026).
+// Kopie der cody-cad-Messe-Datei (voai-Fixture messe-unterschrank.json am voai-Commit 14ff58f3, sha12 37812c787863, 16 Pos.).
 import cad from "./__fixtures__/cody-cad-messe-unterschrank.json";
 
 type Pos = {
   typ: string;
   artikel_id: string | null;
   menge: string;
+  einheit: string;
   masse_mm?: { laenge: string; breite: string; dicke: string };
 };
 
@@ -42,5 +43,11 @@ describe("Gleichlauf Messe-Unterschrank: craft-codex = cody-cad", () => {
   it("gleiche 4 Blum-Artikel mit gleicher Menge", () => {
     expect(artikel(ihre)).toHaveLength(4);
     expect(artikel(unsere)).toEqual(artikel(ihre));
+  });
+
+  it("Kante: beide 5,708 m (Annahme, Kantenbild der Etiketten = cody-cad korpus_kanten)", () => {
+    const kante = (pos: Pos[]) => pos.filter((p) => p.typ === "freiposition" && !p.masse_mm && p.einheit === "m").map((p) => p.menge);
+    expect(kante(ihre)).toEqual(["5.708"]);
+    expect(kante(unsere)).toEqual(["5.708"]);
   });
 });

@@ -10,9 +10,40 @@ import {
   buildMesseStueckliste,
   buildVoaiStueckliste,
   gruppeAnzeige,
+  MESSE_BOHRPLAN_TEILE,
   messeStuecklisteCsv,
 } from "@craft-codex/core";
+import { useLocale } from "next-intl";
 import { useId } from "react";
+
+/** Link auf das Bohrplan-Blatt des Teils (erstes Blatt, 1-basiert); ohne Blatt undefined. */
+export function bohrplanBlattLink(teil: string, locale: string): string | undefined {
+  const n = (MESSE_BOHRPLAN_TEILE as readonly string[]).indexOf(teil) + 1;
+  return n ? `/${locale}/beschlag/bohrplan?vorlage=messe&blatt=${n}` : undefined;
+}
+
+/** Blatt-Index (0-basiert) aus »?blatt=n«; ungültig oder fehlend = undefined. */
+export function blattAusSuche(suche: string, anzahl: number): number | undefined {
+  const n = Number(new URLSearchParams(suche).get("blatt"));
+  return Number.isInteger(n) && n >= 1 && n <= anzahl ? n - 1 : undefined;
+}
+
+/** Start-Ansicht der Beschlag-Seite aus »?ansicht=stueckliste« (nur Messe-Vorlage); sonst 3D. */
+export function ansichtAusSuche(suche: string): "montage" | "stueckliste" {
+  const q = new URLSearchParams(suche);
+  return q.get("vorlage") === "messe" && q.get("ansicht") === "stueckliste" ? "stueckliste" : "montage";
+}
+
+/** Rückweg vom Bohrplan: per »?blatt=n« geöffnet (aus der Stückliste) -> Stückliste, sonst 3D. */
+export function bohrplanRueckweg(suche: string, anzahl: number, locale: string): string {
+  const basis = `/${locale}/beschlag?vorlage=messe`;
+  return blattAusSuche(suche, anzahl) === undefined ? basis : `${basis}&ansicht=stueckliste`;
+}
+
+/** Menü-Text zum Rückweg: nennt das Ziel von bohrplanRueckweg. */
+export function bohrplanRueckwegText(suche: string, anzahl: number): string {
+  return blattAusSuche(suche, anzahl) === undefined ? "Zurück zur Montage" : "Zurück zur Stückliste";
+}
 
 /** CSV-Datei der Stückliste laden (BOM, damit Excel die Umlaute richtig liest). */
 export function ladeStuecklisteCsv() {
@@ -35,6 +66,7 @@ function lade(text: string, typ: string, name: string) {
 }
 
 export function MesseStueckliste() {
+  const locale = useLocale();
   const zeilen = buildMesseStueckliste();
   // Steht zweimal auf der Seite (Bühne + Druck): eindeutige Id je Exemplar.
   const titelId = useId();
@@ -72,7 +104,9 @@ export function MesseStueckliste() {
                 <td>
                   {z.annahme && <span className="ms-marke">Annahme</span>} {z.hinweis}
                   {bohrplanBlattVerweis(z.teil) && (
-                    <span className="ms-blatt">{bohrplanBlattVerweis(z.teil)}</span>
+                    <a className="ms-blatt" href={bohrplanBlattLink(z.teil, locale)}>
+                      {bohrplanBlattVerweis(z.teil)}
+                    </a>
                   )}
                 </td>
               </tr>
@@ -86,7 +120,8 @@ export function MesseStueckliste() {
 
       <details className="ms-voai" open>
         <summary>
-          Vorschau: das bekommt VOAI ({voai.inhalt.positionen.length} Positionen)
+          Vorschau der Datei für VOAI (das Messe-Angebot rechnet aus der Cody-CAD-Datei) ·{" "}
+          {voai.inhalt.positionen.length} Positionen
         </summary>
         <div className="ms-rolle">
           <table className="ms-tab">
@@ -117,7 +152,7 @@ export function MesseStueckliste() {
                   <td>
                     {p.artikel_id
                       ? p.artikel_id.replace(/^blum:/, "Blum ")
-                      : (zeilen[i]?.material ?? "Platte (frei)")}
+                      : (zeilen[i]?.material ?? (p.einheit === "m" ? "Kante (Annahme)" : "Platte (frei)"))}
                   </td>
                 </tr>
               ))}

@@ -20,6 +20,7 @@ import {
 import { useLocale } from "next-intl";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
+import { blattAusSuche, bohrplanRueckweg, bohrplanRueckwegText } from "../../../../components/MesseStueckliste";
 
 const M = MESSE_UNTERSCHRANK;
 
@@ -274,6 +275,12 @@ export default function BohrplanPage() {
     };
   }, []);
 
+  // Direktlink aus der Stückliste: »?blatt=n« öffnet Blatt n (1-basiert).
+  useEffect(() => {
+    const i = blattAusSuche(window.location.search, BLAETTER.length);
+    if (i !== undefined) setNr(i);
+  }, []);
+
   useEffect(() => {
     nrRef.current = nr;
     rechtsRef.current = rechts;
@@ -285,8 +292,9 @@ export default function BohrplanPage() {
     const H = (window as unknown as { VI4Huelle?: Vi4 }).VI4Huelle;
     if (!skript || !H || gebaut.current) return;
     gebaut.current = true;
+    // Aus der Stückliste (»?blatt=n«) zurück in die Stückliste, sonst in die 3D-Montage.
     const zurueck = () => {
-      window.location.href = `/${locale}/beschlag?vorlage=messe`;
+      window.location.href = bohrplanRueckweg(window.location.search, BLAETTER.length, locale);
     };
     void H.menue({
       ziel: "#bp-menue",
@@ -295,7 +303,7 @@ export default function BohrplanPage() {
       umgebung: { aktiv: "layout", tun: () => undefined },
       name: { titel: "Bohrplan", zusatz: () => kurzName(blatt(nrRef.current)) },
       menues: {
-        datei: [{ t: "Drucken", kbd: "Strg P", tun: () => window.print() }, "-", { t: "Zurück zur Montage", tun: zurueck }],
+        datei: [{ t: "Drucken", kbd: "Strg P", tun: () => window.print() }, "-", { t: bohrplanRueckwegText(window.location.search, BLAETTER.length), tun: zurueck }],
         ansicht: BLAETTER.map((b, i) => ({
           t: kurzName(b),
           art: "radio",

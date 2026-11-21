@@ -139,6 +139,9 @@ export default function EtikettenPage() {
                     {e.bohren.map((b) => (
                       <div key={b}>Bohren: {b}</div>
                     ))}
+                    {e.anreissen.map((a) => (
+                      <div key={a}>Anreißen: {a}</div>
+                    ))}
                     {e.annahme && <div className="marke">Annahme</div>}
                   </div>
                 </div>
