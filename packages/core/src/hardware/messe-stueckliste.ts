@@ -208,7 +208,9 @@ const KEINE = K(false, false, false, false);
 /**
  * Kantenbild + Position je Plattenteil. ANNAHME: in der Messe-Vorlage ist
  * kein Kantenbild belegt; hier steht die übliche Werkstatt-Wahl
- * (Korpus Vorderkante, Fronten rundum, Rückwand und Schubkastenboden ohne).
+ * (Korpus Vorderkante, Fronten rundum, Rückwand ohne). Alle Schubkasten-Teile
+ * ohne Kante: Eiche ohne Aufbau, und Kanten gibt es nur je Platten-Teil mit
+ * Aufbau, wie cody-cad korpus_etiketten.py (führt).
  */
 type EtikettDaten = {
   kanten: Kantenbild;
@@ -241,14 +243,14 @@ const ETIKETT_DATEN: Record<string, EtikettDaten> = {
     bohren: [["Topf ×2"]],
     anreissen: [["Schrauben ×4"]],
   },
-  "Schubkasten-Seite links": { kanten: VORN, positionen: ["Schubkasten links"] },
-  "Schubkasten-Seite rechts": { kanten: VORN, positionen: ["Schubkasten rechts"] },
+  "Schubkasten-Seite links": { kanten: KEINE, positionen: ["Schubkasten links"] },
+  "Schubkasten-Seite rechts": { kanten: KEINE, positionen: ["Schubkasten rechts"] },
   "Schubkasten-Hinterstück": {
-    kanten: VORN,
+    kanten: KEINE,
     positionen: ["Schubkasten hinten"],
     bohren: [["Ø6 für MOVENTO ×2"]],
   },
-  "Schubkasten-Vorderstück": { kanten: VORN, positionen: ["Schubkasten vorn"] },
+  "Schubkasten-Vorderstück": { kanten: KEINE, positionen: ["Schubkasten vorn"] },
   "Schubkasten-Boden": {
     kanten: KEINE,
     positionen: ["Schubkasten unten"],

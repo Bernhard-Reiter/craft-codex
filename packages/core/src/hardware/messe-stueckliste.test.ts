@@ -117,11 +117,15 @@ describe("Etiketten Messe-Unterschrank", () => {
     expect(s.anreissen).toEqual(["MOVENTO-Schiene ×5", "Montageplatte ×4"]);
   });
 
-  it("Kantenbild: Fronten rundum, Rückwand ohne, alles als Annahme", () => {
+  it("Kantenbild: Fronten rundum, Rückwand ohne, Schubkasten ohne, alles als Annahme", () => {
     const t = (n: string) => e.find((x) => x.teil === n)!;
     expect(kantenText(t("Tür 1 Links").kanten)).toBe("rundum");
     expect(kantenText(t("Rückwand").kanten)).toBe("keine Kante");
     expect(kantenText(t("Boden Unten").kanten)).toBe("L1");
+    // Wie cody-cad korpus_etiketten.py: Kanten nur je Platten-Teil mit Aufbau, Eiche hat keinen.
+    for (const n of ["Seite links", "Seite rechts", "Hinterstück", "Vorderstück", "Boden"]) {
+      expect(kantenText(t(`Schubkasten-${n}`).kanten), n).toBe("keine Kante");
+    }
     expect(e.every((x) => x.annahme)).toBe(true);
   });
 
