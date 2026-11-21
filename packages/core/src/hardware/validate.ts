@@ -41,7 +41,9 @@ export function validateLayout(
     });
   }
 
-  if (layout.faceWidth <= 0) {
+  // Vergleiche so herum, dass NaN durchfällt: `NaN <= 0` wäre false und
+  // ließe einen kaputten Wert still passieren (K2).
+  if (!(layout.faceWidth > 0)) {
     issues.push({
       rule: "layout.faceWidth",
       message: `Bohrbild "${layout.id}": faceWidth muss > 0 sein (ist ${layout.faceWidth}).`,
@@ -72,22 +74,30 @@ export function validateLayout(
     }
     pointIds.add(p.id);
 
-    if (p.diameter <= 0) {
+    if (!(p.diameter > 0)) {
       issues.push({
         rule: "point.diameter",
         message: `Bohrung "${p.id}": Durchmesser muss > 0 sein (ist ${p.diameter}).`,
       });
     }
-    if (p.depth <= 0) {
+    if (!(p.depth > 0)) {
       issues.push({
         rule: "point.depth",
         message: `Bohrung "${p.id}": Tiefe muss > 0 sein (ist ${p.depth}).`,
       });
     }
-    if (p.x < 0 || p.x > layout.faceWidth) {
+    if (!(p.x >= 0 && p.x <= layout.faceWidth)) {
       issues.push({
         rule: "point.outsideFace",
         message: `Bohrung "${p.id}": x=${p.x} liegt außerhalb der Fläche (0…${layout.faceWidth}).`,
+      });
+    }
+    // y nur nach unten begrenzt: die Teilhöhe kennt das Bohrbild nicht
+    // (die Obergrenze hängt an resolveDrillY und ist ein eigener Fund, K7).
+    if (!(p.y >= 0)) {
+      issues.push({
+        rule: "point.outsideFace",
+        message: `Bohrung "${p.id}": y=${p.y} liegt außerhalb der Fläche (muss ≥ 0 sein).`,
       });
     }
     if (stepIds && !stepIds.includes(p.stepId)) {
@@ -109,7 +119,8 @@ export function validateLayout(
     }
 
     const sum = chain.segments.reduce((acc, s) => acc + s.value, 0);
-    if (Math.abs(sum - chain.total) > CHAIN_TOLERANCE_MM) {
+    // NaN-Segment oder -Gesamtmaß: Summe NaN, `NaN > Toleranz` wäre false (K3).
+    if (!(Math.abs(sum - chain.total) <= CHAIN_TOLERANCE_MM)) {
       issues.push({
         rule: "chain.sumMismatch",
         message:
